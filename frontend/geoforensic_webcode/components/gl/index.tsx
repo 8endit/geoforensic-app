@@ -70,7 +70,7 @@ export const GL = ({ hovering }: { hovering: boolean }) => {
           manualTime={manualTime}
           introspect={hovering}
         />
-        <Effects multisamping={0} disableGamma>
+        <Effects multisampling={0} disableGamma>
           <shaderPass
             args={[VignetteShader]}
             uniforms-darkness-value={vignetteDarkness}

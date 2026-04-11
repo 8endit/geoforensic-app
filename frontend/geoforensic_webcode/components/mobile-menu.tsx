@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
@@ -12,6 +13,7 @@ interface MobileMenuProps {
 
 export const MobileMenu = ({ className }: MobileMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   const menuItems = [
     { name: "About", href: "#about" },
@@ -70,13 +72,32 @@ export const MobileMenu = ({ className }: MobileMenuProps) => {
             ))}
 
             <div className="mt-6">
-              <Link
-                href="/#sign-in"
-                onClick={handleLinkClick}
-                className="inline-block text-xl font-mono uppercase text-primary transition-colors ease-out duration-150 hover:text-primary/80 py-2"
-              >
-                Sign In
-              </Link>
+              {user ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={handleLinkClick}
+                    className="inline-block text-xl font-mono uppercase text-primary transition-colors ease-out duration-150 hover:text-primary/80 py-2"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => { logout(); handleLinkClick(); }}
+                    className="block text-xl font-mono uppercase text-foreground/70 transition-colors ease-out duration-150 hover:text-foreground py-2 mt-4"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={handleLinkClick}
+                  className="inline-block text-xl font-mono uppercase text-primary transition-colors ease-out duration-150 hover:text-primary/80 py-2"
+                >
+                  Sign In
+                </Link>
+              )}
             </div>
           </nav>
         </Dialog.Content>
