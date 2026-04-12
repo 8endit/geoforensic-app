@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
+from sqlalchemy import text
 
 from app.config import get_settings
 from app.database import Base, engine
@@ -17,6 +18,7 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
         # MVP bootstrap: creates tables if they don't exist.
         await conn.run_sync(Base.metadata.create_all)
     yield

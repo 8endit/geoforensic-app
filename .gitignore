@@ -9,6 +9,9 @@ out/
 .env
 .env.local
 .env.production
+*.pem
+backend/.env
+backend/copernicus_key.pem
 
 # Python
 __pycache__/
@@ -23,3 +26,6 @@ next-env.d.ts
 .idea/
 .vscode/
 *.swp
+
+# pnpm store (Docker volume artifact)
+.pnpm-store/

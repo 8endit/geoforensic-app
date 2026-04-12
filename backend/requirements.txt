@@ -9,4 +9,7 @@ passlib[bcrypt]
 stripe
 slowapi
 email-validator
+httpx
+geoalchemy2
+weasyprint
 

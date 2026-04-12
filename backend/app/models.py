@@ -1,8 +1,9 @@
 import enum
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, Float, ForeignKey, Integer, String, Text
+from geoalchemy2 import Geometry
+from sqlalchemy import Boolean, Date, DateTime, Enum, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -74,4 +75,32 @@ class Payment(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     report: Mapped["Report"] = relationship(back_populates="payment")
+
+
+class EgmsPoint(Base):
+    __tablename__ = "egms_points"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    geom: Mapped[str] = mapped_column(Geometry("POINT", srid=4326, spatial_index=True), nullable=False)
+    mean_velocity_mm_yr: Mapped[float] = mapped_column(Float, nullable=False)
+    velocity_std: Mapped[float | None] = mapped_column(Float)
+    coherence: Mapped[float | None] = mapped_column(Float)
+    measurement_start: Mapped[date | None] = mapped_column(Date)
+    measurement_end: Mapped[date | None] = mapped_column(Date)
+    country: Mapped[str] = mapped_column(String(2), nullable=False, default="DE")
+
+    timeseries: Mapped[list["EgmsTimeSeries"]] = relationship(
+        back_populates="point",
+        cascade="all, delete-orphan",
+    )
+
+
+class EgmsTimeSeries(Base):
+    __tablename__ = "egms_timeseries"
+
+    point_id: Mapped[int] = mapped_column(ForeignKey("egms_points.id"), primary_key=True)
+    measurement_date: Mapped[date] = mapped_column(Date, primary_key=True)
+    displacement_mm: Mapped[float] = mapped_column(Float, nullable=False)
+
+    point: Mapped["EgmsPoint"] = relationship(back_populates="timeseries")
 
