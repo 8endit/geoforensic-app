@@ -36,8 +36,8 @@ _nominatim_lock = asyncio.Lock()
 _last_nominatim_call = 0.0
 
 
-async def geocode_address(address: str) -> tuple[float, float, str]:
-    """Resolve address via Nominatim and return (lat, lon, display_name)."""
+async def geocode_address(address: str) -> tuple[float, float, str, str]:
+    """Resolve address via Nominatim and return (lat, lon, display_name, country_code)."""
     global _last_nominatim_call
     query = address.strip()
     if not query:
@@ -61,6 +61,7 @@ async def geocode_address(address: str) -> tuple[float, float, str]:
                         "format": "jsonv2",
                         "limit": 1,
                         "countrycodes": "de,nl,at,ch",
+                        "addressdetails": 1,
                     },
                     headers={"User-Agent": NOMINATIM_USER_AGENT},
                     timeout=10.0,
@@ -89,7 +90,8 @@ async def geocode_address(address: str) -> tuple[float, float, str]:
         )
 
     hit = results[0]
-    return float(hit["lat"]), float(hit["lon"]), str(hit["display_name"])
+    country_code = hit.get("address", {}).get("country_code", "").lower()
+    return float(hit["lat"]), float(hit["lon"]), str(hit["display_name"]), country_code
 
 
 async def query_egms_points(
@@ -161,8 +163,8 @@ async def _run_report_pipeline(report_id: uuid.UUID) -> None:
             points = await query_egms_points(db, report.latitude, report.longitude, report.radius_m)
             if not points:
                 report.status = ReportStatus.completed
-                report.ampel = Ampel.gruen
-                report.geo_score = 95
+                report.ampel = None
+                report.geo_score = None
                 report.report_data = {
                     "analysis": {
                         "summary": "Keine EGMS-Messpunkte im Untersuchungsradius gefunden.",
@@ -175,7 +177,7 @@ async def _run_report_pipeline(report_id: uuid.UUID) -> None:
                         "attribution": "Generated using European Union's Copernicus Land Monitoring Service information",
                     },
                     "velocity_histogram": _build_histogram([]),
-                    "geo_score": 95,
+                    "geo_score": None,
                     "raw_points": [],
                 }
                 await db.commit()
@@ -241,13 +243,13 @@ async def _run_report_pipeline(report_id: uuid.UUID) -> None:
 
 
 @router.post("/preview", response_model=PreviewResponse)
-@limiter.limit("10/hour")
+@limiter.limit("100/hour")
 async def preview_report(
     request: Request,
     payload: PreviewRequest,
     db: AsyncSession = Depends(get_db),
 ) -> PreviewResponse:
-    lat, lon, display_name = await geocode_address(payload.address)
+    lat, lon, display_name, country_code = await geocode_address(payload.address)
     try:
         points = await query_egms_points(db, lat, lon, radius_m=500)
     except Exception as exc:  # noqa: BLE001
@@ -260,10 +262,10 @@ async def preview_report(
         max_velocity = max(abs(float(point["mean_velocity_mm_yr"])) for point in points)
         ampel, _ = _ampel_from_velocity(max_velocity)
     else:
-        ampel = Ampel.gruen
+        ampel = None
 
     return PreviewResponse(
-        ampel=ampel.value,
+        ampel=ampel.value if ampel else "gruen",
         point_count=len(points),
         address_resolved=display_name,
         latitude=lat,
@@ -278,7 +280,7 @@ async def create_report(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> ReportCreateResponse:
-    lat, lon, display_name = await geocode_address(payload.address)
+    lat, lon, display_name, country_code = await geocode_address(payload.address)
     report = Report(
         user_id=current_user.id,
         address_input=display_name,
@@ -288,6 +290,7 @@ async def create_report(
         aktenzeichen=payload.aktenzeichen,
         status=ReportStatus.processing,
         paid=False,
+        country=country_code.upper() or "DE",
     )
     db.add(report)
     await db.commit()

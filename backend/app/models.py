@@ -52,6 +52,7 @@ class Report(Base):
     longitude: Mapped[float] = mapped_column(Float, nullable=False)
     radius_m: Mapped[int] = mapped_column(Integer, nullable=False, default=500)
     aktenzeichen: Mapped[str | None] = mapped_column(String(255))
+    country: Mapped[str] = mapped_column(String(2), nullable=False, default="DE")
     status: Mapped[ReportStatus] = mapped_column(Enum(ReportStatus), nullable=False, default=ReportStatus.processing)
     ampel: Mapped[Ampel | None] = mapped_column(Enum(Ampel))
     geo_score: Mapped[int | None] = mapped_column(Integer)
