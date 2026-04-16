@@ -123,7 +123,7 @@ def _status_class(status: str) -> str:
 
 
 def _status_label(status: str) -> str:
-    return {"ok": "Unbedenklich", "warn": "Erhöht", "critical": "Kritisch"}.get(status, "–")
+    return {"ok": "Unbedenklich", "warn": "Erhöht", "critical": "Kritisch"}.get(status, "?")
 
 
 def _ampel_class(ampel: str) -> str:
@@ -171,9 +171,9 @@ _NUTZUNG = {
     "Gewerblich": "Bei gewerblicher Nutzung sind Bodenstabilität und mögliche Altlasten relevant für Genehmigungen und Versicherungen.",
 }
 _DRINGLICHKEIT = {
-    "Sofort – es eilt": "Bei erhöhten Werten empfehlen wir eine zeitnahe Begutachtung durch einen Sachverständigen. Wir vermitteln Ihnen gerne einen zertifizierten Experten in Ihrer Region.",
+    "Sofort, es eilt": "Bei erhöhten Werten empfehlen wir eine zeitnahe Vor-Ort-Begutachtung durch einen nach §18 BBodSchG zugelassenen Sachverständigen. Ansprechpartner für eine Liste ist das Umweltamt Ihres Landkreises oder Ihrer kreisfreien Stadt (die zuständige untere Bodenschutzbehörde nach §11 BBodSchG).",
     "Innerhalb der nächsten 2 Wochen": "Planen Sie bei auffälligen Werten eine weiterführende Untersuchung innerhalb der nächsten Wochen ein.",
-    "Ich informiere mich nur": "Beobachten Sie die Entwicklung. Wir empfehlen eine erneute Prüfung in 6–12 Monaten.",
+    "Ich informiere mich nur": "Beobachten Sie die Entwicklung. Wir empfehlen eine erneute Prüfung in 6 bis 12 Monaten.",
 }
 
 
@@ -213,7 +213,7 @@ def generate_html_report(
     silt_v = soilgrids.get("silt")
     texture_donut_svg = _svg_texture_donut(clay, sand_v, silt_v) if clay and sand_v and silt_v else ""
 
-    # Metals rows — only show if LUCAS data is within 50km
+    # Metals rows. Only show if LUCAS data is within 50km
     metals_html = ""
     any_metals_warn = False
     metals_too_far = lucas_dist > 50
@@ -281,7 +281,7 @@ def generate_html_report(
         <tr>
           <td><strong>Phosphor (P)</strong></td>
           <td class="val">{p_val:.1f} <span class="unit">mg/kg</span></td>
-          <td>30–80 <span class="unit">mg/kg</span></td>
+          <td>30 bis 80 <span class="unit">mg/kg</span></td>
           <td><span class="status {_status_class(p_status)}"><span class="dot {_status_class(p_status)}"></span> {'Optimal' if 30 <= p_val <= 80 else 'Erhöht' if p_val > 80 else 'Niedrig'}</span></td>
           <td><span class="source-tag">LUCAS</span></td>
         </tr>"""
@@ -290,7 +290,7 @@ def generate_html_report(
         <tr>
           <td><strong>Gesamtstickstoff (N)</strong></td>
           <td class="val">{n_val:.0f} <span class="unit">mg/kg</span></td>
-          <td>–</td>
+          <td>Referenzwert</td>
           <td><span class="status info">Referenzwert</span></td>
           <td><span class="source-tag">LUCAS</span></td>
         </tr>"""
@@ -315,7 +315,7 @@ def generate_html_report(
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Bodenbericht – {escape(address)}</title>
+<title>Bodenbericht: {escape(address)}</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
   :root {{
@@ -442,62 +442,45 @@ def generate_html_report(
   </div>
 </div>
 
-<!-- Bodenbewegung -->
+<!-- Bodenbewegung (Teaser) -->
 <div class="card">
   <h2><span class="dot {'ok' if ampel == 'gruen' else 'warn' if ampel == 'gelb' else 'alert'}" style="width:9px;height:9px;"></span> Bodenbewegung (InSAR-Satellitendaten)</h2>
-  <div class="kpi-grid">
-    <div class="kpi"><div class="num">{point_count}</div><div class="lbl">Messpunkte</div></div>
-    <div class="kpi"><div class="num">{f'{mean_velocity:.1f}' if has_egms else '–'}</div><div class="lbl">Mittl. Geschw. (mm/a)</div></div>
-    <div class="kpi"><div class="num">{f'{max_velocity:.1f}' if has_egms else '–'}</div><div class="lbl">Max. Geschw. (mm/a)</div></div>
-    <div class="kpi"><div class="num">{geo_score if geo_score else '–'}</div><div class="lbl">GeoScore</div></div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(2,1fr);">
+    <div class="kpi"><div class="num">{point_count}</div><div class="lbl">Messpunkte im Umkreis</div></div>
+    <div class="kpi"><div style="font-size:14px; font-weight:700; color:var(--accent); padding-top:4px;"><span class="ampel-badge {_ampel_class(ampel)}" style="font-size:11px; padding:4px 12px;">{_ampel_label(ampel)}</span></div><div class="lbl" style="margin-top:6px;">Gesamtbewertung</div></div>
   </div>
-  <p style="font-size:12px; color:var(--gray);">
-    <span class="ampel-badge {_ampel_class(ampel)}">{_ampel_label(ampel)}</span>
-    &nbsp; {'Keine auffälligen Bodenbewegungen im Untersuchungsradius. Stabile Lage.' if ampel == 'gruen' else 'Vereinzelt erhöhte Bodenbewegungen gemessen. Weitere Beobachtung empfohlen.' if ampel == 'gelb' else 'Kritische Bodenbewegungen gemessen. Fachliche Einschätzung dringend empfohlen.' if has_egms else 'Für diesen Standort liegen keine InSAR-Satellitendaten vor.'}
+  <p style="font-size:12px; color:var(--gray); margin-top:4px;">
+    {'Keine auffälligen Bodenbewegungen im Untersuchungsradius. Stabile Lage.' if ampel == 'gruen' else 'Vereinzelt erhöhte Bodenbewegungen gemessen. Weitere Beobachtung empfohlen.' if ampel == 'gelb' else 'Kritische Bodenbewegungen gemessen. Fachliche Einschätzung empfohlen.' if has_egms else 'Für diesen Standort liegen keine InSAR-Satellitendaten im Untersuchungsradius vor.'}
+  </p>
+  <p style="font-size:10px; color:var(--gray); margin-top:8px; font-style:italic;">
+    Konkrete Geschwindigkeitswerte, GeoScore und die vollständige Zeitreihe Ihrer Messpunkte finden Sie im Premium-Bericht.
   </p>
 </div>
-
-<!-- Schwermetalle -->
-{'<div class="card"><h2><span class="dot info" style="width:9px;height:9px;"></span> Schwermetall-Analyse</h2><div class="disclaimer" style="background:#e8f0fe; border-color:#93b4e0; color:#2c5282;"><strong>Hinweis:</strong> Für diesen Standort liegen keine regionalen Bodenproben vor (nächster LUCAS-Messpunkt: ' + f'{lucas_dist:.0f}' + ' km). Eine zuverlässige Schwermetall-Einschätzung ist aus der Ferne nicht möglich. Wir empfehlen eine lokale Bodenprobe.</div></div>' if metals_too_far and metals else '<div class="card"><h2><span class="dot ' + ("warn" if any_metals_warn else "ok") + '" style="width:9px;height:9px;"></span> Schwermetall-Analyse</h2>' + f'<p style="font-size:10px; color:var(--gray); margin-bottom:10px;">Basierend auf LUCAS Topsoil-Daten (nächster Messpunkt: {lucas_dist:.1f} km) · Vergleich: BBodSchV Vorsorgewerte</p><table><thead><tr><th>Stoff</th><th>Messwert</th><th>Vorsorgewert</th><th>Status</th><th>Quelle</th></tr></thead><tbody>{metals_html}</tbody></table>{metals_bars_svg}</div>' if metals and not metals_too_far else ''}
-
-<!-- Bodenqualität -->
-{'<div class="card"><h2><span class="dot ok" style="width:9px;height:9px;"></span> Bodenqualität</h2><table><thead><tr><th>Eigenschaft</th><th>Wert</th><th>Bewertung</th><th>Quelle</th></tr></thead><tbody>' + sg_rows + '</tbody></table>' + soil_bars_svg + '<div style="display:flex; align-items:center; gap:20px; margin-top:12px;">' + texture_donut_svg + texture_html + '</div></div>' if has_soilgrids else ''}
-
-<!-- Nährstoffe -->
-{'<div class="card"><h2>Nährstoffe</h2><table><thead><tr><th>Parameter</th><th>Wert</th><th>Referenz</th><th>Status</th><th>Quelle</th></tr></thead><tbody>' + nutrients_html + '</tbody></table><p style="font-size:9px; color:var(--gray); margin-top:8px;">Quelle: LUCAS Topsoil Survey (nächster Messpunkt: ' + f'{lucas_dist:.1f}' + ' km)</p></div>' if nutrients_html and not metals_too_far else ''}
 
 <!-- Individuelle Einschätzung -->
 {quiz_html}
 
-<!-- Datenquellen -->
+<!-- Upgrade-Hinweis: Im Premium-Bericht zusätzlich enthalten -->
+<!-- TODO: Sobald die Produkt-URL feststeht (Premium-Bericht / Cozy-Produktseite), den <span> unten zu <a href="..."> umbauen. -->
+<div class="card" style="background:linear-gradient(135deg,#f0f7ff,#e8f0fe); border-color:#bfd4f5;">
+  <h2 style="color:var(--accent); border-bottom-color:#bfd4f5;">Im vollst&auml;ndigen Bodenbericht zus&auml;tzlich enthalten</h2>
+  <ul style="list-style:none; padding:0; margin:8px 0 14px; font-size:12px; color:var(--dark);">
+    <li style="padding:5px 0; border-bottom:1px solid #dbe6f5;">&middot; Detaillierte InSAR-Zeitreihe der 25 n&auml;chstgelegenen Messpunkte + Geschwindigkeitswerte &amp; GeoScore</li>
+    <li style="padding:5px 0; border-bottom:1px solid #dbe6f5;">&middot; Schwermetall-Messwerte (Cd, Pb, Hg, As, Cr, Cu, Ni, Zn) im Vergleich zu BBodSchV-Vorsorgewerten</li>
+    <li style="padding:5px 0; border-bottom:1px solid #dbe6f5;">&middot; pH-Wert, organische Substanz und Bodenart (Ton/Sand/Schluff) aus SoilGrids 250m</li>
+    <li style="padding:5px 0;">&middot; Histogramm, Karte und Standortvergleich als PDF zum Download</li>
+  </ul>
+  <p style="text-align:center; font-size:11px; color:var(--gray); margin-top:10px; font-style:italic;">
+    Die ausf&uuml;hrliche Fassung erscheint in K&uuml;rze.
+  </p>
+</div>
+
+<!-- Datenquellen (kompakt) -->
 <div class="card">
-  <h2>Geprüfte Datenquellen</h2>
-  <div class="two-col">
-    <div>
-      <h3>Satellitendaten</h3>
-      <table>
-        <tr><td><span class="source-tag">EGMS</span></td><td>Ground Motion Service (Sentinel-1, 2019–2022)</td></tr>
-        <tr><td><span class="source-tag">Nominatim</span></td><td>OpenStreetMap Geocodierung</td></tr>
-      </table>
-      <h3>Bodendatenbanken</h3>
-      <table>
-        <tr><td><span class="source-tag">LUCAS</span></td><td>EU Bodenproben — Schwermetalle, Nährstoffe</td></tr>
-        <tr><td><span class="source-tag">SoilGrids</span></td><td>ISRIC 250m — pH, SOC, Textur, Dichte</td></tr>
-      </table>
-    </div>
-    <div>
-      <h3>Rechtliche Grundlagen</h3>
-      <table>
-        <tr><td><span class="source-tag">BBodSchV</span></td><td>Vorsorge- und Maßnahmenwerte</td></tr>
-        <tr><td><span class="source-tag">(EU) 2025/2360</span></td><td>Soil Monitoring Directive</td></tr>
-      </table>
-      <h3>In Vorbereitung</h3>
-      <table>
-        <tr><td><span class="source-tag" style="opacity:.5;">Hochwasser</span></td><td style="color:#aaa;">EU-Hochwasserrichtlinie</td></tr>
-        <tr><td><span class="source-tag" style="opacity:.5;">Altlasten</span></td><td style="color:#aaa;">BBodSchG Kataster</td></tr>
-      </table>
-    </div>
-  </div>
+  <h3 style="font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--gray); margin:0 0 6px; border:none; padding:0;">Datenquellen</h3>
+  <p style="font-size:11px; color:var(--dark); margin:0;">
+    Copernicus EGMS (Sentinel-1) &middot; LUCAS Topsoil Survey (EU) &middot; SoilGrids 250m (ISRIC) &middot; OpenStreetMap Nominatim &middot; Referenzwerte: BBodSchV
+  </p>
 </div>
 
 <div class="disclaimer">

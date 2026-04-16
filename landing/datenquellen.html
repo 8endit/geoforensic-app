@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bodenbericht: Datenquellen und Methodik</title>
+    <meta name="description" content="Transparente &Uuml;bersicht unserer Datenquellen: Copernicus EGMS, LUCAS, SoilGrids, BBodSchV und OpenStreetMap. Was wir damit machen und wo die Grenzen liegen.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d' },
+                        navy:  { 50: '#f0f4ff', 100: '#dbe4ff', 200: '#bac8ff', 300: '#91a7ff', 400: '#748ffc', 500: '#5c7cfa', 600: '#4c6ef5', 700: '#1a3a6b', 800: '#122b52', 900: '#0c1d3a' }
+                    },
+                    fontFamily: { sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        html { scroll-behavior: smooth; }
+        .hero-gradient { background: linear-gradient(135deg, #0c1d3a 0%, #122b52 40%, #1a3a6b 100%); }
+    </style>
+</head>
+<body class="font-sans text-gray-800 antialiased">
+
+    <!-- HEADER -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 md:h-18">
+                <a href="/index.html" class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-lg bg-brand-600 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                        </svg>
+                    </div>
+                    <span class="text-lg font-bold text-navy-800 tracking-tight">Boden<span class="text-brand-600">bericht</span></span>
+                </a>
+                <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+                    <a href="/index.html#so-funktionierts" class="hover:text-navy-700 transition">So funktioniert's</a>
+                    <a href="/index.html#leistungen" class="hover:text-navy-700 transition">Leistungen</a>
+                    <a href="/muster-bericht.html" class="hover:text-navy-700 transition">Muster-Bericht</a>
+                    <a href="/index.html#faq" class="hover:text-navy-700 transition">FAQ</a>
+                </nav>
+                <a href="/index.html#cta" class="hidden sm:inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition shadow-md shadow-brand-600/20">
+                    Bericht anfordern
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero-gradient pt-28 pb-16 md:pt-36 md:pb-20 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-5">
+            <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)"/></svg>
+        </div>
+        <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-brand-300 text-xs font-semibold tracking-wide uppercase px-4 py-1.5 rounded-full mb-6 border border-white/10">
+                <span class="w-2 h-2 bg-brand-400 rounded-full animate-pulse"></span>
+                Transparenz und Methodik
+            </div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tight">
+                Woher unsere Daten kommen.
+            </h1>
+            <p class="mt-6 text-lg text-gray-200 max-w-2xl mx-auto leading-relaxed">
+                Wir arbeiten ausschlie&szlig;lich mit &ouml;ffentlichen europ&auml;ischen Datenquellen. Hier sehen Sie, welche wir nutzen, was wir damit machen, und wo die Grenzen liegen.
+            </p>
+        </div>
+    </section>
+
+    <!-- SOURCES GRID -->
+    <section class="py-16 md:py-24 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-6 lg:gap-8">
+
+                <!-- Card 1: Copernicus EGMS -->
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-navy-800">Copernicus EGMS</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">European Ground Motion Service, ESA</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">
+                        InSAR-Satellitendaten von Sentinel-1 (Zeitraum 2019 bis 2023). EU-weite Bodenbewegungs-Messung mit millimetergenauer Aufl&ouml;sung.
+                    </p>
+                    <div class="space-y-2 text-xs text-gray-600 mb-4">
+                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Bodenbewegungs-Screening Ihres Standorts. Wir ermitteln, ob im Umkreis Setzungen oder Hebungen gemessen wurden.</div>
+                        <div><span class="font-semibold text-navy-800">Grenzen:</span> Messpunkte nur auf bebauten Fl&auml;chen und harten Oberfl&auml;chen. Waldb&ouml;den und reine Gr&uuml;nfl&auml;chen liefern keine Messwerte.</div>
+                    </div>
+                    <a href="https://egms.land.copernicus.eu/" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
+                        egms.land.copernicus.eu
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                    </a>
+                </div>
+
+                <!-- Card 2: LUCAS -->
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-navy-800">LUCAS Topsoil Survey</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Joint Research Centre, EU</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">
+                        EU-weite Bodenproben-Datenbank mit Laborwerten zu Schwermetallen, N&auml;hrstoffen und weiteren Parametern. Erhebung an festen Probenpunkten durch das JRC.
+                    </p>
+                    <div class="space-y-2 text-xs text-gray-600 mb-4">
+                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Regionale Schwermetall-Hintergrundwerte f&uuml;r Ihren Standort. Vergleich zu BBodSchV-Vorsorgewerten.</div>
+                        <div><span class="font-semibold text-navy-800">Grenzen:</span> Punktdaten, keine Messung direkt an Ihrer Adresse. Wir weisen im Bericht die Entfernung zum n&auml;chsten LUCAS-Messpunkt aus. Ab einem Abstand &uuml;ber 50&thinsp;km wird die Einordnung deutlich unsicherer.</div>
+                    </div>
+                    <a href="https://esdac.jrc.ec.europa.eu/projects/lucas" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
+                        esdac.jrc.ec.europa.eu/projects/lucas
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                    </a>
+                </div>
+
+                <!-- Card 3: SoilGrids -->
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9l3-3 2.148 2.148A12.061 12.061 0 0116.5 7.605" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-navy-800">SoilGrids 250m</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">ISRIC, World Soil Information</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Globales Modellraster mit 250&thinsp;m Aufl&ouml;sung f&uuml;r Bodeneigenschaften. Auf Basis von rund 240.000 georeferenzierten Bodenprofilen weltweit trainiert.
+                    </p>
+                    <div class="space-y-2 text-xs text-gray-600 mb-4">
+                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Modellierte Werte f&uuml;r pH, organische Substanz, Lagerungsdichte und Bodenart (Ton/Sand/Schluff) an Ihrem Standort.</div>
+                        <div><span class="font-semibold text-navy-800">Grenzen:</span> Modellprodukt, keine Messung vor Ort. F&uuml;r Entscheidungen mit hohem Geldeinsatz (Kauf, D&uuml;ngeplanung) empfehlen wir zus&auml;tzlich eine Bodenprobe.</div>
+                    </div>
+                    <a href="https://soilgrids.org/" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
+                        soilgrids.org
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                    </a>
+                </div>
+
+                <!-- Card 4: BBodSchV -->
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-navy-800">BBodSchV Vorsorgewerte</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Bundes-Bodenschutz- und Altlastenverordnung</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Gesetzliche Referenzwerte f&uuml;r Schwermetalle in B&ouml;den nach deutschem Bodenschutzrecht. Anlage 2 BBodSchV.
+                    </p>
+                    <div class="space-y-2 text-xs text-gray-600 mb-4">
+                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Vergleichsma&szlig;stab f&uuml;r die regionalen LUCAS-Werte. Der Bericht zeigt, ob die Region die Vorsorgewerte einh&auml;lt oder &uuml;berschreitet.</div>
+                        <div><span class="font-semibold text-navy-800">Grenzen:</span> Vergleich ist regional, nicht standortscharf. Eine rechtliche Bewertung nach &sect;9 BBodSchG bleibt einem zugelassenen Sachverst&auml;ndigen vorbehalten.</div>
+                    </div>
+                    <a href="https://www.gesetze-im-internet.de/bbodschv_2021/" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
+                        gesetze-im-internet.de/bbodschv_2021
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                    </a>
+                </div>
+
+                <!-- Card 5: Nominatim -->
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200 md:col-span-2">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-navy-800">OpenStreetMap Nominatim</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Geocodierung der Eingabeadresse</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Wandelt Ihre eingegebene Adresse in geographische Koordinaten (Latitude/Longitude) um. Grundlage der OpenStreetMap-Community, betrieben durch die OpenStreetMap Foundation.
+                    </p>
+                    <div class="space-y-2 text-xs text-gray-600 mb-4">
+                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Umwandlung Ihrer Adresse in Koordinaten. Ohne diese k&ouml;nnten die anderen Datenquellen nicht abgefragt werden.</div>
+                        <div><span class="font-semibold text-navy-800">Grenzen:</span> Die Qualit&auml;t der Koordinaten h&auml;ngt von der Vollst&auml;ndigkeit Ihrer Eingabe ab. Bei unklaren Angaben kann das Ergebnis ungenau sein.</div>
+                    </div>
+                    <a href="https://nominatim.org/" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
+                        nominatim.org
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- WAS WIR NICHT SIND -->
+    <section class="py-12 md:py-20 bg-gray-50">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl md:text-3xl font-extrabold text-navy-800">Was wir nicht sind.</h2>
+                <p class="text-gray-600 mt-3 max-w-xl mx-auto">
+                    Ein ehrliches Datenscreening hei&szlig;t auch, klare Grenzen zu ziehen. Der Bericht ist kein Ersatz f&uuml;r:
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 md:p-8 border border-gray-200">
+                <ul class="space-y-4 text-sm text-gray-700">
+                    <li class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        <div>
+                            <strong class="text-navy-800">Keine Laboranalyse Ihres Bodens.</strong>
+                            <div class="text-gray-600 mt-1">Wir nehmen keine Proben. Alle Werte stammen aus regionalen oder modellierten Datens&auml;tzen.</div>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        <div>
+                            <strong class="text-navy-800">Kein Sachverst&auml;ndigengutachten nach &sect;9 BBodSchG.</strong>
+                            <div class="text-gray-600 mt-1">Eine rechtlich verbindliche Einzelfallbewertung erfolgt durch zugelassene Sachverst&auml;ndige.</div>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        <div>
+                            <strong class="text-navy-800">Kein Ersatz f&uuml;r eine Ortsbesichtigung.</strong>
+                            <div class="text-gray-600 mt-1">Satellitendaten zeigen keine Innenwelt der Parzelle, keine Aufsch&uuml;ttungen und keine Bautr&auml;gerauskunft.</div>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        <div>
+                            <strong class="text-navy-800">Kein offizielles Altlasten-Kataster.</strong>
+                            <div class="text-gray-600 mt-1">F&uuml;r eine offizielle Katasterauskunft wenden Sie sich an das Umweltamt Ihres Landkreises oder Ihrer kreisfreien Stadt. Das ist die zust&auml;ndige &bdquo;untere Bodenschutzbeh&ouml;rde&ldquo; nach &sect;11 BBodSchG.</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-16 md:py-24 bg-navy-900 text-white">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Transparenz &uuml;berzeugt? Bericht anfordern.</h2>
+            <p class="mt-4 text-gray-300 max-w-xl mx-auto">
+                Geben Sie Ihre Adresse ein und wir wenden diese Datenquellen auf Ihren Standort an.
+            </p>
+            <a href="/index.html#cta" class="mt-8 inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-bold text-base px-7 py-3.5 rounded-xl transition shadow-lg shadow-brand-600/20">
+                Kostenlos anfordern
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-navy-900 text-gray-400 py-12 md:py-16 border-t border-navy-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8 mb-10">
+                <div class="md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                        </div>
+                        <span class="text-lg font-bold text-white tracking-tight">Boden<span class="text-brand-400">bericht</span></span>
+                    </div>
+                    <p class="text-sm leading-relaxed max-w-sm">
+                        Wissenschaftlich fundierte Bodenanalysen für Privatpersonen, Landwirte und Immobilienkäufer. Sicherheit für Ihren Boden. Einfach, schnell und zuverlässig.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Service</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/index.html#leistungen" class="hover:text-white transition">Digitaler Bericht</a></li>
+                        <li><a href="/datenquellen.html" class="hover:text-white transition">Datenquellen</a></li>
+                        <li><a href="#" class="hover:text-white transition">Preise</a></li>
+                        <li><a href="/muster-bericht.html" class="hover:text-white transition">Muster-Bericht</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Rechtliches</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white transition">Impressum</a></li>
+                        <li><a href="#" class="hover:text-white transition">Datenschutz</a></li>
+                        <li><a href="#" class="hover:text-white transition">AGB</a></li>
+                        <li><a href="#" class="hover:text-white transition">Widerrufsbelehrung</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-xs">&copy; 2026 Bodenbericht. Alle Rechte vorbehalten.</p>
+                <div class="flex items-center gap-4 text-xs">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+                        SSL-verschlüsselt
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                        DSGVO-konform
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
