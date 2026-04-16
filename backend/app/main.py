@@ -50,7 +50,11 @@ app.include_router(payments.router)
 app.include_router(health.router)
 
 # ── Static landing pages ────────────────────────────────────────────
-LANDING_DIR = Path(__file__).resolve().parent.parent.parent / "landing"
+# In Docker: /app/landing (volume mount). Local dev: ../../landing relative to backend/app/main.py
+_here = Path(__file__).resolve().parent
+LANDING_DIR = _here.parent / "landing"  # /app/landing in Docker
+if not LANDING_DIR.is_dir():
+    LANDING_DIR = _here.parent.parent / "landing"  # local dev fallback
 if LANDING_DIR.is_dir():
     app.mount("/landing", StaticFiles(directory=str(LANDING_DIR), html=True), name="landing")
 

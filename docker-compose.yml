@@ -24,6 +24,8 @@ services:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/geoforensic
     ports:
       - "8000:8000"
+    volumes:
+      - ./landing:/app/landing:ro
     depends_on:
       db:
         condition: service_healthy
