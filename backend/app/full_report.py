@@ -43,11 +43,11 @@ def _find_font(paths: list[str]) -> str | None:
 # ── Ampel helpers ───────────────────────────────────────────────────
 
 def _ampel_color(a: str) -> tuple[int, int, int]:
-    return {"gruen": (34, 197, 94), "gelb": (234, 179, 8), "rot": (239, 68, 68)}.get(a, (150, 150, 150))
+    return {"gruen": (91, 154, 111), "gelb": (196, 169, 77), "rot": (184, 84, 80)}.get(a, (150, 150, 150))
 
 
 def _status_color(s: str) -> tuple[int, int, int]:
-    return {"ok": (34, 197, 94), "warn": (234, 179, 8), "critical": (239, 68, 68)}.get(s, (150, 150, 150))
+    return {"ok": (91, 154, 111), "warn": (196, 169, 77), "critical": (184, 84, 80)}.get(s, (150, 150, 150))
 
 
 # ── Quiz-text mappings ──────────────────────────────────────────────
@@ -143,7 +143,7 @@ def generate_full_report(
     pdf.set_fill_color(r, g, b)
     pdf.set_text_color(255, 255, 255)
     pdf.set_font(fn, "B", 14)
-    label = {"gruen": "UNAUFFAELLIG", "gelb": "AUFFAELLIG", "rot": "KRITISCH"}.get(ampel, "KEINE DATEN") if has_egms else "KEINE DATEN"
+    label = {"gruen": "UNAUFF\u00c4LLIG", "gelb": "AUFF\u00c4LLIG", "rot": "KRITISCH"}.get(ampel, "KEINE DATEN") if has_egms else "KEINE DATEN"
     pdf.cell(70, 12, f"  {label}", fill=True, new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
 
