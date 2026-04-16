@@ -103,7 +103,7 @@ export async function previewReport(body: { address: string }): Promise<PreviewR
 }
 
 export async function createReport(
-  body: { address: string; radius_m: number; aktenzeichen?: string },
+  body: { address: string; radius_m: number; aktenzeichen?: string; selected_modules?: string[] },
   token?: string
 ): Promise<ReportDetail> {
   return fetchApi<ReportDetail>("/api/reports/create", { method: "POST", body, token });

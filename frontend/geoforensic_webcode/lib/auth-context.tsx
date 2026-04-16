@@ -1,8 +1,9 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
-import { getMe, login as apiLogin, register as apiRegister, type User } from "@/lib/api";
+import { ApiError, getMe, login as apiLogin, register as apiRegister, type User } from "@/lib/api";
 
 type RegisterInput = {
   email: string;
@@ -39,10 +40,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(existing);
     getMe(existing)
       .then(setUser)
-      .catch(() => {
+      .catch((error) => {
         localStorage.removeItem(TOKEN_KEY);
         setToken(null);
         setUser(null);
+        if (error instanceof ApiError && error.status === 401) {
+          toast.error("Sitzung abgelaufen, bitte erneut einloggen.");
+          if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+            window.location.href = "/login";
+          }
+        }
       })
       .finally(() => setIsLoading(false));
   }, []);

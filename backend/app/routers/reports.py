@@ -160,12 +160,16 @@ async def _run_report_pipeline(report_id: uuid.UUID) -> None:
             return
 
         try:
+            # Preserve modules selected at creation time (before pipeline overwrites report_data)
+            selected_modules = (report.report_data or {}).get("selected_modules", ["classic"])
+
             points = await query_egms_points(db, report.latitude, report.longitude, report.radius_m)
             if not points:
                 report.status = ReportStatus.completed
                 report.ampel = None
                 report.geo_score = None
                 report.report_data = {
+                    "selected_modules": selected_modules,
                     "analysis": {
                         "summary": "Keine EGMS-Messpunkte im Untersuchungsradius gefunden.",
                         "point_count": 0,
@@ -208,6 +212,7 @@ async def _run_report_pipeline(report_id: uuid.UUID) -> None:
             report.geo_score = geo_score
             report.status = ReportStatus.completed
             report.report_data = {
+                "selected_modules": selected_modules,
                 "analysis": {
                     "summary": (
                         f"Analyse basierend auf {len(points)} EGMS-Messpunkten "
@@ -238,7 +243,7 @@ async def _run_report_pipeline(report_id: uuid.UUID) -> None:
         except Exception as exc:  # noqa: BLE001
             logger.exception("Report pipeline failed for %s", report_id)
             report.status = ReportStatus.failed
-            report.report_data = {"error": str(exc)}
+            report.report_data = {"error": str(exc), "selected_modules": selected_modules}
             await db.commit()
 
 
@@ -281,6 +286,7 @@ async def create_report(
     current_user: User = Depends(get_current_user),
 ) -> ReportCreateResponse:
     lat, lon, display_name, country_code = await geocode_address(payload.address)
+    selected_modules = list(dict.fromkeys(payload.selected_modules))
     report = Report(
         user_id=current_user.id,
         address_input=display_name,
@@ -291,6 +297,7 @@ async def create_report(
         status=ReportStatus.processing,
         paid=False,
         country=country_code.upper() or "DE",
+        report_data={"selected_modules": selected_modules},
     )
     db.add(report)
     await db.commit()

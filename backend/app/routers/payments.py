@@ -30,9 +30,6 @@ async def create_checkout(
     if report.paid:
         return CheckoutResponse(checkout_url=f"{settings.stripe_checkout_success_url}&report_id={report.id}")
 
-    stripe_session_id = f"cs_mock_{uuid.uuid4().hex}"
-    checkout_url = f"{settings.stripe_checkout_success_url}&report_id={report.id}&session_id={stripe_session_id}"
-
     if settings.stripe_secret_key:
         stripe.api_key = settings.stripe_secret_key
         session = stripe.checkout.Session.create(
@@ -51,15 +48,25 @@ async def create_checkout(
             ],
             metadata={"report_id": str(report.id), "user_id": str(current_user.id)},
         )
-        stripe_session_id = session.id
-        checkout_url = session.url
+        payment = Payment(
+            report_id=report.id,
+            stripe_session_id=session.id,
+            status=PaymentStatus.pending,
+            amount=settings.stripe_report_price_cents,
+        )
+        db.add(payment)
+        await db.commit()
+        return CheckoutResponse(checkout_url=session.url)
 
+    stripe_session_id = f"cs_mock_{uuid.uuid4().hex}"
+    checkout_url = f"{settings.stripe_checkout_success_url}&report_id={report.id}&session_id={stripe_session_id}"
     payment = Payment(
         report_id=report.id,
         stripe_session_id=stripe_session_id,
-        status=PaymentStatus.pending,
+        status=PaymentStatus.completed,
         amount=settings.stripe_report_price_cents,
     )
+    report.paid = True
     db.add(payment)
     await db.commit()
     return CheckoutResponse(checkout_url=checkout_url)

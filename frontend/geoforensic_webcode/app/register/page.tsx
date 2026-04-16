@@ -12,12 +12,32 @@ export default function RegisterPage() {
   const { register } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [gutachterType, setGutachterType] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const passwordStrength = (() => {
+    let score = 0;
+    if (password.length >= 8) score += 1;
+    if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score += 1;
+    if (/\d/.test(password) || /[^A-Za-z0-9]/.test(password)) score += 1;
+    if (score <= 1) return { label: "schwach", color: "text-red-400" };
+    if (score === 2) return { label: "mittel", color: "text-yellow-300" };
+    return { label: "stark", color: "text-green-400" };
+  })();
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      toast.error("Passwörter stimmen nicht überein.");
+      return;
+    }
+    if (password.length < 8) {
+      toast.error("Passwort muss mindestens 8 Zeichen haben.");
+      return;
+    }
+
     setLoading(true);
     try {
       await register({
@@ -38,13 +58,13 @@ export default function RegisterPage() {
   return (
     <main className="min-h-screen pt-40 px-6">
       <div className="mx-auto max-w-md border border-border p-6 bg-black/40">
-        <h1 className="text-2xl font-sentient mb-6">Register</h1>
+        <h1 className="text-2xl font-sentient mb-6">Registrieren</h1>
         <form onSubmit={onSubmit} className="space-y-4">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
+            placeholder="E-Mail-Adresse"
             className="w-full bg-transparent border border-border px-4 py-3 font-mono text-sm"
             required
           />
@@ -52,7 +72,21 @@ export default function RegisterPage() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
+            placeholder="Passwort"
+            className="w-full bg-transparent border border-border px-4 py-3 font-mono text-sm"
+            required
+          />
+          <div className="space-y-1">
+            <p className="font-mono text-xs text-foreground/60">Mindestens 8 Zeichen</p>
+            {password.length > 0 ? (
+              <p className={`font-mono text-xs uppercase ${passwordStrength.color}`}>Sicherheit: {passwordStrength.label}</p>
+            ) : null}
+          </div>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Passwort bestätigen"
             className="w-full bg-transparent border border-border px-4 py-3 font-mono text-sm"
             required
           />
@@ -60,7 +94,7 @@ export default function RegisterPage() {
             type="text"
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
-            placeholder="Company (optional)"
+            placeholder="Firma (optional)"
             className="w-full bg-transparent border border-border px-4 py-3 font-mono text-sm"
           />
           <input
@@ -71,13 +105,13 @@ export default function RegisterPage() {
             className="w-full bg-transparent border border-border px-4 py-3 font-mono text-sm"
           />
           <button type="submit" disabled={loading} className="w-full border border-primary py-3 font-mono uppercase">
-            {loading ? "..." : "Account erstellen"}
+            {loading ? "..." : "Konto erstellen"}
           </button>
         </form>
         <p className="mt-4 text-sm text-foreground/70">
           Bereits registriert?{" "}
           <Link href="/login" className="text-primary">
-            Login
+            Anmelden
           </Link>
         </p>
       </div>

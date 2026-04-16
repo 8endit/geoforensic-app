@@ -2,10 +2,11 @@ import uuid
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 AmpelValue = Literal["gruen", "gelb", "rot"]
+VALID_MODULES = {"classic", "timeseries", "rawdata", "compliance"}
 TokenType = Literal["bearer"]
 
 
@@ -53,6 +54,21 @@ class ReportCreateRequest(BaseModel):
     address: str = Field(min_length=5, max_length=500)
     radius_m: int = Field(default=500, ge=100, le=2000)
     aktenzeichen: str | None = Field(default=None, max_length=255)
+    selected_modules: list[str] = Field(default_factory=lambda: ["classic"], min_length=1, max_length=10)
+
+    @field_validator("selected_modules")
+    @classmethod
+    def sanitize_modules(cls, v: list[str]) -> list[str]:
+        # Strip unknown module IDs, deduplicate, ensure "classic" is always present
+        seen: set[str] = set()
+        clean: list[str] = []
+        for m in v:
+            if m in VALID_MODULES and m not in seen:
+                seen.add(m)
+                clean.append(m)
+        if "classic" not in seen:
+            clean.insert(0, "classic")
+        return clean
 
 
 class ReportListItem(BaseModel):
@@ -80,7 +96,7 @@ class ReportDetailResponse(BaseModel):
     longitude: float
     radius_m: int
     aktenzeichen: str | None
-    pdf_available: bool
+    pdf_available: bool = False
     report_data: dict[str, Any] | None
     created_at: datetime
 

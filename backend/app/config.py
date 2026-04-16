@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     cors_origins: list[str] = [
         "http://localhost:3000",
         "https://geoforensic.de",
+        "https://uninducible-myrtle-unsecluded.ngrok-free.dev",
     ]
 
     stripe_secret_key: str = ""
