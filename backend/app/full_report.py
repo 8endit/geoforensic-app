@@ -10,11 +10,14 @@ Sections:
 7. Datenquellen + Disclaimer
 """
 
+import io
 import os
+import tempfile
 from datetime import datetime, timezone
 
 from fpdf import FPDF
 
+from app.report_charts import geoscore_gauge, metals_chart, soil_quality_bars, soil_texture_pie
 from app.soil_data import BBODSCHV_VORSORGE, SOILGRIDS_PROPERTIES
 
 # ── Font discovery ──────────────────────────────────────────────────
@@ -144,14 +147,20 @@ def generate_full_report(
     pdf.cell(70, 12, f"  {label}", fill=True, new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
 
-    # KPIs
+    # KPIs + GeoScore gauge side by side
     pdf.set_text_color(30, 30, 30)
     _kpi_row(pdf, fn, [
         (str(point_count), "Messpunkte"),
         (f"{mean_velocity:.1f} mm/a" if has_egms else "-", "Mittl. Geschw."),
         (f"{max_velocity:.1f} mm/a" if has_egms else "-", "Max. Geschw."),
-        (f"{geo_score}/100" if geo_score else "-", "GeoScore"),
     ])
+
+    # GeoScore gauge chart
+    gauge_png = geoscore_gauge(geo_score, ampel)
+    if gauge_png:
+        gauge_path = _tmp_png(gauge_png)
+        pdf.image(gauge_path, x=130, y=pdf.get_y() - 26, w=65)
+        os.unlink(gauge_path)
     pdf.ln(3)
 
     pdf.set_font(fn, "", 9)
@@ -217,6 +226,14 @@ def generate_full_report(
         pdf.set_text_color(100, 100, 100)
         pdf.set_font(fn, "", 7)
         pdf.cell(0, 4, "Vergleichswerte: BBodSchV Vorsorgewerte (Bundesbodenschutzverordnung)", new_x="LMARGIN", new_y="NEXT")
+
+        # Metals bar chart
+        chart_png = metals_chart(metals, BBODSCHV_VORSORGE)
+        if chart_png:
+            chart_path = _tmp_png(chart_png)
+            pdf.ln(2)
+            pdf.image(chart_path, x=10, w=140)
+            os.unlink(chart_path)
     else:
         pdf.set_font(fn, "", 9)
         pdf.set_text_color(150, 150, 150)
@@ -261,15 +278,29 @@ def generate_full_report(
             pdf.ln()
         pdf.ln(2)
 
-        # Texture interpretation
+        # Visual: quality indicator bars
+        quality_png = soil_quality_bars(soilgrids)
+        if quality_png:
+            qpath = _tmp_png(quality_png)
+            pdf.ln(2)
+            pdf.image(qpath, x=10, w=140)
+            os.unlink(qpath)
+            pdf.ln(2)
+
+        # Texture pie chart + text
         clay = soilgrids.get("clay")
         sand = soilgrids.get("sand")
         silt = soilgrids.get("silt")
         if clay is not None and sand is not None and silt is not None:
             texture = _classify_texture(clay, sand, silt)
+            pie_png = soil_texture_pie(clay, sand, silt)
+            if pie_png:
+                pie_path = _tmp_png(pie_png)
+                pdf.image(pie_path, x=10, w=50)
+                os.unlink(pie_path)
             pdf.set_text_color(50, 50, 50)
-            pdf.set_font(fn, "", 9)
-            pdf.cell(0, 5, f"Bodenart: {texture} (Ton {clay:.0f}% / Sand {sand:.0f}% / Schluff {silt:.0f}%)", new_x="LMARGIN", new_y="NEXT")
+            pdf.set_font(fn, "B", 9)
+            pdf.cell(0, 5, f"Bodenart: {texture}", new_x="LMARGIN", new_y="NEXT")
     else:
         pdf.set_font(fn, "", 9)
         pdf.set_text_color(150, 150, 150)
@@ -357,6 +388,14 @@ def generate_full_report(
 
 
 # ── Helpers ─────────────────────────────────────────────────────────
+
+def _tmp_png(data: bytes) -> str:
+    """Write PNG bytes to a temp file and return the path."""
+    f = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+    f.write(data)
+    f.close()
+    return f.name
+
 
 def _section_header(pdf: FPDF, fn: str, title: str):
     pdf.set_draw_color(34, 197, 94)
