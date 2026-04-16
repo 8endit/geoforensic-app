@@ -9,8 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_db
 from app.email_service import send_report_email
-from app.lead_report import generate_lead_report
+from app.full_report import generate_full_report
 from app.models import Lead
+from app.soil_data import SoilDataLoader
 from app.rate_limit import limiter
 from app.routers.reports import geocode_address
 
@@ -89,8 +90,16 @@ async def _generate_and_send_lead_report(
         else:
             mean_v, max_v, ampel, geo_score = 0.0, 0.0, "gruen", None
 
-        # 4. Generate PDF
-        pdf_bytes = generate_lead_report(
+        # 4. Query soil data (SoilGrids + LUCAS + CORINE)
+        try:
+            soil_loader = SoilDataLoader.get()
+            soil_profile = soil_loader.query_full_profile(lat, lon)
+        except Exception:
+            logger.warning("Soil data query failed for (%s, %s), using empty profile", lat, lon)
+            soil_profile = {}
+
+        # 5. Generate full PDF
+        pdf_bytes = generate_full_report(
             address=display_name,
             lat=lat,
             lon=lon,
@@ -99,10 +108,11 @@ async def _generate_and_send_lead_report(
             mean_velocity=mean_v,
             max_velocity=max_v,
             geo_score=geo_score,
+            soil_profile=soil_profile,
             answers=answers or {},
         )
 
-        # 5. Send email
+        # 6. Send email
         await send_report_email(
             recipient_email=email,
             report_address=display_name,

@@ -16,4 +16,8 @@ fpdf2
 aiosmtplib
 google-auth
 PyJWT[crypto]
+rasterio
+numpy
+scipy
+pandas
 
