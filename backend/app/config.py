@@ -18,9 +18,16 @@ class Settings(BaseSettings):
 
     cors_origins: list[str] = [
         "http://localhost:3000",
+        "http://localhost:8000",
         "https://geoforensic.de",
-        "https://uninducible-myrtle-unsecluded.ngrok-free.dev",
+        "https://www.geoforensic.de",
+        "https://bodenbericht.de",
+        "https://www.bodenbericht.de",
     ]
+    # systeme.io subdomains via allow_origin_regex in main.py
+
+    # Public base URL for download links in emails
+    public_base_url: str = "https://geoforensic.de"
 
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""

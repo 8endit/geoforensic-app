@@ -2,7 +2,15 @@
 
 from datetime import datetime, timezone
 
-from fpdf import FPDF
+from fpdf import FPDF as _FPDF
+
+
+class FPDF(_FPDF):
+    """FPDF subclass that auto-sanitizes text to Latin-1 for Helvetica."""
+
+    def normalize_text(self, text: str) -> str:
+        text = _latin1(text)
+        return super().normalize_text(text)
 
 
 # ── Bewertungstexte je nach Quiz-Antworten ────────────────────────────
@@ -60,6 +68,25 @@ _DRINGLICHKEIT_EMPFEHLUNG = {
         "Wir empfehlen eine erneute Prüfung in 6–12 Monaten."
     ),
 }
+
+
+def _latin1(text: str) -> str:
+    """Replace non-Latin-1 chars so fpdf2 Helvetica can render them."""
+    replacements = {
+        "\u2014": "-",    # em dash
+        "\u2013": "-",    # en dash
+        "\u2018": "'",    # left single quote
+        "\u2019": "'",    # right single quote
+        "\u201c": '"',    # left double quote
+        "\u201d": '"',    # right double quote
+        "\u2026": "...",  # ellipsis
+        "\u20ac": "EUR",  # euro sign
+        "\u00df": "ss",   # ß → ss
+    }
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+    # Encode remaining to latin-1, replace any leftovers with ?
+    return text.encode("latin-1", errors="replace").decode("latin-1")
 
 
 def _ampel_color(ampel: str) -> tuple[int, int, int]:
