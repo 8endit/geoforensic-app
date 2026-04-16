@@ -52,18 +52,17 @@ app.include_router(health.router)
 
 # ── Static landing pages ────────────────────────────────────────────
 # In Docker: /app/landing (volume mount). Local dev: ../../landing relative to backend/app/main.py
+# Mounted at "/" so relative paths in HTML work the same locally and in production
+# (e.g. /muster-bericht.html, /quiz.html, /datenquellen.html). All API routes live
+# under /api/... so there is no collision.
 _here = Path(__file__).resolve().parent
 LANDING_DIR = _here.parent / "landing"  # /app/landing in Docker
 if not LANDING_DIR.is_dir():
     LANDING_DIR = _here.parent.parent / "landing"  # local dev fallback
 if LANDING_DIR.is_dir():
-    app.mount("/landing", StaticFiles(directory=str(LANDING_DIR), html=True), name="landing")
-
-    @app.get("/")
-    async def root_redirect():
-        return FileResponse(LANDING_DIR / "index.html")
-
     @app.get("/admin")
     async def admin_dashboard():
         return FileResponse(LANDING_DIR / "admin.html")
+
+    app.mount("/", StaticFiles(directory=str(LANDING_DIR), html=True), name="landing")
 
