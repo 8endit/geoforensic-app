@@ -11,7 +11,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpangoft2-1.0-0 \
     gdal-bin \
     libgdal-dev \
+    chromium \
+    fonts-liberation \
+    fonts-noto-core \
     && rm -rf /var/lib/apt/lists/*
+
+ENV CHROME_BIN=/usr/bin/chromium
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

@@ -9,8 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_db
 from app.email_service import send_report_email
-from app.full_report import generate_full_report
+from app.html_report import generate_html_report
 from app.models import Lead
+from app.pdf_renderer import html_to_pdf
 from app.rate_limit import limiter
 from app.routers.reports import geocode_address
 from app.soil_data import SoilDataLoader
@@ -98,8 +99,8 @@ async def _generate_and_send_lead_report(
             logger.warning("Soil data query failed for (%s, %s), using empty profile", lat, lon)
             soil_profile = {}
 
-        # 5. Generate full PDF
-        pdf_bytes = generate_full_report(
+        # 5. Generate HTML report → render to PDF via Chrome
+        html = generate_html_report(
             address=display_name,
             lat=lat,
             lon=lon,
@@ -111,6 +112,11 @@ async def _generate_and_send_lead_report(
             soil_profile=soil_profile,
             answers=answers or {},
         )
+        pdf_bytes = html_to_pdf(html)
+        if pdf_bytes is None:
+            # Fallback: send HTML as attachment
+            pdf_bytes = html.encode("utf-8")
+            logger.warning("PDF rendering failed, sending HTML as fallback for %s", email)
 
         # 6. Send email
         await send_report_email(
