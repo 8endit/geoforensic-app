@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Bodenbericht — Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: 'Inter', -apple-system, sans-serif; }
+  .card { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; }
+  .kpi-num { font-size: 28px; font-weight: 700; color: #1e3352; line-height: 1; }
+  .kpi-lbl { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 6px; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .pill-green { background: #e8f5ec; color: #3d7a50; }
+  .pill-gray { background: #f1f5f9; color: #64748b; }
+  .pill-blue { background: #e8f0fe; color: #3b6ab5; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+
+<div class="max-w-7xl mx-auto px-6 py-8">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-[#1e3352]">Admin Dashboard</h1>
+      <p class="text-sm text-gray-500" id="last-refresh">Lade...</p>
+    </div>
+    <div class="flex gap-2">
+      <input id="token-input" type="password" placeholder="Admin Token"
+             class="px-3 py-2 border border-gray-300 rounded-md text-sm w-48"
+             value="">
+      <button onclick="refresh()" class="bg-[#1e3352] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#2c4a70]">
+        Aktualisieren
+      </button>
+      <button onclick="downloadCSV()" class="bg-[#5B9A6F] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#4a8760]">
+        CSV Export
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="card">
+      <div class="kpi-num" id="kpi-leads-total">–</div>
+      <div class="kpi-lbl">Leads gesamt</div>
+    </div>
+    <div class="card">
+      <div class="kpi-num" id="kpi-leads-today">–</div>
+      <div class="kpi-lbl">Heute</div>
+    </div>
+    <div class="card">
+      <div class="kpi-num" id="kpi-leads-week">–</div>
+      <div class="kpi-lbl">Letzte 7 Tage</div>
+    </div>
+    <div class="card">
+      <div class="kpi-num" id="kpi-conversion">–</div>
+      <div class="kpi-lbl">Conversion bezahlt</div>
+    </div>
+  </div>
+
+  <!-- Source Breakdown -->
+  <div class="card mb-6">
+    <h2 class="text-lg font-semibold mb-4 text-[#1e3352]">Leads nach Quelle</h2>
+    <div id="sources" class="flex gap-4 flex-wrap"></div>
+  </div>
+
+  <!-- Leads Table -->
+  <div class="card">
+    <h2 class="text-lg font-semibold mb-4 text-[#1e3352]">Leads (letzte 100)</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-b-2 border-gray-200">
+          <tr class="text-left text-xs uppercase text-gray-500 tracking-wider">
+            <th class="px-3 py-2">Zeit</th>
+            <th class="px-3 py-2">Email</th>
+            <th class="px-3 py-2">Adresse</th>
+            <th class="px-3 py-2">Quelle</th>
+            <th class="px-3 py-2">Nutzung</th>
+            <th class="px-3 py-2">Bedenken</th>
+            <th class="px-3 py-2">Dringlichkeit</th>
+          </tr>
+        </thead>
+        <tbody id="leads-body" class="divide-y divide-gray-100"></tbody>
+      </table>
+    </div>
+    <div id="leads-empty" class="hidden text-center py-8 text-gray-400 text-sm">
+      Noch keine Leads — warte auf die ersten Besucher.
+    </div>
+  </div>
+</div>
+
+<script>
+  function getToken() {
+    const t = document.getElementById('token-input').value;
+    if (t) {
+      localStorage.setItem('admin_token', t);
+      return t;
+    }
+    const stored = localStorage.getItem('admin_token') || '';
+    document.getElementById('token-input').value = stored;
+    return stored;
+  }
+
+  async function fetchJson(path) {
+    const token = getToken();
+    const res = await fetch(path, { headers: token ? { 'X-Admin-Token': token } : {} });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+    return await res.json();
+  }
+
+  function fmtTime(iso) {
+    if (!iso) return '–';
+    const d = new Date(iso);
+    return d.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function shortText(s, n = 40) {
+    if (!s) return '–';
+    return s.length > n ? s.slice(0, n) + '…' : s;
+  }
+
+  async function refresh() {
+    document.getElementById('last-refresh').textContent = 'Lade…';
+    try {
+      const stats = await fetchJson('/api/_admin/stats');
+      const leadsData = await fetchJson('/api/_admin/leads?limit=100');
+
+      // KPIs
+      document.getElementById('kpi-leads-total').textContent = stats.leads.total;
+      document.getElementById('kpi-leads-today').textContent = stats.leads.today;
+      document.getElementById('kpi-leads-week').textContent = stats.leads.week;
+      document.getElementById('kpi-conversion').textContent = stats.reports.conversion_rate + '%';
+
+      // Sources
+      const sources = stats.leads.by_source || {};
+      const srcHtml = Object.entries(sources).length === 0
+        ? '<span class="text-gray-400 text-sm">Noch keine Leads</span>'
+        : Object.entries(sources).map(([src, n]) =>
+            `<div class="pill pill-blue">${src}: <strong>${n}</strong></div>`
+          ).join('');
+      document.getElementById('sources').innerHTML = srcHtml;
+
+      // Leads table
+      const leads = leadsData.leads || [];
+      if (leads.length === 0) {
+        document.getElementById('leads-empty').classList.remove('hidden');
+        document.getElementById('leads-body').innerHTML = '';
+      } else {
+        document.getElementById('leads-empty').classList.add('hidden');
+        document.getElementById('leads-body').innerHTML = leads.map(l => {
+          const q = l.quiz_answers || {};
+          const address = q.address || shortText(q.source_page || '', 30);
+          return `<tr class="hover:bg-gray-50">
+            <td class="px-3 py-2 text-xs text-gray-500 font-mono">${fmtTime(l.created_at)}</td>
+            <td class="px-3 py-2 font-medium">${l.email}</td>
+            <td class="px-3 py-2 text-xs">${shortText(address, 40)}</td>
+            <td class="px-3 py-2"><span class="pill pill-gray">${l.source}</span></td>
+            <td class="px-3 py-2 text-xs">${shortText(q.nutzung || '', 25)}</td>
+            <td class="px-3 py-2 text-xs">${shortText(q.bedenken || '', 25)}</td>
+            <td class="px-3 py-2 text-xs">${shortText(q.dringlichkeit || '', 25)}</td>
+          </tr>`;
+        }).join('');
+      }
+
+      document.getElementById('last-refresh').textContent =
+        'Letzte Aktualisierung: ' + new Date().toLocaleTimeString('de-DE');
+    } catch (err) {
+      document.getElementById('last-refresh').textContent = 'Fehler: ' + err.message;
+    }
+  }
+
+  async function downloadCSV() {
+    try {
+      const data = await fetchJson('/api/_admin/leads?limit=10000');
+      const leads = data.leads || [];
+      if (leads.length === 0) {
+        alert('Keine Leads zum Exportieren');
+        return;
+      }
+      const header = ['created_at', 'email', 'source', 'address', 'nutzung', 'bedenken', 'historie', 'dringlichkeit'];
+      const rows = leads.map(l => {
+        const q = l.quiz_answers || {};
+        return [
+          l.created_at,
+          l.email,
+          l.source,
+          q.address || '',
+          q.nutzung || '',
+          q.bedenken || '',
+          q.historie || '',
+          q.dringlichkeit || ''
+        ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+      });
+      const csv = [header.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bodenbericht-leads-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('CSV Export fehlgeschlagen: ' + err.message);
+    }
+  }
+
+  // Auto-refresh every 30s
+  refresh();
+  setInterval(refresh, 30000);
+</script>
+
+</body>
+</html>

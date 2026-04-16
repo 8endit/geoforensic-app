@@ -1,15 +1,100 @@
 """Admin activity endpoint — lightweight dashboard data from existing tables."""
 
-from datetime import datetime
+import os
+from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Header, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_db
-from app.models import Payment, Report, User
+from app.models import Lead, Payment, Report, User
 
 router = APIRouter(prefix="/api/_admin", tags=["admin"])
+
+# Simple shared-secret admin token (set via env: ADMIN_TOKEN)
+ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "")
+
+
+def _require_admin(x_admin_token: str | None = Header(default=None)) -> None:
+    """Reject requests without correct admin token. Skipped if ADMIN_TOKEN unset (dev mode)."""
+    if not ADMIN_TOKEN:
+        return  # Dev mode — no auth
+    if x_admin_token != ADMIN_TOKEN:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid admin token")
+
+
+@router.get("/stats")
+async def stats(
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(_require_admin),
+) -> dict:
+    """High-level KPIs for the dashboard."""
+    now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = today_start - timedelta(days=7)
+
+    leads_total = (await db.execute(select(func.count()).select_from(Lead))).scalar() or 0
+    leads_today = (await db.execute(
+        select(func.count()).select_from(Lead).where(Lead.created_at >= today_start)
+    )).scalar() or 0
+    leads_week = (await db.execute(
+        select(func.count()).select_from(Lead).where(Lead.created_at >= week_start)
+    )).scalar() or 0
+
+    users_total = (await db.execute(select(func.count()).select_from(User))).scalar() or 0
+    reports_total = (await db.execute(select(func.count()).select_from(Report))).scalar() or 0
+    reports_paid = (await db.execute(
+        select(func.count()).select_from(Report).where(Report.paid.is_(True))
+    )).scalar() or 0
+
+    # Breakdown: source (quiz vs landing_direct)
+    source_rows = (await db.execute(
+        select(Lead.source, func.count()).group_by(Lead.source)
+    )).all()
+    sources = {row[0]: row[1] for row in source_rows}
+
+    return {
+        "timestamp": now.isoformat(),
+        "leads": {
+            "total": leads_total,
+            "today": leads_today,
+            "week": leads_week,
+            "by_source": sources,
+        },
+        "users": {"total": users_total},
+        "reports": {
+            "total": reports_total,
+            "paid": reports_paid,
+            "conversion_rate": round((reports_paid / reports_total * 100) if reports_total else 0, 1),
+        },
+    }
+
+
+@router.get("/leads")
+async def list_leads(
+    limit: int = 100,
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(_require_admin),
+) -> dict:
+    """List recent leads with quiz answers."""
+    result = await db.execute(
+        select(Lead).order_by(Lead.created_at.desc()).limit(limit)
+    )
+    leads = result.scalars().all()
+    return {
+        "total": len(leads),
+        "leads": [
+            {
+                "id": str(l.id),
+                "email": l.email,
+                "source": l.source,
+                "quiz_answers": l.quiz_answers or {},
+                "created_at": l.created_at.isoformat() if l.created_at else None,
+            }
+            for l in leads
+        ],
+    }
 
 
 @router.get("/activity")

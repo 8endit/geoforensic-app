@@ -63,3 +63,7 @@ if LANDING_DIR.is_dir():
     async def root_redirect():
         return FileResponse(LANDING_DIR / "index.html")
 
+    @app.get("/admin")
+    async def admin_dashboard():
+        return FileResponse(LANDING_DIR / "admin.html")
+

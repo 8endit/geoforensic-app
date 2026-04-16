@@ -1,6 +1,7 @@
 """Lead capture endpoint — quiz/landing form -> geocode -> full report -> email."""
 
 import logging
+from datetime import datetime
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Request, status
 from pydantic import BaseModel, EmailStr
