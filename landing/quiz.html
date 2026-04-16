@@ -1,50 +1,588 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GeoForensic — Schnellcheck</title>
-  <!-- STUB: replace with Gregor's full quizindex.html content -->
-</head>
-<body>
-  <!-- TODO: paste Gregor's quizindex.html body here -->
-  <p>Quiz funnel (Gregor design) — content pending.</p>
-
-  <form id="quiz-form">
-    <input type="email" id="email" placeholder="deine@email.de" required />
-    <button type="submit">Ergebnis anzeigen</button>
-  </form>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bodenbericht - Kostenloser Risikocheck</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    // Quiz answers accumulator — populated by quiz step logic above
-    const answers = {};
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef4ff',
+              100: '#d9e5ff',
+              200: '#bcd2ff',
+              500: '#3b6fce',
+              600: '#1e3a6e',
+              700: '#162d56',
+              800: '#0f2040',
+              900: '#0a1628',
+            },
+            accent: {
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* Smooth fade transitions — !important to override Tailwind display utilities */
+    .view:not(.active) { display: none !important; }
+    .view { opacity: 0; transition: opacity 0.4s ease; }
+    .view.visible { opacity: 1; }
 
+    /* Question card hover/active */
+    .option-card {
+      transition: all 0.2s ease;
+    }
+    .option-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(30, 58, 110, 0.12);
+      border-color: #3b6fce;
+    }
+    .option-card:active {
+      transform: translateY(0);
+    }
+    .option-card.selected {
+      border-color: #10b981;
+      background: #ecfdf5;
+      box-shadow: 0 0 0 2px #10b981;
+    }
+
+    /* Progress bar animation */
+    .progress-fill {
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Typing dots animation */
+    .dot-pulse span {
+      animation: pulse 1.4s infinite ease-in-out both;
+    }
+    .dot-pulse span:nth-child(1) { animation-delay: 0s; }
+    .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+    .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes pulse {
+      0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Spinner */
+    .spinner {
+      border: 3px solid rgba(59, 111, 206, 0.15);
+      border-top-color: #3b6fce;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Analysis step check animation */
+    .analysis-step {
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.4s ease;
+    }
+    .analysis-step.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Checkmark animation */
+    .checkmark { opacity: 0; transition: opacity 0.3s ease; }
+    .checkmark.show { opacity: 1; }
+
+    /* Button pulse */
+    @keyframes gentle-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+      50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+    }
+    .btn-pulse { animation: gentle-pulse 2s infinite; }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  </style>
+</head>
+<body class="bg-white font-sans text-brand-800 antialiased">
+
+  <!-- ============================================ -->
+  <!-- VIEW 1: HERO / START SCREEN                  -->
+  <!-- ============================================ -->
+  <div id="view-hero" class="view active visible min-h-screen flex flex-col">
+    <div class="flex-1 flex flex-col items-center justify-center px-5 py-12 max-w-xl mx-auto w-full">
+
+      <!-- Logo -->
+      <div class="mb-10">
+        <svg class="w-12 h-12 text-brand-600" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="48" height="48" rx="12" fill="currentColor" fill-opacity="0.08"/>
+          <path d="M14 34c0-3 2-5 5-6s6-3 6-6-2-5-5-5-5 2-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M24 22c0 3 2 5 5 6s5 3 5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="24" cy="16" r="3" fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10 38h28" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+          <path d="M12 36h24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.15"/>
+        </svg>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="text-3xl sm:text-4xl font-800 text-center leading-tight tracking-tight text-brand-900 mb-4">
+        Ist Ihr Boden sicher?<br>
+        <span class="text-brand-500">Machen Sie den kostenlosen<br>60-Sekunden-Risikocheck.</span>
+      </h1>
+
+      <!-- Sub-Headline -->
+      <p class="text-base sm:text-lg text-center text-brand-700/70 leading-relaxed mb-10 max-w-md">
+        Finden Sie heraus, ob auf Ihrem Grundstück ein Risiko durch Altlasten, versteckte Toxine oder schlechte Bodenqualität besteht.
+      </p>
+
+      <!-- CTA Button -->
+      <button
+        onclick="startQuiz()"
+        class="btn-pulse w-full sm:w-auto bg-accent-500 hover:bg-accent-600 text-white font-semibold text-lg px-10 py-4 rounded-xl shadow-lg shadow-accent-500/25 hover:shadow-accent-600/30 transition-all duration-200 active:scale-[0.98]"
+      >
+        Jetzt Risikocheck starten
+        <span class="inline-block ml-1">&rarr;</span>
+      </button>
+
+      <!-- Trust Bar -->
+      <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-8 text-sm text-brand-700/50">
+        <span class="flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          100% Datenschutz
+        </span>
+        <span class="flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+          TÜV-geprüftes Verfahren
+        </span>
+        <span class="flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          Über 10.000 Analysen
+        </span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================ -->
+  <!-- VIEW 2: QUIZ QUESTIONS                       -->
+  <!-- ============================================ -->
+  <div id="view-quiz" class="view min-h-screen flex flex-col">
+    <div class="w-full max-w-xl mx-auto px-5 py-8 flex-1 flex flex-col">
+
+      <!-- Progress Bar -->
+      <div class="mb-2 flex items-center justify-between text-xs font-medium text-brand-700/50">
+        <span>Risikocheck</span>
+        <span id="progress-label">Frage 1 von 4</span>
+      </div>
+      <div class="w-full h-2 bg-brand-100 rounded-full mb-10 overflow-hidden">
+        <div id="progress-bar" class="progress-fill h-full bg-brand-500 rounded-full" style="width: 0%"></div>
+      </div>
+
+      <!-- Question Container -->
+      <div id="question-container" class="flex-1 flex flex-col">
+        <h2 id="question-text" class="text-xl sm:text-2xl font-bold text-brand-900 mb-8 leading-snug"></h2>
+        <div id="options-container" class="flex flex-col gap-3"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================ -->
+  <!-- VIEW 3: ANALYSIS SIMULATION                  -->
+  <!-- ============================================ -->
+  <div id="view-analysis" class="view min-h-screen flex flex-col items-center justify-center px-5">
+    <div class="max-w-sm w-full text-center">
+      <div class="spinner mx-auto mb-8"></div>
+      <h2 class="text-xl font-bold text-brand-900 mb-6">Analyse läuft...</h2>
+
+      <div class="space-y-4 text-left">
+        <div id="step-1" class="analysis-step flex items-center gap-3">
+          <span class="checkmark text-accent-500">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          </span>
+          <span class="text-brand-700">Ihre Angaben werden analysiert...</span>
+        </div>
+        <div id="step-2" class="analysis-step flex items-center gap-3">
+          <span class="checkmark text-accent-500">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          </span>
+          <span class="text-brand-700">Gleiche mit Datenbanken ab...</span>
+        </div>
+        <div id="step-3" class="analysis-step flex items-center gap-3">
+          <span class="checkmark text-accent-500">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          </span>
+          <span class="text-brand-700">Berechne Risikofaktor...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================ -->
+  <!-- VIEW 4: LEAD CAPTURE / RESULT                -->
+  <!-- ============================================ -->
+  <div id="view-result" class="view min-h-screen flex flex-col">
+    <div class="flex-1 flex flex-col items-center justify-center px-5 py-12 max-w-xl mx-auto w-full">
+
+      <!-- Result Badge -->
+      <div class="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center mb-6">
+        <svg class="w-8 h-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+        </svg>
+      </div>
+
+      <!-- Headline -->
+      <h2 class="text-2xl sm:text-3xl font-800 text-center text-brand-900 mb-3 leading-tight">
+        Ihre Risiko-Analyse<br>ist abgeschlossen.
+      </h2>
+
+      <!-- Dynamic result snippet -->
+      <div id="result-snippet" class="w-full bg-brand-50 rounded-xl p-5 mb-6 border border-brand-100">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="inline-block w-3 h-3 rounded-full bg-amber-400"></span>
+          <span class="text-sm font-semibold text-brand-800">Mittleres bis erhöhtes Risiko erkannt</span>
+        </div>
+        <p class="text-sm text-brand-700/70 leading-relaxed">
+          Wir haben potenziell relevante Daten für Ihr Profil gefunden. Lassen Sie sich Ihren detaillierten Bodenbericht mit Handlungsempfehlungen zusenden.
+        </p>
+      </div>
+
+      <!-- Lead Capture Form -->
+      <form id="email-form" class="w-full" onsubmit="handleSubmit(event)">
+        <label class="block text-sm font-medium text-brand-700 mb-2">
+          Für welches Grundstück möchten Sie den Bericht?
+        </label>
+        <input
+          type="text"
+          id="address-street"
+          required
+          placeholder="Straße + Hausnummer"
+          class="w-full px-4 py-3.5 rounded-xl border-2 border-brand-200 bg-white text-brand-900 placeholder-brand-700/30 focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 transition-all text-base mb-3"
+        >
+        <input
+          type="text"
+          id="address-city"
+          required
+          placeholder="PLZ + Ort"
+          class="w-full px-4 py-3.5 rounded-xl border-2 border-brand-200 bg-white text-brand-900 placeholder-brand-700/30 focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 transition-all text-base mb-5"
+        >
+
+        <label for="email" class="block text-sm font-medium text-brand-700 mb-2">
+          Wohin dürfen wir Ihren Bericht senden?
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          required
+          placeholder="Ihre E-Mail-Adresse"
+          class="w-full px-4 py-3.5 rounded-xl border-2 border-brand-200 bg-white text-brand-900 placeholder-brand-700/30 focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 transition-all text-base mb-4"
+        >
+        <button
+          type="submit"
+          id="submit-btn"
+          class="btn-pulse w-full bg-accent-500 hover:bg-accent-600 text-white font-semibold text-lg px-8 py-4 rounded-xl shadow-lg shadow-accent-500/25 hover:shadow-accent-600/30 transition-all duration-200 active:scale-[0.98]"
+        >
+          Kostenlosen Bericht anfordern
+        </button>
+      </form>
+
+      <!-- Success message (hidden by default) -->
+      <div id="success-message" class="hidden w-full text-center">
+        <div class="w-16 h-16 rounded-full bg-accent-500/10 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-accent-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-brand-900 mb-2">Geschafft!</h3>
+        <p class="text-brand-700/70">Ihr Bodenbericht ist unterwegs. Prüfen Sie Ihren Posteingang.</p>
+      </div>
+
+      <!-- Trust Elements -->
+      <div class="mt-8 space-y-4">
+        <p class="text-xs text-center text-brand-700/40">
+          <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          Ihre Daten sind sicher. Kein Spam. Abmeldung jederzeit möglich.
+        </p>
+
+        <!-- Testimonial -->
+        <blockquote class="bg-brand-50/60 rounded-xl p-5 border border-brand-100/80">
+          <p class="text-sm text-brand-700/80 italic leading-relaxed mb-3">
+            &bdquo;Dieses Quiz hat uns vor einem Fehlkauf gerettet. Wir hätten nie gedacht, dass unser Traumgrundstück belastet sein könnte.&ldquo;
+          </p>
+          <footer class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-brand-200 flex items-center justify-center text-xs font-bold text-brand-600">FM</div>
+            <div>
+              <cite class="text-sm font-semibold text-brand-800 not-italic">Familie Müller</cite>
+              <p class="text-xs text-brand-700/40">Grundstückskauf in Bayern</p>
+            </div>
+          </footer>
+        </blockquote>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================ -->
+  <!-- JAVASCRIPT: QUIZ LOGIC                       -->
+  <!-- ============================================ -->
+  <script>
+    // --- Quiz Data ---
+    const questions = [
+      {
+        text: "Wofür nutzen Sie das Grundstück primär?",
+        options: [
+          { label: "Eigenheim / Garten", icon: "🏡" },
+          { label: "Landwirtschaft", icon: "🌾" },
+          { label: "Ich plane einen Hauskauf", icon: "🔑" },
+          { label: "Gewerblich", icon: "🏢" },
+        ],
+      },
+      {
+        text: "Haben Sie aktuell konkrete Bedenken bezüglich der Bodenqualität?",
+        options: [
+          { label: "Ja, Altlasten oder gesundheitliche Bedenken", icon: "⚠️" },
+          { label: "Ja, schlechtes Pflanzenwachstum", icon: "🌱" },
+          { label: "Nein, ich möchte nur auf Nummer sicher gehen", icon: "✅" },
+        ],
+      },
+      {
+        text: "Wissen Sie, was sich vor 50 Jahren auf Ihrem Grundstück befunden hat?",
+        options: [
+          { label: "Ja, das ist mir bekannt", icon: "📋" },
+          { label: "Nein, leider nicht", icon: "❓" },
+          { label: "Nicht sicher", icon: "🤔" },
+        ],
+      },
+      {
+        text: "Wie schnell benötigen Sie die Gewissheit?",
+        options: [
+          { label: "Sofort – es eilt", icon: "⚡" },
+          { label: "Innerhalb der nächsten 2 Wochen", icon: "📅" },
+          { label: "Ich informiere mich nur", icon: "📖" },
+        ],
+      },
+    ];
+
+    // --- State ---
+    let currentQuestion = 0;
+    const answers = [];
+
+    // --- View Management ---
+    function showView(id) {
+      // Fade out all views
+      document.querySelectorAll(".view").forEach((v) => {
+        v.classList.remove("visible");
+      });
+
+      setTimeout(() => {
+        document.querySelectorAll(".view").forEach((v) => {
+          v.classList.remove("active");
+        });
+
+        const target = document.getElementById(id);
+        target.classList.add("active");
+
+        // Trigger reflow for transition
+        void target.offsetWidth;
+
+        // Small delay so display:block is applied before opacity transition
+        requestAnimationFrame(() => {
+          target.classList.add("visible");
+        });
+
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }, 350);
+    }
+
+    // --- Start Quiz ---
+    function startQuiz() {
+      currentQuestion = 0;
+      answers.length = 0;
+      showView("view-quiz");
+      setTimeout(() => renderQuestion(), 400);
+    }
+
+    // --- Render a Question ---
+    function renderQuestion() {
+      const q = questions[currentQuestion];
+      const total = questions.length;
+
+      // Update progress
+      const pct = ((currentQuestion) / total) * 100;
+      document.getElementById("progress-bar").style.width = pct + "%";
+      document.getElementById("progress-label").textContent =
+        `Frage ${currentQuestion + 1} von ${total}`;
+
+      // Update question text with fade
+      const qText = document.getElementById("question-text");
+      const optContainer = document.getElementById("options-container");
+
+      qText.style.opacity = "0";
+      optContainer.style.opacity = "0";
+
+      setTimeout(() => {
+        qText.textContent = q.text;
+        qText.style.transition = "opacity 0.3s ease";
+        qText.style.opacity = "1";
+
+        // Render option cards
+        optContainer.innerHTML = "";
+        q.options.forEach((opt, idx) => {
+          const card = document.createElement("button");
+          card.className =
+            "option-card w-full text-left px-5 py-4 rounded-xl border-2 border-brand-100 bg-white flex items-center gap-4 cursor-pointer";
+          card.style.opacity = "0";
+          card.style.transform = "translateY(10px)";
+          card.style.transition = "all 0.3s ease";
+          card.style.transitionDelay = `${idx * 0.07}s`;
+
+          card.innerHTML = `
+            <span class="text-2xl flex-shrink-0">${opt.icon}</span>
+            <span class="text-base font-medium text-brand-800">${opt.label}</span>
+          `;
+
+          card.addEventListener("click", () => selectAnswer(card, opt.label));
+          optContainer.appendChild(card);
+        });
+
+        // Stagger-animate options in
+        requestAnimationFrame(() => {
+          optContainer.style.transition = "opacity 0.3s ease";
+          optContainer.style.opacity = "1";
+          optContainer.querySelectorAll(".option-card").forEach((c) => {
+            c.style.opacity = "1";
+            c.style.transform = "translateY(0)";
+          });
+        });
+      }, 200);
+    }
+
+    // --- Select Answer ---
+    function selectAnswer(card, label) {
+      // Highlight selected card
+      card.closest("#options-container")
+        .querySelectorAll(".option-card")
+        .forEach((c) => c.classList.remove("selected"));
+      card.classList.add("selected");
+
+      // Store answer
+      answers[currentQuestion] = label;
+
+      // Auto-advance after short delay
+      setTimeout(() => {
+        currentQuestion++;
+        if (currentQuestion < questions.length) {
+          renderQuestion();
+        } else {
+          // Fill progress bar to 100% then show analysis
+          document.getElementById("progress-bar").style.width = "100%";
+          setTimeout(() => startAnalysis(), 400);
+        }
+      }, 400);
+    }
+
+    // --- Analysis Simulation ---
+    function startAnalysis() {
+      showView("view-analysis");
+
+      const steps = [
+        document.getElementById("step-1"),
+        document.getElementById("step-2"),
+        document.getElementById("step-3"),
+      ];
+
+      // Reset all steps
+      steps.forEach((s) => {
+        s.classList.remove("show");
+        s.querySelector(".checkmark").classList.remove("show");
+      });
+
+      // Show steps sequentially
+      setTimeout(() => {
+        steps[0].classList.add("show");
+        setTimeout(() => steps[0].querySelector(".checkmark").classList.add("show"), 600);
+      }, 500);
+
+      setTimeout(() => {
+        steps[1].classList.add("show");
+        setTimeout(() => steps[1].querySelector(".checkmark").classList.add("show"), 600);
+      }, 1500);
+
+      setTimeout(() => {
+        steps[2].classList.add("show");
+        setTimeout(() => steps[2].querySelector(".checkmark").classList.add("show"), 600);
+      }, 2500);
+
+      // After analysis, show result
+      setTimeout(() => {
+        showView("view-result");
+      }, 3800);
+    }
+
+    // --- Form Submission ---
     async function handleSubmit(e) {
       e.preventDefault();
       const email = document.getElementById("email").value;
-      const btn = e.target.querySelector("button[type=submit]");
+      const street = document.getElementById("address-street").value;
+      const city = document.getElementById("address-city").value;
+      const address = `${street.trim()}, ${city.trim()}`;
+      const btn = document.getElementById("submit-btn");
+
       btn.disabled = true;
+      btn.textContent = "Wird gesendet...";
+
       try {
         const res = await fetch("/api/leads", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email,
-            answers,
-            timestamp: new Date().toISOString(),
+            address,
+            answers: {
+              nutzung: answers[0] || "",
+              bedenken: answers[1] || "",
+              historie: answers[2] || "",
+              dringlichkeit: answers[3] || "",
+            },
             source: "quiz",
           }),
         });
-        if (!res.ok) throw new Error("submit failed");
-        window.location.href = "/register";
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.detail || "Senden fehlgeschlagen");
+        }
+        // Show success state
+        document.getElementById("email-form").classList.add("hidden");
+        document.getElementById("success-message").classList.remove("hidden");
       } catch (err) {
-        console.error(err);
         btn.disabled = false;
-        // TODO: show inline error message to user
+        btn.textContent = "Kostenlosen Bericht anfordern";
+        alert("Fehler: " + err.message + "\nBitte versuchen Sie es erneut.");
       }
     }
-
-    document.getElementById("quiz-form").addEventListener("submit", handleSubmit);
   </script>
 </body>
 </html>
