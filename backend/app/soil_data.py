@@ -17,7 +17,7 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-RASTER_DIR = os.getenv("RASTER_DIR", "F:/jarvis-eye-data/geoforensic-rasters")
+RASTER_DIR = os.getenv("RASTER_DIR", "/app/rasters")
 _NODATA = -999.0
 _METAL_COLS = ["Cd", "Pb", "Hg", "As", "Cr", "Cu", "Ni", "Zn"]
 

@@ -20,4 +20,6 @@ rasterio
 numpy
 scipy
 pandas
+matplotlib
+openpyxl
 

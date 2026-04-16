@@ -103,6 +103,10 @@
   async function fetchJson(path) {
     const token = getToken();
     const res = await fetch(path, { headers: token ? { 'X-Admin-Token': token } : {} });
+    if (res.status === 401) {
+      localStorage.removeItem('admin_token');
+      throw new Error('Falscher Admin-Token. Bitte eingeben.');
+    }
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}: ${res.statusText}`);
     }
