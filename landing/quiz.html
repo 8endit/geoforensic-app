@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoForensic — Schnellcheck</title>
+  <!-- STUB: replace with Gregor's full quizindex.html content -->
+</head>
+<body>
+  <!-- TODO: paste Gregor's quizindex.html body here -->
+  <p>Quiz funnel (Gregor design) — content pending.</p>
+
+  <form id="quiz-form">
+    <input type="email" id="email" placeholder="deine@email.de" required />
+    <button type="submit">Ergebnis anzeigen</button>
+  </form>
+
+  <script>
+    // Quiz answers accumulator — populated by quiz step logic above
+    const answers = {};
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const btn = e.target.querySelector("button[type=submit]");
+      btn.disabled = true;
+      try {
+        const res = await fetch("/api/leads", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            answers,
+            timestamp: new Date().toISOString(),
+            source: "quiz",
+          }),
+        });
+        if (!res.ok) throw new Error("submit failed");
+        window.location.href = "/register";
+      } catch (err) {
+        console.error(err);
+        btn.disabled = false;
+        // TODO: show inline error message to user
+      }
+    }
+
+    document.getElementById("quiz-form").addEventListener("submit", handleSubmit);
+  </script>
+</body>
+</html>
