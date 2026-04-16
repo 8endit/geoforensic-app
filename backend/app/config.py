@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     stripe_checkout_cancel_url: str = "http://localhost:3000/dashboard?paid=0"
     stripe_report_price_cents: int = 19900
 
+    google_client_id: str = ""
+    apple_client_id: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:

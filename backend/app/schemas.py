@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 AmpelValue = Literal["gruen", "gelb", "rot"]
+AuthProvider = Literal["email", "google", "apple"]
 VALID_MODULES = {"classic", "timeseries", "rawdata", "compliance"}
 TokenType = Literal["bearer"]
 
@@ -29,6 +30,7 @@ class UserResponse(BaseModel):
     email: EmailStr
     company_name: str | None = None
     gutachter_type: str | None = None
+    auth_provider: str = "email"
     created_at: datetime
 
 
@@ -120,6 +122,12 @@ class CheckoutRequest(BaseModel):
 
 class CheckoutResponse(BaseModel):
     checkout_url: str
+
+
+class SocialAuthRequest(BaseModel):
+    provider: AuthProvider
+    id_token: str
+    name: str | None = None
 
 
 class HealthResponse(BaseModel):

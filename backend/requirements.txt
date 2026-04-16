@@ -12,4 +12,6 @@ email-validator
 httpx
 geoalchemy2
 weasyprint
+google-auth
+PyJWT[crypto]
 
