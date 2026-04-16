@@ -1,4 +1,4 @@
-"""Import EGMS Parquet files from F:\geoforensic-data\egms\ into PostGIS.
+"""Import EGMS Parquet files from F:/geoforensic-data/egms/ into PostGIS.
 
 Usage:
     python backend/scripts/import_egms_parquet.py --country NL

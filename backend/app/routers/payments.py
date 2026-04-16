@@ -1,3 +1,5 @@
+"""Stripe payment endpoints — checkout session + webhook + email delivery."""
+
 import asyncio
 import json
 import logging

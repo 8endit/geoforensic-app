@@ -1,7 +1,7 @@
 """Pre-load soil raster and tabular datasets for fast local lookups.
 
 Ported from ProofTrailAgents/geoforensic/backend/reports/preloader.py.
-Loads SoilGrids GeoTIFFs, LUCAS CSV, and CORINE from F:\ (or configurable dir).
+Loads SoilGrids GeoTIFFs, LUCAS CSV, and CORINE from RASTER_DIR env var.
 Point queries run in microseconds after initial load.
 """
 

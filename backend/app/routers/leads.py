@@ -1,8 +1,8 @@
-import asyncio
-import logging
-from datetime import datetime, timezone
+"""Lead capture endpoint — quiz/landing form -> geocode -> full report -> email."""
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
+import logging
+
+from fastapi import APIRouter, BackgroundTasks, Depends, Request, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,9 +11,9 @@ from app.dependencies import get_db
 from app.email_service import send_report_email
 from app.full_report import generate_full_report
 from app.models import Lead
-from app.soil_data import SoilDataLoader
 from app.rate_limit import limiter
 from app.routers.reports import geocode_address
+from app.soil_data import SoilDataLoader
 
 router = APIRouter(prefix="/api/leads", tags=["leads"])
 logger = logging.getLogger(__name__)
