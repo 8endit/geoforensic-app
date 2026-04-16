@@ -62,8 +62,32 @@ INSERT_SQL = text(
           AND abs(ST_X(ep.geom) - :lon) < 0.0000001
           AND abs(ST_Y(ep.geom) - :lat) < 0.0000001
           AND abs(ep.mean_velocity_mm_yr - :vel) < 0.0001
-          AND COALESCE(ep.measurement_start::text, '') = COALESCE(:measurement_start::text, '')
-          AND COALESCE(ep.measurement_end::text, '') = COALESCE(:measurement_end::text, '')
+          AND COALESCE(CAST(ep.measurement_start AS text), '') = COALESCE(CAST(:measurement_start AS text), '')
+          AND COALESCE(CAST(ep.measurement_end AS text), '') = COALESCE(CAST(:measurement_end AS text), '')
+    )
+    """
+)
+
+
+INSERT_FAST_SQL = text(
+    """
+    INSERT INTO egms_points (
+        geom,
+        mean_velocity_mm_yr,
+        velocity_std,
+        coherence,
+        measurement_start,
+        measurement_end,
+        country
+    )
+    VALUES (
+        ST_SetSRID(ST_MakePoint(:lon, :lat), 4326),
+        :vel,
+        :std,
+        :coh,
+        :measurement_start,
+        :measurement_end,
+        :country
     )
     """
 )
@@ -228,38 +252,49 @@ async def _insert_batches(
     rows: Iterable[EgmsRow],
     session_factory: async_sessionmaker[AsyncSession],
     batch_size: int,
+    skip_dedupe: bool = False,
 ) -> tuple[int, int]:
     read_count = 0
     inserted_count = 0
     batch: list[EgmsRow] = []
+    sql = INSERT_FAST_SQL if skip_dedupe else INSERT_SQL
 
     async with session_factory() as db:
         for row in rows:
             batch.append(row)
             read_count += 1
             if len(batch) >= batch_size:
-                deduped = _dedupe_rows(batch)
-                params = [_row_to_params(r) for r in deduped]
+                if skip_dedupe:
+                    params = [_row_to_params(r) for r in batch]
+                else:
+                    params = [_row_to_params(r) for r in _dedupe_rows(batch)]
                 if params:
-                    result = await db.execute(INSERT_SQL, params)
+                    result = await db.execute(sql, params)
                     inserted_count += result.rowcount or 0
                     await db.commit()
                 if read_count % 50000 == 0:
-                    print(f"Progress: read {read_count:,} rows, inserted {inserted_count:,} rows")
+                    print(f"Progress: read {read_count:,} rows, inserted {inserted_count:,} rows", flush=True)
                 batch = []
 
         if batch:
-            deduped = _dedupe_rows(batch)
-            params = [_row_to_params(r) for r in deduped]
+            if skip_dedupe:
+                params = [_row_to_params(r) for r in batch]
+            else:
+                params = [_row_to_params(r) for r in _dedupe_rows(batch)]
             if params:
-                result = await db.execute(INSERT_SQL, params)
+                result = await db.execute(sql, params)
                 inserted_count += result.rowcount or 0
                 await db.commit()
 
     return read_count, inserted_count
 
 
-async def import_egms(path: Path, country: str = "DE", batch_size: int = 10000) -> None:
+async def import_egms(
+    path: Path,
+    country: str = "DE",
+    batch_size: int = 10000,
+    skip_dedupe: bool = False,
+) -> None:
     if not path.exists():
         raise FileNotFoundError(path)
 
@@ -275,7 +310,9 @@ async def import_egms(path: Path, country: str = "DE", batch_size: int = 10000) 
     else:
         raise RuntimeError(f"Unsupported file type: {suffix}. Use CSV or GPKG.")
 
-    read_count, inserted_count = await _insert_batches(rows, session_factory, batch_size=batch_size)
+    read_count, inserted_count = await _insert_batches(
+        rows, session_factory, batch_size=batch_size, skip_dedupe=skip_dedupe
+    )
     await engine.dispose()
 
     print("Import finished.")
@@ -288,9 +325,21 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("path", type=Path, help="Path to EGMS CSV or GPKG")
     parser.add_argument("--country", default="DE", type=str, help="Country code (e.g. DE, NL)")
     parser.add_argument("--batch-size", default=10000, type=int, help="Rows per batch insert")
+    parser.add_argument(
+        "--skip-dedupe",
+        action="store_true",
+        help="Skip duplicate check (use for initial bulk load into empty table, much faster)",
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = _parse_args()
-    asyncio.run(import_egms(args.path, country=args.country.upper(), batch_size=args.batch_size))
+    asyncio.run(
+        import_egms(
+            args.path,
+            country=args.country.upper(),
+            batch_size=args.batch_size,
+            skip_dedupe=args.skip_dedupe,
+        )
+    )
