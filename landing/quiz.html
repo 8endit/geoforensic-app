@@ -536,10 +536,49 @@
         setTimeout(() => steps[2].querySelector(".checkmark").classList.add("show"), 600);
       }, 2500);
 
-      // After analysis, show result
+      // After analysis, compute dynamic result and show
       setTimeout(() => {
+        updateResultSnippet();
         showView("view-result");
       }, 3800);
+    }
+
+    // --- Dynamic Result Based on Answers ---
+    function updateResultSnippet() {
+      const nutzung = answers[0] || "";
+      const bedenken = answers[1] || "";
+      const historie = answers[2] || "";
+      const dringlichkeit = answers[3] || "";
+
+      // Score: 0 (low risk) to 3 (high risk)
+      let score = 0;
+      if (bedenken.includes("Altlasten") || bedenken.includes("gesundheitlich")) score += 2;
+      else if (bedenken.includes("Pflanzenwachstum")) score += 1;
+      if (historie.includes("Nein") || historie.includes("Nicht sicher")) score += 1;
+      if (nutzung.includes("Hauskauf")) score += 1;
+
+      const snippet = document.getElementById("result-snippet");
+      const dot = snippet.querySelector("span.inline-block");
+      const title = snippet.querySelector("span.text-sm.font-semibold");
+      const text = snippet.querySelector("p");
+
+      if (score >= 3) {
+        dot.className = "inline-block w-3 h-3 rounded-full bg-red-400";
+        title.textContent = "Erhöhtes Risiko erkannt";
+        text.textContent = "Basierend auf Ihren Angaben besteht ein erhöhtes Risiko für Bodenbelastungen an Ihrem Standort. Wir empfehlen dringend eine detaillierte Analyse. Ihr persönlicher Bodenbericht zeigt Ihnen genau, worauf Sie achten müssen.";
+      } else if (score >= 2) {
+        dot.className = "inline-block w-3 h-3 rounded-full bg-amber-400";
+        title.textContent = "Mittleres Risiko — Prüfung empfohlen";
+        text.textContent = "Ihre Angaben deuten auf mögliche Auffälligkeiten hin. Ein Bodenbericht gibt Ihnen Klarheit, ob tatsächlich Handlungsbedarf besteht. Lassen Sie sich Ihre Analyse kostenlos zusenden.";
+      } else if (score >= 1) {
+        dot.className = "inline-block w-3 h-3 rounded-full bg-yellow-400";
+        title.textContent = "Leicht erhöhte Aufmerksamkeit empfohlen";
+        text.textContent = "Die Grundlage sieht solide aus, aber einzelne Faktoren verdienen einen genaueren Blick. Ihr Bodenbericht zeigt Ihnen, ob alles in Ordnung ist.";
+      } else {
+        dot.className = "inline-block w-3 h-3 rounded-full bg-green-400";
+        title.textContent = "Gute Ausgangslage — Bestätigung verfügbar";
+        text.textContent = "Ihre Angaben deuten auf ein geringes Risiko hin. Lassen Sie sich das schwarz auf weiß bestätigen — Ihr kostenloser Bodenbericht liefert die Gewissheit.";
+      }
     }
 
     // --- Form Submission ---
