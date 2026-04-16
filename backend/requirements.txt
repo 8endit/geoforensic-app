@@ -12,6 +12,8 @@ email-validator
 httpx
 geoalchemy2
 weasyprint
+fpdf2
+aiosmtplib
 google-auth
 PyJWT[crypto]
 

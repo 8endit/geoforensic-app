@@ -31,6 +31,12 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     apple_client_id: str = ""
 
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from_email: str = "report@geoforensic.de"
+
 
 @lru_cache
 def get_settings() -> Settings:

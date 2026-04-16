@@ -1,4 +1,6 @@
+import asyncio
 import json
+import logging
 import uuid
 
 import stripe
@@ -8,8 +10,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.dependencies import get_current_user, get_db
+from app.email_service import send_report_email
 from app.models import Payment, PaymentStatus, Report, ReportStatus, User
+from app.pdf_generator import generate_report_pdf
 from app.schemas import CheckoutRequest, CheckoutResponse
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/payments", tags=["payments"])
 settings = get_settings()
@@ -69,6 +75,10 @@ async def create_checkout(
     report.paid = True
     db.add(payment)
     await db.commit()
+
+    # Send report email in mock mode (fire-and-forget)
+    asyncio.create_task(_send_report_after_payment(report, current_user.email))
+
     return CheckoutResponse(checkout_url=checkout_url)
 
 
@@ -116,6 +126,27 @@ async def stripe_webhook(
     report = report_result.scalar_one_or_none()
     if report is not None:
         report.paid = True
+
+        # Look up user email for notification
+        user_result = await db.execute(select(User).where(User.id == report.user_id))
+        user = user_result.scalar_one_or_none()
+        if user:
+            asyncio.create_task(_send_report_after_payment(report, user.email))
+
     await db.commit()
     return {"status": "ok"}
+
+
+async def _send_report_after_payment(report: Report, email: str) -> None:
+    """Generate PDF and send it via email (fire-and-forget)."""
+    try:
+        pdf_bytes = generate_report_pdf(report)
+        await send_report_email(
+            recipient_email=email,
+            report_address=report.address_input,
+            pdf_bytes=pdf_bytes,
+            report_id=str(report.id),
+        )
+    except Exception:
+        logger.exception("Failed to send report email for %s to %s", report.id, email)
 
