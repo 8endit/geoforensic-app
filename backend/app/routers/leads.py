@@ -140,9 +140,14 @@ async def capture_lead(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
+    # Merge address into quiz_answers so it's visible in admin dashboard
+    answers_with_address = dict(payload.answers or {})
+    if payload.address:
+        answers_with_address["address"] = payload.address
+
     lead = Lead(
         email=payload.email,
-        quiz_answers=payload.answers,
+        quiz_answers=answers_with_address,
         source=payload.source,
     )
     db.add(lead)
