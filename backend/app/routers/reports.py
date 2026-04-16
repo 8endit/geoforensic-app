@@ -270,7 +270,7 @@ async def preview_report(
         ampel = None
 
     return PreviewResponse(
-        ampel=ampel.value if ampel else "gruen",
+        ampel=ampel.value if ampel else None,
         point_count=len(points),
         address_resolved=display_name,
         latitude=lat,

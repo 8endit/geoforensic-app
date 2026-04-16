@@ -45,7 +45,7 @@ class PreviewRequest(BaseModel):
 
 
 class PreviewResponse(BaseModel):
-    ampel: AmpelValue
+    ampel: AmpelValue | None
     point_count: int
     address_resolved: str
     latitude: float

@@ -55,7 +55,7 @@ export type AuthResponse = {
 };
 
 export type PreviewResponse = {
-  ampel: "gruen" | "gelb" | "rot";
+  ampel: "gruen" | "gelb" | "rot" | null;
   point_count: number;
   address_resolved: string;
   latitude: number;
