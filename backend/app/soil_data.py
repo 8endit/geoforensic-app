@@ -197,7 +197,11 @@ class SoilDataLoader:
             return self
 
         for prop, meta in SOILGRIDS_PROPERTIES.items():
-            path = self.raster_dir / meta["file"]
+            # Prefer extended NL+DE raster if available
+            base = meta["file"].replace(".tif", "")
+            nlde_path = self.raster_dir / f"{base}_nlde.tif"
+            orig_path = self.raster_dir / meta["file"]
+            path = nlde_path if nlde_path.exists() else orig_path
             if path.exists():
                 rl = RasterLookup(path=path)
                 rl.open()
@@ -226,7 +230,7 @@ class SoilDataLoader:
         rl = self._soilgrids.get(prop)
         if rl is None:
             return None
-        raw = rl.query(lat, lon)
+        raw = rl.query(lat, lon, search_radius=15)  # 15px ~5km, covers urban areas
         if raw == _NODATA:
             return None
         return round(raw * SOILGRIDS_PROPERTIES[prop]["scale"], 3)

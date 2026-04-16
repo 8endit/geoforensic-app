@@ -14,14 +14,14 @@ import matplotlib.patches as patches
 import numpy as np
 
 
-# ── Brand colors ────────────────────────────────────────────────────
-C_GREEN = "#22C55E"
-C_YELLOW = "#EAB308"
-C_ORANGE = "#F97316"
-C_RED = "#EF4444"
-C_NAVY = "#0F2040"
-C_GRAY = "#E5E7EB"
-C_BG = "#FAFAFA"
+# ── Calm, professional color palette ────────────────────────────────
+C_GREEN = "#5B9A6F"   # muted sage green
+C_YELLOW = "#C4A94D"  # muted gold
+C_ORANGE = "#C17A3E"  # muted copper
+C_RED = "#B85450"     # muted brick red
+C_NAVY = "#1E3352"    # dark navy
+C_GRAY = "#D5D9DE"    # soft gray
+C_BG = "#F7F8FA"      # off-white
 
 
 def _fig_to_png(fig, dpi: int = 150) -> bytes:
