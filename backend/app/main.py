@@ -10,7 +10,7 @@ from sqlalchemy import text
 from app.config import get_settings
 from app.database import Base, engine
 from app.rate_limit import limiter
-from app.routers import auth, health, payments, reports
+from app.routers import admin, auth, health, payments, reports
 
 settings = get_settings()
 
@@ -37,6 +37,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(admin.router)
 app.include_router(auth.router)
 app.include_router(reports.router)
 app.include_router(payments.router)
