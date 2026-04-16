@@ -53,15 +53,28 @@ async def geocode_suggest(
         finally:
             _last_call = time.monotonic()
 
-    return {
-        "suggestions": [
-            {
-                "label": d.get("display_name", ""),
-                "lat": float(d["lat"]),
-                "lon": float(d["lon"]),
-                "type": d.get("type", ""),
-                "class": d.get("class", ""),
-            }
-            for d in data
-        ]
-    }
+    suggestions = []
+    for d in data:
+        addr = d.get("address", {})
+        # Build structured street + city from addressdetails
+        road = addr.get("road", "")
+        house = addr.get("house_number", "")
+        postcode = addr.get("postcode", "")
+        city = addr.get("city") or addr.get("town") or addr.get("village") or addr.get("municipality") or ""
+        country_code = addr.get("country_code", "").upper()
+
+        street = f"{road} {house}".strip() if road else ""
+        postal_city = f"{postcode} {city}".strip() if postcode or city else ""
+
+        suggestions.append({
+            "label": d.get("display_name", ""),
+            "street": street,
+            "postal_city": postal_city,
+            "country_code": country_code,
+            "lat": float(d["lat"]),
+            "lon": float(d["lon"]),
+            "type": d.get("type", ""),
+            "class": d.get("class", ""),
+        })
+
+    return {"suggestions": suggestions}
