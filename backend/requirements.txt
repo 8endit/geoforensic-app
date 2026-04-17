@@ -22,4 +22,5 @@ scipy
 pandas
 matplotlib
 openpyxl
+Pillow
 
