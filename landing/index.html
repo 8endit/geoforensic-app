@@ -154,25 +154,49 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     Datenscreening Ihres Standorts in wenigen Minuten: <strong class="text-white font-medium">Bodenbewegung</strong> aus Satellitendaten, <strong class="text-white font-medium">regionale Schwermetall-Hintergrundwerte</strong> und <strong class="text-white font-medium">Bodenqualität</strong>. So können Sie einordnen, ob eine genauere Beprobung sinnvoll ist.
                 </p>
 
-                <!-- CTA -->
-                <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <a href="#cta"
-                       onclick="(window.dataLayer||[]).push({event:'cta_main'})"
-                       class="cta-pulse w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold text-lg px-8 py-4 rounded-xl transition-all shadow-lg shadow-brand-500/30 hover:shadow-brand-400/40 hover:-translate-y-0.5">
-                        Jetzt Bodenbericht generieren
+                <!-- Hero Inline Lead Form -->
+                <form id="hero-lead-form" class="mt-10 max-w-md mx-auto space-y-3" onsubmit="handleHeroLead(event)">
+                    <input type="text" id="hero-street" required placeholder="Straße + Hausnummer"
+                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                    <input type="text" id="hero-city" required placeholder="PLZ + Ort"
+                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                    <input type="email" id="hero-email" required placeholder="Ihre E-Mail-Adresse"
+                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                    <button type="submit" id="hero-submit-btn"
+                            onclick="(window.dataLayer||[]).push({event:'cta_main'})"
+                            class="cta-pulse w-full inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold text-lg px-10 py-4 rounded-xl transition-all shadow-lg shadow-brand-500/30 hover:shadow-brand-400/40 active:scale-[0.98]">
+                        Kostenlosen Bericht anfordern
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
-                    </a>
+                    </button>
+                </form>
+                <p class="text-xs text-white/60 text-center mt-3 leading-relaxed max-w-md mx-auto">
+                    Mit Klick auf „Kostenlosen Bericht anfordern" stimmen Sie der Verarbeitung Ihrer Daten gemäß
+                    <a href="/datenschutz.html" class="underline hover:text-white">Datenschutzerklärung</a> zu.
+                    Ihre E-Mail kann auch für Updates zu verwandten Angeboten genutzt werden (§ 7 Abs. 3 UWG),
+                    Widerspruch jederzeit möglich.
+                </p>
+                <div id="hero-success" class="hidden mt-10 max-w-md mx-auto text-center">
+                    <div class="w-14 h-14 rounded-full bg-brand-500/20 flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-7 h-7 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <p class="text-white font-semibold">Bericht wird erstellt!</p>
+                    <p class="text-gray-300 text-sm mt-1">Prüfen Sie Ihre E-Mail in wenigen Minuten.</p>
+                </div>
+
+                <!-- Secondary CTA: Quiz -->
+                <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
                     <a href="/quiz.html"
                        onclick="(window.dataLayer||[]).push({event:'cta_quiz'})"
-                       class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-brand-400 text-white font-semibold text-base px-7 py-4 rounded-xl transition-all backdrop-blur-sm">
-                        <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                       class="inline-flex items-center justify-center gap-2 text-gray-300 hover:text-white text-sm font-medium transition underline-offset-4 hover:underline">
+                        <svg class="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         Oder: 60-Sekunden-Risikocheck
                     </a>
+                    <span class="hidden sm:inline text-gray-600">·</span>
+                    <a href="#so-funktionierts" class="inline-flex items-center gap-1.5 text-gray-400 hover:text-white text-sm font-medium transition">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" /></svg>
+                        So funktioniert's
+                    </a>
                 </div>
-                <a href="#so-funktionierts" class="mt-4 inline-flex items-center gap-1.5 text-gray-400 hover:text-white text-sm font-medium transition">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" /></svg>
-                    So funktioniert's
-                </a>
 
                 <!-- Trust Indicators -->
                 <div class="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-gray-400">
@@ -504,9 +528,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         &ldquo;Hat uns <strong>vor dem Kaufgespr&auml;ch geholfen, die richtigen Fragen zu stellen</strong>. Im Bericht steht klar drin, was er kann und was nicht. Das fand ich seri&ouml;s.&rdquo;
                     </p>
                     <div class="flex items-center gap-3">
-                        <img src="/images/testimonials/markus.jpg" alt="Markus K." class="w-10 h-10 rounded-full object-cover" loading="lazy">
+                        <img src="/images/testimonials/markus.jpg" alt="Markus Köhler" class="w-10 h-10 rounded-full object-cover" loading="lazy">
                         <div>
-                            <p class="font-semibold text-navy-800 text-sm">Markus K.</p>
+                            <p class="font-semibold text-navy-800 text-sm">Markus Köhler</p>
                             <p class="text-xs text-gray-400">Haussuche, M&uuml;nchen &middot; Pilotphase</p>
                         </div>
                     </div>
@@ -525,9 +549,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         &ldquo;Als Ersteinsch&auml;tzung f&uuml;r unseren Garten hilfreich. Der <strong>Abschnitt mit den regionalen Vergleichswerten</strong> war f&uuml;r mich am interessantesten. Da wusste ich endlich, wo ich stehe.&rdquo;
                     </p>
                     <div class="flex items-center gap-3">
-                        <img src="/images/testimonials/sandra.jpg" alt="Sandra B." class="w-10 h-10 rounded-full object-cover" loading="lazy">
+                        <img src="/images/testimonials/sandra.jpg" alt="Sandra Brandt" class="w-10 h-10 rounded-full object-cover" loading="lazy">
                         <div>
-                            <p class="font-semibold text-navy-800 text-sm">Sandra B.</p>
+                            <p class="font-semibold text-navy-800 text-sm">Sandra Brandt</p>
                             <p class="text-xs text-gray-400">Gartenbesitzerin, Hamburg &middot; Pilotphase</p>
                         </div>
                     </div>
@@ -546,9 +570,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         &ldquo;Gute Datenbasis als <strong>Startpunkt f&uuml;r eigene Probenahmen</strong>. Ersetzt nat&uuml;rlich keine Laboranalyse, das wird aber auch so kommuniziert. Das find ich in Ordnung.&rdquo;
                     </p>
                     <div class="flex items-center gap-3">
-                        <img src="/images/testimonials/thomas.jpg" alt="Thomas H." class="w-10 h-10 rounded-full object-cover" loading="lazy">
+                        <img src="/images/testimonials/thomas.jpg" alt="Thomas Heinen" class="w-10 h-10 rounded-full object-cover" loading="lazy">
                         <div>
-                            <p class="font-semibold text-navy-800 text-sm">Thomas H.</p>
+                            <p class="font-semibold text-navy-800 text-sm">Thomas Heinen</p>
                             <p class="text-xs text-gray-400">Landwirt, Niedersachsen &middot; Pilotphase</p>
                         </div>
                     </div>
@@ -957,6 +981,41 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             { threshold: 0 }
         );
         observer.observe(document.querySelector('.hero-gradient'));
+
+        // Hero inline lead capture form
+        async function handleHeroLead(e) {
+            e.preventDefault();
+            const street = document.getElementById('hero-street').value;
+            const city = document.getElementById('hero-city').value;
+            const email = document.getElementById('hero-email').value;
+            const btn = document.getElementById('hero-submit-btn');
+
+            btn.disabled = true;
+            btn.textContent = 'Wird gesendet...';
+
+            try {
+                const res = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email,
+                        address: street.trim() + ', ' + city.trim(),
+                        answers: { nutzung: 'direkt', source_page: 'landing_hero' },
+                        source: 'hero_direct'
+                    })
+                });
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    throw new Error(data.detail || 'Senden fehlgeschlagen');
+                }
+                document.getElementById('hero-lead-form').classList.add('hidden');
+                document.getElementById('hero-success').classList.remove('hidden');
+            } catch (err) {
+                btn.disabled = false;
+                btn.textContent = 'Kostenlosen Bericht anfordern';
+                alert('Fehler: ' + err.message + '\nBitte prüfen Sie die Adresse und versuchen Sie es erneut.');
+            }
+        }
 
         // Direct lead capture form
         async function handleDirectLead(e) {
