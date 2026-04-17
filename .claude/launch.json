@@ -6,6 +6,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--dir", "frontend/geoforensic_webcode", "dev"],
       "port": 3000
+    },
+    {
+      "name": "landing",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8001", "--directory", "landing"],
+      "port": 8001
     }
   ]
 }

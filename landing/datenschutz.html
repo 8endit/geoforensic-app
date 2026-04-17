@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+
+<!-- Klaro consent manager (self-hosted, DSGVO-konform) -->
+<script defer src="/klaro/klaro-config.js"></script>
+<script defer src="/klaro/klaro.js"></script>
+
+<!-- Google Tag Manager (laedt erst nach Einwilligung via Klaro) -->
+<script type="text/plain" data-type="application/javascript" data-name="google-tag-manager">
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-KFG5W96X');
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Datenschutzerklaerung – Bodenbericht</title>
@@ -168,6 +182,7 @@
     <a href="#datenerfassung">4. Datenerfassung auf dieser Website</a>
     <a href="#bodenbericht-anfrage">5. Bodenbericht-Anfrage und Reportversand</a>
     <a href="#externe-skripte">6. Schriften und Skripte</a>
+    <a href="#analyse">7. Analyse-Tools und Einwilligungsmanagement</a>
   </div>
 
   <h2 id="datenschutz-blick">1. Datenschutz auf einen Blick</h2>
@@ -291,6 +306,28 @@
   <h2 id="externe-skripte">6. Schriften und Skripte</h2>
   <p>Alle Schriften (Inter) und das CSS-Framework werden direkt von unseren eigenen Servern (Contabo GmbH, Muenchen) ausgeliefert. Es findet keine Einbindung externer Content Delivery Networks (CDNs) und keine Uebermittlung Ihrer IP-Adresse an Dritte zum Zweck der Darstellung der Website statt.</p>
 
+  <h2 id="analyse">7. Analyse-Tools und Einwilligungsmanagement</h2>
+
+  <h3>Einwilligungsmanagement (Klaro)</h3>
+  <p>Wir nutzen das selbst gehostete Open-Source-Tool <span class="company">Klaro!</span> zur Verwaltung Ihrer Einwilligungen fuer optionale Analyse-Dienste. Klaro! speichert Ihre Einwilligungsentscheidung lokal in einem Cookie (&bdquo;klaro-consent&ldquo;, Laufzeit 365 Tage). Es erfolgt keine Uebertragung dieser Einstellung an Dritte. Rechtsgrundlage ist Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO sowie Paragraph&nbsp;25 Abs.&nbsp;2 Nr.&nbsp;2 TDDDG (unbedingt erforderlich fuer die Bereitstellung der Einwilligungsfunktion).</p>
+  <p>Sie koennen Ihre Einwilligung jederzeit ueber den Link <em>&bdquo;Datenschutz-Einstellungen&ldquo;</em> im Footer widerrufen oder anpassen.</p>
+
+  <h3>Google Tag Manager</h3>
+  <p>Wir nutzen den Google Tag Manager der Google Ireland Limited, Gordon House, Barrow Street, Dublin&nbsp;4, Irland. Der Google Tag Manager ist eine Loesung, mit der wir Website-Tags ueber eine Oberflaeche verwalten koennen. Der Tag Manager selbst setzt keine Cookies und erfasst keine personenbezogenen Daten; er steuert lediglich die Ausloesung anderer Dienste (siehe unten).</p>
+  <p>Der Google Tag Manager wird <strong>erst nach Ihrer aktiven Einwilligung</strong> ueber den Consent-Banner geladen. Ohne Einwilligung findet keine Uebertragung an Google statt. Rechtsgrundlage ist Ihre Einwilligung nach Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;a DSGVO und Paragraph&nbsp;25 Abs.&nbsp;1 TDDDG. Datenschutzerklaerung: <a class="link" href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>.</p>
+
+  <h3>Google Analytics 4</h3>
+  <p>Diese Website nutzt nach Ihrer Einwilligung Funktionen des Webanalysedienstes Google Analytics 4. Anbieter ist die Google Ireland Limited, Gordon House, Barrow Street, Dublin&nbsp;4, Irland. Google Analytics ermoeglicht es uns, das Verhalten unserer Websitebesucher zu analysieren und dabei verschiedene Nutzungsdaten (z.&nbsp;B. aufgerufene Seiten, Verweildauer, verwendetes Endgeraet, Herkunft der Besucher) auszuwerten.</p>
+  <p>Die Verarbeitung erfolgt mit aktivierter IP-Anonymisierung; die Speicherung erfolgt in der Property <code>G-N9H86S1P8V</code>. Die Aufbewahrungsdauer der Nutzerdaten ist auf das Minimum von <strong>2 Monaten</strong> eingestellt. Rechtsgrundlage ist Ihre Einwilligung nach Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;a DSGVO und Paragraph&nbsp;25 Abs.&nbsp;1 TDDDG.</p>
+  <p><strong>Drittland-Uebermittlung:</strong> Google kann Daten an Server in den USA uebertragen. Google ist unter dem EU-US Data Privacy Framework zertifiziert; die Uebermittlung erfolgt auf Grundlage des Angemessenheitsbeschlusses der EU-Kommission vom 10.07.2023 (Art.&nbsp;45 DSGVO). Mit Google besteht ein Vertrag ueber Auftragsverarbeitung nach Art.&nbsp;28 DSGVO. Datenschutzerklaerung: <a class="link" href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>. Opt-out-Browser-Add-on: <a class="link" href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">tools.google.com/dlpage/gaoptout</a>.</p>
+
+  <h3>PostHog (EU-Region)</h3>
+  <p>Diese Website nutzt nach Ihrer Einwilligung das Produkt-Analytik-Tool PostHog der PostHog Inc., 2261 Market Street #4008, San Francisco, CA 94114, USA. Wir nutzen ausschliesslich die <strong>EU-Instanz</strong> (<code>eu.i.posthog.com</code>) mit Hosting in Frankfurt am Main (AWS eu-central-1). Eine Uebermittlung in die USA findet beim normalen Betrieb nicht statt.</p>
+  <p>PostHog erfasst anonymisierte Nutzungsdaten (Seitenaufrufe, Klicks, Scrolltiefe, Formular-Interaktionen) sowie optional Session-Aufzeichnungen zur Verbesserung der Nutzerfreundlichkeit. Eingabefelder und sensible Inhalte werden dabei automatisch maskiert. Rechtsgrundlage ist Ihre Einwilligung nach Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;a DSGVO und Paragraph&nbsp;25 Abs.&nbsp;1 TDDDG. Mit PostHog besteht ein Vertrag ueber Auftragsverarbeitung nach Art.&nbsp;28 DSGVO. Datenschutzerklaerung: <a class="link" href="https://posthog.com/privacy" target="_blank" rel="noopener">posthog.com/privacy</a>.</p>
+
+  <h3>Widerruf Ihrer Einwilligung</h3>
+  <p>Sie koennen Ihre Einwilligung fuer alle Analyse-Dienste jederzeit mit Wirkung fuer die Zukunft widerrufen, indem Sie im Footer auf <em>&bdquo;Datenschutz-Einstellungen&ldquo;</em> klicken und die entsprechenden Dienste deaktivieren. Bereits gesetzte Cookies der deaktivierten Dienste werden durch Klaro! automatisch geloescht.</p>
+
 </main>
 
 <footer class="site">
@@ -305,6 +342,7 @@
       <a href="/muster-bericht.html">Muster-Bericht</a>
       <a href="/impressum.html">Impressum</a>
       <a href="/datenschutz.html">Datenschutz</a>
+      <a href="#" onclick="if(window.klaro){klaro.show();}return false;">Datenschutz-Einstellungen</a>
     </div>
   </div>
 </footer>
