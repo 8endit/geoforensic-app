@@ -33,4 +33,3 @@ next-env.d.ts
 
 # Landing build tools (local only, not deployed)
 landing/tailwindcss.exe
-landing/klaro/klaro.js
