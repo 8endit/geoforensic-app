@@ -23,19 +23,25 @@ async def send_report_email(
         return False
 
     msg = EmailMessage()
-    msg["Subject"] = f"GeoForensic Standortauskunft — {report_address}"
-    msg["From"] = settings.smtp_from_email
+    msg["Subject"] = f"Ihr Bodenbericht für {report_address}"
+    from_name = getattr(settings, "smtp_from_name", "Bodenbericht")
+    msg["From"] = f"{from_name} <{settings.smtp_from_email}>"
     msg["To"] = recipient_email
+    msg["Reply-To"] = "team@geoforensic.de"
 
     msg.set_content(
         f"Guten Tag,\n\n"
-        f"Ihr Bodenbewegungsscreening für {report_address} ist fertig.\n"
-        f"Das PDF finden Sie im Anhang.\n\n"
-        f"Mit freundlichen Grüßen,\n"
-        f"GeoForensic\n\n"
-        f"---\n"
-        f"Diese Standortauskunft ist ein automatisiertes Datenscreening "
-        f"und ersetzt keine fachliche Einzelfallbewertung.\n"
+        f"Ihr kostenloser Bodenbericht für\n"
+        f"{report_address}\n"
+        f"ist fertig. Das PDF finden Sie im Anhang.\n\n"
+        f"Der Bericht ist ein automatisiertes Datenscreening auf Basis öffentlicher "
+        f"EU-Satelliten- und Bodendaten (Copernicus EGMS, ISRIC SoilGrids, JRC LUCAS). "
+        f"Er ersetzt keine fachliche Einzelfallbewertung durch eine sachverständige Person.\n\n"
+        f"Bei Rückfragen erreichen Sie uns unter team@geoforensic.de.\n\n"
+        f"Mit freundlichen Grüßen\n"
+        f"Ihr Bodenbericht-Team\n\n"
+        f"—\n"
+        f"Bodenbericht · Ein Service der Tepnosholding GmbH\n"
         f"Generated using European Union's Copernicus Land Monitoring Service information."
     )
 
@@ -43,7 +49,7 @@ async def send_report_email(
         pdf_bytes,
         maintype="application",
         subtype="pdf",
-        filename=f"geoforensic-{report_id}.pdf",
+        filename=f"bodenbericht-{report_id}.pdf",
     )
 
     try:

@@ -42,7 +42,8 @@ class Settings(BaseSettings):
     smtp_port: int = 587
     smtp_user: str = ""
     smtp_password: str = ""
-    smtp_from_email: str = "report@geoforensic.de"
+    smtp_from_email: str = "bericht@geoforensic.de"
+    smtp_from_name: str = "Bodenbericht"
 
 
 @lru_cache
