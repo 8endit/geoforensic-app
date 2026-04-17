@@ -972,13 +972,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         source: 'landing_direct'
                     })
                 });
-                if (!res.ok) throw new Error('Senden fehlgeschlagen');
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    throw new Error(data.detail || 'Senden fehlgeschlagen');
+                }
                 document.getElementById('direct-lead-form').classList.add('hidden');
                 document.getElementById('direct-success').classList.remove('hidden');
             } catch (err) {
                 btn.disabled = false;
                 btn.textContent = 'Kostenlosen Bericht anfordern';
-                alert('Fehler: ' + err.message);
+                alert('Fehler: ' + err.message + '\nBitte pruefen Sie die Adresse und versuchen Sie es erneut.');
             }
         }
 

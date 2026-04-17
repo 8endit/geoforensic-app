@@ -51,13 +51,22 @@ async def _generate_and_send_lead_report(
     address: str,
     answers: dict,
     db_url: str,
+    geocoded: tuple[float, float, str, str] | None = None,
 ) -> None:
-    """Background task: geocode → EGMS query → PDF → email."""
+    """Background task: geocode → EGMS query → PDF → email.
+
+    Accepts pre-computed geocode (lat, lon, display_name, country_code) from the
+    synchronous validation in the request handler; falls back to geocoding here
+    for backward compatibility.
+    """
     from app.database import SessionLocal
 
     try:
-        # 1. Geocode
-        lat, lon, display_name, country_code = await geocode_address(address)
+        # 1. Geocode (or use pre-computed result from request handler)
+        if geocoded is not None:
+            lat, lon, display_name, country_code = geocoded
+        else:
+            lat, lon, display_name, country_code = await geocode_address(address)
 
         # 2. EGMS query
         async with SessionLocal() as db:
@@ -140,6 +149,18 @@ async def capture_lead(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
+    # If address provided: validate synchronously via geocoding BEFORE saving
+    # the lead, so the user gets immediate feedback on typos instead of a silent
+    # failure in the background report pipeline.
+    geocoded: tuple[float, float, str, str] | None = None
+    address_clean: str | None = None
+    if payload.address and payload.address.strip():
+        address_clean = payload.address.strip()
+        # geocode_address raises HTTPException(422) if Nominatim returns no
+        # results; that propagates as-is to the client with detail message
+        # "Adresse konnte nicht gefunden werden".
+        geocoded = await geocode_address(address_clean)
+
     # Merge address into quiz_answers so it's visible in admin dashboard
     answers_with_address = dict(payload.answers or {})
     if payload.address:
@@ -154,14 +175,15 @@ async def capture_lead(
     await db.commit()
     await db.refresh(lead)
 
-    # If address provided, generate and send personalized report in background
-    if payload.address and payload.address.strip():
+    # Schedule background report generation with the already-verified geocode
+    if address_clean and geocoded:
         background_tasks.add_task(
             _generate_and_send_lead_report,
             email=payload.email,
-            address=payload.address.strip(),
+            address=address_clean,
             answers=payload.answers or {},
             db_url="",  # uses SessionLocal directly
+            geocoded=geocoded,
         )
 
     return LeadResponse(
