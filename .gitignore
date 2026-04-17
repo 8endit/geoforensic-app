@@ -30,3 +30,6 @@ next-env.d.ts
 # pnpm store (Docker volume artifact)
 .pnpm-store/
 .claude/worktrees/
+
+# Landing build tools (local only, not deployed)
+landing/tailwindcss.exe
