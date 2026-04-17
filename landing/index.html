@@ -94,6 +94,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     <a href="#so-funktionierts" class="hover:text-navy-700 transition">So funktioniert's</a>
                     <a href="#leistungen" class="hover:text-navy-700 transition">Leistungen</a>
                     <a href="#bewertungen" class="hover:text-navy-700 transition">Bewertungen</a>
+                    <a href="#premium" class="hover:text-navy-700 transition">Premium</a>
                     <a href="#faq" class="hover:text-navy-700 transition">FAQ</a>
                 </nav>
 
@@ -115,6 +116,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     <a href="#so-funktionierts" class="hover:text-navy-700 transition py-1">So funktioniert's</a>
                     <a href="#leistungen" class="hover:text-navy-700 transition py-1">Leistungen</a>
                     <a href="#bewertungen" class="hover:text-navy-700 transition py-1">Bewertungen</a>
+                    <a href="#premium" class="hover:text-navy-700 transition py-1">Premium</a>
                     <a href="#faq" class="hover:text-navy-700 transition py-1">FAQ</a>
                     <a href="#cta" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition mt-2">Bericht generieren</a>
                 </nav>
@@ -731,9 +733,107 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                             </p>
                         </div>
                     </div>
+
+                    <!-- FAQ: Premium -->
+                    <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                      <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 transition">
+                        <span class="font-semibold text-navy-800 text-sm md:text-base pr-4">Gibt es eine kostenpflichtige Premium-Version?</span>
+                        <svg class="faq-chevron w-5 h-5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                      </button>
+                      <div class="faq-answer px-6 pb-5">
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                          Der kostenlose Bodenbericht ist Teil unserer Pilotphase. Eine erweiterte Premium-Version mit Altlasten-Verdachtsflächen, Hochwasser-Zonen, Radon-Daten und weiteren Schichten ist in Entwicklung. Wer sich in unsere <a href="#premium" class="text-brand-600 hover:text-brand-700 underline">Warteliste</a> einträgt, wird informiert, sobald der Premium-Bericht verfügbar ist.
+                        </p>
+                      </div>
+                    </div>
                 </div>
             </div>
         </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- PREMIUM TEASER                               -->
+    <!-- ============================================ -->
+    <section id="premium" class="py-16 md:py-24 bg-navy-900 text-white relative overflow-hidden">
+      <div class="absolute inset-0 opacity-5">
+        <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="premium-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#premium-grid)"/></svg>
+      </div>
+
+      <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10">
+          <div class="inline-flex items-center gap-2 bg-brand-500/15 backdrop-blur-sm text-brand-300 text-xs font-semibold tracking-wide uppercase px-4 py-1.5 rounded-full mb-6 border border-brand-500/20">
+            <span class="w-2 h-2 bg-brand-400 rounded-full animate-pulse"></span>
+            In Entwicklung
+          </div>
+          <h2 class="text-3xl md:text-4xl font-extrabold leading-tight tracking-tight mb-4">
+            Der Premium-Bericht kommt bald.
+          </h2>
+          <p class="text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            Der kostenlose Bodenbericht ist der Anfang. Am umfassenden Premium-Bericht arbeiten wir gerade &mdash; mit allen Datenschichten, die ein Hauskauf wirklich verlangt.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-3 mb-10">
+          <!-- Diese Liste darf auf eine finale Auswahl gekürzt werden, siehe Hinweis unten. -->
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
+            <svg class="w-5 h-5 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75"/></svg>
+            <span class="text-sm text-gray-200">Altlasten-Verdachtsflächen (BBodSchG)</span>
+          </div>
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
+            <svg class="w-5 h-5 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75"/></svg>
+            <span class="text-sm text-gray-200">Hochwasser-Gefahrenzonen (EU-HWRM)</span>
+          </div>
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
+            <svg class="w-5 h-5 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75"/></svg>
+            <span class="text-sm text-gray-200">Radon-Vorsorgegebiete (BfS)</span>
+          </div>
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
+            <svg class="w-5 h-5 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75"/></svg>
+            <span class="text-sm text-gray-200">Bergbau-Risiko &amp; Altbergbau</span>
+          </div>
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
+            <svg class="w-5 h-5 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75"/></svg>
+            <span class="text-sm text-gray-200">Pestizid-Indikatoren (ESDAC)</span>
+          </div>
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
+            <svg class="w-5 h-5 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75"/></svg>
+            <span class="text-sm text-gray-200">Bodenrichtwerte &amp; Markt-Kontext</span>
+          </div>
+        </div>
+
+        <!-- Waitlist form -->
+        <form id="premium-waitlist-form" class="max-w-md mx-auto">
+          <label class="sr-only" for="premium-email">E-Mail-Adresse</label>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input
+              id="premium-email"
+              name="email"
+              type="email"
+              required
+              placeholder="Ihre E-Mail-Adresse"
+              class="flex-1 px-4 py-3 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
+            />
+            <button
+              type="submit"
+              class="bg-brand-500 hover:bg-brand-400 text-white font-semibold px-6 py-3 rounded-lg transition shadow-lg shadow-brand-500/20"
+            >
+              Benachrichtigen
+            </button>
+          </div>
+          <p class="text-xs text-gray-400 mt-3 text-center">
+            Wir melden uns, sobald der Premium-Bericht verfügbar ist. Kein Newsletter, keine Werbung. Jederzeit kündbar.
+          </p>
+          <div id="premium-waitlist-success" class="hidden mt-4 text-center">
+            <div class="inline-flex items-center gap-2 bg-brand-500/20 text-brand-300 px-4 py-2 rounded-lg text-sm font-medium">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              Eingetragen. Wir melden uns.
+            </div>
+          </div>
+          <div id="premium-waitlist-error" class="hidden mt-4 text-center">
+            <p class="text-sm text-red-300">Fehler beim Eintragen. Bitte später erneut versuchen oder an team@geoforensic.de schreiben.</p>
+          </div>
+        </form>
+      </div>
     </section>
 
     <!-- ============================================ -->
@@ -880,6 +980,35 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 btn.textContent = 'Kostenlosen Bericht anfordern';
                 alert('Fehler: ' + err.message);
             }
+        }
+
+        // Premium waitlist form
+        const premiumForm = document.getElementById('premium-waitlist-form');
+        if (premiumForm) {
+          premiumForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('premium-email').value.trim();
+            if (!email) return;
+            const btn = premiumForm.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            btn.textContent = 'Wird gesendet...';
+            btn.disabled = true;
+            try {
+              const res = await fetch('/api/leads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, source: 'premium-waitlist' }),
+              });
+              if (!res.ok) throw new Error('Request failed');
+              document.getElementById('premium-waitlist-form').querySelector('.flex.flex-col').classList.add('hidden');
+              document.getElementById('premium-waitlist-success').classList.remove('hidden');
+            } catch (err) {
+              document.getElementById('premium-waitlist-error').classList.remove('hidden');
+            } finally {
+              btn.textContent = originalText;
+              btn.disabled = false;
+            }
+          });
         }
     </script>
 </body>
