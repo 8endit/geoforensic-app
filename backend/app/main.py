@@ -1,6 +1,8 @@
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+import sentry_sdk
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -16,6 +18,21 @@ from app.rate_limit import limiter
 from app.routers import admin, auth, geocode, health, leads, modules, payments, reports
 
 settings = get_settings()
+
+# Sentry-Init muss vor FastAPI-App-Creation passieren, damit die FastAPI-Integration
+# alle Request-Lifecycles erfassen kann. Wenn SENTRY_DSN nicht gesetzt ist (z.B.
+# lokal), ist Sentry no-op — sdk wirft keinen Fehler, schickt nur nichts.
+_sentry_dsn = os.getenv("SENTRY_DSN", "").strip()
+if _sentry_dsn:
+    sentry_sdk.init(
+        dsn=_sentry_dsn,
+        environment=os.getenv("SENTRY_ENVIRONMENT", "production"),
+        release=os.getenv("SENTRY_RELEASE") or None,
+        # 10 % aller Requests als Performance-Trace, reicht fuer MVP
+        traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
+        # Keine personenbezogenen Daten (IP, User-ID) automatisch mitsenden
+        send_default_pii=False,
+    )
 
 
 @asynccontextmanager
