@@ -155,8 +155,9 @@ _TEASER_UPSELL = (
     '<p style="margin-top: 20px; font-size: 14px; color: #4b5563;">'
     "Dies ist eine kostenlose Kurzfassung. Den ausfuehrlichen Bericht mit "
     "Schwermetall-Analyse, Bodenqualitaet und Handlungsempfehlung entwickeln "
-    'wir gerade unter <a href="https://geoforensic.de" style="color:#15803d;">geoforensic.de</a> '
-    "&mdash; trag dich dort gerne auf die Warteliste."
+    'wir gerade &mdash; trag dich gerne in unsere '
+    '<a href="https://bodenbericht.de/#premium" style="color:#15803d;">Warteliste</a> '
+    "ein und wir benachrichtigen dich, sobald die Premium-Version verfuegbar ist."
     "</p>"
 )
 
@@ -193,8 +194,9 @@ def _build_text_body(address: str, is_teaser: bool = True) -> str:
             "ist fertig. Das PDF finden Sie im Anhang.\n\n"
             "Dies ist eine kostenlose Kurzfassung. Den ausfuehrlichen Bericht mit "
             "Schwermetall-Analyse, Bodenqualitaet und Handlungsempfehlung "
-            "entwickeln wir gerade unter https://geoforensic.de — trag dich dort "
-            "gerne auf die Warteliste.\n\n"
+            "entwickeln wir gerade — trag dich gerne in unsere Warteliste ein "
+            "(https://bodenbericht.de/#premium) und wir benachrichtigen dich, "
+            "sobald die Premium-Version verfuegbar ist.\n\n"
         )
     else:
         body_lines = (

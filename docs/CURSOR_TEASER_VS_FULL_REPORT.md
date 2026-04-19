@@ -207,7 +207,9 @@ nur eine klare Weiche + ehrliches Benennen.
    - Teaser-Betreff: "Ihre kostenlose Boden-Kurzfassung für {Adresse}"
    - Vollreport-Betreff: "Ihr Bodenbericht für {Adresse}" (wie bisher)
    - HTML-Body + Plaintext-Fallback haben je Teaser/Voll andere Überschrift,
-     Intro, Info-Liste und einen Upsell-Block mit Link auf `geoforensic.de`.
+     Intro, Info-Liste und (nur im Teaser) einen Upsell-Block mit Link auf
+     `https://bodenbericht.de/#premium` (die Warteliste — `geoforensic.de`
+     existiert als Domain noch nicht, Link kommt erst wenn der Paid-Flow live ist).
 3. ✅ **Admin-Dashboard-Badge in `landing/admin.html`:**
    Neue Spalte "Report" mit `TEASER`/`VOLL`/`—` — nur JS-Branching, keine
    Schema-Änderung.
@@ -244,5 +246,5 @@ curl -X POST https://bodenbericht.de/api/leads \
 ```
 
 Erwartet: Betreff "Ihre kostenlose Boden-Kurzfassung für …" und Body mit
-geoforensic.de-Warteliste-Hinweis. Admin-Dashboard zeigt neuen Eintrag mit
-`TEASER`-Badge.
+Warteliste-Hinweis (Link `https://bodenbericht.de/#premium`). Admin-Dashboard
+zeigt neuen Eintrag mit `TEASER`-Badge.
