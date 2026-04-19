@@ -88,6 +88,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             <th class="px-3 py-2">Email</th>
             <th class="px-3 py-2">Adresse</th>
             <th class="px-3 py-2">Quelle</th>
+            <th class="px-3 py-2">Report</th>
             <th class="px-3 py-2">Nutzung</th>
             <th class="px-3 py-2">Bedenken</th>
             <th class="px-3 py-2">Dringlichkeit</th>
@@ -166,14 +167,22 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         document.getElementById('leads-body').innerHTML = '';
       } else {
         document.getElementById('leads-empty').classList.add('hidden');
+        const TEASER_SOURCES = new Set(['quiz', 'landing', 'premium-waitlist']);
         document.getElementById('leads-body').innerHTML = leads.map(l => {
           const q = l.quiz_answers || {};
           const address = q.address || shortText(q.source_page || '', 30);
+          const isTeaser = TEASER_SOURCES.has(l.source);
+          const reportBadge = isTeaser
+            ? '<span class="pill pill-gray" style="background:#e0f2fe;color:#075985;">TEASER</span>'
+            : (l.source === 'paid'
+                ? '<span class="pill pill-gray" style="background:#dcfce7;color:#166534;">VOLL</span>'
+                : '<span class="pill pill-gray">—</span>');
           return `<tr class="hover:bg-gray-50">
             <td class="px-3 py-2 text-xs text-gray-500 font-mono">${fmtTime(l.created_at)}</td>
             <td class="px-3 py-2 font-medium">${l.email}</td>
             <td class="px-3 py-2 text-xs">${shortText(address, 40)}</td>
             <td class="px-3 py-2"><span class="pill pill-gray">${l.source}</span></td>
+            <td class="px-3 py-2">${reportBadge}</td>
             <td class="px-3 py-2 text-xs">${shortText(q.nutzung || '', 25)}</td>
             <td class="px-3 py-2 text-xs">${shortText(q.bedenken || '', 25)}</td>
             <td class="px-3 py-2 text-xs">${shortText(q.dringlichkeit || '', 25)}</td>

@@ -1,5 +1,10 @@
 # Cursor-Task: Teaser-Report (bodenbericht.de) vs. Vollreport (geoforensic.de)
 
+> **Status (2026-04-19):** Routing-Weiche, Email-Differenzierung und
+> Admin-Badge sind implementiert (siehe unten "Umsetzungs-Status"). Was
+> bleibt: Teaser-Design-Polish und die tatsächliche Verdrahtung des
+> Vollreports für den Paid-Flow — das gehört in den geoforensic.de-Plan.
+
 **Ziel:** Aktuell erzeugen Quiz- und Landing-Leads denselben Vollreport.
 Das ist falsch aufgestellt. `bodenbericht.de` soll ein **Free Lead-Magnet**
 sein mit einem **schönen, bewusst knappen Teaser-PDF**. Der **volle Bericht**
@@ -180,3 +185,64 @@ visuell sichtbar machen. Kein JS-Framework, kein Ajax-Reload.
    `soil_data.py`, `report_charts.py`) ist im Diff.
 6. Commit-Message-Vorschlag:
    `feat(leads): split teaser vs full report per source, bodenbericht.de = teaser`
+
+---
+
+## Umsetzungs-Status (2026-04-19)
+
+Pragmatische Abweichung vom Ursprungsplan: `html_report.py` rendert **bereits
+heute** faktisch den Teaser — die Helper-Funktionen für Metals, SoilGrids und
+Texture existieren, werden aber in der finalen Template-String-Interpolation
+(Zeilen 413-499) **nicht** aufgerufen. Es war also keine neue Datei nötig,
+nur eine klare Weiche + ehrliches Benennen.
+
+**Erledigt auf Branch `claude/discuss-before-unavailable-foZZ4`:**
+
+1. ✅ **Weiche in `routers/leads.py`:**
+   `TEASER_SOURCES = {"quiz", "landing", "premium-waitlist"}` — alles andere
+   loggt Warnung und fällt auf den Teaser zurück, bis der Paid-Flow steht.
+   `source` wird bis `_generate_and_send_lead_report` durchgereicht und
+   an `send_report_email(is_teaser=…)` übergeben.
+2. ✅ **Email-Differenzierung in `email_service.py`:**
+   - Teaser-Betreff: "Ihre kostenlose Boden-Kurzfassung für {Adresse}"
+   - Vollreport-Betreff: "Ihr Bodenbericht für {Adresse}" (wie bisher)
+   - HTML-Body + Plaintext-Fallback haben je Teaser/Voll andere Überschrift,
+     Intro, Info-Liste und einen Upsell-Block mit Link auf `geoforensic.de`.
+3. ✅ **Admin-Dashboard-Badge in `landing/admin.html`:**
+   Neue Spalte "Report" mit `TEASER`/`VOLL`/`—` — nur JS-Branching, keine
+   Schema-Änderung.
+4. ✅ **Docstring in `html_report.py`:**
+   Klargestellt dass dies der Teaser ist und die Engine-Helper bewusst nicht
+   interpoliert werden.
+
+**Nicht erledigt (bewusst verschoben):**
+
+- ❌ Eigenständige Datei `backend/app/teaser_report.py` — nicht nötig, weil
+  `html_report.py` bereits die Teaser-Funktion ist. Wenn Cursor/Future-Me
+  später eine Umbenennung möchte, ist das ein Rename-Refactor, kein Feature.
+- ❌ Stripe-Checkout / Paid-Flow → gehört in den geoforensic.de-Plan.
+- ❌ Tatsächliche Verdrahtung von `full_report.py` (FPDF, liefert Bytes, nicht
+  HTML — API-Mismatch zum Chrome-Renderer). Muss beim geoforensic.de-Plan
+  mitbedacht werden: entweder `full_report.py` auf HTML+Chrome umstellen,
+  oder `pdf_renderer.py` um einen Bytes-Passthrough erweitern.
+- ❌ Teaser-Design-Polish (Blur-Kacheln, Schloss-Icons, CTA-Hierarchie) —
+  separater Design-Task, sobald visuell getestet werden kann.
+
+**Verifikation im Deploy (wenn du wieder am PC bist):**
+
+```bash
+# Auf dem Server
+ssh root@185.218.124.158
+cd /opt/bodenbericht
+git pull origin main                 # (nach Merge des Branches)
+docker compose build backend && docker compose up -d
+
+# Anschließend: Test-Lead absenden und Mail-Betreff prüfen
+curl -X POST https://bodenbericht.de/api/leads \
+  -H "Content-Type: application/json" \
+  -d '{"email":"dein-test@example.com","address":"Alexanderplatz, Berlin","source":"quiz","answers":{"nutzung":"Eigenheim / Garten","dringlichkeit":"Ich informiere mich nur"}}'
+```
+
+Erwartet: Betreff "Ihre kostenlose Boden-Kurzfassung für …" und Body mit
+geoforensic.de-Warteliste-Hinweis. Admin-Dashboard zeigt neuen Eintrag mit
+`TEASER`-Badge.

@@ -1,4 +1,13 @@
-"""Lead capture endpoint — quiz/landing form -> geocode -> full report -> email."""
+"""Lead capture endpoint — quiz/landing form -> geocode -> teaser report -> email.
+
+Architecture:
+    source in TEASER_SOURCES -> short teaser PDF (bodenbericht.de lead magnet)
+    source == "paid"         -> full PDF (geoforensic.de product) — not wired yet
+
+The full-report path is reserved for the future paid flow. Until that is
+wired up, all inbound leads receive the teaser and a warning is logged if a
+"paid" source arrives prematurely.
+"""
 
 import logging
 from datetime import datetime
@@ -19,6 +28,10 @@ from app.soil_data import SoilDataLoader
 
 router = APIRouter(prefix="/api/leads", tags=["leads"])
 logger = logging.getLogger(__name__)
+
+# Sources that receive the free teaser PDF (bodenbericht.de lead-magnet flow).
+# Anything not listed here is treated as a paid/full-report request.
+TEASER_SOURCES = {"quiz", "landing", "premium-waitlist"}
 
 
 class LeadCreate(BaseModel):
@@ -52,14 +65,29 @@ async def _generate_and_send_lead_report(
     answers: dict,
     db_url: str,
     geocoded: tuple[float, float, str, str] | None = None,
+    source: str = "quiz",
 ) -> None:
     """Background task: geocode → EGMS query → PDF → email.
 
     Accepts pre-computed geocode (lat, lon, display_name, country_code) from the
     synchronous validation in the request handler; falls back to geocoding here
     for backward compatibility.
+
+    The ``source`` argument selects which report variant gets rendered and
+    which email template is used.  Sources in ``TEASER_SOURCES`` yield the
+    short teaser PDF; anything else is reserved for the paid full-report flow
+    which is not wired yet — those currently fall back to the teaser with a
+    warning in the logs.
     """
     from app.database import SessionLocal
+
+    is_teaser = source in TEASER_SOURCES
+    if not is_teaser:
+        logger.warning(
+            "Lead source %r requested full report, but paid flow is not wired yet — sending teaser as fallback",
+            source,
+        )
+        is_teaser = True
 
     try:
         # 1. Geocode (or use pre-computed result from request handler)
@@ -134,8 +162,12 @@ async def _generate_and_send_lead_report(
             report_address=display_name,
             pdf_bytes=pdf_bytes,
             report_id=f"lead-{email}",
+            is_teaser=is_teaser,
         )
-        logger.info("Lead report sent to %s for address %s (%s, %d pts)", email, address, ampel, len(points))
+        logger.info(
+            "Lead report sent to %s for address %s (%s, %d pts, source=%s, teaser=%s)",
+            email, address, ampel, len(points), source, is_teaser,
+        )
 
     except Exception:
         logger.exception("Failed to generate lead report for %s", email)
@@ -184,6 +216,7 @@ async def capture_lead(
             answers=payload.answers or {},
             db_url="",  # uses SessionLocal directly
             geocoded=geocoded,
+            source=payload.source,
         )
 
     return LeadResponse(

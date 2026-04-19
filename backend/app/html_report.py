@@ -1,4 +1,19 @@
-"""Generate professional Bodenbericht as HTML (for Chrome Headless → PDF).
+"""Teaser-Bodenbericht as HTML (for Chrome Headless → PDF).
+
+This is the **free lead-magnet** variant shipped by bodenbericht.de. It
+renders only the upper-funnel content:
+
+    - Header + address banner
+    - GeoScore gauge + overall assessment
+    - Bodenbewegung KPI block (point count + Ampel badge)
+    - Personal Quiz-based Einschätzung
+    - Upsell card pointing to the future full report
+    - Data sources + disclaimer
+
+Full-depth tables (metals, SoilGrids, nutrients, texture) are intentionally
+**not** rendered here — their helper functions exist above and are reserved
+for the future `generate_full_report` (geoforensic.de paid flow). Do not wire
+them into this template; keep the teaser deliberately short.
 
 Design inspired by the old geoforensic-karte reports + Avista structure.
 Calm, professional color palette. Inter font. Card-based layout.

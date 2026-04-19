@@ -1,53 +1,66 @@
 # GeoForensic App
 
-SaaS product: address-based ground motion screening reports for properties in Germany and the Netherlands.
+Two-product repo for address-based ground motion + soil screening.
+
 **Repo:** https://github.com/8endit/geoforensic-app
+**Operational truth:** `docs/TEAM_HANDBOOK.md` (server, deploys, DNS, monitoring).
+
+## Two products in one repo
+
+| Product | Domain | Role | Report variant |
+|---|---|---|---|
+| **bodenbericht.de** | **live** | Free lead-magnet landing + quiz funnel | **Teaser PDF** — short, deliberately limited |
+| **geoforensic.de** | planned | Paid product, Groundsure-style depth | **Full PDF** — all engine output (not wired yet) |
+
+Routing happens via the lead `source` field in
+`backend/app/routers/leads.py` — `TEASER_SOURCES = {"quiz", "landing",
+"premium-waitlist"}`. Anything else is reserved for the future paid/full
+flow and currently falls back to the teaser with a log warning.
 
 ## Architecture
 
 ```
 geoforensic-app/
-├── backend/          # FastAPI + PostgreSQL
+├── backend/          # FastAPI + PostgreSQL/PostGIS (deployed)
 │   ├── app/
-│   │   ├── main.py           # FastAPI app, CORS, lifespan
-│   │   ├── config.py         # pydantic-settings (.env)
-│   │   ├── database.py       # SQLAlchemy async
-│   │   ├── models.py         # User, Report, Payment (ORM)
-│   │   ├── schemas.py        # Pydantic request/response
-│   │   ├── auth.py           # JWT + bcrypt
-│   │   ├── dependencies.py   # get_current_user, get_db
+│   │   ├── main.py               # FastAPI app, CORS, lifespan, mounts landing/
+│   │   ├── config.py             # pydantic-settings (.env)
+│   │   ├── database.py           # SQLAlchemy async
+│   │   ├── models.py             # User, Lead, Report, Payment (ORM)
+│   │   ├── schemas.py            # Pydantic request/response
+│   │   ├── auth.py               # JWT + bcrypt
+│   │   ├── dependencies.py       # get_current_user, get_db
+│   │   ├── html_report.py        # TEASER report (bodenbericht.de)
+│   │   ├── full_report.py        # FULL report (geoforensic.de, FPDF, not wired)
+│   │   ├── pdf_renderer.py       # Chrome-headless HTML -> PDF
+│   │   ├── soil_data.py          # SoilGrids + LUCAS point queries
+│   │   ├── email_service.py      # Brevo SMTP, HTML+plaintext, is_teaser flag
 │   │   └── routers/
-│   │       ├── auth.py       # register, login, me
-│   │       ├── reports.py    # preview, create, list, detail, pdf, csv
-│   │       ├── payments.py   # Stripe checkout + webhook
+│   │       ├── auth.py           # register, login, me
+│   │       ├── leads.py          # POST /api/leads (quiz + landing funnel)
+│   │       ├── reports.py        # preview, create, list, detail, pdf, csv
+│   │       ├── payments.py       # Stripe checkout + webhook (not wired live)
+│   │       ├── admin.py          # /api/_admin/{stats,leads,activity}
 │   │       └── health.py
-│   ├── Dockerfile
-│   └── requirements.txt
-├── frontend/geoforensic_webcode/   # Next.js 15 + React 19
-│   ├── app/
-│   │   ├── page.tsx          # Landing (Hero + PropertyForm)
-│   │   ├── layout.tsx        # Geist Mono, lang=de, AuthProvider
-│   │   ├── dashboard/        # Protected report list
-│   │   ├── login/            # Sign in
-│   │   ├── register/         # Sign up (with company/gutachter fields)
-│   │   └── reports/[id]/     # Report detail + PDF/CSV download
-│   ├── components/
-│   │   ├── hero.tsx          # 3D particle hero (R3F)
-│   │   ├── property-form.tsx # Address input → preview → report creation
-│   │   ├── preview-result.tsx # Ampel badge + point count
-│   │   ├── header.tsx        # Nav with auth-aware links
-│   │   ├── mobile-menu.tsx   # Radix dialog, auth-aware
-│   │   ├── gl/               # WebGL particle system (R3F + custom shaders)
-│   │   └── ui/button.tsx     # Polygon-clipped button with glow
-│   └── lib/
-│       ├── api.ts            # Typed API client (fetchApi wrapper)
-│       └── auth-context.tsx  # JWT in localStorage, AuthProvider
-└── docker-compose.yml        # db + backend + frontend
+│   └── Dockerfile, requirements.txt
+├── landing/                # Static HTML served by FastAPI mount (bodenbericht.de)
+│   ├── index.html          # Hero + inline form + testimonials + FAQ + waitlist
+│   ├── quiz.html           # Multi-step quiz → /api/leads
+│   ├── admin.html          # Lead dashboard + CSV export
+│   ├── impressum.html, datenschutz.html, widerruf.html, datenquellen.html
+│   ├── muster-bericht.html # Sample report preview
+│   └── images/, fonts/, klaro/ (DSGVO consent)
+├── frontend/cozy-frontend/ # Next.js + R3F (geoforensic.de design, NOT live)
+└── docker-compose.yml
 ```
 
-## Design System (by Cozy)
+## Design System (by Cozy) — for geoforensic.de only
 
-Must be followed for ALL new pages:
+This system was designed for the paid product (`geoforensic.de`) and the old
+Next.js frontend. **bodenbericht.de does NOT follow it** — bodenbericht uses
+its own lighter Tailwind setup under `landing/` with a calmer palette.
+
+Must be followed for ALL new pages on geoforensic.de:
 - **Background:** `#000000` (pure black)
 - **Primary accent:** `#22C55E` (lime green) — buttons, links, indicators
 - **Border:** `#424242`
@@ -60,42 +73,55 @@ Must be followed for ALL new pages:
 - **Inputs:** `bg-transparent border border-border`, focus → `border-primary`
 - **Cards:** `bg-black/40 border border-border`
 
-## Current State (2026-04-12)
+## Current State (2026-04-19)
 
-### Working
-- Full auth flow (register, login, JWT, protected routes)
-- Report CRUD (create, list, detail)
-- Preview endpoint (free, rate-limited 10/hr) — real Nominatim geocoding
-- Stripe checkout flow (mock mode when no key)
-- PDF/CSV download with auth token (fetch+blob)
-- 3D particle hero with DOF
-- Mobile-responsive header + menu
-- Real Nominatim geocoding (replaces old `_mock_geocode`)
-- Real analysis pipeline (`_run_report_pipeline`) — queries PostGIS, weighted velocity, histogram
-- Real PDF generation (WeasyPrint, lazy-import for Windows compat)
-- PostGIS `egms_points` + `egms_timeseries` tables + GIST index + Alembic migration
-- Docker Compose with `postgis/postgis:16-3.4`
+### Deployment (live)
 
-### NOT Working / Blocked
-- **`egms_points` table is EMPTY** — no EGMS data imported yet. Every report returns "0 points, green".
-- PDF on Windows requires native GTK/Pango libs (works in Docker)
-- No map visualization in PDF (just data table)
+- **Host:** Contabo VPS `185.218.124.158` (`vmd195593`), `/opt/bodenbericht`
+- **TLS:** Caddy (80/443) → FastAPI (8000 intern) — Let's Encrypt
+- **DB:** PostGIS 16-3.4 in Docker, internal only
+- **Domain:** `https://bodenbericht.de` (A + A www)
+- **Deploy:** `ssh root@…` + `git pull` (landing HTML hot-reloads via bind-mount, backend needs `docker compose build backend && up -d`)
+- **Runbook:** `docs/TEAM_HANDBOOK.md`
 
-### Next Steps
-1. ~~Download EGMS data + build import script~~ — DONE, see `docs/EGMS_DATA_REPORT.md`
-2. ~~Verify data density~~ — DONE: 79 pts/500m Rotterdam, 77 pts/500m Essen. Urban = solid.
-3. **NOW: UX & Security fixes** — see `docs/CURSOR_UX_SECURITY_AUDIT.md`
-4. **THEN: Import EGMS archive data into PostGIS** — script ready at `backend/scripts/import_egms.py`, Copernicus credentials in `backend/.env`
-5. Add map visualization to PDF (Leaflet static image or matplotlib)
-6. Promo code system + free tier (first 100 reports)
-7. Deploy: Hetzner Cloud CX22 (backend + PostGIS) + Vercel (frontend)
+### Working in production
+
+- Landing + quiz funnel + lead capture → background geocode + EGMS query + PDF + Brevo mail
+- Teaser PDF via `backend/app/html_report.py` (Chrome-headless rendered)
+- `source`-based routing hook in `leads.py` (teaser vs. future full report)
+- Admin dashboard `landing/admin.html` with leads, stats, CSV export, TEASER/VOLL badge
+- Legal pages (Impressum, Datenschutz, Widerruf, Datenquellen) + Musterbericht
+- Analytics: GTM `GTM-KFG5W96X`, GA4 `G-N9H86S1P8V`, PostHog EU — all DSGVO-gated via Klaro
+- Brevo SMTP + branded HTML mail (inline logo, DKIM via `geoforensic.de`)
+- Waitlist + Early-Bird teaser for future paid product
+- EGMS + SoilGrids + LUCAS integrated; engine hot during dev
+
+### Honest gaps (not working / half-working)
+
+- **`full_report.py` is not wired in the lead flow** — `source == "paid"` currently falls back to teaser with a log warning
+- **Stripe / paid flow** — code exists in `routers/payments.py`, not active on the domain
+- **User accounts** — register/login routes work, but no live surface (bodenbericht is lead-only)
+- **CORINE land-use raster** — file on disk is corrupt (RGB PNG, no CRS). Lookup code exists but is never called. See `docs/DATA_INVENTORY_AUDIT.md`.
+- **HRL imperviousness + AWC water capacity** — rasters are DE-bounds only, NL addresses return NODATA
+- **Map in PDF** — no map snippet, only tables + SVG charts
+- **NL-language report** — PDF is German only; NL is supposed to be primary market for the paid product
+- **Sentry** — SDK integrated, DSN empty → crashes just die in logs
+- **Better Stack Uptime** — not yet scheduled
+- **SSH password login** — still enabled on the server (key-only hardening is TODO in handbook §2.2)
+
+### Near-term next steps
+
+1. Teaser-design polish (blur-kacheln, CTA hierarchy toward geoforensic.de waitlist)
+2. Flip Sentry DSN on + schedule Better Stack pings
+3. Disable SSH password login once all keys are in place
+4. **Then** start the geoforensic.de paid-flow plan (Groundsure-parity, wire `full_report.py`, Stripe, NL-report) — not started, needs separate design session
 
 ## Business Context
 
 ### What this product IS and IS NOT
 - IS: an automated **Standortauskunft** / **Bodenbewegungsscreening** (data screening)
 - IS NOT: a **Gutachten** (expert assessment). NEVER use the word "Gutachten" anywhere in the product, UI, or marketing. This has legal implications — it implies a certified expert did a physical site inspection and triggers full professional liability under German law.
-- The PDF disclaimer in `pdf_generator.py` is legally required. Do not weaken or remove it.
+- The PDF disclaimer in `backend/app/html_report.py` (teaser) and `backend/app/full_report.py` (full, not live yet) is legally required. Do not weaken or remove it.
 
 ### Target Markets (in order)
 1. **Netherlands (primary, launching first):** Since April 1, 2026, every Dutch property valuation (taxatierapport) must include a foundation risk assessment (A-E label from KCAF/FunderMaps). Buyers who receive label C/D/E want to understand what that means — our report explains the satellite data behind the label with time series, maps, and trend analysis. We are the "second opinion" / "deep dive" next to the mandatory thin label.
@@ -132,11 +158,13 @@ Must be followed for ALL new pages:
 
 ## API Endpoints
 
-See `docs/API.md` for full spec. Key routes:
-- `POST /api/reports/preview` — free, rate-limited, returns ampel
-- `POST /api/reports/create` — auth required, triggers background pipeline
-- `POST /api/payments/checkout` — creates Stripe session
-- `GET /api/reports/:id/pdf` — paid only
+See `docs/API.md` for full spec. Key routes live today:
+- `POST /api/leads` — **main entry point**: quiz + landing form → teaser PDF + mail
+- `POST /api/reports/preview` — free, rate-limited (10/hr), returns ampel
+- `POST /api/reports/create` — auth required, full pipeline (not surfaced on live landing)
+- `POST /api/payments/checkout` — Stripe session (code exists, not wired)
+- `GET /api/reports/:id/pdf` — paid report download
+- `GET /api/_admin/stats`, `/leads`, `/activity` — admin dashboard (token-gated)
 
 ## Ampel Classification
 
@@ -161,7 +189,12 @@ See `docs/API.md` for full spec. Key routes:
 
 ## Task Docs for Cursor
 
+- `docs/TEAM_HANDBOOK.md` — operational truth (SSH, deploy, DNS, monitoring)
+- `docs/DATA_INVENTORY_AUDIT.md` — which rasters are nutzbar (CORINE kaputt, HRL/AWC DE-only)
 - `docs/CURSOR_BACKEND_PIPELINE.md` — DONE: mock→real pipeline migration
 - `docs/CURSOR_EGMS_DATA_ANALYSIS.md` — DONE: data density confirmed (79 pts/500m urban)
 - `docs/EGMS_DATA_REPORT.md` — DONE: full analysis results
-- `docs/CURSOR_UX_SECURITY_AUDIT.md` — **CURRENT TASK**: security + UX fixes (prioritized list with file paths + line numbers)
+- `docs/CURSOR_UX_SECURITY_AUDIT.md` — security + UX fixes (prioritized list)
+- `docs/CURSOR_LANDING_POLISH.md`, `CURSOR_LANDING_SPRINT2.md`, `CURSOR_LANDING_PREMIUM_TEASER.md` — landing iterations (shipped)
+- `docs/CURSOR_TEASER_VS_FULL_REPORT.md` — **DONE in-tree**: source-based routing for teaser vs. full report
+- Next big doc to write: `docs/PLAN_GEOFORENSIC_DE.md` — Groundsure-parity paid product for DE market
