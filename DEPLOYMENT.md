@@ -26,11 +26,15 @@ cd geoforensic-app
 
 ## 3. Daten hochladen
 
-Folgende Dateien von lokal auf den Server kopieren:
+Die Rasterdaten landen unter `/opt/bodenbericht/rasters/` — das ist genau der
+Ordner, der in `docker-compose.yml` als Default (`./rasters`) gemounted wird.
+Keine separaten System-Ordner, kein `/opt/rasters/`, das wurde historisch
+durch einen Config-Fehler so eingetragen und führte dazu, dass der Backend-
+Container leer startete.
 
 ```bash
 # Vom lokalen Rechner:
-scp -r F:/jarvis-eye-data/geoforensic-rasters/ root@<server-ip>:/opt/rasters/
+scp -r F:/jarvis-eye-data/geoforensic-rasters/* root@<server-ip>:/opt/bodenbericht/rasters/
 scp -r F:/geoforensic-data/egms/NL/ root@<server-ip>:/opt/egms-nl/
 ```
 
@@ -59,18 +63,28 @@ SMTP_USER=report@bodenbericht.de
 SMTP_PASSWORD=<app-passwort>
 SMTP_FROM_EMAIL=report@bodenbericht.de
 
-# Raster-Daten Pfad auf dem Server
-RASTER_DIR=/opt/rasters
+# Raster-Pfad den das Backend INNERHALB des Containers liest.
+# Muss dem Container-Mount-Point aus docker-compose.yml entsprechen.
+RASTER_DIR=/app/rasters
 
 PUBLIC_BASE_URL=https://bodenbericht.de
 ```
 
 ## 5. Docker starten
 
+Zwei Dateien, zwei verschiedene Rollen fuer `RASTER_DIR`:
+
+- `/opt/bodenbericht/.env` — gelesen von `docker-compose` selbst.
+  Zeigt auf den HOST-Pfad der Raster (wo die Dateien auf der VM liegen).
+- `/opt/bodenbericht/backend/.env` — gelesen vom Python-Backend im Container.
+  Zeigt auf den CONTAINER-Pfad (Mount-Point).
+
 ```bash
-# .env fuer docker-compose
-echo "RASTER_DIR=/opt/rasters" > .env
-echo "POSTGRES_PASSWORD=<sicheres-passwort>" >> .env
+# .env fuer docker-compose (Host-Seite)
+cat > .env <<'EOF'
+RASTER_DIR=/opt/bodenbericht/rasters
+POSTGRES_PASSWORD=<sicheres-passwort>
+EOF
 
 docker compose up -d
 ```
