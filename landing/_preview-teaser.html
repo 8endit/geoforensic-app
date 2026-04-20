@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>[Preview] Teaser-Rework — bodenbericht.de</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/tailwind.css">
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background: #f3f4f6; }
+
+    /* ── Report shell (mirrors muster-bericht.html) ─────────────── */
+    .report-shell {
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 20px 50px -20px rgba(12, 29, 58, 0.25);
+      overflow: hidden;
+    }
+    .report-header {
+      background: linear-gradient(135deg, #1E3352, #0F2040);
+      color: white;
+      padding: 24px 32px;
+    }
+    .report-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin: 16px 0;
+      background: #ffffff;
+      position: relative;
+    }
+    .report-card h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1E3352;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Ampel / Status badges ──────────────────────────────────── */
+    .dot-warn   { background: #d97706; width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+    .ampel-badge-warn {
+      background: #fef3c7; color: #92400e; font-weight: 700;
+      padding: 4px 12px; border-radius: 12px; font-size: 11px;
+    }
+
+    /* ── Section separator ──────────────────────────────────────── */
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: #64748b;
+      margin: 28px 4px 8px;
+    }
+    .section-label::before,
+    .section-label::after {
+      content: ""; flex: 1; height: 1px; background: #e2e8f0;
+    }
+
+    /* ── Paywall-gated card ─────────────────────────────────────── */
+    .locked-card { position: relative; overflow: hidden; }
+    .locked-card .locked-content {
+      filter: blur(4px) saturate(0.7);
+      pointer-events: none;
+      user-select: none;
+    }
+    .locked-overlay {
+      position: absolute; inset: 0;
+      background:
+        repeating-linear-gradient(
+          135deg,
+          rgba(30, 51, 82, 0.04) 0 8px,
+          rgba(30, 51, 82, 0.08) 8px 16px
+        );
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+      z-index: 2;
+    }
+    .locked-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 11px; font-weight: 600;
+      color: #1E3352;
+      box-shadow: 0 4px 10px -4px rgba(12, 29, 58, 0.25);
+      letter-spacing: 0.02em;
+    }
+    .locked-pill svg { width: 13px; height: 13px; }
+
+    /* ── CTA card ───────────────────────────────────────────────── */
+    .cta-card {
+      background: linear-gradient(135deg, #0F2040, #1E3352);
+      color: white;
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin: 20px 0 8px;
+      text-align: center;
+    }
+    .cta-card .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #5B9A6F; color: #fff;
+      font-weight: 700; font-size: 14px;
+      padding: 12px 24px; border-radius: 10px;
+      transition: background 0.15s;
+    }
+    .cta-card .btn:hover { background: #4a8760; }
+
+    /* ── Preview banner (strictly on-screen only) ───────────────── */
+    .preview-banner {
+      background: #fef3c7; border-bottom: 1px solid #fcd34d;
+      color: #78350f; font-size: 12px;
+      padding: 10px 16px; text-align: center;
+    }
+    .annotate {
+      border-left: 3px solid #94a3b8;
+      background: #f8fafc;
+      padding: 8px 12px;
+      font-size: 11px; color: #475569;
+      margin: 6px 4px 0;
+      border-radius: 0 6px 6px 0;
+    }
+  </style>
+</head>
+<body class="font-sans text-gray-800 antialiased">
+
+  <div class="preview-banner">
+    <strong>Design-Preview</strong> — <code>landing/_preview-teaser.html</code> &middot;
+    nicht verlinkt, nicht indexiert. Nach Freigabe 1:1 in <code>backend/app/html_report.py</code>.
+  </div>
+
+  <section class="py-10 md:py-14">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="mb-6 text-sm text-gray-500">
+        <strong class="text-gray-700">Szenario:</strong> gelbe Ampel (2–5 mm/a),
+        42 Messpunkte, ohne Quiz-Antworten → Einschätzung-Fallback aktiv (Variante 1B).
+      </div>
+
+      <!-- ===== REPORT SHELL ===================================== -->
+      <div class="report-shell">
+
+        <!-- Report header -->
+        <div class="report-header">
+          <div class="flex items-start justify-between gap-6 flex-wrap">
+            <div>
+              <div class="text-xs uppercase tracking-wider text-brand-300 font-semibold">Bodenbericht</div>
+              <div class="text-xl font-bold mt-1">Musterstra&szlig;e 42, 20095 Hamburg</div>
+              <div class="text-xs text-gray-300 mt-1">Koordinaten 53.5511&deg; N, 9.9937&deg; E</div>
+            </div>
+            <div class="text-right text-xs text-gray-300">
+              <div>Bericht-Nr. <span class="font-mono">DEMO-2026-0042</span></div>
+              <div class="mt-1">Erstellt: 20.04.2026</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-6 md:p-8">
+
+          <!-- ============ SICHTBAR ======================================== -->
+          <div class="section-label">Sichtbar im kostenlosen Bericht</div>
+
+          <!-- Card: Gesamtbewertung (Gauge + Score) -->
+          <div class="report-card">
+            <h2>Gesamtbewertung</h2>
+            <div class="flex items-center gap-6 flex-wrap">
+              <div class="flex-shrink-0">
+                <svg viewBox="0 0 140 90" width="140" height="90">
+                  <path d="M 15 80 A 55 55 0 0 1 125 80" fill="none" stroke="#e2e8f0" stroke-width="14" stroke-linecap="round"/>
+                  <path d="M 15 80 A 55 55 0 0 1 106 34" fill="none" stroke="#d97706" stroke-width="14" stroke-linecap="round"/>
+                  <text x="70" y="72" text-anchor="middle" font-size="24" font-weight="700" fill="#1E3352">61</text>
+                  <text x="70" y="86" text-anchor="middle" font-size="9" fill="#64748b">/ 100</text>
+                </svg>
+                <div class="text-center text-xs font-semibold text-amber-700 -mt-2">Beobachten</div>
+              </div>
+              <div class="flex-1 min-w-[220px]">
+                <p class="font-semibold text-gray-800 mb-2">Auff&auml;llige Bodenbewegung im Umkreis.</p>
+                <p class="text-sm text-gray-600">42 InSAR-Messpunkte ausgewertet. Mittlere Geschwindigkeit im gelben Bereich (2&ndash;5&nbsp;mm/a) &mdash; beobachtungsw&uuml;rdig, nicht akut.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card: Bodenbewegung (Ampel + Messpunkte) -->
+          <div class="report-card">
+            <h2><span class="dot-warn"></span> Bodenbewegung (InSAR-Satellitendaten)</h2>
+            <div class="grid grid-cols-2 gap-4 mb-3">
+              <div class="text-center bg-gray-50 rounded-lg py-3">
+                <div class="text-2xl font-bold text-navy-800">42</div>
+                <div class="text-xs text-gray-500">Messpunkte im Umkreis</div>
+              </div>
+              <div class="text-center bg-gray-50 rounded-lg py-3 flex flex-col items-center justify-center">
+                <span class="ampel-badge-warn">Auff&auml;llig</span>
+                <div class="text-xs text-gray-500 mt-2">Gesamtbewertung</div>
+              </div>
+            </div>
+            <p class="text-sm text-gray-600">
+              Die Mehrheit der Messpunkte im 500&thinsp;m-Radius zeigt eine leichte Senkung zwischen 2 und 5&nbsp;mm pro Jahr. Das ist nicht ungew&ouml;hnlich f&uuml;r norddeutsche Marschb&ouml;den, sollte aber beobachtet werden.
+            </p>
+          </div>
+
+          <!-- Card: Individuelle Einschätzung — FALLBACK 1B (Ampel-abhängig) -->
+          <div class="report-card">
+            <h2>Ihre individuelle Einsch&auml;tzung</h2>
+            <p class="text-sm text-gray-700">
+              F&uuml;r Standorte im <strong>gelben Bereich</strong> empfehlen wir eine Wiederholung des Screenings in
+              <strong>6&nbsp;bis&nbsp;12&nbsp;Monaten</strong>, um die Entwicklung der Bodenbewegung im Blick zu behalten.
+              Bei Eigent&uuml;mern eines &auml;lteren Fundaments oder bei sichtbaren Rissen lohnt sich eine Begutachtung
+              durch einen Baugrundsachverst&auml;ndigen.
+            </p>
+            <div class="annotate">
+              <strong>1B</strong> &middot; Ohne Quiz-Antworten wird hier ein Ampel-abh&auml;ngiger Platzhalter ausgegeben
+              (gr&uuml;n / gelb / rot je ein eigener Standard-Text). Mit Quiz-Antworten erscheint an dieser Stelle die
+              personalisierte Einsch&auml;tzung wie im Muster-Bericht.
+            </div>
+          </div>
+
+          <!-- ============ BLURRED + LOCK-OVERLAY ========================== -->
+          <div class="section-label">Im Vollbericht enthalten</div>
+
+          <!-- Locked: Schwermetalle -->
+          <div class="report-card locked-card">
+            <h2>Schwermetalle &amp; Schadstoffe</h2>
+            <div class="locked-content">
+              <div class="grid grid-cols-4 gap-2 text-center text-xs">
+                <div class="bg-gray-50 rounded p-2"><div class="font-bold text-gray-800">Cd</div><div class="text-gray-500">0.21 mg/kg</div></div>
+                <div class="bg-gray-50 rounded p-2"><div class="font-bold text-gray-800">Pb</div><div class="text-gray-500">28 mg/kg</div></div>
+                <div class="bg-gray-50 rounded p-2"><div class="font-bold text-gray-800">Hg</div><div class="text-gray-500">0.09 mg/kg</div></div>
+                <div class="bg-gray-50 rounded p-2"><div class="font-bold text-gray-800">As</div><div class="text-gray-500">6.4 mg/kg</div></div>
+                <div class="bg-gray-50 rounded p-2 mt-2"><div class="font-bold text-gray-800">Cr</div><div class="text-gray-500">34 mg/kg</div></div>
+                <div class="bg-gray-50 rounded p-2 mt-2"><div class="font-bold text-gray-800">Cu</div><div class="text-gray-500">17 mg/kg</div></div>
+                <div class="bg-gray-50 rounded p-2 mt-2"><div class="font-bold text-gray-800">Ni</div><div class="text-gray-500">19 mg/kg</div></div>
+                <div class="bg-gray-50 rounded p-2 mt-2"><div class="font-bold text-gray-800">Zn</div><div class="text-gray-500">62 mg/kg</div></div>
+              </div>
+              <p class="text-xs text-gray-500 mt-3">
+                Vergleich gegen Vorsorgewerte nach BBodSchV Anhang 2. Alle acht Parameter innerhalb der unauff&auml;lligen Bandbreite.
+              </p>
+            </div>
+            <div class="locked-overlay">
+              <span class="locked-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                Im Vollbericht enthalten
+              </span>
+            </div>
+          </div>
+
+          <!-- Locked: Bodenqualität -->
+          <div class="report-card locked-card">
+            <h2>Bodenqualit&auml;t &amp; Textur</h2>
+            <div class="locked-content">
+              <div class="grid grid-cols-3 gap-3 text-xs">
+                <div class="bg-gray-50 rounded p-3">
+                  <div class="text-gray-500 mb-1">pH-Wert</div>
+                  <div class="text-xl font-bold text-navy-800">6.8</div>
+                  <div class="text-gray-500">leicht sauer</div>
+                </div>
+                <div class="bg-gray-50 rounded p-3">
+                  <div class="text-gray-500 mb-1">Organischer C</div>
+                  <div class="text-xl font-bold text-navy-800">3.1&nbsp;%</div>
+                  <div class="text-gray-500">mittel</div>
+                </div>
+                <div class="bg-gray-50 rounded p-3">
+                  <div class="text-gray-500 mb-1">Bodenart</div>
+                  <div class="text-xl font-bold text-navy-800">Lu</div>
+                  <div class="text-gray-500">lehmiger Schluff</div>
+                </div>
+              </div>
+              <div class="mt-3 text-xs text-gray-600">
+                Ton: 18&nbsp;% &middot; Schluff: 58&nbsp;% &middot; Sand: 24&nbsp;% &middot; Nutzbare Feldkapazit&auml;t: 175&nbsp;mm
+              </div>
+            </div>
+            <div class="locked-overlay">
+              <span class="locked-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                Im Vollbericht enthalten
+              </span>
+            </div>
+          </div>
+
+          <!-- Locked: 7-Jahres-Zeitreihe -->
+          <div class="report-card locked-card">
+            <h2>7-Jahres-Zeitreihe der Bodenbewegung</h2>
+            <div class="locked-content">
+              <svg viewBox="0 0 420 120" width="100%" height="120" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="tsGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#d97706" stop-opacity="0.35"/>
+                    <stop offset="100%" stop-color="#d97706" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <line x1="0" y1="60" x2="420" y2="60" stroke="#e2e8f0" stroke-dasharray="3 3"/>
+                <path d="M 0 55 L 60 58 L 120 64 L 180 70 L 240 78 L 300 85 L 360 92 L 420 98 L 420 120 L 0 120 Z" fill="url(#tsGrad)"/>
+                <path d="M 0 55 L 60 58 L 120 64 L 180 70 L 240 78 L 300 85 L 360 92 L 420 98" fill="none" stroke="#d97706" stroke-width="2"/>
+                <g fill="#1E3352" font-size="9">
+                  <text x="0"   y="115">2019</text>
+                  <text x="60"  y="115">2020</text>
+                  <text x="120" y="115">2021</text>
+                  <text x="180" y="115">2022</text>
+                  <text x="240" y="115">2023</text>
+                  <text x="300" y="115">2024</text>
+                  <text x="360" y="115">2025</text>
+                </g>
+              </svg>
+              <p class="text-xs text-gray-500 mt-2">
+                Kumulierte Senkung &uuml;ber 7 Jahre: &minus;28&nbsp;mm. Trend linear, kein Sprungverhalten erkennbar.
+              </p>
+            </div>
+            <div class="locked-overlay">
+              <span class="locked-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                Im Vollbericht enthalten
+              </span>
+            </div>
+          </div>
+
+          <!-- Locked: Nachbarschaftsvergleich -->
+          <div class="report-card locked-card">
+            <h2>Nachbarschaftsvergleich</h2>
+            <div class="locked-content">
+              <div class="flex items-end gap-2 h-24">
+                <div class="flex-1 flex flex-col items-center">
+                  <div class="w-full bg-emerald-500 rounded-t" style="height: 45%;"></div>
+                  <div class="text-[10px] text-gray-500 mt-1">250&nbsp;m</div>
+                  <div class="text-[10px] font-bold">&minus;1.2</div>
+                </div>
+                <div class="flex-1 flex flex-col items-center">
+                  <div class="w-full bg-amber-500 rounded-t" style="height: 68%;"></div>
+                  <div class="text-[10px] text-gray-500 mt-1">500&nbsp;m</div>
+                  <div class="text-[10px] font-bold">&minus;3.4</div>
+                </div>
+                <div class="flex-1 flex flex-col items-center">
+                  <div class="w-full bg-amber-500 rounded-t" style="height: 72%;"></div>
+                  <div class="text-[10px] text-gray-500 mt-1">1&nbsp;km</div>
+                  <div class="text-[10px] font-bold">&minus;3.7</div>
+                </div>
+                <div class="flex-1 flex flex-col items-center">
+                  <div class="w-full bg-emerald-500 rounded-t" style="height: 52%;"></div>
+                  <div class="text-[10px] text-gray-500 mt-1">2&nbsp;km</div>
+                  <div class="text-[10px] font-bold">&minus;1.8</div>
+                </div>
+                <div class="flex-1 flex flex-col items-center">
+                  <div class="w-full bg-emerald-500 rounded-t" style="height: 38%;"></div>
+                  <div class="text-[10px] text-gray-500 mt-1">Stadt</div>
+                  <div class="text-[10px] font-bold">&minus;0.9</div>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 mt-3">
+                Mittlere Geschwindigkeit (mm/a) in konzentrischen Ringen. Ihr Standort liegt 2&ndash;3&nbsp;mm unter dem Stadtmittel.
+              </p>
+            </div>
+            <div class="locked-overlay">
+              <span class="locked-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                Im Vollbericht enthalten
+              </span>
+            </div>
+          </div>
+
+          <!-- ============ CTA ============================================= -->
+          <div class="cta-card">
+            <div class="text-xs uppercase tracking-wider text-brand-300 font-semibold">Vollbericht</div>
+            <h3 class="text-lg font-bold mt-1 mb-2">Alles sehen, was hier noch verdeckt ist</h3>
+            <p class="text-sm text-gray-200 max-w-lg mx-auto mb-4">
+              Schwermetalle, Bodenqualit&auml;t, 7-Jahres-Zeitreihe und Nachbarschaftsvergleich erscheinen ungeschw&auml;rzt im Vollbericht &mdash; inklusive PDF-Download.
+            </p>
+            <a href="/#premium" class="btn">
+              Auf die Warteliste
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+            <p class="text-[11px] text-gray-300 mt-3">
+              Noch nicht bestellbar. Early-Bird-Platz sichern, Start-Rabatt erhalten.
+            </p>
+          </div>
+
+          <!-- Datenquellen -->
+          <div class="report-card">
+            <h3 class="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-2">Datenquellen</h3>
+            <p class="text-xs text-gray-700">
+              Copernicus EGMS (Sentinel-1) &middot; LUCAS Topsoil Survey (EU) &middot; SoilGrids 250&nbsp;m (ISRIC) &middot; OpenStreetMap Nominatim &middot; Referenzwerte: BBodSchV
+            </p>
+          </div>
+
+          <!-- Disclaimer (unchanged from live teaser) -->
+          <div class="border-l-4 border-amber-400 bg-amber-50 rounded-r-md p-4 mt-4 text-xs text-gray-700 leading-relaxed">
+            <strong>Hinweis:</strong> Dieser Bodenbericht ist ein automatisiertes Datenscreening auf Basis &ouml;ffentlich verf&uuml;gbarer Fernerkundungs- und Bodendaten (Copernicus EGMS, LUCAS, SoilGrids). Er ersetzt keine Ortsbesichtigung, Laboranalyse oder fachliche Einzelfallbewertung durch einen zugelassenen Sachverst&auml;ndigen gem. &sect;18 BBodSchG.
+          </div>
+
+        </div>
+      </div>
+
+      <div class="mt-8 text-xs text-gray-500 space-y-2">
+        <div><strong>Technik-Notiz:</strong> Paywall-Kacheln nutzen <code>filter: blur(4px) saturate(0.7)</code> + diagonales Stripe-Pattern + Schloss-Pill. Chrome-Headless rendert <code>filter: blur</code> im PDF korrekt (vor Commit in <code>html_report.py</code> wird das nochmal lokal via <code>pdf_renderer.py</code> verifiziert).</div>
+        <div><strong>Noch offen:</strong> CTA-Ziel (Warteliste vs. Stripe-Link) &mdash; aktuell <code>/#premium</code>, wird beim Stripe-Go-Live angepasst.</div>
+      </div>
+
+    </div>
+  </section>
+
+</body>
+</html>
