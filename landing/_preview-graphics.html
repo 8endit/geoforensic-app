@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preview: Grafik-Integration Bodenbericht v4</title>
+  <!-- Tailwind via CDN (preview only, prod uses self-hosted /tailwind.css) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50:  '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+            },
+            navy: {
+              700: '#122b52',
+              800: '#0c1d3a',
+            },
+            cream: '#F7F3EA',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .hero-gradient {
+      background: linear-gradient(135deg, #0c1d3a 0%, #122b52 40%, #1a3a6b 100%);
+    }
+    .preview-ribbon {
+      background: repeating-linear-gradient(45deg, #fef3c7, #fef3c7 10px, #fde68a 10px, #fde68a 20px);
+    }
+    .photo-tint-hero {
+      background: linear-gradient(180deg, rgba(12,29,58,0.55) 0%, rgba(12,29,58,0.30) 45%, rgba(12,29,58,0.75) 100%);
+    }
+    .photo-tint-waitlist {
+      background: linear-gradient(180deg, rgba(247,243,234,0.70) 0%, rgba(247,243,234,0.95) 100%);
+    }
+    .photo-fallback {
+      background:
+        repeating-linear-gradient(45deg, rgba(107,93,63,0.08) 0 10px, transparent 10px 20px),
+        #F7F3EA;
+    }
+  </style>
+</head>
+<body class="font-sans text-gray-800 antialiased">
+
+  <!-- preview banner -->
+  <div class="preview-ribbon border-b border-amber-300 py-2 px-4 text-center text-xs font-semibold text-amber-900">
+    PREVIEW v4.2 &middot; B als Nachbarschaft &middot; Umlaute zurück &middot; Quellen auf Extra-Seite
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- SECTION 1 — Hero mit Foto (Bamberg, Markus Spiske)      -->
+  <!-- ====================================================== -->
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0">
+      <img
+        src="https://images.pexels.com/photos/3489009/pexels-photo-3489009.jpeg?auto=compress&cs=tinysrgb&w=1920"
+        alt="Luftaufnahme Bamberg, rote Dachziegel"
+        class="w-full h-full object-cover"
+        loading="eager"
+        onerror="this.onerror=null; this.style.display='none'; this.parentElement.classList.add('photo-fallback');"
+      >
+    </div>
+    <div class="photo-tint-hero absolute inset-0"></div>
+
+    <div class="relative max-w-7xl mx-auto px-4 pt-20 pb-24 md:pt-28 md:pb-32">
+      <div class="max-w-3xl mx-auto text-center">
+        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-brand-300 text-xs font-semibold tracking-wide uppercase px-4 py-1.5 rounded-full mb-6 border border-white/15">
+          <span class="w-2 h-2 bg-brand-400 rounded-full animate-pulse"></span>
+          Bodenrisiko-Check für Immobilienkäufer
+        </div>
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tight drop-shadow">
+          Bodenrisiken prüfen, bevor Sie unterschreiben.
+          <span class="block mt-2 bg-gradient-to-r from-brand-300 to-brand-400 bg-clip-text text-transparent">
+            Klarheit für Ihre Kaufentscheidung.
+          </span>
+        </h1>
+        <p class="mt-6 text-base md:text-lg text-gray-100/90 leading-relaxed max-w-2xl mx-auto">
+          Bevor Sie unterschreiben, sehen Sie: Bewegt sich der Boden an dieser Adresse? Und wie sieht es in den Vorsorge-Grenzwerten aus? Sieben Jahre Satellitendaten, ausgewertet auf offiziellen öffentlichen Quellen.
+        </p>
+
+        <form class="mt-10 max-w-md mx-auto space-y-3" onsubmit="event.preventDefault()">
+          <input type="text" placeholder="Straße + Hausnummer" class="w-full px-4 py-3 rounded-xl border-2 border-white/25 bg-white/15 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:border-brand-400 text-base">
+          <input type="text" placeholder="PLZ + Ort" class="w-full px-4 py-3 rounded-xl border-2 border-white/25 bg-white/15 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:border-brand-400 text-base">
+          <input type="email" placeholder="Ihre E-Mail-Adresse" class="w-full px-4 py-3 rounded-xl border-2 border-white/25 bg-white/15 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:border-brand-400 text-base">
+          <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold text-lg px-10 py-4 rounded-xl shadow-lg">
+            Kostenlosen Bericht anfordern
+          </button>
+        </form>
+        <p class="mt-4 text-[11px] text-white/60">Foto: Markus Spiske / Pexels &middot; Bamberg</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
+    <strong class="text-gray-700">Foto 1 &mdash; Hero:</strong> unverändert seit v3, Copy jetzt laienfreundlicher
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- SECTION 2 — Dein Haus (SVG B, neu)                      -->
+  <!-- ====================================================== -->
+  <section class="py-16 md:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div>
+          <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">So sieht Ihre Adresse bei uns aus</p>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 leading-tight">
+            Messpunkte in Ihrer unmittelbaren Umgebung.
+          </h2>
+          <p class="mt-4 text-gray-500 text-base md:text-lg leading-relaxed">
+            Satelliten sehen Fixpunkte am Boden &mdash; Dächer, Fassaden, Straßen. In der Stadt liegen oft mehrere davon direkt auf Ihrem Haus. In Vorort-Siedlungen auch auf Nachbardach, Gehweg oder Carport. Wichtig ist nicht der einzelne Punkt, sondern das Gesamtbild.
+          </p>
+          <ul class="mt-8 space-y-3 text-sm">
+            <li class="flex items-start gap-3">
+              <span class="mt-1 w-2 h-2 bg-brand-600 rounded-full flex-shrink-0"></span>
+              <span class="text-gray-600">Mehrere Messpunkte in Ihrer unmittelbaren Nähe &mdash; je nach Lage auf und um das Haus</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="mt-1 w-2 h-2 bg-brand-600 rounded-full flex-shrink-0"></span>
+              <span class="text-gray-600">Jeder Punkt mit eigener Bewegungsrate und Ampel-Einstufung</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="mt-1 w-2 h-2 bg-brand-600 rounded-full flex-shrink-0"></span>
+              <span class="text-gray-600">Boden bewegt sich selten punktgenau &mdash; das Muster in der Umgebung ist die Aussage</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-cream rounded-3xl p-4 md:p-6 border border-gray-200">
+          <img src="images/graphics/B-insar-map.svg" alt="Einzelnes Haus im Zoom mit Messpunkten auf und um das Grundstück" class="w-full h-auto" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
+    <strong class="text-gray-700">SVG B &mdash; Messpunkte auf/um das Grundstück:</strong>
+    keine "Dach Nord / Fassade West"-Zuordnung mehr. Dots clustern auf und um das Haus
+    mit ehrlicher Ungenauigkeit, Ampel-Farben nur.
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- SECTION 3 — KPI Zeitreihe (SVG A, neu)                  -->
+  <!-- ====================================================== -->
+  <section class="py-16 md:py-24 bg-cream">
+    <div class="max-w-5xl mx-auto px-4">
+      <div class="grid lg:grid-cols-5 gap-10 lg:gap-14 items-center">
+        <div class="lg:col-span-2">
+          <p class="text-brand-800 font-semibold text-sm tracking-wide uppercase mb-3">Tiefe pro Punkt</p>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-800 leading-tight">
+            Nicht ein Wert. Sieben Jahre Verlauf.
+          </h2>
+          <p class="mt-4 text-gray-600 text-base leading-relaxed">
+            Jeder Messpunkt bringt seinen kompletten Verlauf seit 2017 mit. Sie sehen nicht nur, wo es heute steht &mdash; Sie sehen, ob es in den letzten Jahren schneller oder langsamer wurde.
+          </p>
+          <p class="mt-4 text-gray-500 text-sm italic">
+            Ein einzelner Wert ist ein Foto. Sieben Jahre Verlauf sind ein Film.
+          </p>
+        </div>
+        <div class="lg:col-span-3">
+          <div class="bg-white rounded-2xl shadow-md p-4 md:p-6 border border-gray-200">
+            <img src="images/graphics/A-timeseries.svg" alt="Kumulierte Absenkung minus 22 mm zwischen 2017 und 2023" class="w-full h-auto" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
+    <strong class="text-gray-700">SVG A &mdash; KPI-Story:</strong>
+    "&minus;22 mm" als grosse Zahl, Chart nur noch als Beleg daneben
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- SECTION 4 — Ampel (SVG C, neu)                          -->
+  <!-- ====================================================== -->
+  <section class="py-16 md:py-24 bg-white">
+    <div class="max-w-5xl mx-auto px-4">
+      <div class="text-center mb-10">
+        <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Einstufung pro Punkt</p>
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 leading-tight">
+          Ab wann wird&rsquo;s kritisch?
+        </h2>
+        <p class="mt-3 text-gray-500 text-base md:text-lg max-w-2xl mx-auto">
+          Drei Stufen. Orientiert an gängigen Fachstandards für Bodenbewegung.
+        </p>
+      </div>
+      <div class="max-w-3xl mx-auto bg-cream rounded-2xl p-4 md:p-6 border border-gray-200">
+        <img src="images/graphics/C-ampel.svg" alt="Verkehrsampel-Metapher: grün stabil, gelb auffällig, rot signifikant" class="w-full h-auto" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
+    <strong class="text-gray-700">SVG C &mdash; echte Verkehrsampel:</strong>
+    drei Lampen im Gehaeuse, minimal Text daneben. Grüne leuchtet.
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- SECTION 5 — Waitlist mit Foto (Deva Darshan)            -->
+  <!-- ====================================================== -->
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0">
+      <img
+        src="https://images.pexels.com/photos/1637080/pexels-photo-1637080.jpeg?auto=compress&cs=tinysrgb&w=1920"
+        alt="Luftaufnahme Wohngebiet im Sonnenuntergang"
+        class="w-full h-full object-cover"
+        loading="lazy"
+        onerror="this.onerror=null; this.style.display='none'; this.parentElement.classList.add('photo-fallback');"
+      >
+    </div>
+    <div class="photo-tint-waitlist absolute inset-0"></div>
+
+    <div class="relative max-w-5xl mx-auto px-4 py-20 md:py-28 text-center">
+      <p class="text-brand-700 font-semibold text-sm tracking-wide uppercase mb-3">Premium in Entwicklung</p>
+      <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 leading-tight mb-4">
+        Der ausführliche Bericht kommt bald.
+      </h2>
+      <p class="text-gray-700 text-base md:text-lg max-w-2xl mx-auto mb-10">
+        Schwermetall-Analyse, Bodenart-Details und vollständige Zeitreihe jedes Messpunkts. Trag dich in die Warteliste ein &mdash; Early-Bird-Rabatt für die ersten 100.
+      </p>
+      <form class="max-w-md mx-auto" onsubmit="event.preventDefault()">
+        <div class="flex flex-col gap-3">
+          <input type="email" placeholder="Ihre E-Mail-Adresse" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/90 focus:outline-none focus:border-brand-400">
+          <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold px-8 py-3 rounded-xl transition">
+            Benachrichtige mich
+          </button>
+        </div>
+      </form>
+      <p class="mt-4 text-[11px] text-gray-600/70">Foto: Deva Darshan / Pexels</p>
+    </div>
+  </section>
+
+  <!-- ====================================================== -->
+  <!-- D — Dezenter Link statt Badge-Strip                     -->
+  <!-- ====================================================== -->
+  <!-- Keine eigene Sektion mehr. Einzelner, unaufdringlicher Link
+       im Footer verweist auf die existierende /datenquellen.html.
+       Siehe Footer unten. -->
+
+  <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
+    <strong class="text-gray-700">D &mdash; Quellen nur noch als Link:</strong>
+    Der ganze Navy-Badge-Strip ist weg. Wer wissen will was genau dahintersteckt,
+    klickt im Footer auf "Datenquellen und Methodik" &mdash; das fertige
+    <code>/datenquellen.html</code> existiert schon.
+  </div>
+
+  <!-- summary card -->
+  <section class="py-10 bg-white border-t border-gray-200">
+    <div class="max-w-3xl mx-auto px-4">
+      <div class="bg-cream border border-gray-300 rounded-lg p-5 text-sm text-gray-700">
+        <p class="font-semibold text-gray-900 mb-2">v4.2-Korrektur (über v4.1)</p>
+        <ul class="space-y-1.5 list-disc pl-5">
+          <li><strong>B:</strong> statt "Wir messen IHR Haus, nicht die Gegend" jetzt ehrlich: Nachbarschaftsausschnitt mit Straße und Nachbarhäusern, Ihr Grundstück in der Mitte hervorgehoben, Messpunkte verteilt &mdash; einige aufs Haus, einige Nachbarn, einige Gehweg.</li>
+          <li><strong>Umlaute</strong> überall zurück (ä ö ü ß). SVG-Parse bleibt gültig, da UTF-8.</li>
+          <li><strong>Datenquellen:</strong> Navy-Badge-Strip komplett weg. Nur noch ein dezenter Footer-Link "Datenquellen und Methodik" auf die vorhandene <code>/datenquellen.html</code>.</li>
+          <li><strong>Copy</strong> überall laienfreundlicher: "ein Foto vs. ein Film" für die Zeitreihe, "Bevor Sie unterschreiben, sehen Sie:&hellip;" statt "Automatisiertes Screening".</li>
+        </ul>
+        <p class="mt-3 text-gray-600 text-xs">
+          Feedback aus dem Team-Chat: Tech-Sprache (Copernicus, LUCAS, Pipeline) war für Otto Normalverbraucher zu irritierend. System-Namen gehören später auf geoforensic.de (B2B / Gutachter / Versicherungen), nicht auf bodenbericht.de.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- realistic footer preview — mirrors what the real landing footer would show -->
+  <footer class="bg-navy-800 text-gray-400 py-10 px-4">
+    <div class="max-w-5xl mx-auto">
+      <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
+        <a href="/impressum.html" class="hover:text-white">Impressum</a>
+        <a href="/datenschutz.html" class="hover:text-white">Datenschutz</a>
+        <a href="/widerruf.html" class="hover:text-white">Widerruf</a>
+        <a href="/datenquellen.html" class="hover:text-white">Datenquellen und Methodik</a>
+      </div>
+      <p class="text-center text-xs text-gray-500 mt-4">
+        &copy; 2026 Bodenbericht &middot; Satellitendaten, Bodenproben und historische Nutzungsdaten aus offenen öffentlichen Quellen
+      </p>
+      <p class="text-center text-[11px] text-gray-600 mt-6">
+        Preview v4.2 &middot; Branch <code class="text-brand-400">claude/discuss-before-unavailable-foZZ4</code> &middot; nicht live
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

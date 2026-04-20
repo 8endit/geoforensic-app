@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" width="560" height="360" role="img" aria-label="Kleine Nachbarschaftsszene mit hervorgehobenem Grundstück und Messpunkten in der Umgebung">
+  <defs>
+    <radialGradient id="bStableGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#166534" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#166534" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bWatchGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#B45309" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#B45309" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- cream base -->
+  <rect width="560" height="360" fill="#F7F3EA"/>
+
+  <!-- header -->
+  <g font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#6B5D3F">
+    <text x="30" y="32" letter-spacing="1">IHRE ADRESSE &#183; UNMITTELBARE UMGEBUNG</text>
+  </g>
+  <line x1="30" y1="44" x2="530" y2="44" stroke="#E4DCC6" stroke-width="1"/>
+
+  <!-- street horizontal, through middle -->
+  <g stroke="#E4DCC6" stroke-width="26" stroke-linecap="butt" fill="none">
+    <line x1="0" y1="200" x2="560" y2="200"/>
+  </g>
+  <g stroke="#FFFFFF" stroke-width="22" stroke-linecap="butt" fill="none">
+    <line x1="0" y1="200" x2="560" y2="200"/>
+  </g>
+  <!-- street centre dashed line -->
+  <g stroke="#D4C7A0" stroke-width="1" stroke-dasharray="6 8" fill="none">
+    <line x1="0" y1="200" x2="560" y2="200"/>
+  </g>
+
+  <!-- side walks hint -->
+  <g stroke="#E4DCC6" stroke-width="1" fill="none">
+    <line x1="0" y1="183" x2="560" y2="183"/>
+    <line x1="0" y1="217" x2="560" y2="217"/>
+  </g>
+
+  <!-- ===== UPPER ROW: 3 houses, yours = middle ===== -->
+
+  <!-- left neighbour house -->
+  <g>
+    <rect x="56" y="78" width="80" height="56" rx="2" fill="#F1E8D1" stroke="#8A7A55" stroke-width="1"/>
+    <rect x="56" y="78" width="80" height="22" rx="2" fill="#C4A57A" stroke="#8A7A55" stroke-width="0.8"/>
+    <rect x="88" y="112" width="16" height="22" fill="#C4A57A" stroke="#8A7A55" stroke-width="0.6"/>
+  </g>
+
+  <!-- YOUR house - centered, slightly bigger, with highlight -->
+  <g>
+    <!-- shadow -->
+    <rect x="226" y="68" width="108" height="76" rx="3" fill="#6B5D3F" fill-opacity="0.10"/>
+    <!-- body -->
+    <rect x="222" y="64" width="108" height="76" rx="3" fill="#FFFFFF" stroke="#166534" stroke-width="1.6"/>
+    <!-- roof -->
+    <rect x="222" y="64" width="108" height="34" fill="#C4A57A" stroke="#8A7A55" stroke-width="0.8"/>
+    <rect x="222" y="64" width="54" height="34" fill="#B89566" opacity="0.45"/>
+    <!-- door + windows -->
+    <rect x="264" y="118" width="24" height="22" fill="#C4A57A" stroke="#8A7A55" stroke-width="0.6"/>
+    <rect x="234" y="104" width="20" height="12" fill="#FFFFFF" stroke="#C9BC95" stroke-width="0.8"/>
+    <rect x="298" y="104" width="20" height="12" fill="#FFFFFF" stroke="#C9BC95" stroke-width="0.8"/>
+  </g>
+  <!-- property boundary dashed, generous around your lot -->
+  <rect x="200" y="52" width="152" height="130" rx="4" fill="none" stroke="#166534" stroke-width="1.6" stroke-dasharray="5 4" opacity="0.5"/>
+  <!-- pin above your house -->
+  <g transform="translate(276, 44)">
+    <path d="M 0 -10 C -7 -10 -11 -5 -11 0 C -11 8 0 18 0 18 C 0 18 11 8 11 0 C 11 -5 7 -10 0 -10 Z"
+          fill="#166534" stroke="#FFFFFF" stroke-width="1.5"/>
+    <circle cx="0" cy="0" r="3" fill="#FFFFFF"/>
+  </g>
+
+  <!-- right neighbour house -->
+  <g>
+    <rect x="418" y="82" width="88" height="52" rx="2" fill="#F1E8D1" stroke="#8A7A55" stroke-width="1"/>
+    <rect x="418" y="82" width="88" height="20" rx="2" fill="#C4A57A" stroke="#8A7A55" stroke-width="0.8"/>
+    <rect x="454" y="114" width="16" height="20" fill="#C4A57A" stroke="#8A7A55" stroke-width="0.6"/>
+  </g>
+
+  <!-- ===== LOWER ROW: 2 neighbour houses across the street ===== -->
+
+  <!-- lower left -->
+  <g>
+    <rect x="76" y="238" width="96" height="58" rx="2" fill="#F1E8D1" stroke="#8A7A55" stroke-width="1"/>
+    <rect x="76" y="238" width="96" height="22" rx="2" fill="#C4A57A" stroke="#8A7A55" stroke-width="0.8"/>
+    <rect x="112" y="274" width="18" height="22" fill="#C4A57A" stroke="#8A7A55" stroke-width="0.6"/>
+  </g>
+  <!-- lower middle -->
+  <g>
+    <rect x="236" y="240" width="76" height="60" rx="2" fill="#F1E8D1" stroke="#8A7A55" stroke-width="1"/>
+    <rect x="236" y="240" width="76" height="22" rx="2" fill="#C4A57A" stroke="#8A7A55" stroke-width="0.8"/>
+  </g>
+  <!-- lower right -->
+  <g>
+    <rect x="376" y="236" width="110" height="62" rx="2" fill="#F1E8D1" stroke="#8A7A55" stroke-width="1"/>
+    <rect x="376" y="236" width="110" height="22" rx="2" fill="#C4A57A" stroke="#8A7A55" stroke-width="0.8"/>
+    <rect x="420" y="272" width="22" height="26" fill="#C4A57A" stroke="#8A7A55" stroke-width="0.6"/>
+  </g>
+
+  <!-- ===== Measurement dots - honest distribution ===== -->
+  <!-- Some on your house (if lucky), some on neighbours, some on street/sidewalk/fence -->
+  <g>
+    <!-- on YOUR roof -->
+    <circle cx="250" cy="84" r="12" fill="url(#bStableGlow)"/>
+    <circle cx="250" cy="84" r="4.2" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+
+    <!-- on YOUR facade area -->
+    <circle cx="312" cy="126" r="13" fill="url(#bWatchGlow)"/>
+    <circle cx="312" cy="126" r="4.5" fill="#B45309" stroke="#F7F3EA" stroke-width="1.2"/>
+
+    <!-- left neighbour roof -->
+    <circle cx="96" cy="92" r="12" fill="url(#bStableGlow)"/>
+    <circle cx="96" cy="92" r="4.2" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+
+    <!-- right neighbour roof -->
+    <circle cx="460" cy="96" r="12" fill="url(#bStableGlow)"/>
+    <circle cx="460" cy="96" r="4.2" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+
+    <!-- sidewalk / street edge point -->
+    <circle cx="180" cy="186" r="12" fill="url(#bStableGlow)"/>
+    <circle cx="180" cy="186" r="4.2" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+
+    <circle cx="380" cy="214" r="12" fill="url(#bStableGlow)"/>
+    <circle cx="380" cy="214" r="4.2" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+
+    <!-- across-street houses -->
+    <circle cx="120" cy="252" r="12" fill="url(#bStableGlow)"/>
+    <circle cx="120" cy="252" r="4.2" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+
+    <circle cx="270" cy="254" r="12" fill="url(#bStableGlow)"/>
+    <circle cx="270" cy="254" r="4.2" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+
+    <circle cx="430" cy="250" r="12" fill="url(#bStableGlow)"/>
+    <circle cx="430" cy="250" r="4.2" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+  </g>
+
+  <!-- legend -->
+  <g transform="translate(30, 326)" font-family="Georgia, serif" font-size="11" fill="#44433E">
+    <circle cx="6" cy="6" r="4" fill="#166534"/>
+    <text x="16" y="10">stabil</text>
+    <circle cx="76" cy="6" r="4" fill="#B45309"/>
+    <text x="86" y="10">auffällig</text>
+    <!-- small "your property" key -->
+    <g transform="translate(180, 0)">
+      <rect x="0" y="2" width="10" height="9" rx="1" fill="none" stroke="#166534" stroke-width="1.2" stroke-dasharray="2 2"/>
+      <text x="16" y="10">Ihr Grundstück</text>
+    </g>
+  </g>
+
+  <!-- caption -->
+  <g font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#1F2937">
+    <text x="530" y="334" text-anchor="end">Messpunkte in Ihrer unmittelbaren Umgebung.</text>
+  </g>
+</svg>

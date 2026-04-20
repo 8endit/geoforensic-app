@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" width="560" height="360" role="img" aria-label="Kumulierte Absenkung minus 22 Millimeter zwischen 2017 und 2023 an einem Messpunkt">
+  <defs>
+    <linearGradient id="aSpark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#991B1B" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#991B1B" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- cream base -->
+  <rect width="560" height="360" fill="#F7F3EA"/>
+
+  <!-- header -->
+  <g font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#6B5D3F">
+    <text x="30" y="32" letter-spacing="1">SIEBEN JAHRE BEWEGUNG &#183; EIN MESSPUNKT</text>
+  </g>
+
+  <!-- hairline under header -->
+  <line x1="30" y1="44" x2="530" y2="44" stroke="#E4DCC6" stroke-width="1"/>
+
+  <!-- KPI block: big number, left-aligned -->
+  <g transform="translate(30, 100)">
+    <!-- micro-label -->
+    <text x="0" y="0" font-family="Georgia, serif" font-size="13" fill="#6B5D3F" font-style="italic">
+      Kumulierte Absenkung
+    </text>
+    <!-- big number -->
+    <text x="0" y="78" font-family="Georgia, 'Times New Roman', serif" font-size="96" font-weight="bold" fill="#991B1B" letter-spacing="-2">
+      &#8722;22&#8239;mm
+    </text>
+    <!-- year range -->
+    <text x="0" y="106" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" fill="#6B5D3F">
+      zwischen 2017 und 2023
+    </text>
+  </g>
+
+  <!-- mini spark chart as proof, right side -->
+  <g transform="translate(320, 80)">
+    <!-- chart frame -->
+    <rect x="0" y="0" width="210" height="130" rx="3" fill="#FFFFFF" stroke="#E4DCC6" stroke-width="1"/>
+
+    <!-- y axis labels -->
+    <g font-family="ui-monospace, Menlo, monospace" font-size="8" fill="#8A7A55" text-anchor="end">
+      <text x="22" y="18">0</text>
+      <text x="22" y="70">-10</text>
+      <text x="22" y="116">-22</text>
+    </g>
+
+    <!-- zero line -->
+    <line x1="26" y1="16" x2="198" y2="16" stroke="#C9BC95" stroke-width="0.6" stroke-dasharray="2 2"/>
+
+    <!-- trend filled area -->
+    <path d="M 26 16 L 50 26 L 78 38 L 108 52 L 138 68 L 168 86 L 198 112
+             L 198 116 L 26 116 Z" fill="url(#aSpark)"/>
+
+    <!-- trend line -->
+    <polyline points="26,16 50,26 78,38 108,52 138,68 168,86 198,112"
+              fill="none" stroke="#991B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- endpoint marker -->
+    <circle cx="198" cy="112" r="4" fill="#991B1B"/>
+    <circle cx="198" cy="112" r="7" fill="none" stroke="#991B1B" stroke-width="1" stroke-opacity="0.45"/>
+
+    <!-- x axis ticks + year labels -->
+    <g stroke="#C9BC95" stroke-width="0.8">
+      <line x1="26"  y1="116" x2="26"  y2="119"/>
+      <line x1="198" y1="116" x2="198" y2="119"/>
+    </g>
+    <g font-family="ui-monospace, Menlo, monospace" font-size="8" fill="#8A7A55">
+      <text x="26"  y="128">2017</text>
+      <text x="180" y="128">2023</text>
+    </g>
+  </g>
+
+  <!-- caption strip bottom -->
+  <g>
+    <line x1="30" y1="278" x2="530" y2="278" stroke="#E4DCC6" stroke-width="1"/>
+    <g font-family="Georgia, 'Times New Roman', serif" font-size="15" fill="#1F2937">
+      <text x="30" y="308">So viel hat sich dieses Haus in sieben Jahren gesenkt.</text>
+    </g>
+    <g font-family="Georgia, serif" font-size="11" fill="#6B5D3F" font-style="italic">
+      <text x="30" y="330">
+        Ein Messpunkt &#8212; jeder weitere in der Umgebung bekommt die gleiche Zeitreihe.
+      </text>
+    </g>
+  </g>
+</svg>
