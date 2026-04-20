@@ -36,8 +36,13 @@ scp -r F:/geoforensic-data/egms/NL/ root@<server-ip>:/opt/egms-nl/
 
 Enthaltene Dateien:
 - `soilgrids_*_nlde.tif` (6 Raster, ~64 MB) — pH, SOC, Textur, Dichte
-- `lucas_soil_de.csv` (272 KB) — Schwermetalle
-- `lucas_pesticides_nuts2.xlsx` (Pestizid-Daten, ESDAC)
+- `lucas_soil_de.csv` (272 KB) — Schwermetalle + Naehrstoffe
+- `lucas_pesticides_nuts2.xlsx` (~200 KB) — 118 Substanzen auf NUTS2-Ebene.
+  Erwartetes Format: erste Spalte `NUTS2` (DE-Codes wie `DE11`, `DE21`…),
+  weitere Spalten numerisch je Substanz. Backend logged beim Startup:
+  `PesticideLookup: N NUTS2 regions, M substances from …`. Abweichende
+  Header-Namen werden erkannt (`NUTS_ID`, `nuts_id`, `region`), Feature
+  deaktiviert sich still wenn Datei fehlt oder Struktur nicht passt.
 - EGMS NL Parquets (1.2 GB) — Bodenbewegungsdaten
 
 ## 4. Environment konfigurieren

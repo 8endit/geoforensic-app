@@ -5,9 +5,13 @@ Sections:
 2. Bodenbewegung (EGMS InSAR)
 3. Schwermetalle (LUCAS Topsoil) + BBodSchV Vergleich
 4. Bodenqualitaet (SoilGrids: pH, SOC, Textur, Dichte)
-5. Naehrstoffe (LUCAS: P, N)
+5. Regionale Pestizid-Belastung (LUCAS Pesticide Module, NUTS2)
 6. Personalisierte Einschaetzung (Quiz-Antworten)
 7. Datenquellen + Disclaimer
+
+Naehrstoffe (P, N from LUCAS) are currently folded into the Schwermetall-
+pipeline on the data side but not yet printed as a standalone section in
+this PDF flavour — flag, not a blocker.
 """
 
 import io
@@ -89,6 +93,7 @@ def generate_full_report(
     metals = soil_profile.get("metals", {})
     metal_status = soil_profile.get("metal_status", {})
     nutrients = soil_profile.get("nutrients", {})
+    pesticides = soil_profile.get("pesticides", {})
     lucas_dist = soil_profile.get("lucas_distance_km", -1)
 
     pdf = FPDF()
@@ -328,9 +333,46 @@ def generate_full_report(
         pdf.cell(0, 6, "Keine Naehrstoffdaten verfuegbar.", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(6)
 
+    # ── Section: Regionale Pestizid-Belastung ───────────────────────
+    if pesticides and pesticides.get("top_substances"):
+        _section_header(pdf, fn, "5. Regionale Pestizid-Belastung (NUTS2)")
+        pdf.set_font(fn, "", 8)
+        pdf.set_text_color(100, 100, 100)
+        region = pesticides.get("nuts2", "?")
+        total = pesticides.get("total_detected", 0)
+        percentile = pesticides.get("regional_percentile")
+        ctx = f"NUTS2-Region {region} - {total} Substanzen nachgewiesen"
+        if percentile is not None:
+            ctx += f" - Region liegt im {percentile}. Perzentil DE-weit"
+        pdf.cell(0, 4, ctx, new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(2)
+
+        pdf.set_font(fn, "B", 8)
+        pdf.set_fill_color(240, 240, 240)
+        pdf.set_text_color(50, 50, 50)
+        pdf.cell(95, 6, "Substanz (Top 10)", border=1, fill=True)
+        pdf.cell(35, 6, "Konzentration", border=1, fill=True, align="R")
+        pdf.cell(30, 6, "DE-Perzentil", border=1, fill=True, align="C")
+        pdf.ln()
+        pdf.set_font(fn, "", 8)
+        for sub in pesticides["top_substances"][:10]:
+            name = str(sub["name"])[:60]
+            val = sub["value_mg_kg"]
+            p = sub.get("percentile_national")
+            pdf.set_text_color(50, 50, 50)
+            pdf.cell(95, 5, name, border=1)
+            pdf.cell(35, 5, f"{val:.4f}", border=1, align="R")
+            pdf.cell(30, 5, f"{p}" if p is not None else "-", border=1, align="C")
+            pdf.ln()
+        pdf.set_font(fn, "", 7)
+        pdf.set_text_color(120, 120, 120)
+        pdf.ln(1)
+        pdf.cell(0, 4, "Quelle: LUCAS Topsoil Survey Pesticide Module (ESDAC), aggregiert auf NUTS2-Ebene.", new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(4)
+
     # ── Section: Individuelle Einschaetzung ─────────────────────────
     if answers:
-        _section_header(pdf, fn, "5. Ihre individuelle Einschaetzung")
+        _section_header(pdf, fn, "6. Ihre individuelle Einschaetzung")
         pdf.set_font(fn, "", 9)
         pdf.set_text_color(50, 50, 50)
 
@@ -352,6 +394,7 @@ def generate_full_report(
         (has_egms, "Copernicus EGMS L3 Ortho (Sentinel-1, 2019-2022)"),
         (True, "Nominatim / OpenStreetMap (Geocodierung)"),
         (bool(metals), "LUCAS Topsoil Survey (Schwermetalle, Naehrstoffe)"),
+        (bool(pesticides), "LUCAS Topsoil Pesticide Module (NUTS2-Ebene, ESDAC)"),
         (bool(soilgrids.get("phh2o")), "SoilGrids 250m (pH, SOC, Textur, Dichte)"),
         (False, "Hochwasser-Gefahrenkarten (in Vorbereitung)"),
         (False, "Altlastenkataster (in Vorbereitung)"),

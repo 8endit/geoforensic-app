@@ -64,14 +64,14 @@ async def _generate_and_send_lead_report(
     address: str,
     answers: dict,
     db_url: str,
-    geocoded: tuple[float, float, str, str] | None = None,
+    geocoded: tuple[float, float, str, str, str | None] | None = None,
     source: str = "quiz",
 ) -> None:
     """Background task: geocode → EGMS query → PDF → email.
 
-    Accepts pre-computed geocode (lat, lon, display_name, country_code) from the
-    synchronous validation in the request handler; falls back to geocoding here
-    for backward compatibility.
+    Accepts pre-computed geocode (lat, lon, display_name, country_code, state_iso)
+    from the synchronous validation in the request handler; falls back to geocoding
+    here for backward compatibility.
 
     The ``source`` argument selects which report variant gets rendered and
     which email template is used.  Sources in ``TEASER_SOURCES`` yield the
@@ -92,9 +92,9 @@ async def _generate_and_send_lead_report(
     try:
         # 1. Geocode (or use pre-computed result from request handler)
         if geocoded is not None:
-            lat, lon, display_name, country_code = geocoded
+            lat, lon, display_name, country_code, state_iso = geocoded
         else:
-            lat, lon, display_name, country_code = await geocode_address(address)
+            lat, lon, display_name, country_code, state_iso = await geocode_address(address)
 
         # 2. EGMS query
         async with SessionLocal() as db:
@@ -132,7 +132,7 @@ async def _generate_and_send_lead_report(
         # 4. Query soil data (SoilGrids + LUCAS + CORINE)
         try:
             soil_loader = SoilDataLoader.get()
-            soil_profile = soil_loader.query_full_profile(lat, lon)
+            soil_profile = soil_loader.query_full_profile(lat, lon, state_iso=state_iso)
         except Exception:
             logger.warning("Soil data query failed for (%s, %s), using empty profile", lat, lon)
             soil_profile = {}
@@ -184,7 +184,7 @@ async def capture_lead(
     # If address provided: validate synchronously via geocoding BEFORE saving
     # the lead, so the user gets immediate feedback on typos instead of a silent
     # failure in the background report pipeline.
-    geocoded: tuple[float, float, str, str] | None = None
+    geocoded: tuple[float, float, str, str, str | None] | None = None
     address_clean: str | None = None
     if payload.address and payload.address.strip():
         address_clean = payload.address.strip()

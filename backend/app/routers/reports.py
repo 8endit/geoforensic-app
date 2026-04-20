@@ -36,8 +36,13 @@ _nominatim_lock = asyncio.Lock()
 _last_nominatim_call = 0.0
 
 
-async def geocode_address(address: str) -> tuple[float, float, str, str]:
-    """Resolve address via Nominatim and return (lat, lon, display_name, country_code)."""
+async def geocode_address(address: str) -> tuple[float, float, str, str, str | None]:
+    """Resolve address via Nominatim and return
+    (lat, lon, display_name, country_code, state_iso).
+
+    `state_iso` is the ISO3166-2 state code (e.g. 'DE-BY'), taken from the
+    Nominatim address detail `ISO3166-2-lvl4`. None when not provided.
+    """
     global _last_nominatim_call
     query = address.strip()
     if not query:
@@ -90,8 +95,10 @@ async def geocode_address(address: str) -> tuple[float, float, str, str]:
         )
 
     hit = results[0]
-    country_code = hit.get("address", {}).get("country_code", "").lower()
-    return float(hit["lat"]), float(hit["lon"]), str(hit["display_name"]), country_code
+    addr = hit.get("address", {})
+    country_code = addr.get("country_code", "").lower()
+    state_iso = addr.get("ISO3166-2-lvl4") or None
+    return float(hit["lat"]), float(hit["lon"]), str(hit["display_name"]), country_code, state_iso
 
 
 async def query_egms_points(
@@ -254,7 +261,7 @@ async def preview_report(
     payload: PreviewRequest,
     db: AsyncSession = Depends(get_db),
 ) -> PreviewResponse:
-    lat, lon, display_name, country_code = await geocode_address(payload.address)
+    lat, lon, display_name, country_code, _state_iso = await geocode_address(payload.address)
     try:
         points = await query_egms_points(db, lat, lon, radius_m=500)
     except Exception as exc:  # noqa: BLE001
@@ -285,7 +292,7 @@ async def create_report(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> ReportCreateResponse:
-    lat, lon, display_name, country_code = await geocode_address(payload.address)
+    lat, lon, display_name, country_code, _state_iso = await geocode_address(payload.address)
     selected_modules = list(dict.fromkeys(payload.selected_modules))
     report = Report(
         user_id=current_user.id,
