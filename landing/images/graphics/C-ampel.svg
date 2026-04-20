@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" width="560" height="360" role="img" aria-label="Ampel-Klassifikation der Bodenbewegung in drei Stufen: stabil unter 2 Millimeter pro Jahr, auffaellig zwei bis fuenf, signifikant ueber fuenf">
+  <defs>
+    <radialGradient id="cStable" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#166534" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#166534" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cWatch" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#B45309" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#B45309" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cAlert" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#991B1B" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#991B1B" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- cream base -->
+  <rect width="560" height="360" fill="#F7F3EA"/>
+
+  <!-- header -->
+  <g font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#6B5D3F">
+    <text x="30" y="28" letter-spacing="1">DREISTUFIGE KLASSIFIKATION &#183; mm / Jahr</text>
+  </g>
+
+  <!-- three rows: y centers 90, 180, 270 -->
+
+  <!-- ========== ROW 1: stabil ========== -->
+  <!-- side rule -->
+  <line x1="30" y1="60" x2="30" y2="130" stroke="#166534" stroke-width="3"/>
+  <!-- range label -->
+  <g font-family="Georgia, serif">
+    <text x="50" y="82" font-size="20" fill="#166534" font-weight="bold">stabil</text>
+    <text x="50" y="104" font-size="12" fill="#6B5D3F" font-style="italic">unauffaellig, keine weiteren Schritte notwendig</text>
+  </g>
+  <!-- mm/a chip -->
+  <g transform="translate(50, 114)">
+    <rect x="0" y="0" width="90" height="18" rx="3" fill="#E4EFD9" stroke="#166534" stroke-width="0.8"/>
+    <text x="45" y="13" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#166534" text-anchor="middle">&lt; 2 mm / Jahr</text>
+  </g>
+  <!-- sample dots cluster right -->
+  <g transform="translate(370, 95)">
+    <text x="0" y="-20" font-family="Georgia, serif" font-size="10" fill="#6B5D3F" font-style="italic">typisches Bild: die meisten Punkte</text>
+    <!-- dense stable dot cluster -->
+    <g>
+      <circle cx="10"  cy="0" r="8" fill="url(#cStable)"/><circle cx="10"  cy="0" r="2.5" fill="#166534"/>
+      <circle cx="35"  cy="-8" r="8" fill="url(#cStable)"/><circle cx="35"  cy="-8" r="2.5" fill="#166534"/>
+      <circle cx="58"  cy="4" r="8" fill="url(#cStable)"/><circle cx="58"  cy="4" r="2.5" fill="#166534"/>
+      <circle cx="82"  cy="-5" r="8" fill="url(#cStable)"/><circle cx="82"  cy="-5" r="2.5" fill="#166534"/>
+      <circle cx="104" cy="3" r="8" fill="url(#cStable)"/><circle cx="104" cy="3" r="2.5" fill="#166534"/>
+      <circle cx="128" cy="-6" r="8" fill="url(#cStable)"/><circle cx="128" cy="-6" r="2.5" fill="#166534"/>
+      <circle cx="22"  cy="20" r="8" fill="url(#cStable)"/><circle cx="22"  cy="20" r="2.5" fill="#166534"/>
+      <circle cx="46"  cy="16" r="8" fill="url(#cStable)"/><circle cx="46"  cy="16" r="2.5" fill="#166534"/>
+      <circle cx="70"  cy="22" r="8" fill="url(#cStable)"/><circle cx="70"  cy="22" r="2.5" fill="#166534"/>
+      <circle cx="94"  cy="18" r="8" fill="url(#cStable)"/><circle cx="94"  cy="18" r="2.5" fill="#166534"/>
+      <circle cx="118" cy="22" r="8" fill="url(#cStable)"/><circle cx="118" cy="22" r="2.5" fill="#166534"/>
+    </g>
+  </g>
+
+  <!-- divider -->
+  <line x1="30" y1="148" x2="530" y2="148" stroke="#E4DCC6" stroke-width="1"/>
+
+  <!-- ========== ROW 2: auffaellig ========== -->
+  <line x1="30" y1="158" x2="30" y2="228" stroke="#B45309" stroke-width="3"/>
+  <g font-family="Georgia, serif">
+    <text x="50" y="180" font-size="20" fill="#B45309" font-weight="bold">auffaellig</text>
+    <text x="50" y="202" font-size="12" fill="#6B5D3F" font-style="italic">beobachten &#8212; Ursache pruefen, Zeitreihe ansehen</text>
+  </g>
+  <g transform="translate(50, 212)">
+    <rect x="0" y="0" width="90" height="18" rx="3" fill="#F5E3CC" stroke="#B45309" stroke-width="0.8"/>
+    <text x="45" y="13" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#B45309" text-anchor="middle">2 &#8211; 5 mm / Jahr</text>
+  </g>
+  <!-- sample dots -->
+  <g transform="translate(370, 185)">
+    <text x="0" y="-20" font-family="Georgia, serif" font-size="10" fill="#6B5D3F" font-style="italic">einzeln, an einer Ecke des Hauses</text>
+    <g>
+      <circle cx="10"  cy="0"  r="8" fill="url(#cStable)"/><circle cx="10"  cy="0"  r="2.5" fill="#166534"/>
+      <circle cx="35"  cy="-8" r="8" fill="url(#cStable)"/><circle cx="35"  cy="-8" r="2.5" fill="#166534"/>
+      <circle cx="58"  cy="4"  r="8" fill="url(#cStable)"/><circle cx="58"  cy="4"  r="2.5" fill="#166534"/>
+      <circle cx="82"  cy="-5" r="10" fill="url(#cWatch)"/><circle cx="82"  cy="-5" r="3" fill="#B45309"/>
+      <circle cx="104" cy="3"  r="8" fill="url(#cStable)"/><circle cx="104" cy="3"  r="2.5" fill="#166534"/>
+      <circle cx="128" cy="-6" r="8" fill="url(#cStable)"/><circle cx="128" cy="-6" r="2.5" fill="#166534"/>
+      <circle cx="22"  cy="20" r="8" fill="url(#cStable)"/><circle cx="22"  cy="20" r="2.5" fill="#166534"/>
+      <circle cx="46"  cy="16" r="10" fill="url(#cWatch)"/><circle cx="46"  cy="16" r="3" fill="#B45309"/>
+      <circle cx="70"  cy="22" r="8" fill="url(#cStable)"/><circle cx="70"  cy="22" r="2.5" fill="#166534"/>
+      <circle cx="94"  cy="18" r="8" fill="url(#cStable)"/><circle cx="94"  cy="18" r="2.5" fill="#166534"/>
+      <circle cx="118" cy="22" r="8" fill="url(#cStable)"/><circle cx="118" cy="22" r="2.5" fill="#166534"/>
+    </g>
+  </g>
+
+  <line x1="30" y1="246" x2="530" y2="246" stroke="#E4DCC6" stroke-width="1"/>
+
+  <!-- ========== ROW 3: signifikant ========== -->
+  <line x1="30" y1="256" x2="30" y2="326" stroke="#991B1B" stroke-width="3"/>
+  <g font-family="Georgia, serif">
+    <text x="50" y="278" font-size="20" fill="#991B1B" font-weight="bold">signifikant</text>
+    <text x="50" y="300" font-size="12" fill="#6B5D3F" font-style="italic">Sachverstaendige Baugrunduntersuchung einholen</text>
+  </g>
+  <g transform="translate(50, 310)">
+    <rect x="0" y="0" width="90" height="18" rx="3" fill="#F2D3D3" stroke="#991B1B" stroke-width="0.8"/>
+    <text x="45" y="13" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#991B1B" text-anchor="middle">&gt; 5 mm / Jahr</text>
+  </g>
+  <g transform="translate(370, 280)">
+    <text x="0" y="-20" font-family="Georgia, serif" font-size="10" fill="#6B5D3F" font-style="italic">Cluster &#8212; strukturelles Signal</text>
+    <g>
+      <circle cx="10"  cy="0"  r="8" fill="url(#cStable)"/><circle cx="10"  cy="0"  r="2.5" fill="#166534"/>
+      <circle cx="35"  cy="-8" r="10" fill="url(#cWatch)"/><circle cx="35"  cy="-8" r="3" fill="#B45309"/>
+      <circle cx="58"  cy="4"  r="11" fill="url(#cAlert)"/><circle cx="58"  cy="4"  r="3.5" fill="#991B1B"/>
+      <circle cx="82"  cy="-5" r="11" fill="url(#cAlert)"/><circle cx="82"  cy="-5" r="3.5" fill="#991B1B"/>
+      <circle cx="104" cy="3"  r="11" fill="url(#cAlert)"/><circle cx="104" cy="3"  r="3.5" fill="#991B1B"/>
+      <circle cx="128" cy="-6" r="10" fill="url(#cWatch)"/><circle cx="128" cy="-6" r="3" fill="#B45309"/>
+      <circle cx="22"  cy="20" r="8" fill="url(#cStable)"/><circle cx="22"  cy="20" r="2.5" fill="#166534"/>
+      <circle cx="46"  cy="16" r="10" fill="url(#cWatch)"/><circle cx="46"  cy="16" r="3" fill="#B45309"/>
+      <circle cx="70"  cy="22" r="11" fill="url(#cAlert)"/><circle cx="70"  cy="22" r="3.5" fill="#991B1B"/>
+      <circle cx="94"  cy="18" r="11" fill="url(#cAlert)"/><circle cx="94"  cy="18" r="3.5" fill="#991B1B"/>
+      <circle cx="118" cy="22" r="10" fill="url(#cWatch)"/><circle cx="118" cy="22" r="3" fill="#B45309"/>
+    </g>
+  </g>
+</svg>

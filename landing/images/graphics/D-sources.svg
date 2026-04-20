@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" width="560" height="360" role="img" aria-label="Datenquellen-Stack: Copernicus EGMS, ISRIC SoilGrids, JRC LUCAS und OpenStreetMap Nominatim fliessen in eine adressbasierte Standortauskunft">
+  <!-- cream base -->
+  <rect width="560" height="360" fill="#F7F3EA"/>
+
+  <!-- header -->
+  <g font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#6B5D3F">
+    <text x="30" y="28" letter-spacing="1">DATENQUELLEN &#183; OFFEN LIZENZIERT</text>
+  </g>
+
+  <!-- subhead -->
+  <g font-family="Georgia, serif" font-size="12" fill="#44433E" font-style="italic">
+    <text x="30" y="50">Vier oeffentliche EU-Quellen, pro Adresse verknuepft.</text>
+  </g>
+
+  <!-- flow layout: 4 source cards on the left, arrow, "Standort" pill on the right -->
+
+  <!-- source card helper positions, all cards same width -->
+  <!-- card x=30 width=270; vertical slots y: 78, 134, 190, 246 -->
+
+  <!-- card 1: Copernicus / EGMS -->
+  <g transform="translate(30, 78)">
+    <rect x="0" y="0" width="270" height="48" rx="3" fill="#FFFFFF" stroke="#C9BC95" stroke-width="0.8"/>
+    <rect x="0" y="0" width="4" height="48" fill="#166534"/>
+    <text x="16" y="19" font-family="Georgia, serif" font-size="13" fill="#1F2937" font-weight="bold">Copernicus &#183; EGMS</text>
+    <text x="16" y="35" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9.5" fill="#6B5D3F">Satelliten-InSAR &#183; 100 m &#183; 2015&#8211;heute</text>
+    <!-- license chip -->
+    <g transform="translate(230, 14)">
+      <rect x="0" y="0" width="32" height="14" rx="2" fill="#E4EFD9" stroke="#166534" stroke-width="0.6"/>
+      <text x="16" y="10" font-family="ui-monospace, Menlo, monospace" font-size="8" fill="#166534" text-anchor="middle">CC BY</text>
+    </g>
+  </g>
+
+  <!-- card 2: ISRIC SoilGrids -->
+  <g transform="translate(30, 134)">
+    <rect x="0" y="0" width="270" height="48" rx="3" fill="#FFFFFF" stroke="#C9BC95" stroke-width="0.8"/>
+    <rect x="0" y="0" width="4" height="48" fill="#B45309"/>
+    <text x="16" y="19" font-family="Georgia, serif" font-size="13" fill="#1F2937" font-weight="bold">ISRIC &#183; SoilGrids</text>
+    <text x="16" y="35" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9.5" fill="#6B5D3F">Bodeneigenschaften &#183; 6 Tiefenstufen</text>
+    <g transform="translate(230, 14)">
+      <rect x="0" y="0" width="32" height="14" rx="2" fill="#F5E3CC" stroke="#B45309" stroke-width="0.6"/>
+      <text x="16" y="10" font-family="ui-monospace, Menlo, monospace" font-size="8" fill="#B45309" text-anchor="middle">CC BY</text>
+    </g>
+  </g>
+
+  <!-- card 3: JRC LUCAS -->
+  <g transform="translate(30, 190)">
+    <rect x="0" y="0" width="270" height="48" rx="3" fill="#FFFFFF" stroke="#C9BC95" stroke-width="0.8"/>
+    <rect x="0" y="0" width="4" height="48" fill="#6B5D3F"/>
+    <text x="16" y="19" font-family="Georgia, serif" font-size="13" fill="#1F2937" font-weight="bold">JRC &#183; LUCAS Topsoil</text>
+    <text x="16" y="35" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9.5" fill="#6B5D3F">Bodenproben DE + NL &#183; 2018</text>
+    <g transform="translate(230, 14)">
+      <rect x="0" y="0" width="32" height="14" rx="2" fill="#EEE7D3" stroke="#6B5D3F" stroke-width="0.6"/>
+      <text x="16" y="10" font-family="ui-monospace, Menlo, monospace" font-size="8" fill="#6B5D3F" text-anchor="middle">CC BY</text>
+    </g>
+  </g>
+
+  <!-- card 4: OSM / Nominatim -->
+  <g transform="translate(30, 246)">
+    <rect x="0" y="0" width="270" height="48" rx="3" fill="#FFFFFF" stroke="#C9BC95" stroke-width="0.8"/>
+    <rect x="0" y="0" width="4" height="48" fill="#9DC8DB"/>
+    <text x="16" y="19" font-family="Georgia, serif" font-size="13" fill="#1F2937" font-weight="bold">OpenStreetMap &#183; Nominatim</text>
+    <text x="16" y="35" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9.5" fill="#6B5D3F">Adresse &#8594; Koordinaten</text>
+    <g transform="translate(230, 14)">
+      <rect x="0" y="0" width="32" height="14" rx="2" fill="#DCE9F0" stroke="#6FA7BF" stroke-width="0.6"/>
+      <text x="16" y="10" font-family="ui-monospace, Menlo, monospace" font-size="8" fill="#6FA7BF" text-anchor="middle">ODbL</text>
+    </g>
+  </g>
+
+  <!-- flow lines from each card's right edge to a center merge point -->
+  <g fill="none" stroke="#C9BC95" stroke-width="1" stroke-linecap="round">
+    <path d="M 300 102 C 350 102, 360 180, 400 180"/>
+    <path d="M 300 158 C 350 158, 360 180, 400 180"/>
+    <path d="M 300 214 C 350 214, 360 180, 400 180"/>
+    <path d="M 300 270 C 350 270, 360 180, 400 180"/>
+  </g>
+
+  <!-- merge point arrow -->
+  <g transform="translate(400, 180)">
+    <circle cx="0" cy="0" r="4" fill="#6B5D3F"/>
+    <line x1="4" y1="0" x2="38" y2="0" stroke="#6B5D3F" stroke-width="1.2"/>
+    <polygon points="38,-4 46,0 38,4" fill="#6B5D3F"/>
+  </g>
+
+  <!-- right side: "Standort" result pill -->
+  <g transform="translate(454, 160)">
+    <rect x="0" y="0" width="96" height="40" rx="20" fill="#1F2937" stroke="#166534" stroke-width="1"/>
+    <!-- green pin icon -->
+    <g transform="translate(14, 20)">
+      <path d="M 0 -8 C -5 -8 -8 -5 -8 -1 C -8 4 0 10 0 10 C 0 10 8 4 8 -1 C 8 -5 5 -8 0 -8 Z" fill="#22C55E"/>
+      <circle cx="0" cy="-1" r="2.2" fill="#FFFFFF"/>
+    </g>
+    <text x="30" y="25" font-family="Georgia, serif" font-size="13" fill="#F7F3EA">Standort</text>
+  </g>
+
+  <!-- footer caption -->
+  <g font-family="Georgia, serif" font-size="10" fill="#44433E" font-style="italic">
+    <text x="30" y="336">Keine proprietaeren Daten &#8212; alles unter offenen EU-Lizenzen, Attribution im Bericht.</text>
+  </g>
+</svg>
