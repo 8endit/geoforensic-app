@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preview: Name + Hausnummer Forms</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 300:'#86efac', 400:'#4ade80', 500:'#22c55e', 600:'#16a34a', 700:'#15803d', 800:'#166534' },
+            accent: { 500:'#22c55e', 600:'#16a34a' },
+            navy:  { 700:'#122b52', 800:'#0c1d3a' },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .hero-gradient { background: linear-gradient(135deg, #0c1d3a 0%, #122b52 40%, #1a3a6b 100%); }
+    .preview-ribbon {
+      background: repeating-linear-gradient(45deg, #fef3c7, #fef3c7 10px, #fde68a 10px, #fde68a 20px);
+    }
+    .pill { display:inline-block; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600; }
+    .pill-teaser  { background:#e0f2fe; color:#075985; }
+    .pill-voll    { background:#dcfce7; color:#166534; }
+    .pill-purple  { background:#f3e8ff; color:#7e22ce; }
+    .pill-blue    { background:#e8f0fe; color:#3b6ab5; }
+    .pill-gray    { background:#f1f5f9; color:#64748b; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased">
+
+<div class="preview-ribbon border-b border-amber-300 py-2 px-4 text-center text-xs font-semibold text-amber-900">
+  FORMS-PREVIEW · Vorname + Nachname + Hausnummer + Warteliste im Admin
+</div>
+
+<!-- ========================================================== -->
+<!-- 1. HERO FORM — index.html                                   -->
+<!-- ========================================================== -->
+<section class="hero-gradient pt-16 pb-14 px-4">
+  <div class="max-w-3xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-brand-300 text-xs font-semibold tracking-wide uppercase px-4 py-1.5 rounded-full mb-6 border border-white/15">
+      <span class="w-2 h-2 bg-brand-400 rounded-full animate-pulse"></span>
+      Hero-Form · index.html
+    </div>
+    <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight tracking-tight drop-shadow">
+      Bodenrisiken prüfen, bevor Sie unterschreiben.
+    </h1>
+    <p class="mt-4 text-gray-300 text-sm max-w-xl mx-auto">
+      Automatisiertes Screening für Ihre Wunsch-Immobilie — Ergebnisse in wenigen Minuten, rechtzeitig vor dem Notartermin.
+    </p>
+
+    <form class="mt-8 max-w-md mx-auto space-y-3" onsubmit="event.preventDefault(); alert('Preview — kein echter Submit');">
+      <div class="grid grid-cols-2 gap-3">
+        <input type="text" required placeholder="Vorname" autocomplete="given-name"
+               class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+        <input type="text" required placeholder="Nachname" autocomplete="family-name"
+               class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+      </div>
+      <div class="grid grid-cols-[1fr_auto] gap-3">
+        <input type="text" required placeholder="Straße" autocomplete="address-line1"
+               class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+        <input type="text" required placeholder="Nr." inputmode="numeric" autocomplete="address-line2"
+               class="w-24 px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+      </div>
+      <input type="text" required placeholder="PLZ + Ort" autocomplete="postal-code"
+             class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+      <input type="email" required placeholder="Ihre E-Mail-Adresse" autocomplete="email"
+             class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+      <button type="submit"
+              class="w-full inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold text-lg px-10 py-4 rounded-xl shadow-lg">
+        Kostenlosen Bericht anfordern
+      </button>
+    </form>
+    <p class="text-xs text-white/60 text-center mt-3 max-w-md mx-auto">
+      Mit Klick stimmen Sie der Datenverarbeitung laut Datenschutzerklärung zu.
+    </p>
+  </div>
+</section>
+
+<div class="bg-white border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-600">
+  <strong class="text-gray-900">Hero-Form (index.html):</strong>
+  Vorname + Nachname als zwei Spalten · Straße + Nr. (Nr. 96 px schmal) · PLZ+Ort · Email ·
+  alle Felder mit <code class="bg-gray-100 px-1 rounded">autocomplete</code> damit Browser-Adressbuch greift
+</div>
+
+<!-- ========================================================== -->
+<!-- 2. PREMIUM WAITLIST FORM — unverändert, email-only          -->
+<!-- ========================================================== -->
+<section class="bg-gradient-to-br from-green-50 to-white py-16 px-4">
+  <div class="max-w-xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 bg-brand-100 text-brand-800 text-xs font-semibold tracking-wide uppercase px-4 py-1.5 rounded-full mb-4 border border-brand-200">
+      Premium-Waitlist · index.html · unverändert
+    </div>
+    <h2 class="text-2xl md:text-3xl font-extrabold text-navy-800 leading-tight mb-3">
+      Der ausführliche Bericht kommt bald.
+    </h2>
+    <p class="text-gray-600 text-sm max-w-md mx-auto mb-6">
+      Trag dich in die Warteliste ein — Early-Bird-Rabatt für die ersten 100.
+    </p>
+    <form class="max-w-md mx-auto" onsubmit="event.preventDefault(); alert('Preview — kein echter Submit');">
+      <div class="flex flex-col gap-3">
+        <input type="email" required placeholder="Ihre E-Mail-Adresse" autocomplete="email"
+               class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white focus:outline-none focus:border-brand-400 text-base">
+        <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold px-8 py-3 rounded-xl">
+          Benachrichtige mich
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<div class="bg-white border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-600">
+  <strong class="text-gray-900">Premium-Waitlist:</strong>
+  bleibt bewusst email-only. Zusatzinfos fragen wir später per Email nach (wie besprochen).
+</div>
+
+<!-- ========================================================== -->
+<!-- 3. QUIZ KONTAKT — quiz.html                                 -->
+<!-- ========================================================== -->
+<section class="bg-white py-16 px-4">
+  <div class="max-w-md mx-auto">
+    <div class="flex justify-center mb-4">
+      <div class="inline-flex items-center gap-2 bg-gray-100 text-gray-700 text-xs font-semibold tracking-wide uppercase px-4 py-1.5 rounded-full border border-gray-200">
+        Quiz · Kontakt-Schritt · quiz.html
+      </div>
+    </div>
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center gap-2 mb-3 text-sm">
+        <span class="inline-block w-3 h-3 rounded-full bg-green-400"></span>
+        <span class="font-semibold text-gray-900">Gute Ausgangslage. Bestätigung verfügbar.</span>
+      </div>
+      <p class="text-sm text-gray-600 leading-relaxed">
+        Lassen Sie sich Ihren detaillierten Bodenbericht mit Handlungsempfehlungen zusenden.
+      </p>
+    </div>
+
+    <form onsubmit="event.preventDefault(); alert('Preview — kein echter Submit');">
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        An wen dürfen wir den Bericht adressieren?
+      </label>
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <input type="text" required placeholder="Vorname" autocomplete="given-name"
+               class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-base">
+        <input type="text" required placeholder="Nachname" autocomplete="family-name"
+               class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-base">
+      </div>
+
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        Für welches Grundstück möchten Sie den Bericht?
+      </label>
+      <div class="grid grid-cols-[1fr_auto] gap-3 mb-3">
+        <input type="text" required placeholder="Straße" autocomplete="address-line1"
+               class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-base">
+        <input type="text" required placeholder="Nr." inputmode="numeric" autocomplete="address-line2"
+               class="w-24 px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-base">
+      </div>
+      <input type="text" required placeholder="PLZ + Ort" autocomplete="postal-code"
+             class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-base mb-5">
+
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        Wohin dürfen wir Ihren Bericht senden?
+      </label>
+      <input type="email" required placeholder="Ihre E-Mail-Adresse" autocomplete="email"
+             class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white placeholder-gray-400 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-base mb-4">
+
+      <button type="submit"
+              class="w-full bg-brand-500 hover:bg-brand-600 text-white font-semibold text-lg px-8 py-4 rounded-xl shadow-lg">
+        Kostenlosen Bericht anfordern
+      </button>
+    </form>
+  </div>
+</section>
+
+<div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-600">
+  <strong class="text-gray-900">Quiz-Kontakt (quiz.html):</strong>
+  gleiche Struktur wie Hero. Wird nach den 4 Quiz-Fragen angezeigt, zusammen mit dem Ampel-Resultat.
+</div>
+
+<!-- ========================================================== -->
+<!-- 4. ADMIN DASHBOARD MOCK                                      -->
+<!-- ========================================================== -->
+<section class="bg-gray-50 py-12 px-4">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+      <div>
+        <h1 class="text-2xl font-bold text-navy-800">Admin Dashboard</h1>
+        <p class="text-xs text-gray-500">Letzte Aktualisierung: 13:42 Uhr</p>
+      </div>
+      <div class="flex gap-2">
+        <input type="password" placeholder="Admin Token" class="px-3 py-2 border border-gray-300 rounded-md text-sm w-40">
+        <button class="bg-navy-800 text-white px-4 py-2 rounded-md text-sm font-medium">Aktualisieren</button>
+        <button class="bg-brand-600 text-white px-4 py-2 rounded-md text-sm font-medium">CSV Export</button>
+      </div>
+    </div>
+
+    <!-- KPIs — 5 cards now -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+      <div class="bg-white border border-gray-200 rounded-lg p-4">
+        <div class="text-2xl font-bold text-navy-800">142</div>
+        <div class="text-[11px] text-gray-500 uppercase tracking-wider mt-1">Leads gesamt</div>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-lg p-4">
+        <div class="text-2xl font-bold text-navy-800">7</div>
+        <div class="text-[11px] text-gray-500 uppercase tracking-wider mt-1">Heute</div>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-lg p-4">
+        <div class="text-2xl font-bold text-navy-800">34</div>
+        <div class="text-[11px] text-gray-500 uppercase tracking-wider mt-1">Letzte 7 Tage</div>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-lg p-4 ring-2 ring-purple-200">
+        <div class="text-2xl font-bold text-purple-700">28</div>
+        <div class="text-[11px] text-gray-500 uppercase tracking-wider mt-1">Warteliste</div>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-lg p-4">
+        <div class="text-2xl font-bold text-navy-800">0%</div>
+        <div class="text-[11px] text-gray-500 uppercase tracking-wider mt-1">Conversion bezahlt</div>
+      </div>
+    </div>
+
+    <!-- Sources breakdown -->
+    <div class="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+      <h2 class="text-sm font-semibold text-navy-800 mb-3">Leads nach Quelle</h2>
+      <div class="flex flex-wrap gap-2">
+        <span class="pill pill-blue">quiz: <strong>58</strong></span>
+        <span class="pill pill-blue">landing_direct: <strong>31</strong></span>
+        <span class="pill pill-blue">hero_direct: <strong>25</strong></span>
+        <span class="pill pill-purple">premium-waitlist: <strong>28</strong></span>
+      </div>
+    </div>
+
+    <!-- Leads table -->
+    <div class="bg-white border border-gray-200 rounded-lg p-4">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <h2 class="text-base font-semibold text-navy-800">Leads (letzte 100)</h2>
+        <div class="flex gap-2 text-xs">
+          <button class="px-3 py-1.5 rounded border border-navy-800 bg-navy-800 text-white">Alle</button>
+          <button class="px-3 py-1.5 rounded border border-gray-300 bg-white hover:bg-gray-50">Nur Berichts-Leads</button>
+          <button class="px-3 py-1.5 rounded border border-gray-300 bg-white hover:bg-gray-50">Nur Warteliste</button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 border-b-2 border-gray-200">
+            <tr class="text-left text-[11px] uppercase text-gray-500 tracking-wider">
+              <th class="px-3 py-2">Zeit</th>
+              <th class="px-3 py-2">Name</th>
+              <th class="px-3 py-2">Email</th>
+              <th class="px-3 py-2">Adresse</th>
+              <th class="px-3 py-2">Quelle</th>
+              <th class="px-3 py-2">Typ</th>
+              <th class="px-3 py-2">Nutzung</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 text-[13px]">
+            <tr class="hover:bg-gray-50">
+              <td class="px-3 py-2 text-xs text-gray-500 font-mono">20.04.26 13:41</td>
+              <td class="px-3 py-2">Markus Köhler</td>
+              <td class="px-3 py-2 font-medium">m.koehler@example.de</td>
+              <td class="px-3 py-2 text-xs">Mozartstraße 12, 88459 Tannheim</td>
+              <td class="px-3 py-2"><span class="pill pill-gray">hero_direct</span></td>
+              <td class="px-3 py-2"><span class="pill pill-teaser">TEASER</span></td>
+              <td class="px-3 py-2 text-xs">Kaufabsicht</td>
+            </tr>
+            <tr class="hover:bg-gray-50 bg-purple-50/30">
+              <td class="px-3 py-2 text-xs text-gray-500 font-mono">20.04.26 13:38</td>
+              <td class="px-3 py-2 text-gray-400 italic">—</td>
+              <td class="px-3 py-2 font-medium">s.brandt@example.nl</td>
+              <td class="px-3 py-2 text-xs text-gray-400">—</td>
+              <td class="px-3 py-2"><span class="pill pill-gray">premium-waitlist</span></td>
+              <td class="px-3 py-2"><span class="pill pill-purple">WARTELISTE</span></td>
+              <td class="px-3 py-2 text-xs text-gray-400">—</td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="px-3 py-2 text-xs text-gray-500 font-mono">20.04.26 13:22</td>
+              <td class="px-3 py-2">Sandra Brandt</td>
+              <td class="px-3 py-2 font-medium">s.brandt2@example.de</td>
+              <td class="px-3 py-2 text-xs">Hauptstraße 47a, 10178 Berlin</td>
+              <td class="px-3 py-2"><span class="pill pill-gray">quiz</span></td>
+              <td class="px-3 py-2"><span class="pill pill-teaser">TEASER</span></td>
+              <td class="px-3 py-2 text-xs">Kaufabsicht</td>
+            </tr>
+            <tr class="hover:bg-gray-50 bg-purple-50/30">
+              <td class="px-3 py-2 text-xs text-gray-500 font-mono">20.04.26 12:55</td>
+              <td class="px-3 py-2 text-gray-400 italic">—</td>
+              <td class="px-3 py-2 font-medium">t.heinen@example.de</td>
+              <td class="px-3 py-2 text-xs text-gray-400">—</td>
+              <td class="px-3 py-2"><span class="pill pill-gray">premium-waitlist</span></td>
+              <td class="px-3 py-2"><span class="pill pill-purple">WARTELISTE</span></td>
+              <td class="px-3 py-2 text-xs text-gray-400">—</td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="px-3 py-2 text-xs text-gray-500 font-mono">20.04.26 11:18</td>
+              <td class="px-3 py-2">Thomas Heinen</td>
+              <td class="px-3 py-2 font-medium">th.heinen@example.com</td>
+              <td class="px-3 py-2 text-xs">Ringstraße 3, 80333 München</td>
+              <td class="px-3 py-2"><span class="pill pill-gray">landing_direct</span></td>
+              <td class="px-3 py-2"><span class="pill pill-teaser">TEASER</span></td>
+              <td class="px-3 py-2 text-xs">Kaufabsicht</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="bg-white border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-600">
+  <strong class="text-gray-900">Admin (admin.html):</strong>
+  5. KPI "Warteliste" lila ausgerahmt · Filter-Buttons Alle / Berichts-Leads / Warteliste ·
+  neue Name-Spalte · WARTELISTE-Badge (lila) · Waitlist-Zeilen mit leicht lilanem Hintergrund
+</div>
+
+<!-- ========================================================== -->
+<!-- Summary                                                      -->
+<!-- ========================================================== -->
+<section class="py-10 bg-white border-t border-gray-200">
+  <div class="max-w-2xl mx-auto px-4">
+    <div class="bg-gray-50 border border-gray-300 rounded-lg p-5 text-sm text-gray-700">
+      <p class="font-semibold text-gray-900 mb-3">Was drin ist</p>
+      <ul class="space-y-2 list-disc pl-5">
+        <li><strong>Report-Flows</strong> (Hero, CTA-Box, Quiz): Vorname + Nachname Pflicht, Straße und Hausnummer getrennt. Browser-Autofill aktiv durch <code class="bg-white px-1 rounded text-xs">autocomplete</code>-Hints.</li>
+        <li><strong>Warteliste</strong>: unverändert email-only. Zusatzinfos später per Email-Nachfrage.</li>
+        <li><strong>Backend</strong>: 422-Validierung für Vor-/Nachname (außer Warteliste), Adresse wird strukturiert gebaut (Hausnummer immer dabei), Email-Anrede "Guten Tag {Vorname} {Nachname}".</li>
+        <li><strong>Admin</strong>: Warteliste-KPI, WARTELISTE-Badge, Filter-Buttons, Name-Spalte, CSV mit neuen Feldern.</li>
+      </ul>
+      <p class="mt-4 text-xs text-gray-500 italic">
+        Bestätigungsmail für Warteliste kommt später, wie vereinbart.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer class="bg-navy-800 text-gray-400 py-6 px-4 text-center text-xs">
+  Preview · Branch <code class="text-brand-400">claude/leads-name-hausnummer</code> · nicht live
+</footer>
+
+</body>
+</html>
