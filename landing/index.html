@@ -162,11 +162,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
                 <!-- Hero Inline Lead Form -->
                 <form id="hero-lead-form" class="mt-10 max-w-md mx-auto space-y-3" onsubmit="handleHeroLead(event)">
-                    <input type="text" id="hero-street" required placeholder="Straße + Hausnummer"
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="hero-first-name" required placeholder="Vorname" autocomplete="given-name"
+                               class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                        <input type="text" id="hero-last-name" required placeholder="Nachname" autocomplete="family-name"
+                               class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                    </div>
+                    <div class="grid grid-cols-[1fr_auto] gap-3">
+                        <input type="text" id="hero-street" required placeholder="Straße" autocomplete="address-line1"
+                               class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                        <input type="text" id="hero-house-number" required placeholder="Nr." inputmode="numeric" autocomplete="address-line2"
+                               class="w-24 px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                    </div>
+                    <input type="text" id="hero-city" required placeholder="PLZ + Ort" autocomplete="postal-code"
                            class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
-                    <input type="text" id="hero-city" required placeholder="PLZ + Ort"
-                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
-                    <input type="email" id="hero-email" required placeholder="Ihre E-Mail-Adresse"
+                    <input type="email" id="hero-email" required placeholder="Ihre E-Mail-Adresse" autocomplete="email"
                            class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
                     <button type="submit" id="hero-submit-btn"
                             onclick="(window.dataLayer||[]).push({event:'cta_main'})"
@@ -687,11 +697,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
                     <!-- Direct lead capture form -->
                     <form id="direct-lead-form" class="mt-8 max-w-md mx-auto space-y-3" onsubmit="handleDirectLead(event)">
-                        <input type="text" id="direct-street" required placeholder="Straße + Hausnummer"
+                        <div class="grid grid-cols-2 gap-3">
+                            <input type="text" id="direct-first-name" required placeholder="Vorname" autocomplete="given-name"
+                                class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                            <input type="text" id="direct-last-name" required placeholder="Nachname" autocomplete="family-name"
+                                class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                        </div>
+                        <div class="grid grid-cols-[1fr_auto] gap-3">
+                            <input type="text" id="direct-street" required placeholder="Straße" autocomplete="address-line1"
+                                class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                            <input type="text" id="direct-house-number" required placeholder="Nr." inputmode="numeric" autocomplete="address-line2"
+                                class="w-24 px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                        </div>
+                        <input type="text" id="direct-city" required placeholder="PLZ + Ort" autocomplete="postal-code"
                             class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
-                        <input type="text" id="direct-city" required placeholder="PLZ + Ort"
-                            class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
-                        <input type="email" id="direct-email" required placeholder="Ihre E-Mail-Adresse"
+                        <input type="email" id="direct-email" required placeholder="Ihre E-Mail-Adresse" autocomplete="email"
                             class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
                         <button type="submit" id="direct-submit-btn"
                             class="cta-pulse w-full inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold text-lg px-10 py-4 rounded-xl transition-all shadow-lg shadow-brand-500/30 hover:shadow-brand-400/40 active:scale-[0.98]">
@@ -1014,9 +1034,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         // Hero inline lead capture form
         async function handleHeroLead(e) {
             e.preventDefault();
-            const street = document.getElementById('hero-street').value;
-            const city = document.getElementById('hero-city').value;
-            const email = document.getElementById('hero-email').value;
+            const firstName = document.getElementById('hero-first-name').value.trim();
+            const lastName = document.getElementById('hero-last-name').value.trim();
+            const street = document.getElementById('hero-street').value.trim();
+            const houseNumber = document.getElementById('hero-house-number').value.trim();
+            const city = document.getElementById('hero-city').value.trim();
+            const email = document.getElementById('hero-email').value.trim();
             const btn = document.getElementById('hero-submit-btn');
 
             btn.disabled = true;
@@ -1028,8 +1051,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         email,
-                        address: street.trim() + ', ' + city.trim(),
-                        answers: { nutzung: 'direkt', source_page: 'landing_hero' },
+                        first_name: firstName,
+                        last_name: lastName,
+                        street,
+                        house_number: houseNumber,
+                        answers: { nutzung: 'direkt', source_page: 'landing_hero', address: city },
                         source: 'hero_direct'
                     })
                 });
@@ -1049,9 +1075,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         // Direct lead capture form
         async function handleDirectLead(e) {
             e.preventDefault();
-            const street = document.getElementById('direct-street').value;
-            const city = document.getElementById('direct-city').value;
-            const email = document.getElementById('direct-email').value;
+            const firstName = document.getElementById('direct-first-name').value.trim();
+            const lastName = document.getElementById('direct-last-name').value.trim();
+            const street = document.getElementById('direct-street').value.trim();
+            const houseNumber = document.getElementById('direct-house-number').value.trim();
+            const city = document.getElementById('direct-city').value.trim();
+            const email = document.getElementById('direct-email').value.trim();
             const btn = document.getElementById('direct-submit-btn');
 
             btn.disabled = true;
@@ -1063,8 +1092,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         email,
-                        address: street.trim() + ', ' + city.trim(),
-                        answers: { nutzung: 'direkt', source_page: 'landing' },
+                        first_name: firstName,
+                        last_name: lastName,
+                        street,
+                        house_number: houseNumber,
+                        answers: { nutzung: 'direkt', source_page: 'landing', address: city },
                         source: 'landing_direct'
                     })
                 });
@@ -1077,7 +1109,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             } catch (err) {
                 btn.disabled = false;
                 btn.textContent = 'Kostenlosen Bericht anfordern';
-                alert('Fehler: ' + err.message + '\nBitte pruefen Sie die Adresse und versuchen Sie es erneut.');
+                alert('Fehler: ' + err.message + '\nBitte prüfen Sie die Adresse und versuchen Sie es erneut.');
             }
         }
 

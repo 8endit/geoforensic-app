@@ -27,6 +27,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .pill-green { background: #e8f5ec; color: #3d7a50; }
   .pill-gray { background: #f1f5f9; color: #64748b; }
   .pill-blue { background: #e8f0fe; color: #3b6ab5; }
+  .pill-purple { background: #f3e8ff; color: #7e22ce; }
+  .pill-teaser { background: #e0f2fe; color: #075985; }
+  .pill-voll { background: #dcfce7; color: #166534; }
 </style>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen">
@@ -52,7 +55,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   </div>
 
   <!-- KPI Cards -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
     <div class="card">
       <div class="kpi-num" id="kpi-leads-total">–</div>
       <div class="kpi-lbl">Leads gesamt</div>
@@ -64,6 +67,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <div class="card">
       <div class="kpi-num" id="kpi-leads-week">–</div>
       <div class="kpi-lbl">Letzte 7 Tage</div>
+    </div>
+    <div class="card">
+      <div class="kpi-num" id="kpi-waitlist" style="color:#7e22ce;">–</div>
+      <div class="kpi-lbl">Warteliste</div>
     </div>
     <div class="card">
       <div class="kpi-num" id="kpi-conversion">–</div>
@@ -79,16 +86,24 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <!-- Leads Table -->
   <div class="card">
-    <h2 class="text-lg font-semibold mb-4 text-[#1e3352]">Leads (letzte 100)</h2>
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+      <h2 class="text-lg font-semibold text-[#1e3352]">Leads (letzte 100)</h2>
+      <div class="flex gap-2 text-xs">
+        <button onclick="setFilter('all')" id="flt-all" class="px-3 py-1.5 rounded border border-gray-300 bg-white hover:bg-gray-50">Alle</button>
+        <button onclick="setFilter('report')" id="flt-report" class="px-3 py-1.5 rounded border border-gray-300 bg-white hover:bg-gray-50">Nur Berichts-Leads</button>
+        <button onclick="setFilter('waitlist')" id="flt-waitlist" class="px-3 py-1.5 rounded border border-gray-300 bg-white hover:bg-gray-50">Nur Warteliste</button>
+      </div>
+    </div>
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
         <thead class="bg-gray-50 border-b-2 border-gray-200">
           <tr class="text-left text-xs uppercase text-gray-500 tracking-wider">
             <th class="px-3 py-2">Zeit</th>
+            <th class="px-3 py-2">Name</th>
             <th class="px-3 py-2">Email</th>
             <th class="px-3 py-2">Adresse</th>
             <th class="px-3 py-2">Quelle</th>
-            <th class="px-3 py-2">Report</th>
+            <th class="px-3 py-2">Typ</th>
             <th class="px-3 py-2">Nutzung</th>
             <th class="px-3 py-2">Bedenken</th>
             <th class="px-3 py-2">Dringlichkeit</th>
@@ -139,6 +154,78 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     return s.length > n ? s.slice(0, n) + '…' : s;
   }
 
+  const WAITLIST_SOURCES = new Set(['premium-waitlist']);
+  const TEASER_SOURCES = new Set(['quiz', 'landing', 'landing_direct', 'hero_direct']);
+
+  let currentFilter = 'all';
+  let lastLeads = [];
+
+  function setFilter(name) {
+    currentFilter = name;
+    ['all', 'report', 'waitlist'].forEach(n => {
+      const el = document.getElementById('flt-' + n);
+      if (!el) return;
+      if (n === name) {
+        el.classList.add('bg-[#1e3352]', 'text-white', 'border-[#1e3352]');
+        el.classList.remove('bg-white', 'text-gray-900');
+      } else {
+        el.classList.remove('bg-[#1e3352]', 'text-white', 'border-[#1e3352]');
+        el.classList.add('bg-white');
+      }
+    });
+    renderLeadsTable();
+  }
+
+  function renderLeadsTable() {
+    const filtered = lastLeads.filter(l => {
+      if (currentFilter === 'waitlist') return WAITLIST_SOURCES.has(l.source);
+      if (currentFilter === 'report') return !WAITLIST_SOURCES.has(l.source);
+      return true;
+    });
+    if (filtered.length === 0) {
+      document.getElementById('leads-empty').classList.remove('hidden');
+      document.getElementById('leads-body').innerHTML = '';
+      return;
+    }
+    document.getElementById('leads-empty').classList.add('hidden');
+    document.getElementById('leads-body').innerHTML = filtered.map(l => {
+      const q = l.quiz_answers || {};
+      const fullName = [l.first_name, l.last_name].filter(Boolean).join(' ') || '<span class="text-gray-300">—</span>';
+      const streetLine = [l.street, l.house_number].filter(Boolean).join(' ');
+      const cityLine = (q.address || '').replace(streetLine, '').replace(/^,\s*/, '').trim();
+      const address = [streetLine, cityLine].filter(Boolean).join(', ') || q.address || shortText(q.source_page || '', 30);
+      const isWaitlist = WAITLIST_SOURCES.has(l.source);
+      const isTeaser = TEASER_SOURCES.has(l.source) || l.source === 'quiz';
+      let typeBadge;
+      if (isWaitlist) {
+        typeBadge = '<span class="pill pill-purple">WARTELISTE</span>';
+      } else if (l.source === 'paid') {
+        typeBadge = '<span class="pill pill-voll">VOLL</span>';
+      } else if (isTeaser) {
+        typeBadge = '<span class="pill pill-teaser">TEASER</span>';
+      } else {
+        typeBadge = '<span class="pill pill-gray">—</span>';
+      }
+      return `<tr class="hover:bg-gray-50">
+        <td class="px-3 py-2 text-xs text-gray-500 font-mono">${fmtTime(l.created_at)}</td>
+        <td class="px-3 py-2 text-xs">${escapeHtml(fullName)}</td>
+        <td class="px-3 py-2 font-medium">${escapeHtml(l.email)}</td>
+        <td class="px-3 py-2 text-xs">${escapeHtml(shortText(address, 40))}</td>
+        <td class="px-3 py-2"><span class="pill pill-gray">${escapeHtml(l.source)}</span></td>
+        <td class="px-3 py-2">${typeBadge}</td>
+        <td class="px-3 py-2 text-xs">${escapeHtml(shortText(q.nutzung || '', 25))}</td>
+        <td class="px-3 py-2 text-xs">${escapeHtml(shortText(q.bedenken || '', 25))}</td>
+        <td class="px-3 py-2 text-xs">${escapeHtml(shortText(q.dringlichkeit || '', 25))}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function escapeHtml(s) {
+    if (s == null) return '';
+    if (s.startsWith && s.startsWith('<span')) return s;  // already-safe HTML
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+  }
+
   async function refresh() {
     document.getElementById('last-refresh').textContent = 'Lade…';
     try {
@@ -151,44 +238,24 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       document.getElementById('kpi-leads-week').textContent = stats.leads.week;
       document.getElementById('kpi-conversion').textContent = stats.reports.conversion_rate + '%';
 
-      // Sources
+      // Waitlist KPI (sum across waitlist-tagged sources)
       const sources = stats.leads.by_source || {};
+      const waitlistTotal = Object.entries(sources)
+        .filter(([src]) => WAITLIST_SOURCES.has(src))
+        .reduce((sum, [, n]) => sum + n, 0);
+      document.getElementById('kpi-waitlist').textContent = waitlistTotal;
+
+      // Sources pills — waitlist sources rendered purple
       const srcHtml = Object.entries(sources).length === 0
         ? '<span class="text-gray-400 text-sm">Noch keine Leads</span>'
-        : Object.entries(sources).map(([src, n]) =>
-            `<div class="pill pill-blue">${src}: <strong>${n}</strong></div>`
-          ).join('');
+        : Object.entries(sources).map(([src, n]) => {
+            const cls = WAITLIST_SOURCES.has(src) ? 'pill-purple' : 'pill-blue';
+            return `<div class="pill ${cls}">${src}: <strong>${n}</strong></div>`;
+          }).join('');
       document.getElementById('sources').innerHTML = srcHtml;
 
-      // Leads table
-      const leads = leadsData.leads || [];
-      if (leads.length === 0) {
-        document.getElementById('leads-empty').classList.remove('hidden');
-        document.getElementById('leads-body').innerHTML = '';
-      } else {
-        document.getElementById('leads-empty').classList.add('hidden');
-        const TEASER_SOURCES = new Set(['quiz', 'landing', 'premium-waitlist']);
-        document.getElementById('leads-body').innerHTML = leads.map(l => {
-          const q = l.quiz_answers || {};
-          const address = q.address || shortText(q.source_page || '', 30);
-          const isTeaser = TEASER_SOURCES.has(l.source);
-          const reportBadge = isTeaser
-            ? '<span class="pill pill-gray" style="background:#e0f2fe;color:#075985;">TEASER</span>'
-            : (l.source === 'paid'
-                ? '<span class="pill pill-gray" style="background:#dcfce7;color:#166534;">VOLL</span>'
-                : '<span class="pill pill-gray">—</span>');
-          return `<tr class="hover:bg-gray-50">
-            <td class="px-3 py-2 text-xs text-gray-500 font-mono">${fmtTime(l.created_at)}</td>
-            <td class="px-3 py-2 font-medium">${l.email}</td>
-            <td class="px-3 py-2 text-xs">${shortText(address, 40)}</td>
-            <td class="px-3 py-2"><span class="pill pill-gray">${l.source}</span></td>
-            <td class="px-3 py-2">${reportBadge}</td>
-            <td class="px-3 py-2 text-xs">${shortText(q.nutzung || '', 25)}</td>
-            <td class="px-3 py-2 text-xs">${shortText(q.bedenken || '', 25)}</td>
-            <td class="px-3 py-2 text-xs">${shortText(q.dringlichkeit || '', 25)}</td>
-          </tr>`;
-        }).join('');
-      }
+      lastLeads = leadsData.leads || [];
+      renderLeadsTable();
 
       document.getElementById('last-refresh').textContent =
         'Letzte Aktualisierung: ' + new Date().toLocaleTimeString('de-DE');
@@ -205,14 +272,28 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         alert('Keine Leads zum Exportieren');
         return;
       }
-      const header = ['created_at', 'email', 'source', 'address', 'nutzung', 'bedenken', 'historie', 'dringlichkeit'];
+      const header = [
+        'created_at', 'email', 'first_name', 'last_name',
+        'street', 'house_number', 'city',
+        'source', 'type', 'nutzung', 'bedenken', 'historie', 'dringlichkeit'
+      ];
       const rows = leads.map(l => {
         const q = l.quiz_answers || {};
+        const streetLine = [l.street, l.house_number].filter(Boolean).join(' ');
+        const city = (q.address || '').replace(streetLine, '').replace(/^,\s*/, '').trim();
+        const type = WAITLIST_SOURCES.has(l.source)
+          ? 'waitlist'
+          : (l.source === 'paid' ? 'paid' : 'teaser');
         return [
           l.created_at,
           l.email,
+          l.first_name || '',
+          l.last_name || '',
+          l.street || '',
+          l.house_number || '',
+          city,
           l.source,
-          q.address || '',
+          type,
           q.nutzung || '',
           q.bedenken || '',
           q.historie || '',
@@ -233,6 +314,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   }
 
   // Auto-refresh every 30s
+  setFilter('all');
   refresh();
   setInterval(refresh, 30000);
 </script>

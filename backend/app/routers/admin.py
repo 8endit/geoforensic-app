@@ -88,6 +88,10 @@ async def list_leads(
             {
                 "id": str(l.id),
                 "email": l.email,
+                "first_name": l.first_name,
+                "last_name": l.last_name,
+                "street": l.street,
+                "house_number": l.house_number,
                 "source": l.source,
                 "quiz_answers": l.quiz_answers or {},
                 "created_at": l.created_at.isoformat() if l.created_at else None,

@@ -93,7 +93,7 @@ _HTML_TEMPLATE = """<!DOCTYPE html>
         <tr>
           <td class="content">
             <h1 class="title">{headline}</h1>
-            <p>Guten Tag,</p>
+            <p>{greeting}</p>
             <p>{intro}</p>
             <div class="address">{address}</div>
             <p>Den Bericht finden Sie als PDF im Anhang dieser E-Mail.</p>
@@ -162,7 +162,25 @@ _TEASER_UPSELL = (
 )
 
 
-def _build_html_body(address: str, is_teaser: bool = True) -> str:
+def _build_greeting(first_name: str | None, last_name: str | None) -> str:
+    """Return a personal greeting or a neutral fallback.
+
+    Uses last name only (formal German convention): "Guten Tag Herr Mueller,"
+    is preferable but we do not collect salutation, so we fall back to the
+    neutral "Guten Tag {Vorname} {Nachname}," which also reads fine in e-mail.
+    """
+    parts = [p for p in (first_name, last_name) if p and p.strip()]
+    if not parts:
+        return "Guten Tag,"
+    return f"Guten Tag {escape(' '.join(parts))},"
+
+
+def _build_html_body(
+    address: str,
+    is_teaser: bool = True,
+    first_name: str | None = None,
+    last_name: str | None = None,
+) -> str:
     if is_teaser:
         headline = "Ihre kostenlose Boden-Kurzfassung."
         intro = "vielen Dank fuer Ihre Anfrage. Fuer den folgenden Standort haben wir eine kostenlose Kurzfassung erstellt:"
@@ -178,6 +196,7 @@ def _build_html_body(address: str, is_teaser: bool = True) -> str:
     return _HTML_TEMPLATE.format(
         address=escape(address),
         headline=headline,
+        greeting=_build_greeting(first_name, last_name),
         intro=intro,
         info_title=info_title,
         info_items=info_items,
@@ -185,11 +204,17 @@ def _build_html_body(address: str, is_teaser: bool = True) -> str:
     )
 
 
-def _build_text_body(address: str, is_teaser: bool = True) -> str:
+def _build_text_body(
+    address: str,
+    is_teaser: bool = True,
+    first_name: str | None = None,
+    last_name: str | None = None,
+) -> str:
     """Plaintext fallback for mail clients that do not render HTML."""
+    greeting = _build_greeting(first_name, last_name)
     if is_teaser:
         body_lines = (
-            "Guten Tag,\n\n"
+            f"{greeting}\n\n"
             f"Ihre kostenlose Boden-Kurzfassung fuer\n{address}\n"
             "ist fertig. Das PDF finden Sie im Anhang.\n\n"
             "Dies ist eine kostenlose Kurzfassung. Den ausfuehrlichen Bericht mit "
@@ -200,7 +225,7 @@ def _build_text_body(address: str, is_teaser: bool = True) -> str:
         )
     else:
         body_lines = (
-            "Guten Tag,\n\n"
+            f"{greeting}\n\n"
             f"Ihr Bodenbericht fuer\n{address}\n"
             "ist fertig. Das PDF finden Sie im Anhang.\n\n"
         )
@@ -229,12 +254,18 @@ async def send_report_email(
     pdf_bytes: bytes,
     report_id: str,
     is_teaser: bool = True,
+    first_name: str | None = None,
+    last_name: str | None = None,
 ) -> bool:
     """Send a report PDF as multipart HTML+plaintext email. Returns True on success.
 
     ``is_teaser=True`` (default) uses the free-kurzfassung wording for
     bodenbericht.de leads. Pass ``is_teaser=False`` for the paid full-report
     flow once that is wired up on geoforensic.de.
+
+    ``first_name`` / ``last_name`` are optional and produce a personal
+    greeting ("Guten Tag Max Mustermann,") when present. Without them the
+    mail falls back to the neutral "Guten Tag,".
     """
     if not settings.smtp_host:
         logger.warning("SMTP not configured — skipping email for report %s", report_id)
@@ -251,8 +282,23 @@ async def send_report_email(
     msg["Reply-To"] = "team@geoforensic.de"
 
     # Plaintext first, then HTML as alternative.
-    msg.set_content(_build_text_body(report_address, is_teaser=is_teaser))
-    msg.add_alternative(_build_html_body(report_address, is_teaser=is_teaser), subtype="html")
+    msg.set_content(
+        _build_text_body(
+            report_address,
+            is_teaser=is_teaser,
+            first_name=first_name,
+            last_name=last_name,
+        )
+    )
+    msg.add_alternative(
+        _build_html_body(
+            report_address,
+            is_teaser=is_teaser,
+            first_name=first_name,
+            last_name=last_name,
+        ),
+        subtype="html",
+    )
 
     # Attach the inline logo to the HTML part (not the plaintext part).
     # The HTML alternative is the LAST entry in the payload after set_content + add_alternative.

@@ -12,8 +12,8 @@ wired up, all inbound leads receive the teaser and a warning is logged if a
 import logging
 from datetime import datetime
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Request, status
-from pydantic import BaseModel, EmailStr
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
+from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -33,9 +33,20 @@ logger = logging.getLogger(__name__)
 # Anything not listed here is treated as a paid/full-report request.
 TEASER_SOURCES = {"quiz", "landing", "premium-waitlist"}
 
+# Sources where we only collect an email (no report, no address, no name).
+# Used for the premium waitlist on bodenbericht.de.
+EMAIL_ONLY_SOURCES = {"premium-waitlist"}
+
 
 class LeadCreate(BaseModel):
     email: EmailStr
+    first_name: str | None = Field(default=None, max_length=120)
+    last_name: str | None = Field(default=None, max_length=120)
+    street: str | None = Field(default=None, max_length=255)
+    house_number: str | None = Field(default=None, max_length=20)
+    # Legacy combined address field — still accepted for backwards
+    # compatibility with older form submissions. New forms should send
+    # street + house_number separately.
     address: str | None = None
     answers: dict | None = None
     timestamp: str | None = None
@@ -66,6 +77,8 @@ async def _generate_and_send_lead_report(
     db_url: str,
     geocoded: tuple[float, float, str, str] | None = None,
     source: str = "quiz",
+    first_name: str | None = None,
+    last_name: str | None = None,
 ) -> None:
     """Background task: geocode → EGMS query → PDF → email.
 
@@ -156,13 +169,15 @@ async def _generate_and_send_lead_report(
             pdf_bytes = html.encode("utf-8")
             logger.warning("PDF rendering failed, sending HTML as fallback for %s", email)
 
-        # 6. Send email
+        # 6. Send email (with personal greeting if we have a name)
         await send_report_email(
             recipient_email=email,
             report_address=display_name,
             pdf_bytes=pdf_bytes,
             report_id=f"lead-{email}",
             is_teaser=is_teaser,
+            first_name=first_name,
+            last_name=last_name,
         )
         logger.info(
             "Lead report sent to %s for address %s (%s, %d pts, source=%s, teaser=%s)",
@@ -181,13 +196,43 @@ async def capture_lead(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
-    # If address provided: validate synchronously via geocoding BEFORE saving
-    # the lead, so the user gets immediate feedback on typos instead of a silent
-    # failure in the background report pipeline.
+    # Normalise incoming fields
+    first_name = (payload.first_name or "").strip() or None
+    last_name = (payload.last_name or "").strip() or None
+    street = (payload.street or "").strip() or None
+    house_number = (payload.house_number or "").strip() or None
+
+    # Enforce first+last name for report-generating sources.  The
+    # premium-waitlist flow stays email-only by design.
+    if payload.source not in EMAIL_ONLY_SOURCES:
+        if not first_name or not last_name:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Vor- und Nachname sind Pflichtfelder.",
+            )
+
+    # Build the full address string for geocoding.  Prefer the structured
+    # street + house_number pair; fall back to the legacy `address` field.
+    if street and house_number:
+        address_clean = f"{street} {house_number}"
+    elif street:
+        address_clean = street
+    else:
+        address_clean = (payload.address or "").strip() or None
+
+    # If the full landing form was submitted, the PLZ + city live in
+    # payload.answers.address (legacy) — stitch them onto the street so
+    # Nominatim finds the right place.
+    if address_clean and payload.answers and isinstance(payload.answers.get("address"), str):
+        city_part = payload.answers["address"].strip()
+        if city_part and city_part not in address_clean:
+            address_clean = f"{address_clean}, {city_part}"
+
+    # If we have an address: validate synchronously via geocoding BEFORE
+    # saving the lead, so the user gets immediate feedback on typos instead
+    # of a silent failure in the background report pipeline.
     geocoded: tuple[float, float, str, str] | None = None
-    address_clean: str | None = None
-    if payload.address and payload.address.strip():
-        address_clean = payload.address.strip()
+    if address_clean:
         # geocode_address raises HTTPException(422) if Nominatim returns no
         # results; that propagates as-is to the client with detail message
         # "Adresse konnte nicht gefunden werden".
@@ -195,11 +240,15 @@ async def capture_lead(
 
     # Merge address into quiz_answers so it's visible in admin dashboard
     answers_with_address = dict(payload.answers or {})
-    if payload.address:
-        answers_with_address["address"] = payload.address
+    if address_clean:
+        answers_with_address["address"] = address_clean
 
     lead = Lead(
         email=payload.email,
+        first_name=first_name,
+        last_name=last_name,
+        street=street,
+        house_number=house_number,
         quiz_answers=answers_with_address,
         source=payload.source,
     )
@@ -217,6 +266,8 @@ async def capture_lead(
             db_url="",  # uses SessionLocal directly
             geocoded=geocoded,
             source=payload.source,
+            first_name=first_name,
+            last_name=last_name,
         )
 
     return LeadResponse(
