@@ -1,26 +1,31 @@
 """Teaser-Bodenbericht as HTML (for Chrome Headless → PDF).
 
-This is the **free lead-magnet** variant shipped by bodenbericht.de. It
-renders only the upper-funnel content:
+Free lead-magnet variant shipped by bodenbericht.de. Layout is split into
+three zones:
 
-    - Header + address banner
-    - GeoScore gauge + overall assessment
-    - Bodenbewegung KPI block (point count + Ampel badge)
-    - Personal Quiz-based Einschätzung
-    - Upsell card pointing to the future full report
-    - Data sources + disclaimer
+    SICHTBAR  — Gesamt-Ampel + GeoScore, Bodenbewegung (Punkt + Ampel),
+                Individuelle Einschaetzung (aus Quiz oder Ampel-Fallback)
+    BLURRED   — Schwermetalle, Bodenqualitaet, Naehrstoffe,
+                InSAR-Detailwerte. Each rendered with realistic values
+                under CSS filter: blur + Lock-Pill. Real data when available,
+                mock fallback otherwise.
+    CTA       — Vollbericht-Warteliste (Stripe link replaces this when live)
 
-Full-depth tables (metals, SoilGrids, nutrients, texture) are intentionally
-**not** rendered here — their helper functions exist above and are reserved
-for the future `generate_full_report` (geoforensic.de paid flow). Do not wire
-them into this template; keep the teaser deliberately short.
-
-Design inspired by the old geoforensic-karte reports + Avista structure.
-Calm, professional color palette. Inter font. Card-based layout.
+The mock data shown under blur is exactly what `generate_full_report` will
+deliver unblurred when the user upgrades. Do not promise sections here that
+the full report does not actually render.
 """
 
+import base64
 from datetime import datetime, timezone
 from html import escape
+from pathlib import Path
+
+_LOGO_PATH = Path(__file__).resolve().parents[2] / "landing" / "images" / "logo-horizontal.png"
+try:
+    _LOGO_DATA_URI = "data:image/png;base64," + base64.b64encode(_LOGO_PATH.read_bytes()).decode("ascii")
+except OSError:
+    _LOGO_DATA_URI = ""
 
 
 def _svg_gauge(score: int, size: int = 120) -> str:
@@ -149,6 +154,19 @@ def _ampel_label(ampel: str) -> str:
     return {"gruen": "Unauffällig", "gelb": "Auffällig", "rot": "Kritisch"}.get(ampel, "Keine Daten")
 
 
+_EINSCHAETZUNG_FALLBACK = {
+    "gruen": "Für Standorte im <strong>grünen Bereich</strong> empfehlen wir eine Wiederholung des Screenings in 12 bis 24 Monaten. Akute Maßnahmen sind nach Datenlage nicht erforderlich.",
+    "gelb":  "Für Standorte im <strong>gelben Bereich</strong> empfehlen wir eine Wiederholung des Screenings in 6 bis 12 Monaten. Bei einem älteren Fundament oder sichtbaren Rissen lohnt sich eine Begutachtung durch einen Baugrundsachverständigen.",
+    "rot":   "Für Standorte im <strong>roten Bereich</strong> empfehlen wir eine zeitnahe Vor-Ort-Begutachtung durch einen nach §18 BBodSchG zugelassenen Sachverständigen. Ansprechpartner ist die untere Bodenschutzbehörde Ihres Landkreises.",
+}
+
+_LOCK_PILL_HTML = """<div class="lock-overlay"><span class="lock-pill">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  </svg>Im Vollbericht enthalten</span></div>"""
+
+
 def _texture_name(clay: float, sand: float, silt: float) -> str:
     if sand > 65:
         return "Sandboden (leicht, durchlässig)"
@@ -216,115 +234,55 @@ def generate_html_report(
 
     # Overall score
     score = geo_score if geo_score is not None else 50
-    score_class = "healthy" if score >= 70 else "degraded" if score >= 40 else "unhealthy"
-    score_label = "Gut" if score >= 70 else "Auffällig" if score >= 40 else "Kritisch"
+    score_label = "Gut" if score >= 70 else "Beobachten" if score >= 40 else "Kritisch"
 
-    # Pre-render SVG charts
     gauge_svg = _svg_gauge(score)
-    metals_bars_svg = _svg_metal_bars(metals, _THRESHOLDS)
-    soil_bars_svg = _svg_soil_bars(soilgrids)
-    clay = soilgrids.get("clay")
-    sand_v = soilgrids.get("sand")
-    silt_v = soilgrids.get("silt")
-    texture_donut_svg = _svg_texture_donut(clay, sand_v, silt_v) if clay and sand_v and silt_v else ""
+    bb_dot = "ok" if ampel == "gruen" else "warn" if ampel == "gelb" else "alert"
+    bb_text = (
+        "Keine auffälligen Bodenbewegungen im Untersuchungsradius. Stabile Lage." if ampel == "gruen"
+        else "Vereinzelt erhöhte Bodenbewegungen gemessen. Weitere Beobachtung empfohlen." if ampel == "gelb"
+        else "Kritische Bodenbewegungen gemessen. Fachliche Einschätzung empfohlen." if ampel == "rot"
+        else "Für diesen Standort liegen keine InSAR-Satellitendaten im Untersuchungsradius vor."
+    )
 
-    # Metals rows. Only show if LUCAS data is within 50km
-    metals_html = ""
-    any_metals_warn = False
-    metals_too_far = lucas_dist > 50
-    if not metals_too_far:
-        for sym in ["Cd", "Pb", "Hg", "As", "Cr", "Cu", "Ni", "Zn"]:
-            ms = metal_status.get(sym, {})
-            val = ms.get("value", metals.get(sym))
-            thresh = ms.get("threshold", _THRESHOLDS.get(sym))
-            status = ms.get("status", "ok")
-            if status in ("warn", "critical"):
-                any_metals_warn = True
-            if val is not None:
-                metals_html += f"""
-                <tr>
-                  <td><strong>{_METAL_NAMES.get(sym, sym)}</strong> ({sym})</td>
-                  <td class="val">{val:.2f} <span class="unit">mg/kg</span></td>
-                  <td>{thresh} <span class="unit">mg/kg</span></td>
-                  <td><span class="status {_status_class(status)}"><span class="dot {_status_class(status)}"></span> {_status_label(status)}</span></td>
-                  <td><span class="source-tag">LUCAS</span></td>
-                </tr>"""
-
-    # SoilGrids rows
-    sg_rows = ""
-    sg_props = [
-        ("phh2o", "pH-Wert", "pH", _assess_ph),
-        ("soc", "Org. Kohlenstoff (SOC)", "g/kg", _assess_soc),
-        ("bdod", "Lagerungsdichte", "g/cm³", _assess_bdod),
-        ("clay", "Tongehalt", "%", lambda v: "ok"),
-        ("sand", "Sandgehalt", "%", lambda v: "ok"),
-        ("silt", "Schluffgehalt", "%", lambda v: "ok"),
-    ]
-    has_soilgrids = False
-    for key, label, unit, assess_fn in sg_props:
-        val = soilgrids.get(key)
-        if val is not None:
-            has_soilgrids = True
-            status = assess_fn(val)
-            sg_rows += f"""
-            <tr>
-              <td><strong>{label}</strong></td>
-              <td class="val">{val:.1f} <span class="unit">{unit}</span></td>
-              <td><span class="status {_status_class(status)}"><span class="dot {_status_class(status)}"></span> {_status_label(status)}</span></td>
-              <td><span class="source-tag">SoilGrids 250m</span></td>
-            </tr>"""
-
-    # Texture
-    clay = soilgrids.get("clay")
-    sand = soilgrids.get("sand")
-    silt = soilgrids.get("silt")
-    texture_html = ""
-    if clay is not None and sand is not None and silt is not None:
-        texture = _texture_name(clay, sand, silt)
-        texture_html = f"""
-        <div style="margin-top:12px; padding:12px 16px; background:#f0fdf4; border-radius:8px; border:1px solid #bbf7d0;">
-          <strong>Bodenart:</strong> {texture} (Ton {clay:.0f}% · Sand {sand:.0f}% · Schluff {silt:.0f}%)
-        </div>"""
-
-    # Nutrients
-    nutrients_html = ""
-    p_val = nutrients.get("P")
-    n_val = nutrients.get("N_total")
-    if p_val is not None:
-        p_status = "ok" if 30 <= p_val <= 80 else ("warn" if p_val > 80 else "warn")
-        nutrients_html += f"""
-        <tr>
-          <td><strong>Phosphor (P)</strong></td>
-          <td class="val">{p_val:.1f} <span class="unit">mg/kg</span></td>
-          <td>30 bis 80 <span class="unit">mg/kg</span></td>
-          <td><span class="status {_status_class(p_status)}"><span class="dot {_status_class(p_status)}"></span> {'Optimal' if 30 <= p_val <= 80 else 'Erhöht' if p_val > 80 else 'Niedrig'}</span></td>
-          <td><span class="source-tag">LUCAS</span></td>
-        </tr>"""
-    if n_val is not None:
-        nutrients_html += f"""
-        <tr>
-          <td><strong>Gesamtstickstoff (N)</strong></td>
-          <td class="val">{n_val:.0f} <span class="unit">mg/kg</span></td>
-          <td>Referenzwert</td>
-          <td><span class="status info">Referenzwert</span></td>
-          <td><span class="source-tag">LUCAS</span></td>
-        </tr>"""
-
-    # Quiz section
-    quiz_html = ""
+    # Einschaetzung — quiz answers if present, otherwise ampel-specific fallback
     nutzung = answers.get("nutzung", "")
     dringlichkeit = answers.get("dringlichkeit", "")
-    if nutzung or dringlichkeit:
-        quiz_parts = ""
+    if nutzung in _NUTZUNG or dringlichkeit in _DRINGLICHKEIT:
+        ein_parts = []
         if nutzung in _NUTZUNG:
-            quiz_parts += f"<p>{_NUTZUNG[nutzung]}</p>"
+            ein_parts.append(f"<p>{_NUTZUNG[nutzung]}</p>")
         if dringlichkeit in _DRINGLICHKEIT:
-            quiz_parts += f"<p><strong>Handlungsempfehlung:</strong> {_DRINGLICHKEIT[dringlichkeit]}</p>"
-        quiz_html = f"""
-        <div class="card">
-          <h2>Ihre individuelle Einschätzung</h2>
-          <div class="ss">{quiz_parts}</div>
-        </div>"""
+            ein_parts.append(f"<p><strong>Handlungsempfehlung:</strong> {_DRINGLICHKEIT[dringlichkeit]}</p>")
+        einschaetzung_html = "".join(ein_parts)
+    else:
+        einschaetzung_html = f"<p>{_EINSCHAETZUNG_FALLBACK.get(ampel, _EINSCHAETZUNG_FALLBACK['gelb'])}</p>"
+
+    # Blurred-card values: use real data when available, plausible mock otherwise.
+    # Mock numbers are illustrative, not bound to the address — the lock overlay
+    # makes that clear and the upgrade unlocks the real per-location values.
+    m = metals or {"Cd": 0.21, "Pb": 28.0, "Hg": 0.09, "As": 6.4, "Cr": 34.0, "Cu": 17.0, "Ni": 19.0, "Zn": 62.0}
+    ph_v   = soilgrids.get("phh2o") if soilgrids.get("phh2o") is not None else 6.8
+    soc_v  = soilgrids.get("soc")   if soilgrids.get("soc")   is not None else 31.0
+    clay_v = soilgrids.get("clay")  if soilgrids.get("clay")  is not None else 18.0
+    silt_v = soilgrids.get("silt")  if soilgrids.get("silt")  is not None else 58.0
+    sand_v = soilgrids.get("sand")  if soilgrids.get("sand")  is not None else 24.0
+    texture_label = _texture_name(clay_v, sand_v, silt_v)
+    p_v = nutrients.get("P")        if nutrients.get("P")        is not None else 48.0
+    n_v = nutrients.get("N_total")  if nutrients.get("N_total")  is not None else 1820.0
+    mean_v = mean_velocity if has_egms else -3.2
+    max_v  = max_velocity  if has_egms else -4.8
+
+    metal_cells = "".join(
+        f'<div class="metal-cell"><div class="metal-sym">{sym}</div><div class="metal-val">{m[sym]:.2f} mg/kg</div></div>'
+        for sym in ["Cd", "Pb", "Hg", "As", "Cr", "Cu", "Ni", "Zn"]
+    )
+
+    logo_html = (
+        f'<img src="{_LOGO_DATA_URI}" alt="Bodenbericht" class="brand-logo">'
+        if _LOGO_DATA_URI
+        else '<span class="brand-text">Bodenbericht</span>'
+    )
 
     return f"""<!DOCTYPE html>
 <html lang="de">
@@ -334,91 +292,142 @@ def generate_html_report(
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
   :root {{
-    --green:#5B9A6F; --yellow:#C4A94D; --red:#B85450; --blue:#4A7FB5;
-    --dark:#1e293b; --gray:#64748b; --light:#f8fafc; --border:#e2e8f0; --accent:#1E3352;
+    --green:#5B9A6F; --yellow:#C4A94D; --red:#B85450;
+    --dark:#1e293b; --gray:#64748b; --border:#e2e8f0; --accent:#1E3352; --accent-deep:#0F2040;
   }}
   * {{ margin:0; padding:0; box-sizing:border-box; }}
-  body {{ font-family:'Inter',-apple-system,sans-serif; color:var(--dark); line-height:1.6; background:white; font-size:12px; }}
-  .rc {{ max-width:900px; margin:0 auto; padding:28px 36px; }}
+  body {{ font-family:'Inter',-apple-system,sans-serif; color:var(--dark); line-height:1.55; background:white; font-size:12px; }}
+  .rc {{ max-width:900px; margin:0 auto; padding:24px 32px; }}
+
   .header {{
-    background:linear-gradient(135deg,#1E3352,#0F2040); color:white;
-    padding:32px 36px; border-radius:10px; margin-bottom:20px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep));
+    color:white; padding:18px 28px; border-radius:10px; margin-bottom:18px;
+    display:flex; justify-content:space-between; align-items:center; gap:24px;
+    position:relative; overflow:hidden;
   }}
-  .header h1 {{ font-size:22px; font-weight:700; letter-spacing:0.5px; }}
-  .header .sub {{ font-size:12px; opacity:.75; margin-bottom:14px; }}
-  .header .meta {{ font-size:11px; opacity:.8; display:flex; gap:20px; flex-wrap:wrap; }}
+  .header::before {{
+    content:""; position:absolute; inset:0;
+    background-image:linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size:28px 28px;
+  }}
+  .header > * {{ position:relative; }}
+  .brand-logo {{ height:30px; width:auto; filter:brightness(0) invert(1); opacity:.95; }}
+  .brand-text {{ font-size:18px; font-weight:700; letter-spacing:.5px; }}
+  .header-meta {{ font-size:10px; opacity:.85; text-align:right; }}
+  .header-meta .nr {{ font-family:ui-monospace,monospace; }}
+
+  .address-block {{ margin:6px 4px 18px; }}
+  .address-block .label {{
+    font-size:10px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--gray); font-weight:600;
+  }}
+  .address-block .addr {{
+    font-size:18px; font-weight:700; color:var(--accent); line-height:1.25; margin-top:2px;
+  }}
+  .address-block .coords {{ font-size:10px; color:var(--gray); margin-top:2px; }}
+
+  .section-label {{
+    display:flex; align-items:center; gap:10px;
+    font-size:9px; font-weight:700; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--gray);
+    margin:18px 4px 6px;
+  }}
+  .section-label::before, .section-label::after {{
+    content:""; flex:1; height:1px; background:var(--border);
+  }}
+
   .card {{
     background:white; border:1px solid var(--border); border-radius:8px;
-    padding:20px 24px; margin-bottom:14px; page-break-inside:avoid;
+    padding:18px 22px; margin-bottom:12px; page-break-inside:avoid;
+    position:relative;
   }}
   .card h2 {{
-    font-size:14px; font-weight:600; margin-bottom:14px; padding-bottom:8px;
-    border-bottom:2px solid var(--border); display:flex; align-items:center; gap:8px;
-    color:var(--accent);
+    font-size:13px; font-weight:600; margin-bottom:12px; padding-bottom:6px;
+    border-bottom:1px solid var(--border); color:var(--accent);
+    display:flex; align-items:center; gap:8px;
   }}
-  .card h3 {{ font-size:12px; font-weight:600; margin:16px 0 8px; color:var(--accent); }}
-  .score-overview {{ display:grid; grid-template-columns:120px 1fr; gap:24px; align-items:center; }}
-  .score-circle {{
-    width:110px; height:110px; border-radius:50%;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; margin:0 auto;
-  }}
-  .score-circle.healthy {{ background:linear-gradient(135deg,#e8f5ec,#d4edda); border:3px solid var(--green); }}
-  .score-circle.degraded {{ background:linear-gradient(135deg,#fdf6e3,#fcefc7); border:3px solid var(--yellow); }}
-  .score-circle.unhealthy {{ background:linear-gradient(135deg,#fce8e6,#f8d7da); border:3px solid var(--red); }}
-  .score-val {{ font-size:32px; font-weight:700; line-height:1; }}
-  .score-lbl {{ font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-top:2px; }}
-  .healthy .score-val {{ color:#3d7a50; }} .healthy .score-lbl {{ color:#5B9A6F; }}
-  .degraded .score-val {{ color:#8a7a2e; }} .degraded .score-lbl {{ color:#C4A94D; }}
-  .unhealthy .score-val {{ color:#943b38; }} .unhealthy .score-lbl {{ color:#B85450; }}
   .ss p {{ font-size:12px; color:var(--gray); margin-bottom:6px; }}
   .ss strong {{ color:var(--dark); }}
-  table {{ width:100%; border-collapse:collapse; font-size:11px; }}
-  th {{
-    text-align:left; padding:7px 9px; background:#f8fafc; font-weight:600;
-    color:var(--gray); font-size:9px; text-transform:uppercase; letter-spacing:.04em;
-    border-bottom:2px solid var(--border);
-  }}
-  td {{ padding:7px 9px; border-bottom:1px solid var(--border); vertical-align:top; }}
-  tr:last-child td {{ border-bottom:none; }}
-  .val {{ font-weight:600; font-variant-numeric:tabular-nums; }}
-  .unit {{ color:var(--gray); font-size:9px; }}
-  .source-tag {{
-    font-size:8px; background:#f1f5f9; color:var(--gray);
-    padding:2px 5px; border-radius:3px; white-space:nowrap;
-  }}
-  .status {{
-    display:inline-flex; align-items:center; gap:4px;
-    padding:2px 7px; border-radius:12px; font-size:10px; font-weight:600;
-  }}
-  .status.ok {{ background:#e8f5ec; color:#3d7a50; }}
-  .status.warn {{ background:#fdf6e3; color:#8a7a2e; }}
-  .status.alert {{ background:#fce8e6; color:#943b38; }}
-  .status.info {{ background:#e8f0fe; color:#3b6ab5; }}
-  .dot {{ width:6px; height:6px; border-radius:50%; display:inline-block; }}
-  .dot.ok {{ background:var(--green); }}
-  .dot.warn {{ background:var(--yellow); }}
-  .dot.alert {{ background:var(--red); }}
-  .dot.info {{ background:var(--blue); }}
-  .kpi-grid {{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:12px 0; }}
+
+  .gauge-row {{ display:grid; grid-template-columns:130px 1fr; gap:20px; align-items:center; }}
+  .gauge-row .label {{ font-size:10px; font-weight:600; color:var(--accent); text-align:center; margin-top:-4px; }}
+
+  .kpi-grid {{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:8px 0 10px; }}
   .kpi {{ text-align:center; padding:12px 8px; background:#f8fafc; border-radius:8px; border:1px solid var(--border); }}
-  .kpi .num {{ font-size:20px; font-weight:700; color:var(--accent); }}
+  .kpi .num {{ font-size:22px; font-weight:700; color:var(--accent); }}
   .kpi .lbl {{ font-size:9px; color:var(--gray); text-transform:uppercase; letter-spacing:.03em; margin-top:2px; }}
-  .ampel-badge {{
-    display:inline-block; padding:6px 18px; border-radius:6px;
-    color:white; font-weight:700; font-size:13px; letter-spacing:.5px;
-  }}
+
+  .ampel-badge {{ display:inline-block; padding:5px 14px; border-radius:6px;
+    color:white; font-weight:700; font-size:11px; letter-spacing:.5px; }}
   .ampel-badge.healthy {{ background:var(--green); }}
   .ampel-badge.degraded {{ background:var(--yellow); color:#5a4a1a; }}
   .ampel-badge.unhealthy {{ background:var(--red); }}
+
+  .dot {{ width:9px; height:9px; border-radius:50%; display:inline-block; }}
+  .dot.ok {{ background:var(--green); }}
+  .dot.warn {{ background:var(--yellow); }}
+  .dot.alert {{ background:var(--red); }}
+
+  /* Paywall-gated cards */
+  .locked {{ overflow:hidden; }}
+  .locked .locked-content {{
+    filter: blur(4px) saturate(.7); pointer-events:none; user-select:none;
+    -webkit-filter: blur(4px) saturate(.7);
+  }}
+  .lock-overlay {{
+    position:absolute; inset:0;
+    background:repeating-linear-gradient(135deg,
+      rgba(30,51,82,.04) 0 8px,
+      rgba(30,51,82,.08) 8px 16px);
+    display:flex; align-items:center; justify-content:center;
+  }}
+  .lock-pill {{
+    display:inline-flex; align-items:center; gap:6px;
+    background:rgba(255,255,255,.96); border:1px solid #cbd5e1;
+    border-radius:999px; padding:5px 12px;
+    font-size:10px; font-weight:600; color:var(--accent);
+    box-shadow:0 4px 10px -4px rgba(12,29,58,.25); letter-spacing:.02em;
+  }}
+  .lock-pill svg {{ width:11px; height:11px; }}
+
+  .metal-grid {{ display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }}
+  .metal-cell {{ background:#f8fafc; border-radius:5px; padding:8px 4px; text-align:center; }}
+  .metal-sym {{ font-weight:700; color:var(--accent); font-size:13px; }}
+  .metal-val {{ color:var(--gray); font-size:9px; margin-top:2px; }}
+
+  .stat-grid-3 {{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }}
+  .stat-cell {{ background:#f8fafc; border-radius:6px; padding:10px 8px; text-align:center; }}
+  .stat-cell .lbl {{ font-size:9px; color:var(--gray); text-transform:uppercase; letter-spacing:.03em; }}
+  .stat-cell .val {{ font-size:16px; font-weight:700; color:var(--accent); margin-top:2px; }}
+  .stat-cell .sub {{ font-size:9px; color:var(--gray); margin-top:1px; }}
+  .stat-cell.warn .val {{ color:#8a7a2e; }}
+
+  /* CTA */
+  .cta {{
+    background:linear-gradient(135deg, var(--accent-deep), var(--accent));
+    color:white; border-radius:10px; padding:22px 26px; margin:14px 0 8px;
+    text-align:center; position:relative; overflow:hidden;
+  }}
+  .cta > * {{ position:relative; }}
+  .cta .kicker {{ font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:#a7d4b5; font-weight:700; }}
+  .cta h3 {{ font-size:15px; font-weight:700; margin:4px 0 6px; color:white; }}
+  .cta p {{ font-size:11px; color:#cbd5e1; max-width:520px; margin:0 auto 12px; }}
+  .cta a {{
+    display:inline-block; background:var(--green); color:white; text-decoration:none;
+    font-weight:700; font-size:12px; padding:10px 20px; border-radius:8px;
+  }}
+  .cta .small {{ font-size:9px; color:#cbd5e1; opacity:.8; margin-top:8px; }}
+
   .disclaimer {{
     background:#fefce8; border:1px solid #fde68a; border-radius:6px;
     padding:12px 16px; font-size:10px; color:#78600e; margin-top:10px;
   }}
-  .two-col {{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }}
   .footer {{
-    text-align:center; padding:20px; color:var(--gray); font-size:10px; margin-top:8px;
+    text-align:center; padding:18px; color:var(--gray); font-size:10px; margin-top:6px;
   }}
-  .footer .brand {{ font-size:14px; font-weight:700; color:var(--accent); margin-bottom:2px; }}
+  .footer .brand {{ font-size:13px; font-weight:700; color:var(--accent); margin-bottom:2px; }}
+
   @media print {{
     body {{ background:white; -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
     .card {{ break-inside:avoid; }}
@@ -429,86 +438,126 @@ def generate_html_report(
 <div class="rc">
 
 <div class="header">
-  <h1>Bodenbericht</h1>
-  <div class="sub">Umfassende Standort-Risikoeinschätzung</div>
-  <div class="meta">
-    <span>Erstellt: {now.strftime('%d. %B %Y, %H:%M')} UTC</span>
-    <span>{lat:.5f}° N, {lon:.5f}° E</span>
+  {logo_html}
+  <div class="header-meta">
+    <div>Bericht-Nr. <span class="nr">{now.strftime('%Y%m%d')}-{abs(hash(address)) % 10000:04d}</span></div>
+    <div>Erstellt: {now.strftime('%d.%m.%Y')}</div>
   </div>
 </div>
 
-<div style="background:linear-gradient(135deg,#1a3550,#0f2744); color:white; padding:20px 28px; border-radius:8px; margin-bottom:14px;">
-  <h2 style="font-size:18px; font-weight:700; border:none; padding:0; margin:0 0 2px; color:white;">{escape(address)}</h2>
-  <div style="font-size:11px; opacity:.7; font-family:monospace;">{lat:.5f}° N, {lon:.5f}° E</div>
+<div class="address-block">
+  <div class="label">Gesamtbewertung für</div>
+  <div class="addr">{escape(address)}</div>
+  <div class="coords">{lat:.4f}° N · {lon:.4f}° E</div>
 </div>
 
-<!-- Gesamtbewertung -->
+<div class="section-label">Sichtbar im kostenlosen Bericht</div>
+
 <div class="card">
-  <h2>Gesamtbewertung</h2>
-  <div class="score-overview">
-    <div style="text-align:center;">
+  <h2>Gesamt-Ampel &amp; GeoScore</h2>
+  <div class="gauge-row">
+    <div>
       {gauge_svg}
-      <div style="font-size:10px; font-weight:600; color:var(--accent); margin-top:-4px;">{score_label}</div>
+      <div class="label">{score_label}</div>
     </div>
     <div class="ss">
       <p><strong>{'Der Standort zeigt keine kritischen Auffälligkeiten.' if score >= 70 else 'Einzelne Parameter erfordern Aufmerksamkeit.' if score >= 40 else 'Mehrere Parameter zeigen kritische Werte.'}</strong></p>
-      <p>{point_count} InSAR-Messpunkte ausgewertet{f', {len(metals)} Schwermetalle geprüft' if metals else ''}{f', Bodenqualität aus SoilGrids 250m' if has_soilgrids else ''}.</p>
+      <p>{point_count} InSAR-Messpunkte im Umkreis ausgewertet. Die Ampel basiert auf der mittleren Geschwindigkeit aller Messpunkte; die konkreten mm/a-Werte stehen im Vollbericht.</p>
     </div>
   </div>
 </div>
 
-<!-- Bodenbewegung (Teaser) -->
 <div class="card">
-  <h2><span class="dot {'ok' if ampel == 'gruen' else 'warn' if ampel == 'gelb' else 'alert'}" style="width:9px;height:9px;"></span> Bodenbewegung (InSAR-Satellitendaten)</h2>
-  <div class="kpi-grid" style="grid-template-columns:repeat(2,1fr);">
+  <h2><span class="dot {bb_dot}"></span> Bodenbewegung (InSAR-Satellitendaten)</h2>
+  <div class="kpi-grid">
     <div class="kpi"><div class="num">{point_count}</div><div class="lbl">Messpunkte im Umkreis</div></div>
-    <div class="kpi"><div style="font-size:14px; font-weight:700; color:var(--accent); padding-top:4px;"><span class="ampel-badge {_ampel_class(ampel)}" style="font-size:11px; padding:4px 12px;">{_ampel_label(ampel)}</span></div><div class="lbl" style="margin-top:6px;">Gesamtbewertung</div></div>
+    <div class="kpi" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+      <span class="ampel-badge {_ampel_class(ampel)}">{_ampel_label(ampel)}</span>
+      <div class="lbl" style="margin-top:6px;">Gesamtbewertung</div>
+    </div>
   </div>
-  <p style="font-size:12px; color:var(--gray); margin-top:4px;">
-    {'Keine auffälligen Bodenbewegungen im Untersuchungsradius. Stabile Lage.' if ampel == 'gruen' else 'Vereinzelt erhöhte Bodenbewegungen gemessen. Weitere Beobachtung empfohlen.' if ampel == 'gelb' else 'Kritische Bodenbewegungen gemessen. Fachliche Einschätzung empfohlen.' if has_egms else 'Für diesen Standort liegen keine InSAR-Satellitendaten im Untersuchungsradius vor.'}
-  </p>
-  <p style="font-size:10px; color:var(--gray); margin-top:8px; font-style:italic;">
-    Konkrete Geschwindigkeitswerte, GeoScore und die vollständige Zeitreihe Ihrer Messpunkte finden Sie im Premium-Bericht.
-  </p>
+  <p class="ss"><span style="color:var(--gray);">{bb_text}</span></p>
 </div>
 
-<!-- Individuelle Einschätzung -->
-{quiz_html}
-
-<!-- Upgrade-Hinweis: Im Premium-Bericht zusätzlich enthalten -->
-<!-- TODO: Sobald die Produkt-URL feststeht (Premium-Bericht / Cozy-Produktseite), den <span> unten zu <a href="..."> umbauen. -->
-<div class="card" style="background:linear-gradient(135deg,#f0f7ff,#e8f0fe); border-color:#bfd4f5;">
-  <h2 style="color:var(--accent); border-bottom-color:#bfd4f5;">Im vollst&auml;ndigen Bodenbericht zus&auml;tzlich enthalten</h2>
-  <ul style="list-style:none; padding:0; margin:8px 0 14px; font-size:12px; color:var(--dark);">
-    <li style="padding:5px 0; border-bottom:1px solid #dbe6f5;">&middot; Detaillierte InSAR-Zeitreihe der 25 n&auml;chstgelegenen Messpunkte + Geschwindigkeitswerte &amp; GeoScore</li>
-    <li style="padding:5px 0; border-bottom:1px solid #dbe6f5;">&middot; Schwermetall-Messwerte (Cd, Pb, Hg, As, Cr, Cu, Ni, Zn) im Vergleich zu BBodSchV-Vorsorgewerten</li>
-    <li style="padding:5px 0; border-bottom:1px solid #dbe6f5;">&middot; pH-Wert, organische Substanz und Bodenart (Ton/Sand/Schluff) aus SoilGrids 250m</li>
-    <li style="padding:5px 0;">&middot; Histogramm, Karte und Standortvergleich als PDF zum Download</li>
-  </ul>
-  <p style="text-align:center; font-size:11px; color:var(--gray); margin-top:10px; font-style:italic;">
-    Die ausf&uuml;hrliche Fassung erscheint in K&uuml;rze.
-  </p>
-</div>
-
-<!-- Datenquellen (kompakt) -->
 <div class="card">
-  <h3 style="font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--gray); margin:0 0 6px; border:none; padding:0;">Datenquellen</h3>
+  <h2>Ihre individuelle Einschätzung</h2>
+  <div class="ss">{einschaetzung_html}</div>
+</div>
+
+<div class="section-label">Im Vollbericht enthalten</div>
+
+<div class="card locked">
+  <h2>Schwermetalle &amp; Schadstoffe</h2>
+  <div class="locked-content">
+    <div class="metal-grid">{metal_cells}</div>
+    <p class="ss" style="margin-top:8px;"><span style="color:var(--gray); font-size:10px;">Vergleich gegen Vorsorgewerte nach BBodSchV Anhang 2 (Cd, Pb, Hg, As, Cr, Cu, Ni, Zn).</span></p>
+  </div>
+  {_LOCK_PILL_HTML}
+</div>
+
+<div class="card locked">
+  <h2>Bodenqualität &amp; Textur</h2>
+  <div class="locked-content">
+    <div class="stat-grid-3">
+      <div class="stat-cell"><div class="lbl">pH-Wert</div><div class="val">{ph_v:.1f}</div><div class="sub">{'leicht sauer' if ph_v < 7 else 'neutral' if ph_v < 7.5 else 'leicht alkalisch'}</div></div>
+      <div class="stat-cell"><div class="lbl">Org. Kohlenstoff</div><div class="val">{soc_v:.1f} g/kg</div><div class="sub">{'mittel' if soc_v >= 20 else 'niedrig'}</div></div>
+      <div class="stat-cell"><div class="lbl">Bodenart</div><div class="val" style="font-size:13px;">{texture_label.split(' (')[0]}</div><div class="sub">Ton/Sand/Schluff</div></div>
+    </div>
+    <p class="ss" style="margin-top:8px;"><span style="color:var(--gray); font-size:10px;">Ton {clay_v:.0f}% · Schluff {silt_v:.0f}% · Sand {sand_v:.0f}% (SoilGrids 250m).</span></p>
+  </div>
+  {_LOCK_PILL_HTML}
+</div>
+
+<div class="card locked">
+  <h2>Nährstoffe (Phosphor &amp; Stickstoff)</h2>
+  <div class="locked-content">
+    <div class="stat-grid-3" style="grid-template-columns:repeat(2,1fr);">
+      <div class="stat-cell"><div class="lbl">Phosphor (P)</div><div class="val">{p_v:.0f} mg/kg</div><div class="sub">{'optimal (30–80)' if 30 <= p_v <= 80 else 'erhöht' if p_v > 80 else 'niedrig'}</div></div>
+      <div class="stat-cell"><div class="lbl">Gesamt-Stickstoff (N)</div><div class="val">{n_v:.0f} mg/kg</div><div class="sub">Referenzwert</div></div>
+    </div>
+    <p class="ss" style="margin-top:8px;"><span style="color:var(--gray); font-size:10px;">Quelle: LUCAS Topsoil Survey, nächstgelegener Messpunkt {lucas_dist if lucas_dist > 0 else '–'} km.</span></p>
+  </div>
+  {_LOCK_PILL_HTML}
+</div>
+
+<div class="card locked">
+  <h2>InSAR-Detailwerte der Messpunkte</h2>
+  <div class="locked-content">
+    <div class="stat-grid-3">
+      <div class="stat-cell warn"><div class="lbl">Mittl. Geschw.</div><div class="val">{mean_v:+.1f} mm/a</div></div>
+      <div class="stat-cell warn"><div class="lbl">Max. Geschw.</div><div class="val">{max_v:+.1f} mm/a</div></div>
+      <div class="stat-cell"><div class="lbl">GeoScore</div><div class="val">{score} / 100</div></div>
+    </div>
+    <p class="ss" style="margin-top:8px;"><span style="color:var(--gray); font-size:10px;">Aggregierte Geschwindigkeitswerte der Messpunkte im 500&thinsp;m-Radius (Copernicus EGMS L3 Ortho, Sentinel-1).</span></p>
+  </div>
+  {_LOCK_PILL_HTML}
+</div>
+
+<div class="cta">
+  <div class="kicker">Vollbericht</div>
+  <h3>Alles sehen, was hier noch verdeckt ist</h3>
+  <p>Schwermetalle, Bodenqualität, Nährstoffe und die detaillierten InSAR-Geschwindigkeitswerte erscheinen ungeschwärzt im Vollbericht — inklusive PDF-Download.</p>
+  <a href="https://bodenbericht.de/#premium">Auf die Warteliste</a>
+  <div class="small">Noch nicht bestellbar. Early-Bird-Platz sichern, Start-Rabatt erhalten.</div>
+</div>
+
+<div class="card">
+  <h2 style="font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--gray); border:none; padding:0; margin:0 0 6px;">Datenquellen</h2>
   <p style="font-size:11px; color:var(--dark); margin:0;">
-    Copernicus EGMS (Sentinel-1) &middot; LUCAS Topsoil Survey (EU) &middot; SoilGrids 250m (ISRIC) &middot; OpenStreetMap Nominatim &middot; Referenzwerte: BBodSchV
+    Copernicus EGMS (Sentinel-1) · LUCAS Topsoil Survey (EU) · SoilGrids 250m (ISRIC) · OpenStreetMap Nominatim · Referenzwerte: BBodSchV
   </p>
 </div>
 
 <div class="disclaimer">
-  <strong>Hinweis:</strong> Dieser Bodenbericht ist ein automatisiertes Datenscreening auf Basis öffentlich verfügbarer Fernerkundungs- und Bodendaten (Copernicus EGMS, LUCAS, SoilGrids). Er ersetzt keine Ortsbesichtigung, Laboranalyse oder fachliche Einzelfallbewertung durch einen zugelassenen Sachverständigen gem. §9 BBodSchG. Messwerte basieren auf regionalen Durchschnittswerten und nicht auf standortspezifischen Beprobungen.
+  <strong>Hinweis:</strong> Dieser Bodenbericht ist ein automatisiertes Datenscreening auf Basis öffentlich verfügbarer Fernerkundungs- und Bodendaten (Copernicus EGMS, LUCAS, SoilGrids). Er ersetzt keine Ortsbesichtigung, Laboranalyse oder fachliche Einzelfallbewertung durch einen zugelassenen Sachverständigen gem. §18 BBodSchG. Messwerte basieren auf regionalen Durchschnittswerten und nicht auf standortspezifischen Beprobungen.
   <br><br>
   <em>Generated using European Union's Copernicus Land Monitoring Service information.</em>
 </div>
 
 <div class="footer">
   <div class="brand">Bodenbericht</div>
-  <div>Umfassende Standort-Risikoeinschätzung · bodenbericht.de</div>
-  <div style="margin-top:4px;">Erstellt: {now.strftime('%d.%m.%Y %H:%M')} UTC</div>
-  <div style="margin-top:2px;opacity:.6;">© {now.year} Bodenbericht</div>
+  <div>Standort-Screening · bodenbericht.de</div>
+  <div style="margin-top:2px; opacity:.6;">© {now.year} Bodenbericht</div>
 </div>
 
 </div></body></html>"""
