@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preview: Grafik-Integration Bodenbericht</title>
+  <!-- Tailwind via CDN (preview only, prod uses self-hosted /tailwind.css) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50:  '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+            },
+            navy: {
+              700: '#122b52',
+              800: '#0c1d3a',
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .hero-gradient {
+      background: linear-gradient(135deg, #0c1d3a 0%, #122b52 40%, #1a3a6b 100%);
+    }
+    .preview-ribbon {
+      background: repeating-linear-gradient(45deg, #fef3c7, #fef3c7 10px, #fde68a 10px, #fde68a 20px);
+    }
+  </style>
+</head>
+<body class="font-sans text-gray-800 antialiased">
+
+  <!-- preview banner -->
+  <div class="preview-ribbon border-b border-amber-300 py-2 px-4 text-center text-xs font-semibold text-amber-900">
+    PREVIEW-SEITE · nur zur Bewertung der Grafik-Integration · nicht die echte Landing
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- SECTION A — Hero with SVG 01 (dark navy context)       -->
+  <!-- ====================================================== -->
+  <section class="hero-gradient pt-20 pb-14 relative overflow-hidden">
+    <!-- background grid pattern -->
+    <div class="absolute inset-0 opacity-5">
+      <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+        <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs>
+        <rect width="100%" height="100%" fill="url(#grid)"/>
+      </svg>
+    </div>
+    <div class="relative max-w-7xl mx-auto px-4">
+      <div class="max-w-3xl mx-auto text-center">
+        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-brand-300 text-xs font-semibold tracking-wide uppercase px-4 py-1.5 rounded-full mb-6 border border-white/10">
+          <span class="w-2 h-2 bg-brand-400 rounded-full animate-pulse"></span>
+          Bodenrisiko-Screening für Immobilienkäufer
+        </div>
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tight">
+          Bodenrisiken prüfen, bevor Sie unterschreiben.
+          <span class="block mt-2 bg-gradient-to-r from-brand-300 to-brand-400 bg-clip-text text-transparent">
+            Klarheit für Ihre Kaufentscheidung.
+          </span>
+        </h1>
+        <p class="mt-6 text-base md:text-lg text-gray-300 leading-relaxed max-w-2xl mx-auto">
+          Automatisiertes Screening für Ihre Wunsch-Immobilie — Setzungen, Altlasten-Hinweise und Bodenqualität auf Basis offizieller EU-Daten.
+        </p>
+
+        <!-- 01 Hero-Satellite SVG, integrated here -->
+        <div class="mt-10 mx-auto max-w-2xl">
+          <img src="images/graphics/01-hero-satellite.svg" alt="Sentinel-1 Satellit ueber Wohnsiedlung, InSAR-Messpunkte" class="w-full h-auto" loading="lazy">
+        </div>
+
+        <form class="mt-10 max-w-md mx-auto space-y-3" onsubmit="event.preventDefault()">
+          <input type="text" placeholder="Straße + Hausnummer" class="w-full px-4 py-3 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 text-base">
+          <input type="text" placeholder="PLZ + Ort" class="w-full px-4 py-3 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 text-base">
+          <input type="email" placeholder="Ihre E-Mail-Adresse" class="w-full px-4 py-3 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 text-base">
+          <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold text-lg px-10 py-4 rounded-xl shadow-lg">
+            Kostenlosen Bericht anfordern
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- notes about placement -->
+  <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
+    <strong class="text-gray-700">Grafik 01 — Hero-Satellit:</strong>
+    zwischen Sub-Headline und Formular, max. 2xl breit, volle Breite mobile
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- SECTION B — Leistungen (light) with SVG 02              -->
+  <!-- ====================================================== -->
+  <section class="py-16 md:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div>
+          <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Datengrundlage</p>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 leading-tight">
+            Welche Daten der Bodenbericht nutzt
+          </h2>
+          <p class="mt-4 text-gray-500 text-base md:text-lg leading-relaxed">
+            Offizielle EU-Quellen, wissenschaftlich nachvollziehbar. Die kostenlose Kurzfassung zeigt die Ampel-Einstufung, die Premium-Fassung (in Entwicklung) die vollständigen Detailwerte.
+          </p>
+          <ul class="mt-8 space-y-4 text-sm">
+            <li class="flex items-start gap-3">
+              <div class="mt-0.5 w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-brand-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/></svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-navy-800">Bodenbewegungs-Screening</h4>
+                <p class="text-gray-500">Copernicus EGMS-Satellitendaten. Kurzfassung: Ampel + Messpunkte. Geschwindigkeitswerte in Premium.</p>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="mt-0.5 w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-brand-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/></svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-navy-800">Regionale Schwermetall-Hintergrundwerte</h4>
+                <p class="text-gray-500">Datengrundlage LUCAS EU. Detailwerte in Premium.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 02 InSAR Map SVG, integrated on right column -->
+        <div class="bg-gradient-to-br from-gray-50 to-brand-50 rounded-3xl p-6 md:p-8 border border-gray-200/80">
+          <div class="bg-white rounded-2xl shadow-xl p-4 md:p-6 border border-gray-100">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+              </div>
+              <div>
+                <p class="font-bold text-navy-800">Beispiel: Premium-Fassung <span class="text-[10px] uppercase tracking-wide text-brand-600 font-semibold ml-1">(in Entwicklung)</span></p>
+                <p class="text-xs text-gray-400">Musterbericht &mdash; kostenlose Kurzfassung zeigt Ampel + Bodenbewegung</p>
+              </div>
+            </div>
+            <img src="images/graphics/02-insar-velocity-map.svg" alt="Kartografische InSAR-Messpunkte am Grundstueck" class="w-full h-auto rounded-lg" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
+    <strong class="text-gray-700">Grafik 02 — InSAR-Karte:</strong>
+    ersetzt das fake Demo-Mock-Card in der "Leistungen"-Sektion rechte Spalte
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- SECTION C — So funktionierts + SVG 03                   -->
+  <!-- ====================================================== -->
+  <section class="py-16 md:py-24 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="max-w-3xl mx-auto text-center mb-10">
+        <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">In 3 einfachen Schritten</p>
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 leading-tight">
+          So erhalten Sie Ihren Bodenbericht
+        </h2>
+        <p class="mt-4 text-gray-500 text-base md:text-lg">
+          Schnell, unkompliziert und wissenschaftlich präzise.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8 lg:gap-12 mb-12">
+        <div class="relative text-center">
+          <div class="w-16 h-16 bg-brand-100 rounded-2xl flex items-center justify-center mx-auto mb-6 relative">
+            <span class="absolute -top-2 -right-2 w-7 h-7 bg-brand-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow">1</span>
+            <svg class="w-8 h-8 text-brand-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+          </div>
+          <h3 class="text-lg font-bold text-navy-800 mb-2">Standortdaten eingeben</h3>
+          <p class="text-gray-500 text-sm">Geben Sie Ihre Adresse online ein.</p>
+        </div>
+        <div class="relative text-center">
+          <div class="w-16 h-16 bg-brand-100 rounded-2xl flex items-center justify-center mx-auto mb-6 relative">
+            <span class="absolute -top-2 -right-2 w-7 h-7 bg-brand-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow">2</span>
+            <svg class="w-8 h-8 text-brand-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3"/></svg>
+          </div>
+          <h3 class="text-lg font-bold text-navy-800 mb-2">Automatische Datenanalyse</h3>
+          <p class="text-gray-500 text-sm">Pipeline verknüpft Copernicus, LUCAS und SoilGrids.</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-brand-100 rounded-2xl flex items-center justify-center mx-auto mb-6 relative">
+            <span class="absolute -top-2 -right-2 w-7 h-7 bg-brand-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow">3</span>
+            <svg class="w-8 h-8 text-brand-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25"/></svg>
+          </div>
+          <h3 class="text-lg font-bold text-navy-800 mb-2">Bericht per E-Mail</h3>
+          <p class="text-gray-500 text-sm">PDF mit Ampel-Einschätzung direkt ins Postfach.</p>
+        </div>
+      </div>
+
+      <!-- 03 Data Pipeline SVG, integrated as visual anchor below the 3 steps -->
+      <div class="max-w-3xl mx-auto">
+        <img src="images/graphics/03-data-pipeline.svg" alt="Datenfluss Satellit zu Bodenbericht" class="w-full h-auto" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
+    <strong class="text-gray-700">Grafik 03 — Data-Pipeline:</strong>
+    als visuelles Bindeglied unter den 3 Schritten, max. 3xl breit
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- SECTION D — Premium Waitlist with SVG 04                -->
+  <!-- ====================================================== -->
+  <section class="py-16 md:py-24 bg-gradient-to-br from-brand-50 to-white">
+    <div class="max-w-5xl mx-auto px-4 text-center">
+      <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Premium in Entwicklung</p>
+      <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 leading-tight mb-4">
+        Der ausführliche Bericht kommt bald.
+      </h2>
+      <p class="text-gray-500 text-base md:text-lg max-w-2xl mx-auto mb-10">
+        Schwermetall-Analyse, pH-Wert, Bodenart-Details und vollständige InSAR-Zeitreihe. Trag dich in die Warteliste ein und wir benachrichtigen dich, sobald die Premium-Version verfügbar ist.
+      </p>
+
+      <!-- 04 Waitlist Earth SVG, integrated as header visual -->
+      <div class="mb-10 max-w-3xl mx-auto">
+        <img src="images/graphics/04-waitlist-earth.svg" alt="Erde mit Satellit auf Orbit" class="w-full h-auto" loading="lazy">
+      </div>
+
+      <form class="max-w-md mx-auto" onsubmit="event.preventDefault()">
+        <div class="flex flex-col gap-3">
+          <input type="email" placeholder="Ihre E-Mail-Adresse" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:border-brand-400">
+          <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold px-8 py-3 rounded-xl transition">
+            Benachrichtige mich
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
+    <strong class="text-gray-700">Grafik 04 — Warteliste-Erde:</strong>
+    als atmosphaerischer Header ueber dem Waitlist-Formular
+  </div>
+
+  <!-- footer note -->
+  <footer class="bg-navy-800 text-gray-400 text-xs text-center py-6 px-4">
+    Preview-Seite · Branch <code class="text-brand-400">claude/discuss-before-unavailable-foZZ4</code> · nicht live
+  </footer>
+</body>
+</html>
