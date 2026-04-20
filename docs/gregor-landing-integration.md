@@ -74,6 +74,6 @@ Replace all `href="#cta"` occurrences with `href="quiz.html"`.
 
 ## Deployment Notes
 
-- `landing/` is static HTML — can be served by nginx in Docker or Vercel as static assets.
+- `landing/` is static HTML — served by the FastAPI app via a static mount (see `backend/app/main.py`). In production it lives on the Contabo VPS behind Caddy; see `docs/TEAM_HANDBOOK.md` for the operational runbook.
 - If served from a different origin than the API, set `CORS_ORIGINS` in backend `.env` accordingly.
 - No Alembic migration needed: `Base.metadata.create_all` creates the `leads` table on startup.
