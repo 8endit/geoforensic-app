@@ -21,11 +21,20 @@ from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
 
-_LOGO_PATH = Path(__file__).resolve().parents[2] / "landing" / "images" / "logo-horizontal.png"
-try:
-    _LOGO_DATA_URI = "data:image/png;base64," + base64.b64encode(_LOGO_PATH.read_bytes()).decode("ascii")
-except OSError:
-    _LOGO_DATA_URI = ""
+_HERE = Path(__file__).resolve()
+# Logo lives in /app/landing/ inside the docker container (bind-mounted) or in
+# <repo>/landing/ for local dev. Try both before giving up.
+_LOGO_CANDIDATES = [
+    _HERE.parents[1] / "landing" / "images" / "logo-horizontal.png",  # /app/landing in container
+    _HERE.parents[2] / "landing" / "images" / "logo-horizontal.png",  # repo root in local dev
+]
+_LOGO_DATA_URI = ""
+for _p in _LOGO_CANDIDATES:
+    try:
+        _LOGO_DATA_URI = "data:image/png;base64," + base64.b64encode(_p.read_bytes()).decode("ascii")
+        break
+    except OSError:
+        continue
 
 
 def _svg_gauge(score: int, size: int = 120) -> str:
