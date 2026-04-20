@@ -7,9 +7,30 @@
   <title>[Preview] Teaser-Rework — bodenbericht.de</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    /* Mirror landing/tailwind.config.js so brand/navy classes resolve under the CDN */
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 300: '#86efac', 400: '#4ade80', 600: '#16a34a', 700: '#15803d' },
+            navy:  { 700: '#1a3a6b', 800: '#122b52', 900: '#0c1d3a' },
+          }
+        }
+      }
+    };
+  </script>
   <style>
     html { scroll-behavior: smooth; }
-    body { background: #f3f4f6; }
+    body {
+      background: #f3f4f6;
+      background-image:
+        radial-gradient(circle at 18% 12%, rgba(91, 154, 111, 0.08), transparent 42%),
+        radial-gradient(circle at 85% 35%, rgba(30, 51, 82, 0.06), transparent 45%),
+        radial-gradient(rgba(30, 51, 82, 0.10) 1px, transparent 1px);
+      background-size: auto, auto, 26px 26px;
+      background-position: 0 0, 0 0, 0 0;
+    }
 
     /* ── Report shell (mirrors muster-bericht.html) ─────────────── */
     .report-shell {
@@ -22,6 +43,32 @@
       background: linear-gradient(135deg, #1E3352, #0F2040);
       color: white;
       padding: 24px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .report-header::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+    .report-header::after {
+      content: "";
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(91,154,111,0.22), transparent 65%);
+      pointer-events: none;
+    }
+    .report-header > * { position: relative; z-index: 1; }
+    .report-header .report-logo {
+      height: 28px; width: auto;
+      filter: brightness(0) invert(1);
+      opacity: 0.92;
     }
     .report-card {
       border: 1px solid #e2e8f0;
@@ -99,10 +146,27 @@
       background: linear-gradient(135deg, #0F2040, #1E3352);
       color: white;
       border-radius: 12px;
-      padding: 24px 28px;
+      padding: 28px 28px;
       margin: 20px 0 8px;
       text-align: center;
+      position: relative;
+      overflow: hidden;
     }
+    .cta-card .cta-deco {
+      position: absolute;
+      right: -40px; top: -30px;
+      width: 200px; height: 200px;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+    .cta-card .cta-deco-left {
+      position: absolute;
+      left: -30px; bottom: -40px;
+      width: 160px; height: 160px;
+      opacity: 0.12;
+      pointer-events: none;
+    }
+    .cta-card > * { position: relative; z-index: 1; }
     .cta-card .btn {
       display: inline-flex; align-items: center; gap: 8px;
       background: #5B9A6F; color: #fff;
@@ -148,13 +212,15 @@
 
         <!-- Report header -->
         <div class="report-header">
+          <img src="/images/logo-horizontal.png" alt="Bodenbericht" class="report-logo mb-4"
+               onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/8endit/geoforensic-app/main/landing/images/logo-horizontal.png'">
           <div class="flex items-start justify-between gap-6 flex-wrap">
             <div>
-              <div class="text-xs uppercase tracking-wider text-brand-300 font-semibold">Bodenbericht</div>
+              <div class="text-xs uppercase tracking-wider font-semibold" style="color:#a7d4b5;">Standort-Screening</div>
               <div class="text-xl font-bold mt-1">Musterstra&szlig;e 42, 20095 Hamburg</div>
-              <div class="text-xs text-gray-300 mt-1">Koordinaten 53.5511&deg; N, 9.9937&deg; E</div>
+              <div class="text-xs mt-1" style="color:#cbd5e1;">Koordinaten 53.5511&deg; N, 9.9937&deg; E</div>
             </div>
-            <div class="text-right text-xs text-gray-300">
+            <div class="text-right text-xs" style="color:#cbd5e1;">
               <div>Bericht-Nr. <span class="font-mono">DEMO-2026-0042</span></div>
               <div class="mt-1">Erstellt: 20.04.2026</div>
             </div>
@@ -375,7 +441,24 @@
 
           <!-- ============ CTA ============================================= -->
           <div class="cta-card">
-            <div class="text-xs uppercase tracking-wider text-brand-300 font-semibold">Vollbericht</div>
+            <!-- Deco: Satellite orbit arc -->
+            <svg class="cta-deco" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+              <circle cx="100" cy="100" r="78" stroke="#5B9A6F" stroke-width="1" stroke-dasharray="3 5"/>
+              <circle cx="100" cy="100" r="56" stroke="#ffffff" stroke-width="1" stroke-dasharray="2 4" opacity="0.6"/>
+              <circle cx="100" cy="100" r="34" fill="#5B9A6F" opacity="0.4"/>
+              <rect x="158" y="52" width="14" height="8" fill="#ffffff" transform="rotate(22 165 56)"/>
+              <rect x="152" y="48" width="4" height="16" fill="#5B9A6F" transform="rotate(22 154 56)"/>
+              <rect x="172" y="48" width="4" height="16" fill="#5B9A6F" transform="rotate(22 174 56)"/>
+            </svg>
+            <!-- Deco: grid earth -->
+            <svg class="cta-deco-left" viewBox="0 0 160 160" fill="none" aria-hidden="true">
+              <circle cx="80" cy="80" r="60" stroke="#ffffff" stroke-width="1"/>
+              <ellipse cx="80" cy="80" rx="60" ry="22" stroke="#ffffff" stroke-width="1"/>
+              <ellipse cx="80" cy="80" rx="60" ry="44" stroke="#ffffff" stroke-width="1"/>
+              <line x1="20" y1="80" x2="140" y2="80" stroke="#ffffff" stroke-width="1"/>
+              <line x1="80" y1="20" x2="80" y2="140" stroke="#ffffff" stroke-width="1"/>
+            </svg>
+            <div class="text-xs uppercase tracking-wider font-semibold" style="color:#a7d4b5;">Vollbericht</div>
             <h3 class="text-lg font-bold mt-1 mb-2">Alles sehen, was hier noch verdeckt ist</h3>
             <p class="text-sm text-gray-200 max-w-lg mx-auto mb-4">
               Schwermetalle, Bodenqualit&auml;t, 7-Jahres-Zeitreihe und Nachbarschaftsvergleich erscheinen ungeschw&auml;rzt im Vollbericht &mdash; inklusive PDF-Download.
