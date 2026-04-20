@@ -1,102 +1,174 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" width="400" height="260" role="img" aria-label="InSAR Bodenbewegungskarte mit Ampel-Punkten">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" width="560" height="360" role="img" aria-label="Kartografische Darstellung InSAR-Messpunkte an einem Grundstueck">
   <defs>
-    <pattern id="insarGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#E5E7EB" stroke-width="0.5"/>
-    </pattern>
-    <radialGradient id="greenGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#22C55E" stop-opacity="0.5"/>
-      <stop offset="100%" stop-color="#22C55E" stop-opacity="0"/>
+    <radialGradient id="stableGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#166534" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#166534" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="yellowGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#FACC15" stop-opacity="0.6"/>
-      <stop offset="100%" stop-color="#FACC15" stop-opacity="0"/>
+    <radialGradient id="watchGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#B45309" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#B45309" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="redGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#EF4444" stop-opacity="0.6"/>
-      <stop offset="100%" stop-color="#EF4444" stop-opacity="0"/>
+    <radialGradient id="alertGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#991B1B" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#991B1B" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
-  <!-- map background -->
-  <rect width="400" height="260" fill="#F9FAFB"/>
-  <rect width="400" height="260" fill="url(#insarGrid)"/>
+  <!-- map base (warm cream, OS-inspired) -->
+  <rect width="560" height="360" fill="#F7F3EA"/>
 
-  <!-- stylized city blocks (top-down view) -->
-  <g fill="#D1D5DB" stroke="#9CA3AF" stroke-width="0.8">
-    <rect x="30" y="40" width="60" height="40" rx="2"/>
-    <rect x="100" y="40" width="80" height="50" rx="2"/>
-    <rect x="190" y="40" width="50" height="40" rx="2"/>
-    <rect x="250" y="40" width="70" height="55" rx="2"/>
-    <rect x="330" y="40" width="50" height="45" rx="2"/>
-
-    <rect x="30" y="100" width="70" height="55" rx="2"/>
-    <rect x="110" y="110" width="60" height="45" rx="2"/>
-    <rect x="180" y="100" width="90" height="60" rx="2"/>
-    <rect x="280" y="110" width="55" height="50" rx="2"/>
-    <rect x="345" y="105" width="35" height="55" rx="2"/>
-
-    <rect x="30" y="175" width="55" height="45" rx="2"/>
-    <rect x="95" y="180" width="70" height="40" rx="2"/>
-    <rect x="175" y="175" width="60" height="50" rx="2"/>
-    <rect x="245" y="180" width="80" height="45" rx="2"/>
-    <rect x="335" y="175" width="45" height="50" rx="2"/>
+  <!-- faint latitude contour hints -->
+  <g stroke="#E4DCC6" stroke-width="0.8" fill="none">
+    <path d="M 0 90 Q 280 78 560 92"/>
+    <path d="M 0 180 Q 280 168 560 184"/>
+    <path d="M 0 270 Q 280 260 560 274"/>
   </g>
 
-  <!-- streets (gaps) -->
-  <g stroke="#F3F4F6" stroke-width="1.5">
-    <line x1="0" y1="92" x2="400" y2="92"/>
-    <line x1="0" y1="167" x2="400" y2="167"/>
+  <!-- river / watershed (cartographic detail) -->
+  <path d="M -10 80 Q 120 120 180 180 Q 230 230 320 260 Q 420 285 580 270"
+        fill="none" stroke="#9DC8DB" stroke-width="5" stroke-linecap="round" opacity="0.75"/>
+  <path d="M -10 80 Q 120 120 180 180 Q 230 230 320 260 Q 420 285 580 270"
+        fill="none" stroke="#6FA7BF" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- green spaces / parks -->
+  <path d="M 30 30 Q 90 20 130 50 Q 140 90 90 105 Q 40 100 30 70 Z" fill="#D7E8C8" opacity="0.85"/>
+  <path d="M 430 40 Q 500 30 530 60 Q 540 95 490 110 Q 440 100 430 75 Z" fill="#D7E8C8" opacity="0.85"/>
+  <path d="M 60 300 Q 130 290 170 315 Q 165 345 120 350 Q 70 345 60 325 Z" fill="#D7E8C8" opacity="0.85"/>
+
+  <!-- street network (irregular) -->
+  <g stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" fill="none">
+    <path d="M 0 140 L 560 140"/>
+    <path d="M 0 220 L 560 220"/>
+    <path d="M 170 0 L 170 360"/>
+    <path d="M 340 0 L 340 360"/>
+    <path d="M 460 0 Q 450 180 440 360"/>
+  </g>
+  <g stroke="#E4DCC6" stroke-width="9" stroke-linecap="round" fill="none">
+    <path d="M 0 140 L 560 140"/>
+    <path d="M 0 220 L 560 220"/>
+    <path d="M 170 0 L 170 360"/>
+    <path d="M 340 0 L 340 360"/>
+  </g>
+  <g stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" fill="none">
+    <path d="M 0 140 L 560 140"/>
+    <path d="M 0 220 L 560 220"/>
+    <path d="M 170 0 L 170 360"/>
+    <path d="M 340 0 L 340 360"/>
   </g>
 
-  <!-- measurement points with glow, green (stable) -->
+  <!-- building footprints (varied sizes, cream/warm) -->
+  <g fill="#E8DFC7" stroke="#C9BC95" stroke-width="0.8">
+    <rect x="30" y="150" width="38" height="24" rx="1"/>
+    <rect x="78" y="150" width="28" height="32" rx="1"/>
+    <rect x="116" y="150" width="48" height="28" rx="1"/>
+    <rect x="30" y="186" width="48" height="28" rx="1"/>
+    <rect x="88" y="190" width="36" height="24" rx="1"/>
+    <rect x="134" y="186" width="30" height="30" rx="1"/>
+
+    <rect x="186" y="150" width="42" height="26" rx="1"/>
+    <rect x="234" y="150" width="36" height="32" rx="1"/>
+    <rect x="276" y="150" width="58" height="28" rx="1"/>
+    <rect x="186" y="188" width="52" height="28" rx="1"/>
+    <rect x="248" y="188" width="44" height="28" rx="1"/>
+    <rect x="298" y="188" width="36" height="30" rx="1"/>
+
+    <rect x="356" y="150" width="38" height="24" rx="1"/>
+    <rect x="402" y="150" width="30" height="30" rx="1"/>
+    <rect x="356" y="184" width="46" height="32" rx="1"/>
+    <rect x="408" y="188" width="26" height="28" rx="1"/>
+
+    <rect x="480" y="150" width="56" height="26" rx="1"/>
+    <rect x="480" y="184" width="36" height="30" rx="1"/>
+    <rect x="522" y="184" width="16" height="30" rx="1"/>
+
+    <rect x="30" y="238" width="44" height="26" rx="1"/>
+    <rect x="82" y="234" width="34" height="30" rx="1"/>
+    <rect x="124" y="240" width="38" height="24" rx="1"/>
+    <rect x="186" y="236" width="52" height="28" rx="1"/>
+    <rect x="248" y="236" width="38" height="28" rx="1"/>
+    <rect x="296" y="236" width="34" height="30" rx="1"/>
+    <rect x="356" y="234" width="48" height="30" rx="1"/>
+    <rect x="414" y="240" width="22" height="24" rx="1"/>
+    <rect x="480" y="236" width="42" height="30" rx="1"/>
+  </g>
+
+  <!-- Focus property (highlighted boundary, subtle emphasis) -->
   <g>
-    <circle cx="60" cy="60" r="12" fill="url(#greenGlow)"/>
-    <circle cx="60" cy="60" r="3.5" fill="#22C55E" stroke="white" stroke-width="1"/>
-    <circle cx="140" cy="65" r="12" fill="url(#greenGlow)"/>
-    <circle cx="140" cy="65" r="3.5" fill="#22C55E" stroke="white" stroke-width="1"/>
-    <circle cx="215" cy="60" r="12" fill="url(#greenGlow)"/>
-    <circle cx="215" cy="60" r="3.5" fill="#22C55E" stroke="white" stroke-width="1"/>
-    <circle cx="355" cy="65" r="12" fill="url(#greenGlow)"/>
-    <circle cx="355" cy="65" r="3.5" fill="#22C55E" stroke="white" stroke-width="1"/>
-
-    <circle cx="65" cy="130" r="12" fill="url(#greenGlow)"/>
-    <circle cx="65" cy="130" r="3.5" fill="#22C55E" stroke="white" stroke-width="1"/>
-    <circle cx="230" cy="130" r="12" fill="url(#greenGlow)"/>
-    <circle cx="230" cy="130" r="3.5" fill="#22C55E" stroke="white" stroke-width="1"/>
-    <circle cx="305" cy="135" r="12" fill="url(#greenGlow)"/>
-    <circle cx="305" cy="135" r="3.5" fill="#22C55E" stroke="white" stroke-width="1"/>
-
-    <circle cx="60" cy="200" r="12" fill="url(#greenGlow)"/>
-    <circle cx="60" cy="200" r="3.5" fill="#22C55E" stroke="white" stroke-width="1"/>
-    <circle cx="205" cy="200" r="12" fill="url(#greenGlow)"/>
-    <circle cx="205" cy="200" r="3.5" fill="#22C55E" stroke="white" stroke-width="1"/>
-    <circle cx="360" cy="200" r="12" fill="url(#greenGlow)"/>
-    <circle cx="360" cy="200" r="3.5" fill="#22C55E" stroke="white" stroke-width="1"/>
+    <rect x="258" y="186" width="40" height="30" rx="1.5" fill="#FFFFFF" stroke="#166534" stroke-width="2"/>
+    <rect x="258" y="186" width="40" height="30" rx="1.5" fill="none" stroke="#166534" stroke-width="4" stroke-dasharray="4 3" opacity="0.35"/>
+    <!-- pin -->
+    <g transform="translate(278, 174)">
+      <path d="M 0 -14 C -6 -14 -10 -10 -10 -5 C -10 2 0 10 0 10 C 0 10 10 2 10 -5 C 10 -10 6 -14 0 -14 Z"
+            fill="#166534" stroke="#FFFFFF" stroke-width="1.5"/>
+      <circle cx="0" cy="-5" r="3" fill="#FFFFFF"/>
+    </g>
   </g>
 
-  <!-- yellow points (watchful) -->
+  <!-- Measurement dots - muted earthy palette -->
   <g>
-    <circle cx="285" cy="65" r="14" fill="url(#yellowGlow)"/>
-    <circle cx="285" cy="65" r="3.5" fill="#FACC15" stroke="white" stroke-width="1"/>
-    <circle cx="135" cy="135" r="14" fill="url(#yellowGlow)"/>
-    <circle cx="135" cy="135" r="3.5" fill="#FACC15" stroke="white" stroke-width="1"/>
-    <circle cx="125" cy="200" r="14" fill="url(#yellowGlow)"/>
-    <circle cx="125" cy="200" r="3.5" fill="#FACC15" stroke="white" stroke-width="1"/>
+    <!-- stable -->
+    <circle cx="50" cy="160" r="12" fill="url(#stableGlow)"/>
+    <circle cx="50" cy="160" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
+    <circle cx="100" cy="205" r="12" fill="url(#stableGlow)"/>
+    <circle cx="100" cy="205" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
+    <circle cx="145" cy="165" r="12" fill="url(#stableGlow)"/>
+    <circle cx="145" cy="165" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
+    <circle cx="205" cy="205" r="12" fill="url(#stableGlow)"/>
+    <circle cx="205" cy="205" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
+    <circle cx="260" cy="170" r="12" fill="url(#stableGlow)"/>
+    <circle cx="260" cy="170" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
+    <circle cx="315" cy="205" r="12" fill="url(#stableGlow)"/>
+    <circle cx="315" cy="205" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
+    <circle cx="378" cy="160" r="12" fill="url(#stableGlow)"/>
+    <circle cx="378" cy="160" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
+    <circle cx="420" cy="200" r="12" fill="url(#stableGlow)"/>
+    <circle cx="420" cy="200" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
+    <circle cx="500" cy="160" r="12" fill="url(#stableGlow)"/>
+    <circle cx="500" cy="160" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
+
+    <circle cx="60" cy="250" r="12" fill="url(#stableGlow)"/>
+    <circle cx="60" cy="250" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
+    <circle cx="210" cy="250" r="12" fill="url(#stableGlow)"/>
+    <circle cx="210" cy="250" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
+    <circle cx="380" cy="250" r="12" fill="url(#stableGlow)"/>
+    <circle cx="380" cy="250" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
+    <circle cx="500" cy="250" r="12" fill="url(#stableGlow)"/>
+    <circle cx="500" cy="250" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
+
+    <!-- watch (warm amber) -->
+    <circle cx="138" cy="252" r="14" fill="url(#watchGlow)"/>
+    <circle cx="138" cy="252" r="3.5" fill="#B45309" stroke="#F7F3EA" stroke-width="1"/>
+    <circle cx="275" cy="250" r="14" fill="url(#watchGlow)"/>
+    <circle cx="275" cy="250" r="3.5" fill="#B45309" stroke="#F7F3EA" stroke-width="1"/>
+    <circle cx="455" cy="163" r="14" fill="url(#watchGlow)"/>
+    <circle cx="455" cy="163" r="3.5" fill="#B45309" stroke="#F7F3EA" stroke-width="1"/>
+
+    <!-- alert (brick red) -->
+    <circle cx="330" cy="250" r="16" fill="url(#alertGlow)"/>
+    <circle cx="330" cy="250" r="4" fill="#991B1B" stroke="#F7F3EA" stroke-width="1"/>
   </g>
 
-  <!-- one red point (significant) -->
-  <g>
-    <circle cx="280" cy="200" r="16" fill="url(#redGlow)"/>
-    <circle cx="280" cy="200" r="4" fill="#EF4444" stroke="white" stroke-width="1"/>
+  <!-- Top-left district label (editorial touch) -->
+  <g font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#6B5D3F">
+    <text x="24" y="28" letter-spacing="1">STADTMITTE &#183; SEKTOR 3</text>
   </g>
 
-  <!-- legend -->
-  <g transform="translate(20, 235)">
-    <circle cx="8" cy="8" r="3.5" fill="#22C55E"/>
-    <text x="18" y="12" font-family="system-ui,sans-serif" font-size="10" fill="#374151">stabil</text>
-    <circle cx="68" cy="8" r="3.5" fill="#FACC15"/>
-    <text x="78" y="12" font-family="system-ui,sans-serif" font-size="10" fill="#374151">beobachten</text>
-    <circle cx="155" cy="8" r="3.5" fill="#EF4444"/>
-    <text x="165" y="12" font-family="system-ui,sans-serif" font-size="10" fill="#374151">signifikant</text>
+  <!-- Scale bar bottom-right -->
+  <g transform="translate(454, 320)">
+    <rect x="0" y="0" width="40" height="4" fill="#6B5D3F"/>
+    <rect x="40" y="0" width="40" height="4" fill="#F7F3EA" stroke="#6B5D3F" stroke-width="0.8"/>
+    <text x="0" y="18" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#6B5D3F">0</text>
+    <text x="36" y="18" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#6B5D3F">250</text>
+    <text x="74" y="18" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#6B5D3F">500&#8239;m</text>
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(24, 326)" font-family="Georgia, serif" font-size="10" fill="#44433E">
+    <circle cx="6" cy="6" r="3.5" fill="#166534"/>
+    <text x="16" y="10">stabil</text>
+    <circle cx="66" cy="6" r="3.5" fill="#B45309"/>
+    <text x="76" y="10">beobachten</text>
+    <circle cx="170" cy="6" r="3.5" fill="#991B1B"/>
+    <text x="180" y="10">signifikant</text>
   </g>
 </svg>
