@@ -10,21 +10,25 @@ eingebaut** &mdash; reine Preview. Die Preview-Seite liegt unter
 | Datei | Rolle | Format |
 |---|---|---|
 | Hero-Foto (Bamberg) | Hero-Hintergrund &mdash; historische Altstadt | JPG, siehe `../photos/README.md` |
-| `B-insar-map.svg` | Feature-Karte "Jeder Punkt einzeln gemessen" | SVG |
-| `A-timeseries.svg` | Zeitreihen-Chart, 7 Jahre Bewegung an einem Punkt | SVG |
-| `C-ampel.svg` | Dreistufige Klassifikation stabil / auffaellig / signifikant | SVG |
-| `D-sources.svg` | Datenquellen-Stack (Copernicus, SoilGrids, LUCAS, OSM) | SVG |
+| `B-insar-map.svg` | "Wir messen Ihr Haus" &mdash; ein Haus mit 4 Messpunkten | SVG |
+| `A-timeseries.svg` | KPI-Story: &minus;22 mm Absenkung in 7 Jahren, Chart als Beleg | SVG |
+| `C-ampel.svg` | Echte Verkehrsampel (stabil leuchtet), Stufen daneben | SVG |
+| Datenquellen-Badges | Dezente Zeile im Footer-Bereich (nur HTML, kein SVG) | HTML |
 | Waitlist-Foto (Sonnenuntergang) | Waitlist-Hintergrund | JPG, siehe `../photos/README.md` |
 
 ## Entwurfsgeschichte
 
 - **v1** (commit 74a5c57): 4 SVGs 01-04, flach illustrativ
 - **v2** (commit 0dde017): 4 SVGs 01-04, Groundsure-Style mit editorialer Zurueckhaltung
-- **v3** (aktuell): 01, 03, 04 verworfen. 02 behalten (umbenannt zu `B-insar-map.svg`). Drei neue Daten-Grafiken (A, C, D), plus zwei Pexels-Fotos fuer Hero und Waitlist.
+- **v3** (commit 28ebac4): 01, 03, 04 verworfen. 02 behalten (umbenannt zu `B-insar-map.svg`). Drei neue Daten-Grafiken (A, C, D), plus zwei Pexels-Fotos fuer Hero und Waitlist.
+- **v4** (aktuell): A, B, C alle rework. D als SVG raus, ersetzt durch dezente HTML-Badge-Zeile.
+  - A: Scatter-Zeitreihe &rarr; KPI-Story mit grosser Zahl &minus;22&nbsp;mm
+  - B: abstrakte Stadtmitte &rarr; ein Haus im Zoom mit 4 Messpunkten drauf
+  - C: Schema-Karte &rarr; echte Verkehrsampel-Metapher (stabil leuchtet)
+  - D: Quellen-Stack-Grafik raus &rarr; dezente Badge-Zeile im Footer, keine Selbermach-Anleitung mehr
 
-Grund fuer v3: v2-SVGs waren technisch sauber, aber das Set erzeugte insgesamt
-zu viel SVG-Look. Echte Fotos an Hero + Waitlist erden das Ganze, die vier
-SVGs dazwischen machen nur noch Daten-Arbeit.
+Grund fuer v4: v3-Set war technisch OK, aber Story pro SVG unklar
+("nichtssagend") und D lud zum "das hol ich mir selbst"-Denken ein.
 
 ## Designprinzipien (gleich wie v2)
 

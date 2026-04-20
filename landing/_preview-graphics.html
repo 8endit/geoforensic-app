@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Preview: Grafik-Integration Bodenbericht v3</title>
+  <title>Preview: Grafik-Integration Bodenbericht v4</title>
   <!-- Tailwind via CDN (preview only, prod uses self-hosted /tailwind.css) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -40,14 +40,12 @@
     .preview-ribbon {
       background: repeating-linear-gradient(45deg, #fef3c7, #fef3c7 10px, #fde68a 10px, #fde68a 20px);
     }
-    /* photo overlay for hero: dark navy gradient so headline stays readable */
     .photo-tint-hero {
       background: linear-gradient(180deg, rgba(12,29,58,0.55) 0%, rgba(12,29,58,0.30) 45%, rgba(12,29,58,0.75) 100%);
     }
     .photo-tint-waitlist {
       background: linear-gradient(180deg, rgba(247,243,234,0.70) 0%, rgba(247,243,234,0.95) 100%);
     }
-    /* fallback drop-zone shown if external photo fails to load */
     .photo-fallback {
       background:
         repeating-linear-gradient(45deg, rgba(107,93,63,0.08) 0 10px, transparent 10px 20px),
@@ -59,14 +57,13 @@
 
   <!-- preview banner -->
   <div class="preview-ribbon border-b border-amber-300 py-2 px-4 text-center text-xs font-semibold text-amber-900">
-    PREVIEW v3 &middot; 2 Fotos (Pexels) + 4 SVGs &middot; nicht die echte Landing
+    PREVIEW v4 &middot; Rework: A (KPI) &middot; B (ein Haus) &middot; C (Ampel) &middot; D (Footer-Badges)
   </div>
 
   <!-- ====================================================== -->
-  <!-- SECTION 1 — Hero mit Foto (Pexels Bamberg, Markus Spiske)-->
+  <!-- SECTION 1 — Hero mit Foto (Bamberg, Markus Spiske)      -->
   <!-- ====================================================== -->
   <section class="relative overflow-hidden">
-    <!-- photo background -->
     <div class="absolute inset-0">
       <img
         src="https://images.pexels.com/photos/3489009/pexels-photo-3489009.jpeg?auto=compress&cs=tinysrgb&w=1920"
@@ -108,72 +105,53 @@
   </section>
 
   <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
-    <strong class="text-gray-700">Foto 1 &mdash; Hero (Bamberg-Luftbild):</strong>
-    ersetzt das SVG-Satelliten-Motiv. Emotional, historisch, deutsch.
+    <strong class="text-gray-700">Foto 1 &mdash; Hero:</strong> unveraendert seit v3
   </div>
 
   <!-- ====================================================== -->
-  <!-- SECTION 2 — Leistungen mit SVG B (InSAR-Karte)          -->
+  <!-- SECTION 2 — Dein Haus (SVG B, neu)                      -->
   <!-- ====================================================== -->
   <section class="py-16 md:py-24 bg-white">
     <div class="max-w-7xl mx-auto px-4">
       <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         <div>
-          <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Was Sie bekommen</p>
+          <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Was wir messen</p>
           <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 leading-tight">
-            Jeder Punkt auf Ihrem Grundstueck, einzeln gemessen.
+            Wir messen Ihr Haus &mdash; nicht die Gegend.
           </h2>
           <p class="mt-4 text-gray-500 text-base md:text-lg leading-relaxed">
-            Copernicus EGMS liefert in Staedten bis zu 79 Messpunkte pro 500 m &mdash; jeder mit eigener Bewegungsrate und sieben Jahren Zeitreihe.
+            Satelliten-Messpunkte sitzen auf dem Dach, an der Fassade, auf der Terrasse. Jeder Punkt bekommt eine eigene Bewegungsrate &mdash; und Sie sehen genau, wo sich etwas bewegt.
           </p>
-          <ul class="mt-8 space-y-4 text-sm">
+          <ul class="mt-8 space-y-3 text-sm">
             <li class="flex items-start gap-3">
-              <div class="mt-0.5 w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg class="w-4 h-4 text-brand-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/></svg>
-              </div>
-              <div>
-                <h4 class="font-semibold text-navy-800">Messpunkte auf dem Grundstueck</h4>
-                <p class="text-gray-500">Ampel pro Punkt: stabil, auffaellig, signifikant.</p>
-              </div>
+              <span class="mt-1 w-2 h-2 bg-brand-600 rounded-full flex-shrink-0"></span>
+              <span class="text-gray-600">Typisch 3&ndash;8 Messpunkte pro Einfamilienhaus</span>
             </li>
             <li class="flex items-start gap-3">
-              <div class="mt-0.5 w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg class="w-4 h-4 text-brand-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/></svg>
-              </div>
-              <div>
-                <h4 class="font-semibold text-navy-800">Nachbarschaftlicher Kontext</h4>
-                <p class="text-gray-500">Cluster-Ansicht in der Umgebung &mdash; ist das ein Einzelfall oder ein Muster?</p>
-              </div>
+              <span class="mt-1 w-2 h-2 bg-brand-600 rounded-full flex-shrink-0"></span>
+              <span class="text-gray-600">Bis zu 79 Punkte pro 500 m im Stadtbereich &mdash; die meisten auf Gebaeuden</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="mt-1 w-2 h-2 bg-brand-600 rounded-full flex-shrink-0"></span>
+              <span class="text-gray-600">Ampel pro Punkt: stabil, auffaellig, signifikant</span>
             </li>
           </ul>
         </div>
 
-        <!-- SVG B InSAR Map -->
-        <div class="bg-gradient-to-br from-gray-50 to-brand-50 rounded-3xl p-6 md:p-8 border border-gray-200/80">
-          <div class="bg-white rounded-2xl shadow-xl p-4 md:p-6 border border-gray-100">
-            <div class="flex items-center gap-3 mb-4">
-              <div class="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
-              </div>
-              <div>
-                <p class="font-bold text-navy-800">InSAR-Messpunkte am Grundstueck</p>
-                <p class="text-xs text-gray-400">Beispielkarte &middot; Ausschnitt aus einem Bericht</p>
-              </div>
-            </div>
-            <img src="images/graphics/B-insar-map.svg" alt="Kartografische Darstellung InSAR-Messpunkte an einem Grundstueck" class="w-full h-auto rounded-lg" loading="lazy">
-          </div>
+        <div class="bg-cream rounded-3xl p-4 md:p-6 border border-gray-200">
+          <img src="images/graphics/B-insar-map.svg" alt="Einzelnes Haus mit vier InSAR-Messpunkten auf Dach und Fassade" class="w-full h-auto" loading="lazy">
         </div>
       </div>
     </div>
   </section>
 
   <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
-    <strong class="text-gray-700">SVG B &mdash; InSAR-Karte:</strong>
-    rechte Spalte in der "Was Sie bekommen"-Sektion
+    <strong class="text-gray-700">SVG B &mdash; ein einzelnes Haus:</strong>
+    4 Messpunkte direkt aufs Gebaeude, mit Callouts ("Dach Nord", "Fassade West" &hellip;)
   </div>
 
   <!-- ====================================================== -->
-  <!-- SECTION 3 — Zeitreihen-Chart SVG A                      -->
+  <!-- SECTION 3 — KPI Zeitreihe (SVG A, neu)                  -->
   <!-- ====================================================== -->
   <section class="py-16 md:py-24 bg-cream">
     <div class="max-w-5xl mx-auto px-4">
@@ -181,10 +159,10 @@
         <div class="lg:col-span-2">
           <p class="text-brand-800 font-semibold text-sm tracking-wide uppercase mb-3">Tiefe pro Punkt</p>
           <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-800 leading-tight">
-            Nicht nur heute &mdash; sieben Jahre Bewegung.
+            Nicht eine Momentaufnahme. Sieben Jahre Daten.
           </h2>
           <p class="mt-4 text-gray-600 text-base leading-relaxed">
-            Jeder Messpunkt bringt seine eigene Zeitreihe mit. Sie sehen Trend, Saisonalitaet und ob sich die Bewegung in den letzten Jahren beschleunigt hat.
+            Jeder Messpunkt bringt seine eigene Zeitreihe mit. Sie sehen nicht nur "gerade gelb" &mdash; Sie sehen den Trend und ob sich die Bewegung beschleunigt hat.
           </p>
           <p class="mt-4 text-gray-500 text-sm italic">
             Ein einzelner Wert ist eine Momentaufnahme. Ein Trend ueber sieben Jahre ist eine Aussage.
@@ -192,7 +170,7 @@
         </div>
         <div class="lg:col-span-3">
           <div class="bg-white rounded-2xl shadow-md p-4 md:p-6 border border-gray-200">
-            <img src="images/graphics/A-timeseries.svg" alt="Zeitreihe Bodenbewegung an einem Messpunkt, 2017 bis 2023, Trend minus 3,2 mm pro Jahr" class="w-full h-auto" loading="lazy">
+            <img src="images/graphics/A-timeseries.svg" alt="Kumulierte Absenkung minus 22 mm zwischen 2017 und 2023" class="w-full h-auto" loading="lazy">
           </div>
         </div>
       </div>
@@ -200,69 +178,37 @@
   </section>
 
   <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
-    <strong class="text-gray-700">SVG A &mdash; Zeitreihen-Chart:</strong>
-    neue Sektion "Tiefe pro Punkt" zwischen Leistungen und Ampel-Erklaerung
+    <strong class="text-gray-700">SVG A &mdash; KPI-Story:</strong>
+    "&minus;22 mm" als grosse Zahl, Chart nur noch als Beleg daneben
   </div>
 
   <!-- ====================================================== -->
-  <!-- SECTION 4 — Ampel-Erklaerung SVG C                      -->
+  <!-- SECTION 4 — Ampel (SVG C, neu)                          -->
   <!-- ====================================================== -->
   <section class="py-16 md:py-24 bg-white">
     <div class="max-w-5xl mx-auto px-4">
       <div class="text-center mb-10">
-        <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Ampel-Einstufung</p>
+        <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Einstufung pro Punkt</p>
         <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 leading-tight">
           Ab wann wird&rsquo;s kritisch?
         </h2>
         <p class="mt-3 text-gray-500 text-base md:text-lg max-w-2xl mx-auto">
-          Dreistufige Klassifikation &mdash; an internationalen InSAR-Standards orientiert.
+          Drei Stufen &mdash; an internationalen InSAR-Standards orientiert.
         </p>
       </div>
-      <div class="max-w-4xl mx-auto bg-cream rounded-2xl p-4 md:p-6 border border-gray-200">
-        <img src="images/graphics/C-ampel.svg" alt="Ampel-Klassifikation: stabil unter 2 mm pro Jahr, auffaellig 2 bis 5, signifikant ueber 5" class="w-full h-auto" loading="lazy">
+      <div class="max-w-3xl mx-auto bg-cream rounded-2xl p-4 md:p-6 border border-gray-200">
+        <img src="images/graphics/C-ampel.svg" alt="Verkehrsampel-Metapher: gruen stabil, gelb auffaellig, rot signifikant" class="w-full h-auto" loading="lazy">
       </div>
     </div>
   </section>
 
   <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
-    <strong class="text-gray-700">SVG C &mdash; Ampel-Klassifikation:</strong>
-    in der "Wie lese ich das?"-Sektion, ersetzt Text-only Erklaerung
+    <strong class="text-gray-700">SVG C &mdash; echte Verkehrsampel:</strong>
+    drei Lampen im Gehaeuse, minimal Text daneben. Grueue leuchtet.
   </div>
 
   <!-- ====================================================== -->
-  <!-- SECTION 5 — Datenquellen-Stack SVG D                    -->
-  <!-- ====================================================== -->
-  <section class="py-16 md:py-24 bg-gray-50">
-    <div class="max-w-5xl mx-auto px-4">
-      <div class="grid lg:grid-cols-5 gap-10 lg:gap-14 items-center">
-        <div class="lg:col-span-3 order-2 lg:order-1">
-          <div class="bg-cream rounded-2xl p-4 md:p-6 border border-gray-200">
-            <img src="images/graphics/D-sources.svg" alt="Datenquellen-Stack: Copernicus EGMS, ISRIC SoilGrids, JRC LUCAS, OpenStreetMap Nominatim" class="w-full h-auto" loading="lazy">
-          </div>
-        </div>
-        <div class="lg:col-span-2 order-1 lg:order-2">
-          <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Offene Daten</p>
-          <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-800 leading-tight">
-            Vier oeffentliche EU-Quellen. Keine Black-Box.
-          </h2>
-          <p class="mt-4 text-gray-600 text-base leading-relaxed">
-            Copernicus-Satellitendaten, ISRIC-Bodenraster, JRC-Bodenproben und OpenStreetMap &mdash; alles unter offenen Lizenzen, im Bericht mit Attribution.
-          </p>
-          <p class="mt-4 text-gray-500 text-sm italic">
-            Wir nehmen keine proprietaeren Daten. Nichts, was Sie nicht selber nachpruefen koennen.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
-    <strong class="text-gray-700">SVG D &mdash; Datenquellen-Stack:</strong>
-    neue Sektion "Offene Daten", ersetzt 03 Data-Pipeline
-  </div>
-
-  <!-- ====================================================== -->
-  <!-- SECTION 6 — Waitlist mit Foto (Pexels Deva Darshan)     -->
+  <!-- SECTION 5 — Waitlist mit Foto (Deva Darshan)            -->
   <!-- ====================================================== -->
   <section class="relative overflow-hidden">
     <div class="absolute inset-0">
@@ -296,28 +242,61 @@
     </div>
   </section>
 
+  <!-- ====================================================== -->
+  <!-- D — Dezente Datenquellen-Badge-Zeile (Footer-artig)     -->
+  <!-- ====================================================== -->
+  <section class="bg-navy-800 py-6 px-4">
+    <div class="max-w-5xl mx-auto">
+      <p class="text-center text-xs text-gray-400 uppercase tracking-wide mb-3">Datengrundlage</p>
+      <div class="flex flex-wrap justify-center items-center gap-x-5 gap-y-2 text-xs text-gray-300">
+        <span class="flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 bg-brand-400 rounded-full"></span>
+          Copernicus EGMS
+        </span>
+        <span class="text-gray-600">&middot;</span>
+        <span class="flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 bg-brand-400 rounded-full"></span>
+          ISRIC SoilGrids
+        </span>
+        <span class="text-gray-600">&middot;</span>
+        <span class="flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 bg-brand-400 rounded-full"></span>
+          JRC LUCAS
+        </span>
+        <span class="text-gray-600">&middot;</span>
+        <span class="flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 bg-brand-400 rounded-full"></span>
+          OpenStreetMap
+        </span>
+      </div>
+      <p class="text-center text-[10px] text-gray-500 mt-3 italic">
+        Offene EU-Datenquellen &middot; Attribution im Bericht
+      </p>
+    </div>
+  </section>
+
   <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
-    <strong class="text-gray-700">Foto 2 &mdash; Waitlist (Golden-Hour-Siedlung):</strong>
-    ersetzt SVG-Erde. Aspirational statt atmosphaerisch.
+    <strong class="text-gray-700">D &mdash; Datengrundlage-Badges:</strong>
+    ersetzt die fette "Offene Daten"-Sektion durch eine dezente Zeile im Footer-Bereich
   </div>
 
-  <!-- summary card for reviewer -->
+  <!-- summary card -->
   <section class="py-10 bg-white border-t border-gray-200">
     <div class="max-w-3xl mx-auto px-4">
       <div class="bg-cream border border-gray-300 rounded-lg p-5 text-sm text-gray-700">
-        <p class="font-semibold text-gray-900 mb-2">Was auf dieser Seite steckt</p>
+        <p class="font-semibold text-gray-900 mb-2">v4-Rework (gegenueber v3)</p>
         <ul class="space-y-1.5 list-disc pl-5">
-          <li><strong>2 Fotos</strong> vom Pexels-CDN (nur fuer Preview &mdash; Prod laedt lokal, siehe <code>landing/images/photos/README.md</code>)</li>
-          <li><strong>4 SVGs</strong> selbst gezeichnet im kartografisch-editorialen Stil</li>
-          <li><strong>A</strong> Zeitreihen-Chart &middot; <strong>B</strong> InSAR-Karte (behalten) &middot; <strong>C</strong> Ampel-Klassifikation &middot; <strong>D</strong> Datenquellen-Stack</li>
+          <li><strong>A:</strong> Scatter-Chart durch KPI-Story ersetzt (&minus;22 mm als Hauptaussage)</li>
+          <li><strong>B:</strong> Stadtmitte-Karte durch ein einzelnes Haus mit 4 Messpunkten ersetzt</li>
+          <li><strong>C:</strong> Schema-Diagramm durch echte Verkehrsampel ersetzt</li>
+          <li><strong>D:</strong> Grosse Quellen-Sektion raus, stattdessen dezente Badge-Zeile im Footer</li>
         </ul>
-        <p class="mt-3 text-gray-600">Falls ein Foto nicht laedt: gestreifter Fallback-Hintergrund erscheint, dann ist das CDN blockiert oder der Link veraltet.</p>
       </div>
     </div>
   </section>
 
   <footer class="bg-navy-800 text-gray-400 text-xs text-center py-6 px-4">
-    Preview v3 &middot; Branch <code class="text-brand-400">claude/discuss-before-unavailable-foZZ4</code> &middot; nicht live
+    Preview v4 &middot; Branch <code class="text-brand-400">claude/discuss-before-unavailable-foZZ4</code> &middot; nicht live
   </footer>
 </body>
 </html>

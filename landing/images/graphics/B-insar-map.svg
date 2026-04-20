@@ -1,174 +1,142 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" width="560" height="360" role="img" aria-label="Kartografische Darstellung InSAR-Messpunkte an einem Grundstueck">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" width="560" height="360" role="img" aria-label="Einzelnes Haus mit vier InSAR-Messpunkten auf Dach und Fassade">
   <defs>
-    <radialGradient id="stableGlow" cx="50%" cy="50%" r="50%">
+    <radialGradient id="bStableGlow" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#166534" stop-opacity="0.55"/>
       <stop offset="100%" stop-color="#166534" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="watchGlow" cx="50%" cy="50%" r="50%">
+    <radialGradient id="bWatchGlow" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#B45309" stop-opacity="0.55"/>
       <stop offset="100%" stop-color="#B45309" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="alertGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#991B1B" stop-opacity="0.5"/>
-      <stop offset="100%" stop-color="#991B1B" stop-opacity="0"/>
-    </radialGradient>
   </defs>
 
-  <!-- map base (warm cream, OS-inspired) -->
+  <!-- cream base -->
   <rect width="560" height="360" fill="#F7F3EA"/>
 
-  <!-- faint latitude contour hints -->
-  <g stroke="#E4DCC6" stroke-width="0.8" fill="none">
-    <path d="M 0 90 Q 280 78 560 92"/>
-    <path d="M 0 180 Q 280 168 560 184"/>
-    <path d="M 0 270 Q 280 260 560 274"/>
-  </g>
-
-  <!-- river / watershed (cartographic detail) -->
-  <path d="M -10 80 Q 120 120 180 180 Q 230 230 320 260 Q 420 285 580 270"
-        fill="none" stroke="#9DC8DB" stroke-width="5" stroke-linecap="round" opacity="0.75"/>
-  <path d="M -10 80 Q 120 120 180 180 Q 230 230 320 260 Q 420 285 580 270"
-        fill="none" stroke="#6FA7BF" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
-
-  <!-- green spaces / parks -->
-  <path d="M 30 30 Q 90 20 130 50 Q 140 90 90 105 Q 40 100 30 70 Z" fill="#D7E8C8" opacity="0.85"/>
-  <path d="M 430 40 Q 500 30 530 60 Q 540 95 490 110 Q 440 100 430 75 Z" fill="#D7E8C8" opacity="0.85"/>
-  <path d="M 60 300 Q 130 290 170 315 Q 165 345 120 350 Q 70 345 60 325 Z" fill="#D7E8C8" opacity="0.85"/>
-
-  <!-- street network (irregular) -->
-  <g stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" fill="none">
-    <path d="M 0 140 L 560 140"/>
-    <path d="M 0 220 L 560 220"/>
-    <path d="M 170 0 L 170 360"/>
-    <path d="M 340 0 L 340 360"/>
-    <path d="M 460 0 Q 450 180 440 360"/>
-  </g>
-  <g stroke="#E4DCC6" stroke-width="9" stroke-linecap="round" fill="none">
-    <path d="M 0 140 L 560 140"/>
-    <path d="M 0 220 L 560 220"/>
-    <path d="M 170 0 L 170 360"/>
-    <path d="M 340 0 L 340 360"/>
-  </g>
-  <g stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" fill="none">
-    <path d="M 0 140 L 560 140"/>
-    <path d="M 0 220 L 560 220"/>
-    <path d="M 170 0 L 170 360"/>
-    <path d="M 340 0 L 340 360"/>
-  </g>
-
-  <!-- building footprints (varied sizes, cream/warm) -->
-  <g fill="#E8DFC7" stroke="#C9BC95" stroke-width="0.8">
-    <rect x="30" y="150" width="38" height="24" rx="1"/>
-    <rect x="78" y="150" width="28" height="32" rx="1"/>
-    <rect x="116" y="150" width="48" height="28" rx="1"/>
-    <rect x="30" y="186" width="48" height="28" rx="1"/>
-    <rect x="88" y="190" width="36" height="24" rx="1"/>
-    <rect x="134" y="186" width="30" height="30" rx="1"/>
-
-    <rect x="186" y="150" width="42" height="26" rx="1"/>
-    <rect x="234" y="150" width="36" height="32" rx="1"/>
-    <rect x="276" y="150" width="58" height="28" rx="1"/>
-    <rect x="186" y="188" width="52" height="28" rx="1"/>
-    <rect x="248" y="188" width="44" height="28" rx="1"/>
-    <rect x="298" y="188" width="36" height="30" rx="1"/>
-
-    <rect x="356" y="150" width="38" height="24" rx="1"/>
-    <rect x="402" y="150" width="30" height="30" rx="1"/>
-    <rect x="356" y="184" width="46" height="32" rx="1"/>
-    <rect x="408" y="188" width="26" height="28" rx="1"/>
-
-    <rect x="480" y="150" width="56" height="26" rx="1"/>
-    <rect x="480" y="184" width="36" height="30" rx="1"/>
-    <rect x="522" y="184" width="16" height="30" rx="1"/>
-
-    <rect x="30" y="238" width="44" height="26" rx="1"/>
-    <rect x="82" y="234" width="34" height="30" rx="1"/>
-    <rect x="124" y="240" width="38" height="24" rx="1"/>
-    <rect x="186" y="236" width="52" height="28" rx="1"/>
-    <rect x="248" y="236" width="38" height="28" rx="1"/>
-    <rect x="296" y="236" width="34" height="30" rx="1"/>
-    <rect x="356" y="234" width="48" height="30" rx="1"/>
-    <rect x="414" y="240" width="22" height="24" rx="1"/>
-    <rect x="480" y="236" width="42" height="30" rx="1"/>
-  </g>
-
-  <!-- Focus property (highlighted boundary, subtle emphasis) -->
-  <g>
-    <rect x="258" y="186" width="40" height="30" rx="1.5" fill="#FFFFFF" stroke="#166534" stroke-width="2"/>
-    <rect x="258" y="186" width="40" height="30" rx="1.5" fill="none" stroke="#166534" stroke-width="4" stroke-dasharray="4 3" opacity="0.35"/>
-    <!-- pin -->
-    <g transform="translate(278, 174)">
-      <path d="M 0 -14 C -6 -14 -10 -10 -10 -5 C -10 2 0 10 0 10 C 0 10 10 2 10 -5 C 10 -10 6 -14 0 -14 Z"
-            fill="#166534" stroke="#FFFFFF" stroke-width="1.5"/>
-      <circle cx="0" cy="-5" r="3" fill="#FFFFFF"/>
-    </g>
-  </g>
-
-  <!-- Measurement dots - muted earthy palette -->
-  <g>
-    <!-- stable -->
-    <circle cx="50" cy="160" r="12" fill="url(#stableGlow)"/>
-    <circle cx="50" cy="160" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
-    <circle cx="100" cy="205" r="12" fill="url(#stableGlow)"/>
-    <circle cx="100" cy="205" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
-    <circle cx="145" cy="165" r="12" fill="url(#stableGlow)"/>
-    <circle cx="145" cy="165" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
-    <circle cx="205" cy="205" r="12" fill="url(#stableGlow)"/>
-    <circle cx="205" cy="205" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
-    <circle cx="260" cy="170" r="12" fill="url(#stableGlow)"/>
-    <circle cx="260" cy="170" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
-    <circle cx="315" cy="205" r="12" fill="url(#stableGlow)"/>
-    <circle cx="315" cy="205" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
-    <circle cx="378" cy="160" r="12" fill="url(#stableGlow)"/>
-    <circle cx="378" cy="160" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
-    <circle cx="420" cy="200" r="12" fill="url(#stableGlow)"/>
-    <circle cx="420" cy="200" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
-    <circle cx="500" cy="160" r="12" fill="url(#stableGlow)"/>
-    <circle cx="500" cy="160" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
-
-    <circle cx="60" cy="250" r="12" fill="url(#stableGlow)"/>
-    <circle cx="60" cy="250" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
-    <circle cx="210" cy="250" r="12" fill="url(#stableGlow)"/>
-    <circle cx="210" cy="250" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
-    <circle cx="380" cy="250" r="12" fill="url(#stableGlow)"/>
-    <circle cx="380" cy="250" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
-    <circle cx="500" cy="250" r="12" fill="url(#stableGlow)"/>
-    <circle cx="500" cy="250" r="3.5" fill="#166534" stroke="#F7F3EA" stroke-width="1"/>
-
-    <!-- watch (warm amber) -->
-    <circle cx="138" cy="252" r="14" fill="url(#watchGlow)"/>
-    <circle cx="138" cy="252" r="3.5" fill="#B45309" stroke="#F7F3EA" stroke-width="1"/>
-    <circle cx="275" cy="250" r="14" fill="url(#watchGlow)"/>
-    <circle cx="275" cy="250" r="3.5" fill="#B45309" stroke="#F7F3EA" stroke-width="1"/>
-    <circle cx="455" cy="163" r="14" fill="url(#watchGlow)"/>
-    <circle cx="455" cy="163" r="3.5" fill="#B45309" stroke="#F7F3EA" stroke-width="1"/>
-
-    <!-- alert (brick red) -->
-    <circle cx="330" cy="250" r="16" fill="url(#alertGlow)"/>
-    <circle cx="330" cy="250" r="4" fill="#991B1B" stroke="#F7F3EA" stroke-width="1"/>
-  </g>
-
-  <!-- Top-left district label (editorial touch) -->
+  <!-- header -->
   <g font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#6B5D3F">
-    <text x="24" y="28" letter-spacing="1">STADTMITTE &#183; SEKTOR 3</text>
+    <text x="30" y="32" letter-spacing="1">IHR GRUNDSTUECK &#183; NAH GEZOOMT</text>
+  </g>
+  <line x1="30" y1="44" x2="530" y2="44" stroke="#E4DCC6" stroke-width="1"/>
+
+  <!-- faint neighbour context: partial footprints in corners, kept very quiet -->
+  <g fill="#EDE4CC" stroke="#D4C7A0" stroke-width="0.8">
+    <rect x="30"  y="210" width="80"  height="60" rx="2"/>
+    <rect x="450" y="210" width="80"  height="60" rx="2"/>
+    <rect x="30"  y="90"  width="60"  height="50" rx="2"/>
+    <rect x="470" y="90"  width="60"  height="50" rx="2"/>
   </g>
 
-  <!-- Scale bar bottom-right -->
-  <g transform="translate(454, 320)">
-    <rect x="0" y="0" width="40" height="4" fill="#6B5D3F"/>
-    <rect x="40" y="0" width="40" height="4" fill="#F7F3EA" stroke="#6B5D3F" stroke-width="0.8"/>
-    <text x="0" y="18" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#6B5D3F">0</text>
-    <text x="36" y="18" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#6B5D3F">250</text>
-    <text x="74" y="18" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#6B5D3F">500&#8239;m</text>
+  <!-- garden hints -->
+  <g fill="#D7E8C8" opacity="0.75" stroke="none">
+    <path d="M 130 260 Q 180 240 230 268 L 230 330 L 130 330 Z"/>
+    <path d="M 430 260 Q 380 240 330 268 L 330 330 L 430 330 Z"/>
   </g>
 
-  <!-- Legend -->
-  <g transform="translate(24, 326)" font-family="Georgia, serif" font-size="10" fill="#44433E">
-    <circle cx="6" cy="6" r="3.5" fill="#166534"/>
-    <text x="16" y="10">stabil</text>
-    <circle cx="66" cy="6" r="3.5" fill="#B45309"/>
-    <text x="76" y="10">beobachten</text>
-    <circle cx="170" cy="6" r="3.5" fill="#991B1B"/>
-    <text x="180" y="10">signifikant</text>
+  <!-- driveway -->
+  <rect x="238" y="268" width="84" height="52" fill="#E7DEC4"/>
+
+  <!-- street edge (faint) -->
+  <g stroke="#E4DCC6" stroke-width="14" stroke-linecap="butt" fill="none">
+    <line x1="0" y1="335" x2="560" y2="335"/>
+  </g>
+  <g stroke="#FFFFFF" stroke-width="11" stroke-linecap="butt" fill="none">
+    <line x1="0" y1="335" x2="560" y2="335"/>
+  </g>
+
+  <!-- HOUSE: big centered footprint -->
+  <!-- shadow -->
+  <rect x="154" y="108" width="252" height="158" rx="3" fill="#6B5D3F" fill-opacity="0.10"/>
+
+  <!-- ground floor footprint -->
+  <rect x="150" y="104" width="252" height="158" rx="3" fill="#FFFFFF" stroke="#6B5D3F" stroke-width="1.4"/>
+
+  <!-- gable roof (two halves top-down) -->
+  <g fill="#C4A57A" stroke="#8A7A55" stroke-width="0.8">
+    <rect x="150" y="104" width="252" height="79"/>
+  </g>
+  <line x1="150" y1="183" x2="402" y2="183" stroke="#6B5D3F" stroke-width="1.2"/>
+  <g fill="#B89566" opacity="0.45">
+    <rect x="150" y="104" width="126" height="79"/>
+  </g>
+
+  <!-- lower portion -->
+  <rect x="150" y="183" width="252" height="79" rx="2" fill="#F1E8D1" stroke="#6B5D3F" stroke-width="1.2"/>
+
+  <!-- door + windows -->
+  <rect x="262" y="238" width="28" height="24" fill="#C4A57A" stroke="#8A7A55" stroke-width="0.6"/>
+  <g fill="#FFFFFF" stroke="#C9BC95" stroke-width="0.8">
+    <rect x="174" y="218" width="34" height="16"/>
+    <rect x="344" y="218" width="34" height="16"/>
+  </g>
+
+  <!-- focus boundary -->
+  <rect x="130" y="90" width="292" height="190" rx="4" fill="none" stroke="#166534" stroke-width="1.8" stroke-dasharray="5 4" opacity="0.55"/>
+
+  <!-- ===== Measurement dots ON the house ===== -->
+
+  <!-- Dot 1: Dach Nord (stable) -->
+  <g>
+    <circle cx="200" cy="140" r="14" fill="url(#bStableGlow)"/>
+    <circle cx="200" cy="140" r="4.5" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+  </g>
+  <g stroke="#6B5D3F" stroke-width="0.8" fill="none">
+    <path d="M 200 140 L 200 72 L 90 72"/>
+  </g>
+  <g font-family="Georgia, serif" font-size="11" fill="#1F2937">
+    <text x="88" y="68" text-anchor="end">Dach Nord</text>
+  </g>
+  <g font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#166534">
+    <text x="88" y="82" text-anchor="end">&#8722;0,4 mm/a &#183; stabil</text>
+  </g>
+
+  <!-- Dot 2: Dach Sued (stable) -->
+  <g>
+    <circle cx="350" cy="140" r="14" fill="url(#bStableGlow)"/>
+    <circle cx="350" cy="140" r="4.5" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+  </g>
+  <g stroke="#6B5D3F" stroke-width="0.8" fill="none">
+    <path d="M 350 140 L 350 72 L 470 72"/>
+  </g>
+  <g font-family="Georgia, serif" font-size="11" fill="#1F2937">
+    <text x="472" y="68">Dach Sued</text>
+  </g>
+  <g font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#166534">
+    <text x="472" y="82">&#8722;0,7 mm/a &#183; stabil</text>
+  </g>
+
+  <!-- Dot 3: Fassade West (watch) -->
+  <g>
+    <circle cx="166" cy="226" r="16" fill="url(#bWatchGlow)"/>
+    <circle cx="166" cy="226" r="5" fill="#B45309" stroke="#F7F3EA" stroke-width="1.2"/>
+  </g>
+  <g stroke="#6B5D3F" stroke-width="0.8" fill="none">
+    <path d="M 166 226 L 60 226"/>
+  </g>
+  <g font-family="Georgia, serif" font-size="11" fill="#1F2937">
+    <text x="58" y="223" text-anchor="end">Fassade West</text>
+  </g>
+  <g font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#B45309">
+    <text x="58" y="237" text-anchor="end">&#8722;3,2 mm/a &#183; auffaellig</text>
+  </g>
+
+  <!-- Dot 4: Terrasse (stable) -->
+  <g>
+    <circle cx="392" cy="252" r="14" fill="url(#bStableGlow)"/>
+    <circle cx="392" cy="252" r="4.5" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+  </g>
+  <g stroke="#6B5D3F" stroke-width="0.8" fill="none">
+    <path d="M 392 252 L 492 252"/>
+  </g>
+  <g font-family="Georgia, serif" font-size="11" fill="#1F2937">
+    <text x="494" y="249">Terrasse</text>
+  </g>
+  <g font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#166534">
+    <text x="494" y="263">&#8722;0,9 mm/a &#183; stabil</text>
+  </g>
+
+  <!-- caption -->
+  <g font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#1F2937">
+    <text x="280" y="336" text-anchor="middle">Vier Messpunkte auf diesem Haus &#8212; jeder einzeln ausgewertet.</text>
   </g>
 </svg>

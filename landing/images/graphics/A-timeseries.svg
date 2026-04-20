@@ -1,147 +1,91 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" width="560" height="360" role="img" aria-label="Zeitreihe der Bodenbewegung an einem Messpunkt, 2017 bis 2024, abwaertstrend minus 3,2 Millimeter pro Jahr">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" width="560" height="360" role="img" aria-label="Kumulierte Absenkung minus 22 Millimeter zwischen 2017 und 2023 an einem Messpunkt">
   <defs>
-    <linearGradient id="tsBand" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#991B1B" stop-opacity="0.10"/>
+    <linearGradient id="aSpark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#991B1B" stop-opacity="0.14"/>
       <stop offset="100%" stop-color="#991B1B" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="tsStableBand" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#166534" stop-opacity="0"/>
-      <stop offset="100%" stop-color="#166534" stop-opacity="0.09"/>
     </linearGradient>
   </defs>
 
   <!-- cream base -->
   <rect width="560" height="360" fill="#F7F3EA"/>
 
-  <!-- plot area: x from 60 to 520, y from 60 to 290 -->
-  <!-- stable band (green, above 0 line) -->
-  <rect x="60" y="140" width="460" height="30" fill="url(#tsStableBand)"/>
-  <!-- alert band (red, below -5 mm threshold line) -->
-  <rect x="60" y="215" width="460" height="75" fill="url(#tsBand)"/>
-
-  <!-- horizontal gridlines (faint) -->
-  <g stroke="#E4DCC6" stroke-width="0.8" fill="none">
-    <line x1="60" y1="110" x2="520" y2="110"/>
-    <line x1="60" y1="140" x2="520" y2="140"/>
-    <line x1="60" y1="200" x2="520" y2="200"/>
-    <line x1="60" y1="230" x2="520" y2="230"/>
-    <line x1="60" y1="260" x2="520" y2="260"/>
-  </g>
-
-  <!-- zero baseline emphasised -->
-  <line x1="60" y1="170" x2="520" y2="170" stroke="#C9BC95" stroke-width="1.2" stroke-dasharray="2 3"/>
-
-  <!-- y axis labels (mm) -->
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#6B5D3F" text-anchor="end">
-    <text x="54" y="114">+5</text>
-    <text x="54" y="144">+2</text>
-    <text x="54" y="174">0</text>
-    <text x="54" y="204">-2</text>
-    <text x="54" y="234">-5</text>
-    <text x="54" y="264">-10</text>
-  </g>
-  <text x="28" y="180" font-family="Georgia, serif" font-size="10" fill="#6B5D3F" transform="rotate(-90 28 180)" text-anchor="middle">mm (kumuliert)</text>
-
-  <!-- x axis (years) -->
-  <line x1="60" y1="290" x2="520" y2="290" stroke="#C9BC95" stroke-width="1"/>
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#6B5D3F" text-anchor="middle">
-    <text x="60"  y="308">2017</text>
-    <text x="137" y="308">2018</text>
-    <text x="214" y="308">2019</text>
-    <text x="291" y="308">2020</text>
-    <text x="368" y="308">2021</text>
-    <text x="445" y="308">2022</text>
-    <text x="520" y="308">2023</text>
-  </g>
-  <!-- x axis tick marks -->
-  <g stroke="#C9BC95" stroke-width="1">
-    <line x1="60"  y1="290" x2="60"  y2="294"/>
-    <line x1="137" y1="290" x2="137" y2="294"/>
-    <line x1="214" y1="290" x2="214" y2="294"/>
-    <line x1="291" y1="290" x2="291" y2="294"/>
-    <line x1="368" y1="290" x2="368" y2="294"/>
-    <line x1="445" y1="290" x2="445" y2="294"/>
-    <line x1="520" y1="290" x2="520" y2="294"/>
-  </g>
-
-  <!-- confidence band (subtle) around trend -->
-  <path d="M 60 158 L 137 168 L 214 178 L 291 194 L 368 212 L 445 230 L 520 248
-           L 520 260 L 445 242 L 368 224 L 291 206 L 214 190 L 137 180 L 60 170 Z"
-        fill="#991B1B" fill-opacity="0.07"/>
-
-  <!-- measurement dots (monthly-ish, gently noisy around trend) -->
-  <g fill="#44433E">
-    <circle cx="60"  cy="170" r="2"/>
-    <circle cx="72"  cy="166" r="2"/>
-    <circle cx="84"  cy="172" r="2"/>
-    <circle cx="96"  cy="168" r="2"/>
-    <circle cx="108" cy="175" r="2"/>
-    <circle cx="120" cy="171" r="2"/>
-    <circle cx="132" cy="178" r="2"/>
-    <circle cx="144" cy="176" r="2"/>
-    <circle cx="156" cy="173" r="2"/>
-    <circle cx="168" cy="182" r="2"/>
-    <circle cx="180" cy="180" r="2"/>
-    <circle cx="192" cy="184" r="2"/>
-    <circle cx="204" cy="179" r="2"/>
-    <circle cx="216" cy="188" r="2"/>
-    <circle cx="228" cy="186" r="2"/>
-    <circle cx="240" cy="192" r="2"/>
-    <circle cx="252" cy="190" r="2"/>
-    <circle cx="264" cy="198" r="2"/>
-    <circle cx="276" cy="196" r="2"/>
-    <circle cx="288" cy="202" r="2"/>
-    <circle cx="300" cy="205" r="2"/>
-    <circle cx="312" cy="202" r="2"/>
-    <circle cx="324" cy="210" r="2"/>
-    <circle cx="336" cy="208" r="2"/>
-    <circle cx="348" cy="214" r="2"/>
-    <circle cx="360" cy="212" r="2"/>
-    <circle cx="372" cy="220" r="2"/>
-    <circle cx="384" cy="218" r="2"/>
-    <circle cx="396" cy="225" r="2"/>
-    <circle cx="408" cy="222" r="2"/>
-    <circle cx="420" cy="230" r="2"/>
-    <circle cx="432" cy="228" r="2"/>
-    <circle cx="444" cy="234" r="2"/>
-    <circle cx="456" cy="232" r="2"/>
-    <circle cx="468" cy="238" r="2"/>
-    <circle cx="480" cy="240" r="2"/>
-    <circle cx="492" cy="244" r="2"/>
-    <circle cx="504" cy="246" r="2"/>
-    <circle cx="516" cy="250" r="2"/>
-  </g>
-
-  <!-- trend line (linear regression, subsidence ~ -3.2 mm/a) -->
-  <line x1="60" y1="165" x2="520" y2="253" stroke="#991B1B" stroke-width="2" stroke-linecap="round"/>
-
-  <!-- endpoint highlight -->
-  <circle cx="520" cy="253" r="5" fill="#991B1B"/>
-  <circle cx="520" cy="253" r="9" fill="none" stroke="#991B1B" stroke-width="1" stroke-opacity="0.45"/>
-
-  <!-- trend annotation -->
-  <g font-family="Georgia, serif" font-size="12" fill="#991B1B">
-    <text x="410" y="275" text-anchor="end">Trend: &#8722;3,2 mm / Jahr</text>
-  </g>
-  <line x1="414" y1="271" x2="508" y2="253" stroke="#991B1B" stroke-width="0.8" stroke-dasharray="2 2" opacity="0.55"/>
-
-  <!-- threshold labels right edge -->
-  <g font-family="Georgia, serif" font-size="9.5" fill="#6B5D3F">
-    <text x="528" y="144">stabil</text>
-    <text x="528" y="206">auffaellig</text>
-    <text x="528" y="240">signifikant</text>
-  </g>
-
-  <!-- header label (editorial) -->
+  <!-- header -->
   <g font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#6B5D3F">
-    <text x="30" y="28" letter-spacing="1">MESSPUNKT &#183; 7 JAHRE ZEITREIHE</text>
-  </g>
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#8A7A55">
-    <text x="30" y="44">51.2455&#176;N  6.7812&#176;E  &#183;  Sentinel-1  &#183;  72 Aufnahmen</text>
+    <text x="30" y="32" letter-spacing="1">7 JAHRE BEWEGUNG &#183; EIN MESSPUNKT</text>
   </g>
 
-  <!-- caption footer -->
-  <g font-family="Georgia, serif" font-size="10" fill="#44433E" font-style="italic">
-    <text x="30" y="343">Jeder Punkt im Screening bringt eine eigene Zeitreihe mit &#8212; nicht nur eine Momentaufnahme.</text>
+  <!-- hairline under header -->
+  <line x1="30" y1="44" x2="530" y2="44" stroke="#E4DCC6" stroke-width="1"/>
+
+  <!-- KPI block: big number, left-aligned -->
+  <g transform="translate(30, 100)">
+    <!-- micro-label -->
+    <text x="0" y="0" font-family="Georgia, serif" font-size="13" fill="#6B5D3F" font-style="italic">
+      Kumulierte Absenkung
+    </text>
+    <!-- big number -->
+    <text x="0" y="78" font-family="Georgia, 'Times New Roman', serif" font-size="96" font-weight="bold" fill="#991B1B" letter-spacing="-2">
+      &#8722;22&#8239;mm
+    </text>
+    <!-- year range -->
+    <text x="0" y="106" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" fill="#6B5D3F">
+      zwischen 2017 und 2023
+    </text>
+  </g>
+
+  <!-- mini spark chart as proof, right side -->
+  <g transform="translate(320, 80)">
+    <!-- chart frame -->
+    <rect x="0" y="0" width="210" height="130" rx="3" fill="#FFFFFF" stroke="#E4DCC6" stroke-width="1"/>
+
+    <!-- y axis labels -->
+    <g font-family="ui-monospace, Menlo, monospace" font-size="8" fill="#8A7A55" text-anchor="end">
+      <text x="22" y="18">0</text>
+      <text x="22" y="70">-10</text>
+      <text x="22" y="116">-22</text>
+    </g>
+
+    <!-- zero line -->
+    <line x1="26" y1="16" x2="198" y2="16" stroke="#C9BC95" stroke-width="0.6" stroke-dasharray="2 2"/>
+
+    <!-- trend filled area -->
+    <path d="M 26 16 L 50 26 L 78 38 L 108 52 L 138 68 L 168 86 L 198 112
+             L 198 116 L 26 116 Z" fill="url(#aSpark)"/>
+
+    <!-- trend line -->
+    <polyline points="26,16 50,26 78,38 108,52 138,68 168,86 198,112"
+              fill="none" stroke="#991B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- endpoint marker -->
+    <circle cx="198" cy="112" r="4" fill="#991B1B"/>
+    <circle cx="198" cy="112" r="7" fill="none" stroke="#991B1B" stroke-width="1" stroke-opacity="0.45"/>
+
+    <!-- x axis ticks + year labels -->
+    <g stroke="#C9BC95" stroke-width="0.8">
+      <line x1="26"  y1="116" x2="26"  y2="119"/>
+      <line x1="198" y1="116" x2="198" y2="119"/>
+    </g>
+    <g font-family="ui-monospace, Menlo, monospace" font-size="8" fill="#8A7A55">
+      <text x="26"  y="128">2017</text>
+      <text x="180" y="128">2023</text>
+    </g>
+  </g>
+
+  <!-- caption strip bottom -->
+  <g>
+    <line x1="30" y1="278" x2="530" y2="278" stroke="#E4DCC6" stroke-width="1"/>
+    <g font-family="Georgia, 'Times New Roman', serif" font-size="15" fill="#1F2937">
+      <text x="30" y="308">So viel hat sich dieses Haus in sieben Jahren gesenkt.</text>
+    </g>
+    <g font-family="Georgia, serif" font-size="11" fill="#6B5D3F" font-style="italic">
+      <text x="30" y="330">
+        Ein Messpunkt &#8212; jeder weitere auf dem Grundstueck bekommt die gleiche Zeitreihe.
+      </text>
+    </g>
+  </g>
+
+  <!-- tiny source chip bottom right -->
+  <g transform="translate(454, 302)" font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#8A7A55">
+    <text x="0" y="0">Sentinel-1 &#183; EGMS</text>
   </g>
 </svg>
