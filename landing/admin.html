@@ -66,7 +66,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <div class="kpi-lbl">Letzte 7 Tage</div>
     </div>
     <div class="card">
-      <div class="kpi-num" id="kpi-conversion">–</div>
+      <div class="kpi-num" id="kpi-reports-total">–</div>
       <div class="kpi-lbl">Berichte erstellt</div>
     </div>
   </div>
@@ -149,7 +149,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       document.getElementById('kpi-leads-total').textContent = stats.leads.total;
       document.getElementById('kpi-leads-today').textContent = stats.leads.today;
       document.getElementById('kpi-leads-week').textContent = stats.leads.week;
-      document.getElementById('kpi-conversion').textContent = stats.reports.total;
+      document.getElementById('kpi-reports-total').textContent = stats.reports.total;
 
       // Sources
       const sources = stats.leads.by_source || {};

@@ -6,18 +6,15 @@
   <meta name="robots" content="noindex, nofollow">
   <title>[Preview] Teaser-Rework — bodenbericht.de</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <!-- Tailwind CDN: only for this throwaway preview page. Production teaser
+       (html_report.py) inlines CSS so Chrome-headless has no network dep. -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    /* Mirror landing/tailwind.config.js so brand/navy classes resolve under the CDN */
     tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: { 300: '#86efac', 400: '#4ade80', 600: '#16a34a', 700: '#15803d' },
-            navy:  { 700: '#1a3a6b', 800: '#122b52', 900: '#0c1d3a' },
-          }
-        }
-      }
+      theme: { extend: { colors: {
+        brand: { 300: '#86efac', 400: '#4ade80', 600: '#16a34a', 700: '#15803d' },
+        navy:  { 700: '#1a3a6b', 800: '#122b52', 900: '#0c1d3a' },
+      }}}
     };
   </script>
   <style>
@@ -216,8 +213,7 @@
         <div class="report-header">
           <div class="flex items-center justify-between gap-6 flex-wrap">
             <div class="flex items-center gap-4">
-              <img src="/images/logo-horizontal.png" alt="Bodenbericht" class="report-logo"
-                   onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/8endit/geoforensic-app/main/landing/images/logo-horizontal.png'">
+              <img src="/images/logo-horizontal.png" alt="Bodenbericht" class="report-logo">
               <div class="h-7 w-px bg-white/20 hidden sm:block"></div>
               <div class="hidden sm:block text-xs uppercase tracking-wider font-semibold" style="color:#a7d4b5;">
                 Standort-Screening

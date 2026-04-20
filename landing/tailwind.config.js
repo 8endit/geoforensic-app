@@ -4,7 +4,6 @@ module.exports = {
     './index.html',
     './muster-bericht.html',
     './datenquellen.html',
-    // admin.html uses Tailwind too
     './admin.html',
   ],
   theme: {
