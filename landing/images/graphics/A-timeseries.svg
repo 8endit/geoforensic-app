@@ -11,7 +11,7 @@
 
   <!-- header -->
   <g font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#6B5D3F">
-    <text x="30" y="32" letter-spacing="1">7 JAHRE BEWEGUNG &#183; EIN MESSPUNKT</text>
+    <text x="30" y="32" letter-spacing="1">SIEBEN JAHRE BEWEGUNG &#183; EIN MESSPUNKT</text>
   </g>
 
   <!-- hairline under header -->
@@ -82,10 +82,5 @@
         Ein Messpunkt &#8212; jeder weitere auf dem Grundstueck bekommt die gleiche Zeitreihe.
       </text>
     </g>
-  </g>
-
-  <!-- tiny source chip bottom right -->
-  <g transform="translate(454, 302)" font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#8A7A55">
-    <text x="0" y="0">Sentinel-1 &#183; EGMS</text>
   </g>
 </svg>

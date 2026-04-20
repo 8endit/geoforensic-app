@@ -57,7 +57,7 @@
 
   <!-- preview banner -->
   <div class="preview-ribbon border-b border-amber-300 py-2 px-4 text-center text-xs font-semibold text-amber-900">
-    PREVIEW v4 &middot; Rework: A (KPI) &middot; B (ein Haus) &middot; C (Ampel) &middot; D (Footer-Badges)
+    PREVIEW v4.1 &middot; B ehrlicher &middot; Tech-Sprache raus (kein EGMS/LUCAS/Copernicus mehr)
   </div>
 
   <!-- ====================================================== -->
@@ -120,16 +120,16 @@
             Wir messen Ihr Haus &mdash; nicht die Gegend.
           </h2>
           <p class="mt-4 text-gray-500 text-base md:text-lg leading-relaxed">
-            Satelliten-Messpunkte sitzen auf dem Dach, an der Fassade, auf der Terrasse. Jeder Punkt bekommt eine eigene Bewegungsrate &mdash; und Sie sehen genau, wo sich etwas bewegt.
+            Satelliten-Messpunkte liegen direkt auf Ihrem Grundstueck &mdash; nicht irgendwo in der Umgebung. Jeder Punkt bekommt eine eigene Bewegungsrate.
           </p>
           <ul class="mt-8 space-y-3 text-sm">
             <li class="flex items-start gap-3">
               <span class="mt-1 w-2 h-2 bg-brand-600 rounded-full flex-shrink-0"></span>
-              <span class="text-gray-600">Typisch 3&ndash;8 Messpunkte pro Einfamilienhaus</span>
+              <span class="text-gray-600">Typisch mehrere Messpunkte pro Einfamilienhaus</span>
             </li>
             <li class="flex items-start gap-3">
               <span class="mt-1 w-2 h-2 bg-brand-600 rounded-full flex-shrink-0"></span>
-              <span class="text-gray-600">Bis zu 79 Punkte pro 500 m im Stadtbereich &mdash; die meisten auf Gebaeuden</span>
+              <span class="text-gray-600">In Staedten oft deutlich mehr Punkte in unmittelbarer Naehe</span>
             </li>
             <li class="flex items-start gap-3">
               <span class="mt-1 w-2 h-2 bg-brand-600 rounded-full flex-shrink-0"></span>
@@ -139,15 +139,16 @@
         </div>
 
         <div class="bg-cream rounded-3xl p-4 md:p-6 border border-gray-200">
-          <img src="images/graphics/B-insar-map.svg" alt="Einzelnes Haus mit vier InSAR-Messpunkten auf Dach und Fassade" class="w-full h-auto" loading="lazy">
+          <img src="images/graphics/B-insar-map.svg" alt="Einzelnes Haus im Zoom mit Messpunkten auf und um das Grundstueck" class="w-full h-auto" loading="lazy">
         </div>
       </div>
     </div>
   </section>
 
   <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
-    <strong class="text-gray-700">SVG B &mdash; ein einzelnes Haus:</strong>
-    4 Messpunkte direkt aufs Gebaeude, mit Callouts ("Dach Nord", "Fassade West" &hellip;)
+    <strong class="text-gray-700">SVG B &mdash; Messpunkte auf/um das Grundstueck:</strong>
+    keine "Dach Nord / Fassade West"-Zuordnung mehr. Dots clustern auf und um das Haus
+    mit ehrlicher Ungenauigkeit, Ampel-Farben nur.
   </div>
 
   <!-- ====================================================== -->
@@ -193,7 +194,7 @@
           Ab wann wird&rsquo;s kritisch?
         </h2>
         <p class="mt-3 text-gray-500 text-base md:text-lg max-w-2xl mx-auto">
-          Drei Stufen &mdash; an internationalen InSAR-Standards orientiert.
+          Drei Stufen &mdash; an internationalen Fachstandards fuer Bodenbewegung orientiert.
         </p>
       </div>
       <div class="max-w-3xl mx-auto bg-cream rounded-2xl p-4 md:p-6 border border-gray-200">
@@ -228,7 +229,7 @@
         Der ausfuehrliche Bericht kommt bald.
       </h2>
       <p class="text-gray-700 text-base md:text-lg max-w-2xl mx-auto mb-10">
-        Schwermetall-Analyse, pH-Wert, Bodenart-Details und vollstaendige InSAR-Zeitreihe. Trag dich in die Warteliste ein &mdash; Early-Bird-Rabatt fuer die ersten 100.
+        Schwermetall-Analyse, Bodenart-Details und vollstaendige Zeitreihe jedes Messpunkts. Trag dich in die Warteliste ein &mdash; Early-Bird-Rabatt fuer die ersten 100.
       </p>
       <form class="max-w-md mx-auto" onsubmit="event.preventDefault()">
         <div class="flex flex-col gap-3">
@@ -243,60 +244,47 @@
   </section>
 
   <!-- ====================================================== -->
-  <!-- D — Dezente Datenquellen-Badge-Zeile (Footer-artig)     -->
+  <!-- D — Dezente Datenquellen-Zeile (OHNE System-Namen)      -->
   <!-- ====================================================== -->
   <section class="bg-navy-800 py-6 px-4">
     <div class="max-w-5xl mx-auto">
-      <p class="text-center text-xs text-gray-400 uppercase tracking-wide mb-3">Datengrundlage</p>
-      <div class="flex flex-wrap justify-center items-center gap-x-5 gap-y-2 text-xs text-gray-300">
-        <span class="flex items-center gap-1.5">
-          <span class="w-1.5 h-1.5 bg-brand-400 rounded-full"></span>
-          Copernicus EGMS
-        </span>
-        <span class="text-gray-600">&middot;</span>
-        <span class="flex items-center gap-1.5">
-          <span class="w-1.5 h-1.5 bg-brand-400 rounded-full"></span>
-          ISRIC SoilGrids
-        </span>
-        <span class="text-gray-600">&middot;</span>
-        <span class="flex items-center gap-1.5">
-          <span class="w-1.5 h-1.5 bg-brand-400 rounded-full"></span>
-          JRC LUCAS
-        </span>
-        <span class="text-gray-600">&middot;</span>
-        <span class="flex items-center gap-1.5">
-          <span class="w-1.5 h-1.5 bg-brand-400 rounded-full"></span>
-          OpenStreetMap
-        </span>
-      </div>
-      <p class="text-center text-[10px] text-gray-500 mt-3 italic">
-        Offene EU-Datenquellen &middot; Attribution im Bericht
+      <p class="text-center text-xs text-gray-400 uppercase tracking-wide mb-2">Datengrundlage</p>
+      <p class="text-center text-sm text-gray-300">
+        EU-Satellitendaten &middot; Bodenproben &middot; historische Nutzungsdaten
+      </p>
+      <p class="text-center text-[10px] text-gray-500 mt-2 italic">
+        Offene oeffentliche Quellen &middot; vollstaendige Attribution im Bericht
       </p>
     </div>
   </section>
 
   <div class="bg-gray-50 border-y border-gray-200 py-3 px-4 text-center text-xs text-gray-500">
-    <strong class="text-gray-700">D &mdash; Datengrundlage-Badges:</strong>
-    ersetzt die fette "Offene Daten"-Sektion durch eine dezente Zeile im Footer-Bereich
+    <strong class="text-gray-700">D &mdash; Datengrundlage (entschaerft):</strong>
+    System-Namen (Copernicus, LUCAS, SoilGrids, OSM) raus. Stattdessen nur noch
+    "Satellitendaten, Bodenproben, historische Nutzungsdaten". Details gehoeren
+    in den Bericht-Footer und auf geoforensic.de (B2B).
   </div>
 
   <!-- summary card -->
   <section class="py-10 bg-white border-t border-gray-200">
     <div class="max-w-3xl mx-auto px-4">
       <div class="bg-cream border border-gray-300 rounded-lg p-5 text-sm text-gray-700">
-        <p class="font-semibold text-gray-900 mb-2">v4-Rework (gegenueber v3)</p>
+        <p class="font-semibold text-gray-900 mb-2">v4.1-Korrektur (ueber v4)</p>
         <ul class="space-y-1.5 list-disc pl-5">
-          <li><strong>A:</strong> Scatter-Chart durch KPI-Story ersetzt (&minus;22 mm als Hauptaussage)</li>
-          <li><strong>B:</strong> Stadtmitte-Karte durch ein einzelnes Haus mit 4 Messpunkten ersetzt</li>
-          <li><strong>C:</strong> Schema-Diagramm durch echte Verkehrsampel ersetzt</li>
-          <li><strong>D:</strong> Grosse Quellen-Sektion raus, stattdessen dezente Badge-Zeile im Footer</li>
+          <li><strong>B:</strong> "Dach Nord / Fassade West"-Labels raus &mdash; wir messen nicht so granular. Neu: Dots auf/um das Haus, nur Ampel-Farbe, keine Part-Attribution.</li>
+          <li><strong>A:</strong> "Sentinel-1 &middot; EGMS"-Chip entfernt.</li>
+          <li><strong>D:</strong> System-Namen (Copernicus, LUCAS, SoilGrids, OSM) raus. Nur noch "Satellitendaten &middot; Bodenproben &middot; historische Nutzungsdaten".</li>
+          <li><strong>Text:</strong> "InSAR-Standards" &rarr; "Fachstandards fuer Bodenbewegung", "InSAR-Zeitreihe" &rarr; "Zeitreihe jedes Messpunkts".</li>
         </ul>
+        <p class="mt-3 text-gray-600 text-xs">
+          Feedback aus dem Team-Chat: Tech-Sprache (Copernicus, LUCAS, Pipeline) war fuer Otto Normalverbraucher zu irritierend. System-Namen gehoeren spaeter auf geoforensic.de (B2B / Gutachter / Versicherungen), nicht auf bodenbericht.de.
+        </p>
       </div>
     </div>
   </section>
 
   <footer class="bg-navy-800 text-gray-400 text-xs text-center py-6 px-4">
-    Preview v4 &middot; Branch <code class="text-brand-400">claude/discuss-before-unavailable-foZZ4</code> &middot; nicht live
+    Preview v4.1 &middot; Branch <code class="text-brand-400">claude/discuss-before-unavailable-foZZ4</code> &middot; nicht live
   </footer>
 </body>
 </html>

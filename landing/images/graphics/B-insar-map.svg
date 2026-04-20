@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" width="560" height="360" role="img" aria-label="Einzelnes Haus mit vier InSAR-Messpunkten auf Dach und Fassade">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" width="560" height="360" role="img" aria-label="Einzelnes Haus im Zoom mit mehreren Messpunkten auf und um das Grundstueck">
   <defs>
     <radialGradient id="bStableGlow" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#166534" stop-opacity="0.55"/>
@@ -15,128 +15,99 @@
 
   <!-- header -->
   <g font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#6B5D3F">
-    <text x="30" y="32" letter-spacing="1">IHR GRUNDSTUECK &#183; NAH GEZOOMT</text>
+    <text x="30" y="32" letter-spacing="1">IHRE ADRESSE &#183; NAH GEZOOMT</text>
   </g>
   <line x1="30" y1="44" x2="530" y2="44" stroke="#E4DCC6" stroke-width="1"/>
 
-  <!-- faint neighbour context: partial footprints in corners, kept very quiet -->
+  <!-- faint neighbour context: partial footprints in corners -->
   <g fill="#EDE4CC" stroke="#D4C7A0" stroke-width="0.8">
-    <rect x="30"  y="210" width="80"  height="60" rx="2"/>
-    <rect x="450" y="210" width="80"  height="60" rx="2"/>
-    <rect x="30"  y="90"  width="60"  height="50" rx="2"/>
-    <rect x="470" y="90"  width="60"  height="50" rx="2"/>
+    <rect x="30"  y="220" width="80"  height="60" rx="2"/>
+    <rect x="450" y="220" width="80"  height="60" rx="2"/>
+    <rect x="30"  y="80"  width="60"  height="50" rx="2"/>
+    <rect x="470" y="80"  width="60"  height="50" rx="2"/>
   </g>
 
   <!-- garden hints -->
   <g fill="#D7E8C8" opacity="0.75" stroke="none">
-    <path d="M 130 260 Q 180 240 230 268 L 230 330 L 130 330 Z"/>
-    <path d="M 430 260 Q 380 240 330 268 L 330 330 L 430 330 Z"/>
+    <path d="M 130 270 Q 180 250 230 278 L 230 325 L 130 325 Z"/>
+    <path d="M 430 270 Q 380 250 330 278 L 330 325 L 430 325 Z"/>
   </g>
 
   <!-- driveway -->
-  <rect x="238" y="268" width="84" height="52" fill="#E7DEC4"/>
-
-  <!-- street edge (faint) -->
-  <g stroke="#E4DCC6" stroke-width="14" stroke-linecap="butt" fill="none">
-    <line x1="0" y1="335" x2="560" y2="335"/>
-  </g>
-  <g stroke="#FFFFFF" stroke-width="11" stroke-linecap="butt" fill="none">
-    <line x1="0" y1="335" x2="560" y2="335"/>
-  </g>
+  <rect x="238" y="278" width="84" height="47" fill="#E7DEC4"/>
 
   <!-- HOUSE: big centered footprint -->
-  <!-- shadow -->
-  <rect x="154" y="108" width="252" height="158" rx="3" fill="#6B5D3F" fill-opacity="0.10"/>
+  <rect x="154" y="114" width="252" height="158" rx="3" fill="#6B5D3F" fill-opacity="0.10"/>
+  <rect x="150" y="110" width="252" height="158" rx="3" fill="#FFFFFF" stroke="#6B5D3F" stroke-width="1.4"/>
 
-  <!-- ground floor footprint -->
-  <rect x="150" y="104" width="252" height="158" rx="3" fill="#FFFFFF" stroke="#6B5D3F" stroke-width="1.4"/>
-
-  <!-- gable roof (two halves top-down) -->
+  <!-- roof -->
   <g fill="#C4A57A" stroke="#8A7A55" stroke-width="0.8">
-    <rect x="150" y="104" width="252" height="79"/>
+    <rect x="150" y="110" width="252" height="79"/>
   </g>
-  <line x1="150" y1="183" x2="402" y2="183" stroke="#6B5D3F" stroke-width="1.2"/>
+  <line x1="150" y1="189" x2="402" y2="189" stroke="#6B5D3F" stroke-width="1.2"/>
   <g fill="#B89566" opacity="0.45">
-    <rect x="150" y="104" width="126" height="79"/>
+    <rect x="150" y="110" width="126" height="79"/>
   </g>
 
   <!-- lower portion -->
-  <rect x="150" y="183" width="252" height="79" rx="2" fill="#F1E8D1" stroke="#6B5D3F" stroke-width="1.2"/>
+  <rect x="150" y="189" width="252" height="79" rx="2" fill="#F1E8D1" stroke="#6B5D3F" stroke-width="1.2"/>
 
   <!-- door + windows -->
-  <rect x="262" y="238" width="28" height="24" fill="#C4A57A" stroke="#8A7A55" stroke-width="0.6"/>
+  <rect x="262" y="244" width="28" height="24" fill="#C4A57A" stroke="#8A7A55" stroke-width="0.6"/>
   <g fill="#FFFFFF" stroke="#C9BC95" stroke-width="0.8">
-    <rect x="174" y="218" width="34" height="16"/>
-    <rect x="344" y="218" width="34" height="16"/>
+    <rect x="174" y="224" width="34" height="16"/>
+    <rect x="344" y="224" width="34" height="16"/>
   </g>
 
-  <!-- focus boundary -->
-  <rect x="130" y="90" width="292" height="190" rx="4" fill="none" stroke="#166534" stroke-width="1.8" stroke-dasharray="5 4" opacity="0.55"/>
+  <!-- property boundary (dashed) -->
+  <rect x="120" y="82" width="312" height="216" rx="4" fill="none" stroke="#166534" stroke-width="1.8" stroke-dasharray="5 4" opacity="0.55"/>
 
-  <!-- ===== Measurement dots ON the house ===== -->
+  <!-- property pin at center of house -->
+  <g transform="translate(276, 100)">
+    <path d="M 0 -10 C -7 -10 -11 -5 -11 0 C -11 8 0 18 0 18 C 0 18 11 8 11 0 C 11 -5 7 -10 0 -10 Z"
+          fill="#166534" stroke="#FFFFFF" stroke-width="1.5"/>
+    <circle cx="0" cy="0" r="3" fill="#FFFFFF"/>
+  </g>
 
-  <!-- Dot 1: Dach Nord (stable) -->
+  <!-- ===== Measurement dots (honest placement, no part-attribution) ===== -->
+  <!-- dots cluster on the building + within the property boundary.
+       Color only (stable/watch) — no velocity labels, no "Dach Nord" nonsense. -->
   <g>
-    <circle cx="200" cy="140" r="14" fill="url(#bStableGlow)"/>
-    <circle cx="200" cy="140" r="4.5" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
-  </g>
-  <g stroke="#6B5D3F" stroke-width="0.8" fill="none">
-    <path d="M 200 140 L 200 72 L 90 72"/>
-  </g>
-  <g font-family="Georgia, serif" font-size="11" fill="#1F2937">
-    <text x="88" y="68" text-anchor="end">Dach Nord</text>
-  </g>
-  <g font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#166534">
-    <text x="88" y="82" text-anchor="end">&#8722;0,4 mm/a &#183; stabil</text>
+    <!-- on roof area -->
+    <circle cx="198" cy="148" r="13" fill="url(#bStableGlow)"/>
+    <circle cx="198" cy="148" r="4.5" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+
+    <circle cx="330" cy="146" r="13" fill="url(#bStableGlow)"/>
+    <circle cx="330" cy="146" r="4.5" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+
+    <circle cx="258" cy="172" r="13" fill="url(#bStableGlow)"/>
+    <circle cx="258" cy="172" r="4.5" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+
+    <!-- on wall / lower floor -->
+    <circle cx="186" cy="232" r="15" fill="url(#bWatchGlow)"/>
+    <circle cx="186" cy="232" r="5"  fill="#B45309" stroke="#F7F3EA" stroke-width="1.2"/>
+
+    <circle cx="370" cy="220" r="13" fill="url(#bStableGlow)"/>
+    <circle cx="370" cy="220" r="4.5" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+
+    <!-- in property boundary (garden / driveway) -->
+    <circle cx="145" cy="290" r="13" fill="url(#bStableGlow)"/>
+    <circle cx="145" cy="290" r="4.5" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
+
+    <circle cx="415" cy="290" r="13" fill="url(#bStableGlow)"/>
+    <circle cx="415" cy="290" r="4.5" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
   </g>
 
-  <!-- Dot 2: Dach Sued (stable) -->
-  <g>
-    <circle cx="350" cy="140" r="14" fill="url(#bStableGlow)"/>
-    <circle cx="350" cy="140" r="4.5" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
-  </g>
-  <g stroke="#6B5D3F" stroke-width="0.8" fill="none">
-    <path d="M 350 140 L 350 72 L 470 72"/>
-  </g>
-  <g font-family="Georgia, serif" font-size="11" fill="#1F2937">
-    <text x="472" y="68">Dach Sued</text>
-  </g>
-  <g font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#166534">
-    <text x="472" y="82">&#8722;0,7 mm/a &#183; stabil</text>
-  </g>
-
-  <!-- Dot 3: Fassade West (watch) -->
-  <g>
-    <circle cx="166" cy="226" r="16" fill="url(#bWatchGlow)"/>
-    <circle cx="166" cy="226" r="5" fill="#B45309" stroke="#F7F3EA" stroke-width="1.2"/>
-  </g>
-  <g stroke="#6B5D3F" stroke-width="0.8" fill="none">
-    <path d="M 166 226 L 60 226"/>
-  </g>
-  <g font-family="Georgia, serif" font-size="11" fill="#1F2937">
-    <text x="58" y="223" text-anchor="end">Fassade West</text>
-  </g>
-  <g font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#B45309">
-    <text x="58" y="237" text-anchor="end">&#8722;3,2 mm/a &#183; auffaellig</text>
-  </g>
-
-  <!-- Dot 4: Terrasse (stable) -->
-  <g>
-    <circle cx="392" cy="252" r="14" fill="url(#bStableGlow)"/>
-    <circle cx="392" cy="252" r="4.5" fill="#166534" stroke="#F7F3EA" stroke-width="1.2"/>
-  </g>
-  <g stroke="#6B5D3F" stroke-width="0.8" fill="none">
-    <path d="M 392 252 L 492 252"/>
-  </g>
-  <g font-family="Georgia, serif" font-size="11" fill="#1F2937">
-    <text x="494" y="249">Terrasse</text>
-  </g>
-  <g font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#166534">
-    <text x="494" y="263">&#8722;0,9 mm/a &#183; stabil</text>
+  <!-- subtle legend, bottom-left -->
+  <g transform="translate(30, 326)" font-family="Georgia, serif" font-size="11" fill="#44433E">
+    <circle cx="6" cy="6" r="4" fill="#166534"/>
+    <text x="16" y="10">stabil</text>
+    <circle cx="76" cy="6" r="4" fill="#B45309"/>
+    <text x="86" y="10">auffaellig</text>
   </g>
 
   <!-- caption -->
   <g font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#1F2937">
-    <text x="280" y="336" text-anchor="middle">Vier Messpunkte auf diesem Haus &#8212; jeder einzeln ausgewertet.</text>
+    <text x="530" y="334" text-anchor="end">Messpunkte auf und um Ihr Grundstueck.</text>
   </g>
 </svg>
