@@ -203,22 +203,25 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
       <div class="mb-6 text-sm text-gray-500">
-        <strong class="text-gray-700">Szenario:</strong> gelbe Ampel (2–5 mm/a),
-        42 Messpunkte, ohne Quiz-Antworten → Einschätzung-Fallback aktiv (Variante 1B).
+        <strong class="text-gray-700">Szenario:</strong> gelbe Ampel, 42 Messpunkte,
+        ohne Quiz-Antworten → Einschätzung-Fallback aktiv (Variante 1B). Paywall-Kacheln
+        entsprechen den Sektionen, die <code>full_report.py</code> heute tatsächlich rendert
+        (Schwermetalle, Bodenqualität, Nährstoffe, InSAR-Details).
       </div>
 
       <!-- ===== REPORT SHELL ===================================== -->
       <div class="report-shell">
 
-        <!-- Report header -->
+        <!-- Report header — Logo + Brand only; Adresse wandert in den Body -->
         <div class="report-header">
-          <img src="/images/logo-horizontal.png" alt="Bodenbericht" class="report-logo mb-4"
-               onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/8endit/geoforensic-app/main/landing/images/logo-horizontal.png'">
-          <div class="flex items-start justify-between gap-6 flex-wrap">
-            <div>
-              <div class="text-xs uppercase tracking-wider font-semibold" style="color:#a7d4b5;">Standort-Screening</div>
-              <div class="text-xl font-bold mt-1">Musterstra&szlig;e 42, 20095 Hamburg</div>
-              <div class="text-xs mt-1" style="color:#cbd5e1;">Koordinaten 53.5511&deg; N, 9.9937&deg; E</div>
+          <div class="flex items-center justify-between gap-6 flex-wrap">
+            <div class="flex items-center gap-4">
+              <img src="/images/logo-horizontal.png" alt="Bodenbericht" class="report-logo"
+                   onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/8endit/geoforensic-app/main/landing/images/logo-horizontal.png'">
+              <div class="h-7 w-px bg-white/20 hidden sm:block"></div>
+              <div class="hidden sm:block text-xs uppercase tracking-wider font-semibold" style="color:#a7d4b5;">
+                Standort-Screening
+              </div>
             </div>
             <div class="text-right text-xs" style="color:#cbd5e1;">
               <div>Bericht-Nr. <span class="font-mono">DEMO-2026-0042</span></div>
@@ -229,12 +232,19 @@
 
         <div class="p-6 md:p-8">
 
+          <!-- Adresse-Zeile (aus dem Header rausgezogen) -->
+          <div class="mb-2">
+            <div class="text-[11px] uppercase tracking-wider font-semibold text-gray-500">Gesamtbewertung f&uuml;r</div>
+            <div class="text-xl md:text-2xl font-bold text-navy-800 leading-tight">Musterstra&szlig;e 42, 20095 Hamburg</div>
+            <div class="text-xs text-gray-500 mt-1">53.5511&deg;&thinsp;N &middot; 9.9937&deg;&thinsp;E</div>
+          </div>
+
           <!-- ============ SICHTBAR ======================================== -->
           <div class="section-label">Sichtbar im kostenlosen Bericht</div>
 
           <!-- Card: Gesamtbewertung (Gauge + Score) -->
           <div class="report-card">
-            <h2>Gesamtbewertung</h2>
+            <h2>Gesamt-Ampel &amp; GeoScore</h2>
             <div class="flex items-center gap-6 flex-wrap">
               <div class="flex-shrink-0">
                 <svg viewBox="0 0 140 90" width="140" height="90">
@@ -247,7 +257,7 @@
               </div>
               <div class="flex-1 min-w-[220px]">
                 <p class="font-semibold text-gray-800 mb-2">Auff&auml;llige Bodenbewegung im Umkreis.</p>
-                <p class="text-sm text-gray-600">42 InSAR-Messpunkte ausgewertet. Mittlere Geschwindigkeit im gelben Bereich (2&ndash;5&nbsp;mm/a) &mdash; beobachtungsw&uuml;rdig, nicht akut.</p>
+                <p class="text-sm text-gray-600">42 InSAR-Messpunkte ausgewertet. Die Ampel steht auf <strong>gelb</strong> &mdash; beobachtungsw&uuml;rdig, nicht akut. Konkrete Geschwindigkeitswerte im Vollbericht.</p>
               </div>
             </div>
           </div>
@@ -266,7 +276,9 @@
               </div>
             </div>
             <p class="text-sm text-gray-600">
-              Die Mehrheit der Messpunkte im 500&thinsp;m-Radius zeigt eine leichte Senkung zwischen 2 und 5&nbsp;mm pro Jahr. Das ist nicht ungew&ouml;hnlich f&uuml;r norddeutsche Marschb&ouml;den, sollte aber beobachtet werden.
+              Die Mehrheit der Messpunkte im 500&thinsp;m-Radius zeigt eine leichte Senkung im
+              gelben Bereich. Das ist nicht ungew&ouml;hnlich f&uuml;r norddeutsche Marschb&ouml;den,
+              sollte aber beobachtet werden.
             </p>
           </div>
 
@@ -354,32 +366,24 @@
             </div>
           </div>
 
-          <!-- Locked: 7-Jahres-Zeitreihe -->
+          <!-- Locked: Naehrstoffe (LUCAS Topsoil: P, N) -->
           <div class="report-card locked-card">
-            <h2>7-Jahres-Zeitreihe der Bodenbewegung</h2>
+            <h2>N&auml;hrstoffe (Phosphor &amp; Stickstoff)</h2>
             <div class="locked-content">
-              <svg viewBox="0 0 420 120" width="100%" height="120" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="tsGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#d97706" stop-opacity="0.35"/>
-                    <stop offset="100%" stop-color="#d97706" stop-opacity="0"/>
-                  </linearGradient>
-                </defs>
-                <line x1="0" y1="60" x2="420" y2="60" stroke="#e2e8f0" stroke-dasharray="3 3"/>
-                <path d="M 0 55 L 60 58 L 120 64 L 180 70 L 240 78 L 300 85 L 360 92 L 420 98 L 420 120 L 0 120 Z" fill="url(#tsGrad)"/>
-                <path d="M 0 55 L 60 58 L 120 64 L 180 70 L 240 78 L 300 85 L 360 92 L 420 98" fill="none" stroke="#d97706" stroke-width="2"/>
-                <g fill="#1E3352" font-size="9">
-                  <text x="0"   y="115">2019</text>
-                  <text x="60"  y="115">2020</text>
-                  <text x="120" y="115">2021</text>
-                  <text x="180" y="115">2022</text>
-                  <text x="240" y="115">2023</text>
-                  <text x="300" y="115">2024</text>
-                  <text x="360" y="115">2025</text>
-                </g>
-              </svg>
-              <p class="text-xs text-gray-500 mt-2">
-                Kumulierte Senkung &uuml;ber 7 Jahre: &minus;28&nbsp;mm. Trend linear, kein Sprungverhalten erkennbar.
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="bg-gray-50 rounded p-3">
+                  <div class="text-gray-500 mb-1">Phosphor (P)</div>
+                  <div class="text-xl font-bold text-navy-800">48&nbsp;mg/kg</div>
+                  <div class="text-gray-500">optimal (30&ndash;80)</div>
+                </div>
+                <div class="bg-gray-50 rounded p-3">
+                  <div class="text-gray-500 mb-1">Gesamt-Stickstoff (N)</div>
+                  <div class="text-xl font-bold text-navy-800">1&thinsp;820&nbsp;mg/kg</div>
+                  <div class="text-gray-500">mittlerer Bereich</div>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 mt-3">
+                Quelle: LUCAS Topsoil Survey, n&auml;chstgelegener Messpunkt 2.3&nbsp;km.
               </p>
             </div>
             <div class="locked-overlay">
@@ -393,39 +397,27 @@
             </div>
           </div>
 
-          <!-- Locked: Nachbarschaftsvergleich -->
+          <!-- Locked: InSAR-Detailwerte (mittl./max. Geschw. + GeoScore) -->
           <div class="report-card locked-card">
-            <h2>Nachbarschaftsvergleich</h2>
+            <h2>InSAR-Detailwerte der Messpunkte</h2>
             <div class="locked-content">
-              <div class="flex items-end gap-2 h-24">
-                <div class="flex-1 flex flex-col items-center">
-                  <div class="w-full bg-emerald-500 rounded-t" style="height: 45%;"></div>
-                  <div class="text-[10px] text-gray-500 mt-1">250&nbsp;m</div>
-                  <div class="text-[10px] font-bold">&minus;1.2</div>
+              <div class="grid grid-cols-3 gap-3 text-xs">
+                <div class="bg-gray-50 rounded p-3 text-center">
+                  <div class="text-gray-500 mb-1">Mittl. Geschw.</div>
+                  <div class="text-xl font-bold text-amber-700">&minus;3.2&nbsp;mm/a</div>
                 </div>
-                <div class="flex-1 flex flex-col items-center">
-                  <div class="w-full bg-amber-500 rounded-t" style="height: 68%;"></div>
-                  <div class="text-[10px] text-gray-500 mt-1">500&nbsp;m</div>
-                  <div class="text-[10px] font-bold">&minus;3.4</div>
+                <div class="bg-gray-50 rounded p-3 text-center">
+                  <div class="text-gray-500 mb-1">Max. Geschw.</div>
+                  <div class="text-xl font-bold text-amber-700">&minus;4.8&nbsp;mm/a</div>
                 </div>
-                <div class="flex-1 flex flex-col items-center">
-                  <div class="w-full bg-amber-500 rounded-t" style="height: 72%;"></div>
-                  <div class="text-[10px] text-gray-500 mt-1">1&nbsp;km</div>
-                  <div class="text-[10px] font-bold">&minus;3.7</div>
-                </div>
-                <div class="flex-1 flex flex-col items-center">
-                  <div class="w-full bg-emerald-500 rounded-t" style="height: 52%;"></div>
-                  <div class="text-[10px] text-gray-500 mt-1">2&nbsp;km</div>
-                  <div class="text-[10px] font-bold">&minus;1.8</div>
-                </div>
-                <div class="flex-1 flex flex-col items-center">
-                  <div class="w-full bg-emerald-500 rounded-t" style="height: 38%;"></div>
-                  <div class="text-[10px] text-gray-500 mt-1">Stadt</div>
-                  <div class="text-[10px] font-bold">&minus;0.9</div>
+                <div class="bg-gray-50 rounded p-3 text-center">
+                  <div class="text-gray-500 mb-1">GeoScore</div>
+                  <div class="text-xl font-bold text-navy-800">61&nbsp;/&nbsp;100</div>
                 </div>
               </div>
               <p class="text-xs text-gray-500 mt-3">
-                Mittlere Geschwindigkeit (mm/a) in konzentrischen Ringen. Ihr Standort liegt 2&ndash;3&nbsp;mm unter dem Stadtmittel.
+                Aggregierte Geschwindigkeitswerte der 42 Messpunkte im 500&thinsp;m-Radius
+                (Copernicus EGMS L3 Ortho, Sentinel-1, 2019&ndash;2022).
               </p>
             </div>
             <div class="locked-overlay">
@@ -461,7 +453,9 @@
             <div class="text-xs uppercase tracking-wider font-semibold" style="color:#a7d4b5;">Vollbericht</div>
             <h3 class="text-lg font-bold mt-1 mb-2">Alles sehen, was hier noch verdeckt ist</h3>
             <p class="text-sm text-gray-200 max-w-lg mx-auto mb-4">
-              Schwermetalle, Bodenqualit&auml;t, 7-Jahres-Zeitreihe und Nachbarschaftsvergleich erscheinen ungeschw&auml;rzt im Vollbericht &mdash; inklusive PDF-Download.
+              Schwermetalle, Bodenqualit&auml;t, N&auml;hrstoffe und die detaillierten
+              InSAR-Geschwindigkeitswerte erscheinen ungeschw&auml;rzt im Vollbericht &mdash;
+              inklusive PDF-Download.
             </p>
             <a href="/#premium" class="btn">
               Auf die Warteliste
