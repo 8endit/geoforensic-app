@@ -17,6 +17,7 @@ from pydantic import BaseModel, EmailStr
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.dependencies import get_db
 from app.email_service import send_report_email
 from app.html_report import generate_html_report
@@ -96,7 +97,10 @@ async def _generate_and_send_lead_report(
         else:
             lat, lon, display_name, country_code = await geocode_address(address)
 
-        # 2. EGMS query
+        # 2. EGMS query — radius comes from settings so copy in the PDF
+        #    and the SQL query can never drift apart.
+        settings = get_settings()
+        radius_m = settings.egms_radius_m
         async with SessionLocal() as db:
             result = await db.execute(
                 text(
@@ -111,12 +115,12 @@ async def _generate_and_send_lead_report(
                     WHERE ST_DWithin(
                         geom::geography,
                         ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
-                        500
+                        :radius_m
                     )
                     ORDER BY distance_m ASC
                     """
                 ),
-                {"lat": lat, "lon": lon},
+                {"lat": lat, "lon": lon, "radius_m": radius_m},
             )
             points = [dict(row._mapping) for row in result]
 
@@ -149,6 +153,7 @@ async def _generate_and_send_lead_report(
             geo_score=geo_score,
             soil_profile=soil_profile,
             answers=answers or {},
+            radius_m=radius_m,
         )
         pdf_bytes = html_to_pdf(html)
         if pdf_bytes is None:

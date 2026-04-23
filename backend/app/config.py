@@ -45,6 +45,16 @@ class Settings(BaseSettings):
     smtp_from_email: str = "bericht@geoforensic.de"
     smtp_from_name: str = "Bodenbericht"
 
+    # EGMS screening — used by the pipeline (SQL radius) and by the report
+    # template so the radius + measurement window is not hardcoded in copy.
+    egms_radius_m: int = 500
+    egms_period_start: int = 2019
+    egms_period_end: int = 2023
+
+    # Operator metadata shown in the PDF footer + legal pages
+    operator_legal_name: str = "Tepnosholding GmbH"
+    operator_imprint_url: str = "https://bodenbericht.de/impressum.html"
+
 
 @lru_cache
 def get_settings() -> Settings:

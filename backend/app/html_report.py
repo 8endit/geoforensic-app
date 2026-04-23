@@ -230,11 +230,33 @@ def generate_html_report(
     geo_score: int | None,
     soil_profile: dict,
     answers: dict | None = None,
+    radius_m: int | None = None,
+    egms_period_start: int | None = None,
+    egms_period_end: int | None = None,
+    operator_legal_name: str | None = None,
+    operator_imprint_url: str | None = None,
 ) -> str:
     """Generate a professional HTML report string."""
     answers = answers or {}
     now = datetime.now(timezone.utc)
     has_egms = point_count > 0
+
+    # Pull defaults from settings so callers that don't pass these still
+    # render a correct report (and we have one source of truth for radius +
+    # measurement window instead of hardcoded copy).
+    from app.config import get_settings
+    _settings = get_settings()
+    if radius_m is None:
+        radius_m = _settings.egms_radius_m
+    if egms_period_start is None:
+        egms_period_start = _settings.egms_period_start
+    if egms_period_end is None:
+        egms_period_end = _settings.egms_period_end
+    if operator_legal_name is None:
+        operator_legal_name = _settings.operator_legal_name
+    if operator_imprint_url is None:
+        operator_imprint_url = _settings.operator_imprint_url
+    egms_period = f"{egms_period_start}&ndash;{egms_period_end}"
     soilgrids = soil_profile.get("soilgrids", {})
     metals = soil_profile.get("metals", {})
     metal_status = soil_profile.get("metal_status", {})
@@ -471,7 +493,7 @@ def generate_html_report(
     </div>
     <div class="ss">
       <p><strong>{'Der Standort zeigt keine kritischen Auffälligkeiten.' if score >= 70 else 'Einzelne Parameter erfordern Aufmerksamkeit.' if score >= 40 else 'Mehrere Parameter zeigen kritische Werte.'}</strong></p>
-      <p>{point_count} InSAR-Messpunkte im Umkreis ausgewertet. Die Ampel basiert auf der mittleren Geschwindigkeit aller Messpunkte; die konkreten mm/a-Werte stehen im Vollbericht.</p>
+      <p>{point_count} InSAR-Messpunkte im Umkreis von {radius_m}&thinsp;m ausgewertet. Die Ampel basiert auf der mittleren Geschwindigkeit aller Messpunkte; die konkreten mm/a-Werte stehen im Vollbericht.</p>
     </div>
   </div>
 </div>
@@ -479,13 +501,14 @@ def generate_html_report(
 <div class="card">
   <h2><span class="dot {bb_dot}"></span> Bodenbewegung (InSAR-Satellitendaten)</h2>
   <div class="kpi-grid">
-    <div class="kpi"><div class="num">{point_count}</div><div class="lbl">Messpunkte im Umkreis</div></div>
+    <div class="kpi"><div class="num">{point_count}</div><div class="lbl">Messpunkte im Umkreis von {radius_m}&thinsp;m</div></div>
     <div class="kpi" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
       <span class="ampel-badge {_ampel_class(ampel)}">{_ampel_label(ampel)}</span>
       <div class="lbl" style="margin-top:6px;">Gesamtbewertung</div>
     </div>
   </div>
   <p class="ss"><span style="color:var(--gray);">{bb_text}</span></p>
+  <p class="ss" style="margin-top:6px;"><span style="color:var(--gray); font-size:10px;">Messzeitraum: {egms_period} (Copernicus EGMS, Sentinel-1).</span></p>
 </div>
 
 <div class="card">
@@ -537,7 +560,7 @@ def generate_html_report(
       <div class="stat-cell warn"><div class="lbl">Max. Geschw.</div><div class="val">{max_v:+.1f} mm/a</div></div>
       <div class="stat-cell"><div class="lbl">GeoScore</div><div class="val">{score} / 100</div></div>
     </div>
-    <p class="ss" style="margin-top:8px;"><span style="color:var(--gray); font-size:10px;">Aggregierte Geschwindigkeitswerte der Messpunkte im 500&thinsp;m-Radius (Copernicus EGMS L3 Ortho, Sentinel-1).</span></p>
+    <p class="ss" style="margin-top:8px;"><span style="color:var(--gray); font-size:10px;">Aggregierte Geschwindigkeitswerte der Messpunkte im {radius_m}&thinsp;m-Radius, Messzeitraum {egms_period} (Copernicus EGMS L3 Ortho, Sentinel-1).</span></p>
   </div>
   {_LOCK_PILL_HTML}
 </div>
@@ -566,7 +589,8 @@ def generate_html_report(
 <div class="footer">
   <div class="brand">Bodenbericht</div>
   <div>Standort-Screening · bodenbericht.de</div>
-  <div style="margin-top:2px; opacity:.6;">© {now.year} Bodenbericht</div>
+  <div style="margin-top:2px; opacity:.6;">© {now.year} Bodenbericht · Ein Service der {escape(operator_legal_name)}</div>
+  <div style="margin-top:2px; opacity:.6;">Impressum: <a href="{escape(operator_imprint_url)}" style="color:inherit;">{escape(operator_imprint_url.replace('https://', '').replace('http://', ''))}</a></div>
 </div>
 
 </div></body></html>"""

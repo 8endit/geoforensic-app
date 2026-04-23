@@ -36,8 +36,60 @@ _nominatim_lock = asyncio.Lock()
 _last_nominatim_call = 0.0
 
 
+def _normalize_nominatim_address(hit: dict) -> str:
+    """Rebuild a short, human-readable address from Nominatim's addressdetails.
+
+    Nominatim's ``display_name`` is a long comma-chain ("2, Schulstraße,
+    Gaggenau, Landkreis Rastatt, Baden-Württemberg, 76571, Deutschland") that
+    is unusable in a PDF header or email subject. We rebuild it in local
+    postal form: ``"Schulstraße 2, 76571 Gaggenau"``. Falls back to
+    ``display_name`` if the components are too sparse to assemble anything
+    useful.
+    """
+    addr = hit.get("address") or {}
+    road = addr.get("road") or addr.get("pedestrian") or addr.get("footway")
+    house_number = addr.get("house_number")
+    postcode = addr.get("postcode")
+    city = (
+        addr.get("city")
+        or addr.get("town")
+        or addr.get("village")
+        or addr.get("municipality")
+        or addr.get("suburb")
+        or addr.get("hamlet")
+    )
+
+    # Street line: "Schulstraße 2" or just "Schulstraße" if no house number
+    street_line = None
+    if road and house_number:
+        street_line = f"{road} {house_number}"
+    elif road:
+        street_line = road
+
+    # Locality line: "76571 Gaggenau", or just postcode / city alone
+    locality_line = None
+    if postcode and city:
+        locality_line = f"{postcode} {city}"
+    elif city:
+        locality_line = city
+    elif postcode:
+        locality_line = postcode
+
+    parts = [p for p in (street_line, locality_line) if p]
+    if not parts:
+        # Too sparse to rebuild — fall back to the raw display_name.
+        return str(hit.get("display_name", "")).strip()
+    return ", ".join(parts)
+
+
 async def geocode_address(address: str) -> tuple[float, float, str, str]:
-    """Resolve address via Nominatim and return (lat, lon, display_name, country_code)."""
+    """Resolve address via Nominatim and return (lat, lon, address_display, country_code).
+
+    ``address_display`` is the normalized postal-form address built from
+    ``address.*`` components (see :func:`_normalize_nominatim_address`) —
+    **not** Nominatim's raw ``display_name``. Existing callers that unpack
+    into ``display_name`` keep working; only the string content changed.
+    """
     global _last_nominatim_call
     query = address.strip()
     if not query:
@@ -91,7 +143,7 @@ async def geocode_address(address: str) -> tuple[float, float, str, str]:
 
     hit = results[0]
     country_code = hit.get("address", {}).get("country_code", "").lower()
-    return float(hit["lat"]), float(hit["lon"]), str(hit["display_name"]), country_code
+    return float(hit["lat"]), float(hit["lon"]), _normalize_nominatim_address(hit), country_code
 
 
 async def query_egms_points(
