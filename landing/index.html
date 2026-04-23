@@ -47,18 +47,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         .trust-gradient {
             background: linear-gradient(90deg, #f0fdf4 0%, #dcfce7 50%, #f0fdf4 100%);
         }
-        .bg-cream { background-color: #F7F3EA; }
-        .photo-tint-hero {
-            background: linear-gradient(180deg, rgba(12,29,58,0.55) 0%, rgba(12,29,58,0.30) 45%, rgba(12,29,58,0.75) 100%);
-        }
-        .photo-tint-waitlist {
-            background: linear-gradient(180deg, rgba(247,243,234,0.70) 0%, rgba(247,243,234,0.95) 100%);
-        }
-        .photo-fallback {
-            background:
-                repeating-linear-gradient(45deg, rgba(107,93,63,0.08) 0 10px, transparent 10px 20px),
-                #F7F3EA;
-        }
         .cta-pulse {
             animation: pulse-ring 2s ease-out infinite;
         }
@@ -103,7 +91,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 <!-- Desktop Nav -->
                 <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
                     <a href="#so-funktionierts" class="hover:text-navy-700 transition">So funktioniert's</a>
-                    <a href="#ampel" class="hover:text-navy-700 transition">Ampel</a>
+                    <a href="#leistungen" class="hover:text-navy-700 transition">Leistungen</a>
                     <a href="#bewertungen" class="hover:text-navy-700 transition">Bewertungen</a>
                     <a href="#premium" class="hover:text-navy-700 transition">Premium</a>
                     <a href="#faq" class="hover:text-navy-700 transition">FAQ</a>
@@ -125,7 +113,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             <div id="mobile-menu" class="hidden sm:hidden pb-4">
                 <nav class="flex flex-col gap-3 text-sm font-medium text-gray-600">
                     <a href="#so-funktionierts" class="hover:text-navy-700 transition py-1">So funktioniert's</a>
-                    <a href="#ampel" class="hover:text-navy-700 transition py-1">Ampel</a>
+                    <a href="#leistungen" class="hover:text-navy-700 transition py-1">Leistungen</a>
                     <a href="#bewertungen" class="hover:text-navy-700 transition py-1">Bewertungen</a>
                     <a href="#premium" class="hover:text-navy-700 transition py-1">Premium</a>
                     <a href="#faq" class="hover:text-navy-700 transition py-1">FAQ</a>
@@ -136,50 +124,50 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </header>
 
     <!-- ============================================ -->
-    <!-- HERO SECTION (Foto + Inline-Leadform)        -->
+    <!-- HERO SECTION                                 -->
     <!-- ============================================ -->
-    <section id="hero" class="relative overflow-hidden pt-16 md:pt-18">
-        <!-- Foto-Hintergrund (Bamberg, Markus Spiske / Pexels) -->
-        <div class="absolute inset-0">
-            <img
-                src="/images/photos/hero-german-town.jpg"
-                alt="Luftaufnahme deutsche Altstadt mit roten Dachziegeln"
-                class="w-full h-full object-cover"
-                loading="eager"
-                onerror="this.onerror=null; this.style.display='none'; this.parentElement.classList.add('photo-fallback');"
-            >
+    <section class="hero-gradient pt-28 pb-16 md:pt-36 md:pb-24 relative overflow-hidden">
+        <!-- Background pattern -->
+        <div class="absolute inset-0 opacity-5">
+            <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)"/></svg>
         </div>
-        <div class="photo-tint-hero absolute inset-0"></div>
 
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-20 md:pt-20 md:pb-28">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-3xl mx-auto text-center">
                 <!-- Badge -->
-                <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-brand-300 text-xs font-semibold tracking-wide uppercase px-4 py-1.5 rounded-full mb-6 border border-white/15">
+                <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-brand-300 text-xs font-semibold tracking-wide uppercase px-4 py-1.5 rounded-full mb-6 border border-white/10">
                     <span class="w-2 h-2 bg-brand-400 rounded-full animate-pulse"></span>
-                    Bodenrisiko-Check für Immobilienkäufer
+                    Bodenrisiko-Screening für Immobilienkäufer
                 </div>
 
                 <!-- Headline -->
-                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight drop-shadow">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
                     Bodenrisiken prüfen, bevor Sie unterschreiben.
                     <span class="block mt-2 bg-gradient-to-r from-brand-300 to-brand-400 bg-clip-text text-transparent">
                         Klarheit für Ihre Kaufentscheidung.
                     </span>
                 </h1>
 
-                <!-- Sub-headline (laienfreundlich, keine Tech-Begriffe) -->
-                <p class="mt-6 text-base md:text-lg text-gray-100/90 leading-relaxed max-w-2xl mx-auto">
-                    Bevor Sie unterschreiben, sehen Sie: Bewegt sich der Boden an dieser Adresse? Und wie sieht es in den Vorsorge-Grenzwerten aus? Sieben Jahre Satellitendaten, ausgewertet auf offiziellen öffentlichen Quellen.
+                <h2 class="mt-4 text-lg md:text-xl text-gray-300 font-medium max-w-3xl mx-auto">
+                    Altlasten-, Setzungs- und Schwermetall-Screening für Ihr Grundstück —
+                    in wenigen Minuten, auf Basis offizieller EU-Daten.
+                </h2>
+
+                <!-- Sub-headline -->
+                <p class="mt-6 text-base sm:text-lg md:text-xl text-gray-300 leading-relaxed max-w-2xl mx-auto">
+                    Automatisiertes Screening für Ihre Wunsch-Immobilie — <strong class="text-white font-medium">Setzungen</strong>,
+                    <strong class="text-white font-medium">Altlasten-Hinweise</strong> und <strong class="text-white font-medium">Bodenqualität</strong> auf Basis offizieller EU-Daten.
+                    Ergebnisse in wenigen Minuten, rechtzeitig vor dem Notartermin.
                 </p>
 
                 <!-- Hero Inline Lead Form -->
                 <form id="hero-lead-form" class="mt-10 max-w-md mx-auto space-y-3" onsubmit="handleHeroLead(event)">
                     <input type="text" id="hero-street" required placeholder="Straße + Hausnummer"
-                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/25 bg-white/15 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:border-brand-400 focus:bg-white/20 transition-all text-base">
+                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
                     <input type="text" id="hero-city" required placeholder="PLZ + Ort"
-                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/25 bg-white/15 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:border-brand-400 focus:bg-white/20 transition-all text-base">
+                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
                     <input type="email" id="hero-email" required placeholder="Ihre E-Mail-Adresse"
-                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/25 bg-white/15 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:border-brand-400 focus:bg-white/20 transition-all text-base">
+                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
                     <button type="submit" id="hero-submit-btn"
                             onclick="(window.dataLayer||[]).push({event:'cta_main'})"
                             class="cta-pulse w-full inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold text-lg px-10 py-4 rounded-xl transition-all shadow-lg shadow-brand-500/30 hover:shadow-brand-400/40 active:scale-[0.98]">
@@ -187,7 +175,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
                     </button>
                 </form>
-                <p class="text-xs text-white/70 text-center mt-3 leading-relaxed max-w-md mx-auto">
+                <p class="text-xs text-white/60 text-center mt-3 leading-relaxed max-w-md mx-auto">
                     Mit Klick auf „Kostenlosen Bericht anfordern" stimmen Sie der Verarbeitung Ihrer Daten gemäß
                     <a href="/datenschutz.html" class="underline hover:text-white">Datenschutzerklärung</a> zu.
                     Ihre E-Mail kann auch für Updates zu verwandten Angeboten genutzt werden (§ 7 Abs. 3 UWG),
@@ -198,115 +186,138 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         <svg class="w-7 h-7 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                     </div>
                     <p class="text-white font-semibold">Bericht wird erstellt!</p>
-                    <p class="text-gray-200 text-sm mt-1">Prüfen Sie Ihre E-Mail in wenigen Minuten.</p>
+                    <p class="text-gray-300 text-sm mt-1">Prüfen Sie Ihre E-Mail in wenigen Minuten.</p>
                 </div>
 
                 <!-- Secondary CTA: Quiz -->
                 <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
                     <a href="/quiz.html"
                        onclick="(window.dataLayer||[]).push({event:'cta_quiz'})"
-                       class="inline-flex items-center justify-center gap-2 text-gray-200 hover:text-white text-sm font-medium transition underline-offset-4 hover:underline">
+                       class="inline-flex items-center justify-center gap-2 text-gray-300 hover:text-white text-sm font-medium transition underline-offset-4 hover:underline">
                         <svg class="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         Oder: 60-Sekunden-Risikocheck
                     </a>
+                    <span class="hidden sm:inline text-gray-600">·</span>
+                    <a href="#so-funktionierts" class="inline-flex items-center gap-1.5 text-gray-400 hover:text-white text-sm font-medium transition">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" /></svg>
+                        So funktioniert's
+                    </a>
+                </div>
+
+                <!-- Trust Indicators -->
+                <div class="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-gray-400">
+                    <span class="flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-brand-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                        Offizielle EU-Satellitendaten
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-brand-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                        Ergebnis in wenigen Minuten
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-brand-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                        100% DSGVO-konform
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-brand-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                        Vor dem Notartermin einsetzbar
+                    </span>
                 </div>
 
                 <!-- Scope Disclaimer -->
-                <p class="mt-8 text-xs text-white/60 max-w-xl mx-auto leading-relaxed">
+                <p class="mt-6 text-xs text-gray-400/80 max-w-xl mx-auto leading-relaxed">
                     Automatisiertes Datenscreening aus &ouml;ffentlichen EU-Quellen. Keine Laboranalyse, kein Sachverst&auml;ndigengutachten.
                 </p>
-
-                <p class="mt-4 text-[11px] text-white/50">Foto: Markus Spiske / Pexels &middot; Bamberg</p>
             </div>
+        </div>
+
+        <!-- Curved bottom -->
+        <div class="absolute bottom-0 left-0 right-0">
+            <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+                <path d="M0 80V30C240 60 480 75 720 60C960 45 1200 15 1440 30V80H0Z" fill="white"/>
+            </svg>
         </div>
     </section>
 
     <!-- ============================================ -->
-    <!-- SECTION B — Messpunkte auf/um das Grundstück -->
+    <!-- TRUST BAR                                    -->
     <!-- ============================================ -->
-    <section id="so-sieht-ihre-adresse-aus" class="py-16 md:py-24 bg-white">
+    <section class="py-10 md:py-12 bg-white border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-                <div>
-                    <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">So sieht Ihre Adresse bei uns aus</p>
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 leading-tight">
-                        Messpunkte in Ihrer unmittelbaren Umgebung.
-                    </h2>
-                    <p class="mt-4 text-gray-500 text-base md:text-lg leading-relaxed">
-                        Satelliten sehen Fixpunkte am Boden &mdash; Dächer, Fassaden, Straßen. In der Stadt liegen oft mehrere davon direkt auf Ihrem Haus. In Vorort-Siedlungen auch auf Nachbardach, Gehweg oder Carport. Wichtig ist nicht der einzelne Punkt, sondern das Gesamtbild.
-                    </p>
-                    <ul class="mt-8 space-y-3 text-sm">
-                        <li class="flex items-start gap-3">
-                            <span class="mt-1 w-2 h-2 bg-brand-600 rounded-full flex-shrink-0"></span>
-                            <span class="text-gray-600">Mehrere Messpunkte in Ihrer unmittelbaren Nähe &mdash; je nach Lage auf und um das Haus</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="mt-1 w-2 h-2 bg-brand-600 rounded-full flex-shrink-0"></span>
-                            <span class="text-gray-600">Jeder Punkt mit eigener Bewegungsrate und Ampel-Einstufung</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="mt-1 w-2 h-2 bg-brand-600 rounded-full flex-shrink-0"></span>
-                            <span class="text-gray-600">Boden bewegt sich selten punktgenau &mdash; das Muster in der Umgebung ist die Aussage</span>
-                        </li>
-                    </ul>
+            <p class="text-center text-xs font-semibold tracking-widest text-gray-400 uppercase mb-8">Basierend auf offiziellen EU-Datenquellen</p>
+            <div class="flex flex-wrap items-center justify-center gap-8 md:gap-14 opacity-60">
+                <div class="flex items-center gap-2 text-gray-500 font-bold text-sm">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" /></svg>
+                    EU Copernicus Programm
                 </div>
-
-                <div class="bg-cream rounded-3xl p-4 md:p-6 border border-gray-200">
-                    <img src="/images/graphics/B-insar-map.svg"
-                         alt="Einzelnes Haus im Zoom mit Messpunkten auf und um das Grundstück"
-                         class="w-full h-auto" loading="lazy">
+                <div class="flex items-center gap-2 text-gray-500 font-bold text-sm">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                    Sentinel-1 Satellitendaten
+                </div>
+                <div class="flex items-center gap-2 text-gray-500 font-bold text-sm">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+                    100% DSGVO-konform
+                </div>
+                <div class="flex items-center gap-2 text-gray-500 font-bold text-sm">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+                    Bericht in Minuten
+                </div>
+                <div class="flex items-center gap-2 text-gray-500 font-bold text-sm">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" /></svg>
+                    Kostenlos in der Pilotphase
                 </div>
             </div>
         </div>
     </section>
 
     <!-- ============================================ -->
-    <!-- SECTION A — Zeitreihe pro Punkt              -->
+    <!-- PROBLEM / PAIN SECTION                       -->
     <!-- ============================================ -->
-    <section class="py-16 md:py-24 bg-cream">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid lg:grid-cols-5 gap-10 lg:gap-14 items-center">
-                <div class="lg:col-span-2">
-                    <p class="text-brand-800 font-semibold text-sm tracking-wide uppercase mb-3">Tiefe pro Punkt</p>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-800 leading-tight">
-                        Nicht ein Wert. Sieben Jahre Verlauf.
-                    </h2>
-                    <p class="mt-4 text-gray-600 text-base leading-relaxed">
-                        Jeder Messpunkt bringt seinen kompletten Verlauf seit 2017 mit. Sie sehen nicht nur, wo es heute steht &mdash; Sie sehen, ob es in den letzten Jahren schneller oder langsamer wurde.
-                    </p>
-                    <p class="mt-4 text-gray-500 text-sm italic">
-                        Ein einzelner Wert ist ein Foto. Sieben Jahre Verlauf sind ein Film.
-                    </p>
-                </div>
-                <div class="lg:col-span-3">
-                    <div class="bg-white rounded-2xl shadow-md p-4 md:p-6 border border-gray-200">
-                        <img src="/images/graphics/A-timeseries.svg"
-                             alt="Kumulierte Absenkung minus 22 mm zwischen 2017 und 2023"
-                             class="w-full h-auto" loading="lazy">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================ -->
-    <!-- SECTION C — Ampel                            -->
-    <!-- ============================================ -->
-    <section id="ampel" class="py-16 md:py-24 bg-white">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-10">
-                <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Einstufung pro Punkt</p>
+    <section class="py-16 md:py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-12 md:mb-16">
+                <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Warum ein Bodenbericht?</p>
                 <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 leading-tight">
-                    Ab wann wird&rsquo;s kritisch?
+                    Drei Themen, die beim Boden oft <span class="text-brand-600">übersehen</span> werden
                 </h2>
-                <p class="mt-3 text-gray-500 text-base md:text-lg max-w-2xl mx-auto">
-                    Drei Stufen. Orientiert an gängigen Fachstandards für Bodenbewegung.
+                <p class="mt-4 text-gray-500 text-base md:text-lg leading-relaxed">
+                    Öffentliche EU-Daten verraten mehr über Ihren Standort, als viele denken. Wir bündeln sie zu einer verständlichen Erst-Einschätzung.
                 </p>
             </div>
-            <div class="max-w-3xl mx-auto bg-cream rounded-2xl p-4 md:p-6 border border-gray-200">
-                <img src="/images/graphics/C-ampel.svg"
-                     alt="Verkehrsampel-Metapher: grün stabil, gelb auffällig, rot signifikant"
-                     class="w-full h-auto" loading="lazy">
+
+            <div class="grid md:grid-cols-3 gap-6 lg:gap-8">
+                <!-- Pain 1: Altlasten (Hauskauf-Priorität) -->
+                <div class="bg-brand-50/40 border border-brand-100 rounded-2xl p-6 md:p-8 hover:shadow-lg transition-shadow">
+                    <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center mb-5">
+                        <svg class="w-6 h-6 text-brand-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" /></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-navy-800 mb-2">Altlasten-Verdacht pr&uuml;fen vor dem Kauf</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Vor dem Notartermin sichere Antwort, ob das Grundst&uuml;ck historisch als Gewerbe/Industrie genutzt wurde &mdash; auf Basis &ouml;ffentlicher Daten. Ein <strong>Ausgangspunkt f&uuml;r weitere Pr&uuml;fung</strong>, kein offizielles Altlasten-Kataster.
+                    </p>
+                </div>
+
+                <!-- Pain 2: Setzungen / InSAR -->
+                <div class="bg-brand-50/40 border border-brand-100 rounded-2xl p-6 md:p-8 hover:shadow-lg transition-shadow">
+                    <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center mb-5">
+                        <svg class="w-6 h-6 text-brand-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" /></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-navy-800 mb-2">Setzungen &amp; Bodenbewegung</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Risse im Bestandsgeb&auml;ude, statische Reserven beim Umbau &mdash; <strong>Copernicus EGMS-Satellitendaten</strong> (Sentinel-1, 2019 bis 2023) zeigen, ob Ihr Zielobjekt stabil ist oder sich Hinweise auf Setzung und Hebung zeigen.
+                    </p>
+                </div>
+
+                <!-- Pain 3: Bodenqualität regional -->
+                <div class="bg-brand-50/40 border border-brand-100 rounded-2xl p-6 md:p-8 hover:shadow-lg transition-shadow">
+                    <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center mb-5">
+                        <svg class="w-6 h-6 text-brand-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z" /></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-navy-800 mb-2">Bodenqualit&auml;t regional einordnen</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Datengrundlage: <strong>LUCAS-Bodenprobendatenbank (EU)</strong> und <strong>SoilGrids</strong> (ISRIC). Detailwerte zu <strong>Schwermetallen</strong>, pH und Bodenart folgen in der Premium-Fassung.
+                    </p>
+                </div>
             </div>
         </div>
     </section>
@@ -347,9 +358,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         <span class="absolute -top-2 -right-2 w-7 h-7 bg-brand-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow">1</span>
                         <svg class="w-8 h-8 text-brand-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
                     </div>
-                    <h3 class="text-lg font-bold text-navy-800 mb-2">Adresse eingeben</h3>
+                    <h3 class="text-lg font-bold text-navy-800 mb-2">Standortdaten eingeben</h3>
                     <p class="text-gray-500 text-sm leading-relaxed">
-                        Straße, Hausnummer, Ort. Mehr braucht es nicht. Wir ordnen den Standort automatisch in den verfügbaren Datenquellen ein.
+                        Geben Sie Ihre Adresse online ein. Unser System ordnet den Standort automatisch in Satelliten- und Bodendatenbanken ein.
                     </p>
                     <!-- Connector (hidden on mobile) -->
                     <div class="hidden md:block absolute top-8 left-[calc(50%+48px)] w-[calc(100%-96px)] border-t-2 border-dashed border-brand-200"></div>
@@ -363,7 +374,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     </div>
                     <h3 class="text-lg font-bold text-navy-800 mb-2">Automatische Datenanalyse</h3>
                     <p class="text-gray-500 text-sm leading-relaxed">
-                        Sieben Jahre Satellitendaten und öffentliche Bodenproben werden in Sekunden auf Ihre Adresse verknüpft. Alle Quellen sind transparent und nachvollziehbar.
+                        Unsere Pipeline verknüpft Copernicus-Satellitendaten und LUCAS/SoilGrids-Bodendaten in Sekunden. Wissenschaftlich nachvollziehbar, keine Black Box.
                     </p>
                     <div class="hidden md:block absolute top-8 left-[calc(50%+48px)] w-[calc(100%-96px)] border-t-2 border-dashed border-brand-200"></div>
                 </div>
@@ -378,6 +389,134 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     <p class="text-gray-500 text-sm leading-relaxed">
                         Laden Sie Ihren persönlichen Bodenbericht als PDF herunter. Mit klarer Ampel-Einschätzung und konkreten nächsten Schritten.
                     </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- BENEFITS / FEATURES                          -->
+    <!-- ============================================ -->
+    <section id="leistungen" class="py-16 md:py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                <!-- Left: Text -->
+                <div>
+                    <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Datengrundlage</p>
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 leading-tight">
+                        Welche Daten der Bodenbericht nutzt
+                    </h2>
+                    <p class="mt-4 text-gray-500 text-base md:text-lg leading-relaxed">
+                        Offizielle EU-Quellen, wissenschaftlich nachvollziehbar. Die kostenlose Kurzfassung zeigt die Ampel-Einstufung, die Premium-Fassung (in Entwicklung) die vollständigen Detailwerte.
+                    </p>
+
+                    <ul class="mt-8 space-y-4">
+                        <li class="flex items-start gap-3">
+                            <div class="mt-0.5 w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-brand-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-navy-800">Bodenbewegungs-Screening</h4>
+                                <p class="text-gray-500 text-sm">Copernicus EGMS-Satellitendaten (Sentinel-1 InSAR, 2019 bis 2023). Kurzfassung: Ampel-Einstufung und Anzahl der Messpunkte im Umkreis. Geschwindigkeitswerte und Zeitreihe folgen in der Premium-Fassung.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="mt-0.5 w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-brand-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-navy-800">Regionale Schwermetall-Hintergrundwerte</h4>
+                                <p class="text-gray-500 text-sm">Datengrundlage: LUCAS EU-Bodenprobendatenbank. Konkrete Messwerte (Cd, Pb, Hg, As, Cr, Cu, Ni, Zn) und Vergleich zu BBodSchV-Vorsorgewerten folgen in der Premium-Fassung.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="mt-0.5 w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-brand-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-navy-800">pH, org. Substanz, Bodenart</h4>
+                                <p class="text-gray-500 text-sm">Datengrundlage: SoilGrids 250&thinsp;m-Raster (ISRIC). Detailwerte zu pH, organischem Kohlenstoff und Bodenart (Ton/Sand/Schluff) folgen in der Premium-Fassung.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="mt-0.5 w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-brand-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-navy-800">Orientierungshinweise zur Nutzung</h4>
+                                <p class="text-gray-500 text-sm">Hinweise zu regionaler Belastung und fr&uuml;herer Nutzung im Umkreis. Kein offizielles Altlasten-Kataster, sondern Datenbasis f&uuml;r weitere Pr&uuml;fung.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="mt-0.5 w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-brand-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-navy-800">Ampel-Einsch&auml;tzung mit Handlungsempfehlung</h4>
+                                <p class="text-gray-500 text-sm">Verst&auml;ndliche Bewertung (gr&uuml;n/gelb/rot) mit n&auml;chsten Schritten. Zum Beispiel eine Empfehlung zur Vor-Ort-Probenahme oder ein Hinweis auf zust&auml;ndige Beh&ouml;rden.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Right: Visual Card -->
+                <div class="bg-gradient-to-br from-gray-50 to-brand-50 rounded-3xl p-8 md:p-10 border border-gray-200/80">
+                    <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-navy-800">Beispiel: Premium-Fassung <span class="text-[10px] uppercase tracking-wide text-brand-600 font-semibold ml-1">(in Entwicklung)</span></p>
+                                <p class="text-xs text-gray-400">Musterbericht &mdash; kostenlose Kurzfassung zeigt Ampel + Bodenbewegung</p>
+                            </div>
+                        </div>
+
+                        <!-- Mock results -->
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Bodenbewegung</span>
+                                    <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">Stabil</span>
+                                </div>
+                                <div class="w-full bg-gray-100 rounded-full h-2"><div class="bg-green-500 h-2 rounded-full" style="width: 15%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Schwermetalle (regional)</span>
+                                    <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">Unter Vorsorgewert</span>
+                                </div>
+                                <div class="w-full bg-gray-100 rounded-full h-2"><div class="bg-green-500 h-2 rounded-full" style="width: 18%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-sm font-medium text-gray-700">pH-Wert (6.8)</span>
+                                    <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">Optimal</span>
+                                </div>
+                                <div class="w-full bg-gray-100 rounded-full h-2"><div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Historische Nutzung (Umkreis)</span>
+                                    <span class="text-xs font-bold text-yellow-600 bg-yellow-100 px-2 py-0.5 rounded-full">Hinweis</span>
+                                </div>
+                                <div class="w-full bg-gray-100 rounded-full h-2"><div class="bg-yellow-400 h-2 rounded-full" style="width: 42%"></div></div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-5 border-t border-gray-100">
+                            <p class="text-xs text-gray-400 mb-2">Gesamtbewertung</p>
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                    <svg class="w-7 h-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-green-700 text-lg">Weitgehend sicher</p>
+                                    <p class="text-xs text-gray-500">1 Hinweis zur weiteren Prüfung</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -670,33 +809,57 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </section>
 
     <!-- ============================================ -->
-    <!-- PREMIUM WAITLIST (Foto: Deva Darshan)        -->
+    <!-- PREMIUM TEASER                               -->
     <!-- ============================================ -->
-    <section id="premium" class="relative overflow-hidden">
-      <!-- Foto-Hintergrund -->
-      <div class="absolute inset-0">
-        <img
-          src="/images/photos/waitlist-aerial-sunset.jpg"
-          alt="Luftaufnahme Wohngebiet im Sonnenuntergang"
-          class="w-full h-full object-cover"
-          loading="lazy"
-          onerror="this.onerror=null; this.style.display='none'; this.parentElement.classList.add('photo-fallback');"
-        >
+    <section id="premium" class="py-16 md:py-24 bg-navy-900 text-white relative overflow-hidden">
+      <div class="absolute inset-0 opacity-5">
+        <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="premium-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#premium-grid)"/></svg>
       </div>
-      <div class="photo-tint-waitlist absolute inset-0"></div>
 
-      <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 text-center">
-        <p class="text-brand-700 font-semibold text-sm tracking-wide uppercase mb-3">Premium in Entwicklung</p>
-        <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 leading-tight mb-4">
-          Der ausführliche Bericht kommt bald.
-        </h2>
-        <p class="text-gray-700 text-base md:text-lg max-w-2xl mx-auto mb-6">
-          Schwermetall-Analyse, Bodenart-Details und vollständige Zeitreihe jedes Messpunkts. Trag dich in die Warteliste ein &mdash; Early-Bird-Rabatt für die ersten 100.
-        </p>
+      <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10">
+          <div class="inline-flex items-center gap-2 bg-brand-500/15 backdrop-blur-sm text-brand-300 text-xs font-semibold tracking-wide uppercase px-4 py-1.5 rounded-full mb-6 border border-brand-500/20">
+            <span class="w-2 h-2 bg-brand-400 rounded-full animate-pulse"></span>
+            Launch Q3/2026
+          </div>
+          <h2 class="text-3xl md:text-4xl font-extrabold leading-tight tracking-tight mb-4">
+            Der Premium-Bericht kommt.
+          </h2>
+          <p class="text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            Der kostenlose Bodenbericht ist der Anfang. Am umfassenden Premium-Bericht arbeiten wir gerade &mdash; mit allen Datenschichten, die ein Hauskauf wirklich verlangt.
+          </p>
+          <div class="mt-6 inline-flex items-center gap-2 bg-brand-500/10 border border-brand-400/30 rounded-full px-5 py-2">
+            <svg class="w-4 h-4 text-brand-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" /></svg>
+            <span class="text-sm text-brand-200 font-medium">Pilot-Anmelder erhalten dauerhaft <strong class="text-white">30&nbsp;% Rabatt</strong> auf die erste Premium-Version</span>
+          </div>
+        </div>
 
-        <div class="inline-flex items-center gap-2 bg-white/70 border border-brand-400/40 rounded-full px-5 py-2 mb-10">
-          <svg class="w-4 h-4 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" /></svg>
-          <span class="text-sm text-brand-900 font-medium">Pilot-Anmelder erhalten dauerhaft <strong>30&nbsp;% Rabatt</strong> auf die erste Premium-Version</span>
+        <div class="grid md:grid-cols-2 gap-3 mb-10">
+          <!-- Diese Liste darf auf eine finale Auswahl gekürzt werden, siehe Hinweis unten. -->
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
+            <svg class="w-5 h-5 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75"/></svg>
+            <span class="text-sm text-gray-200">Altlasten-Verdachtsflächen (BBodSchG)</span>
+          </div>
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
+            <svg class="w-5 h-5 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75"/></svg>
+            <span class="text-sm text-gray-200">Hochwasser-Gefahrenzonen (EU-HWRM)</span>
+          </div>
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
+            <svg class="w-5 h-5 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75"/></svg>
+            <span class="text-sm text-gray-200">Radon-Vorsorgegebiete (BfS)</span>
+          </div>
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
+            <svg class="w-5 h-5 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75"/></svg>
+            <span class="text-sm text-gray-200">Bergbau-Risiko &amp; Altbergbau</span>
+          </div>
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
+            <svg class="w-5 h-5 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75"/></svg>
+            <span class="text-sm text-gray-200">Pestizid-Indikatoren (ESDAC)</span>
+          </div>
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
+            <svg class="w-5 h-5 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75"/></svg>
+            <span class="text-sm text-gray-200">Bodenrichtwerte &amp; Markt-Kontext</span>
+          </div>
         </div>
 
         <!-- Waitlist form -->
@@ -709,29 +872,28 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               type="email"
               required
               placeholder="Ihre E-Mail-Adresse"
-              class="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/90 focus:outline-none focus:border-brand-400 text-gray-800"
+              class="flex-1 px-4 py-3 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
             />
             <button
               type="submit"
-              class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-3 rounded-xl transition shadow-lg shadow-brand-600/20"
+              class="bg-brand-500 hover:bg-brand-400 text-white font-semibold px-6 py-3 rounded-lg transition shadow-lg shadow-brand-500/20"
             >
               Benachrichtigen
             </button>
           </div>
-          <p class="text-xs text-gray-600 mt-3 text-center">
+          <p class="text-xs text-gray-400 mt-3 text-center">
             Wir melden uns, sobald der Premium-Bericht verfügbar ist. Kein Newsletter, keine Werbung. Jederzeit kündbar.
           </p>
           <div id="premium-waitlist-success" class="hidden mt-4 text-center">
-            <div class="inline-flex items-center gap-2 bg-brand-500/20 text-brand-800 px-4 py-2 rounded-lg text-sm font-medium">
+            <div class="inline-flex items-center gap-2 bg-brand-500/20 text-brand-300 px-4 py-2 rounded-lg text-sm font-medium">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
               Eingetragen. Wir melden uns.
             </div>
           </div>
           <div id="premium-waitlist-error" class="hidden mt-4 text-center">
-            <p class="text-sm text-red-700">Fehler beim Eintragen. Bitte später erneut versuchen oder an team@geoforensic.de schreiben.</p>
+            <p class="text-sm text-red-300">Fehler beim Eintragen. Bitte später erneut versuchen oder an team@geoforensic.de schreiben.</p>
           </div>
         </form>
-        <p class="mt-6 text-[11px] text-gray-600/80">Foto: Deva Darshan / Pexels</p>
       </div>
     </section>
 
@@ -758,10 +920,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 <div>
                     <h4 class="font-semibold text-white text-sm mb-4">Service</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="#so-funktionierts" class="hover:text-white transition">So funktioniert's</a></li>
-                        <li><a href="/datenquellen.html" class="hover:text-white transition">Datenquellen &amp; Methodik</a></li>
+                        <li><a href="#leistungen" class="hover:text-white transition">Digitaler Bericht</a></li>
+                        <li><a href="/datenquellen.html" class="hover:text-white transition">Datenquellen</a></li>
                         <li><a href="/muster-bericht.html" class="hover:text-white transition">Muster-Bericht</a></li>
-                        <li><a href="#premium" class="hover:text-white transition">Premium-Warteliste</a></li>
                     </ul>
                 </div>
 
@@ -848,7 +1009,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             },
             { threshold: 0 }
         );
-        observer.observe(document.querySelector('#hero'));
+        observer.observe(document.querySelector('.hero-gradient'));
 
         // Hero inline lead capture form
         async function handleHeroLead(e) {
