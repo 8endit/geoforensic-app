@@ -59,6 +59,34 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 repeating-linear-gradient(45deg, rgba(107,93,63,0.08) 0 10px, transparent 10px 20px),
                 #F7F3EA;
         }
+        /* Hero tool-mockup look (replaces stock photo hero) */
+        .hero-surface {
+            background:
+              radial-gradient(ellipse at 75% 40%, rgba(34,197,94,0.08) 0%, transparent 55%),
+              linear-gradient(135deg, #0c1d3a 0%, #122b52 45%, #1a3a6b 100%);
+        }
+        .hero-grid {
+            background-image:
+              linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+            background-size: 44px 44px;
+        }
+        .tool-frame {
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow:
+              0 30px 60px -20px rgba(0,0,0,0.45),
+              0 10px 25px -10px rgba(0,0,0,0.35),
+              0 0 0 1px rgba(255,255,255,0.06);
+            overflow: hidden;
+        }
+        .tool-pulse {
+            animation: tool-pulse 2.4s ease-in-out infinite;
+        }
+        @keyframes tool-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50%      { transform: scale(1.6); opacity: 0; }
+        }
         .cta-pulse {
             animation: pulse-ring 2s ease-out infinite;
         }
@@ -136,87 +164,187 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </header>
 
     <!-- ============================================ -->
-    <!-- HERO SECTION (Foto + Inline-Leadform)        -->
+    <!-- HERO (Tool-Mockup, no photo)                  -->
     <!-- ============================================ -->
-    <section id="hero" class="relative overflow-hidden pt-16 md:pt-18">
-        <!-- Foto-Hintergrund (Bamberg, Markus Spiske / Pexels) -->
-        <div class="absolute inset-0">
-            <img
-                src="/images/photos/hero-german-town.jpg"
-                alt="Luftaufnahme deutsche Altstadt mit roten Dachziegeln"
-                class="w-full h-full object-cover"
-                loading="eager"
-                onerror="this.onerror=null; this.style.display='none'; this.parentElement.classList.add('photo-fallback');"
-            >
-        </div>
-        <div class="photo-tint-hero absolute inset-0"></div>
+    <section id="hero" class="relative overflow-hidden pt-16 md:pt-18 hero-surface">
+        <div class="absolute inset-0 hero-grid opacity-60"></div>
 
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-20 md:pt-20 md:pb-28">
-            <div class="max-w-3xl mx-auto text-center">
-                <!-- Badge -->
-                <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-brand-300 text-xs font-semibold tracking-wide uppercase px-4 py-1.5 rounded-full mb-6 border border-white/15">
-                    <span class="w-2 h-2 bg-brand-400 rounded-full animate-pulse"></span>
-                    Bodenrisiko-Check für Immobilienkäufer
-                </div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20 md:pt-14 md:pb-24">
+            <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
 
-                <!-- Headline -->
-                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight drop-shadow">
-                    Bodenrisiken prüfen, bevor Sie unterschreiben.
-                    <span class="block mt-2 bg-gradient-to-r from-brand-300 to-brand-400 bg-clip-text text-transparent">
-                        Klarheit für Ihre Kaufentscheidung.
-                    </span>
-                </h1>
-
-                <!-- Sub-headline (laienfreundlich, keine Tech-Begriffe) -->
-                <p class="mt-6 text-base md:text-lg text-gray-100/90 leading-relaxed max-w-2xl mx-auto">
-                    Bevor Sie unterschreiben, sehen Sie: Bewegt sich der Boden an dieser Adresse? Und wie sieht es in den Vorsorge-Grenzwerten aus? Sieben Jahre Satellitendaten, ausgewertet auf offiziellen öffentlichen Quellen.
-                </p>
-
-                <!-- Hero Inline Lead Form -->
-                <form id="hero-lead-form" class="mt-10 max-w-md mx-auto space-y-3" onsubmit="handleHeroLead(event)">
-                    <input type="text" id="hero-street" required placeholder="Straße + Hausnummer"
-                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/25 bg-white/15 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:border-brand-400 focus:bg-white/20 transition-all text-base">
-                    <input type="text" id="hero-city" required placeholder="PLZ + Ort"
-                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/25 bg-white/15 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:border-brand-400 focus:bg-white/20 transition-all text-base">
-                    <input type="email" id="hero-email" required placeholder="Ihre E-Mail-Adresse"
-                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/25 bg-white/15 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:border-brand-400 focus:bg-white/20 transition-all text-base">
-                    <button type="submit" id="hero-submit-btn"
-                            onclick="(window.dataLayer||[]).push({event:'cta_main'})"
-                            class="cta-pulse w-full inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold text-lg px-10 py-4 rounded-xl transition-all shadow-lg shadow-brand-500/30 hover:shadow-brand-400/40 active:scale-[0.98]">
-                        Kostenlosen Bericht anfordern
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
-                    </button>
-                </form>
-                <p class="text-xs text-white/70 text-center mt-3 leading-relaxed max-w-md mx-auto">
-                    Mit Klick auf „Kostenlosen Bericht anfordern" stimmen Sie der Verarbeitung Ihrer Daten gemäß
-                    <a href="/datenschutz.html" class="underline hover:text-white">Datenschutzerklärung</a> zu.
-                    Ihre E-Mail kann auch für Updates zu verwandten Angeboten genutzt werden (§ 7 Abs. 3 UWG),
-                    Widerspruch jederzeit möglich.
-                </p>
-                <div id="hero-success" class="hidden mt-10 max-w-md mx-auto text-center">
-                    <div class="w-14 h-14 rounded-full bg-brand-500/20 flex items-center justify-center mx-auto mb-3">
-                        <svg class="w-7 h-7 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                <!-- ===== LEFT: Copy + Lead Form ===== -->
+                <div class="text-center lg:text-left">
+                    <!-- Badge -->
+                    <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-brand-300 text-xs font-semibold tracking-wide uppercase px-4 py-1.5 rounded-full mb-6 border border-white/15">
+                        <span class="w-2 h-2 bg-brand-400 rounded-full animate-pulse"></span>
+                        Bodenrisiko-Check für Immobilienkäufer
                     </div>
-                    <p class="text-white font-semibold">Bericht wird erstellt!</p>
-                    <p class="text-gray-200 text-sm mt-1">Prüfen Sie Ihre E-Mail in wenigen Minuten.</p>
+
+                    <!-- Headline -->
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tight">
+                        Bodenrisiken prüfen, bevor Sie unterschreiben.
+                        <span class="block mt-2 bg-gradient-to-r from-brand-300 to-brand-400 bg-clip-text text-transparent">
+                            Klarheit für Ihre Kaufentscheidung.
+                        </span>
+                    </h1>
+
+                    <!-- Sub-headline -->
+                    <p class="mt-6 text-base md:text-lg text-gray-100/90 leading-relaxed max-w-xl mx-auto lg:mx-0">
+                        Bevor Sie unterschreiben, sehen Sie: Bewegt sich der Boden an dieser Adresse? Sieben Jahre Satellitendaten, ausgewertet auf offiziellen öffentlichen Quellen &mdash; in wenigen Minuten per E-Mail.
+                    </p>
+
+                    <!-- Hero Inline Lead Form -->
+                    <form id="hero-lead-form" class="mt-8 max-w-md mx-auto lg:mx-0 space-y-3" onsubmit="handleHeroLead(event)">
+                        <input type="text" id="hero-street" required placeholder="Straße + Hausnummer"
+                               class="w-full px-4 py-3.5 rounded-xl border-2 border-white/25 bg-white/10 backdrop-blur-sm text-white placeholder-white/60 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base">
+                        <input type="text" id="hero-city" required placeholder="PLZ + Ort"
+                               class="w-full px-4 py-3.5 rounded-xl border-2 border-white/25 bg-white/10 backdrop-blur-sm text-white placeholder-white/60 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base">
+                        <input type="email" id="hero-email" required placeholder="Ihre E-Mail-Adresse"
+                               class="w-full px-4 py-3.5 rounded-xl border-2 border-white/25 bg-white/10 backdrop-blur-sm text-white placeholder-white/60 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base">
+                        <button type="submit" id="hero-submit-btn"
+                                onclick="(window.dataLayer||[]).push({event:'cta_main'})"
+                                class="cta-pulse w-full inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold text-lg px-10 py-4 rounded-xl transition-all shadow-lg shadow-brand-500/30 hover:shadow-brand-400/40 active:scale-[0.98]">
+                            Kostenlosen Bericht anfordern
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                        </button>
+                    </form>
+                    <p class="text-xs text-white/70 mt-3 leading-relaxed max-w-md mx-auto lg:mx-0">
+                        Mit Klick auf „Kostenlosen Bericht anfordern" stimmen Sie der Verarbeitung Ihrer Daten gemäß
+                        <a href="/datenschutz.html" class="underline hover:text-white">Datenschutzerklärung</a> zu.
+                        Ihre E-Mail kann auch für Updates zu verwandten Angeboten genutzt werden (§ 7 Abs. 3 UWG),
+                        Widerspruch jederzeit möglich.
+                    </p>
+                    <div id="hero-success" class="hidden mt-8 max-w-md mx-auto lg:mx-0 text-center lg:text-left">
+                        <div class="w-14 h-14 rounded-full bg-brand-500/20 flex items-center justify-center mx-auto lg:mx-0 mb-3">
+                            <svg class="w-7 h-7 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                        <p class="text-white font-semibold">Bericht wird erstellt!</p>
+                        <p class="text-gray-200 text-sm mt-1">Prüfen Sie Ihre E-Mail in wenigen Minuten.</p>
+                    </div>
+
+                    <!-- Quiz side-link -->
+                    <div class="mt-5 flex items-center justify-center lg:justify-start">
+                        <a href="/quiz.html"
+                           onclick="(window.dataLayer||[]).push({event:'cta_quiz'})"
+                           class="inline-flex items-center gap-2 text-gray-200 hover:text-white text-sm font-medium transition underline-offset-4 hover:underline">
+                            <svg class="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Oder: 60-Sekunden-Risikocheck
+                        </a>
+                    </div>
+
+                    <!-- Scope disclaimer -->
+                    <p class="mt-6 text-xs text-white/60 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                        Automatisiertes Datenscreening aus öffentlichen EU-Quellen. Keine Laboranalyse, kein Sachverständigengutachten.
+                    </p>
                 </div>
 
-                <!-- Secondary CTA: Quiz -->
-                <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <a href="/quiz.html"
-                       onclick="(window.dataLayer||[]).push({event:'cta_quiz'})"
-                       class="inline-flex items-center justify-center gap-2 text-gray-200 hover:text-white text-sm font-medium transition underline-offset-4 hover:underline">
-                        <svg class="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        Oder: 60-Sekunden-Risikocheck
-                    </a>
+                <!-- ===== RIGHT: Tool Mockup ===== -->
+                <div class="relative">
+                    <div class="tool-frame mx-auto max-w-[560px]">
+
+                        <!-- "Browser-Tab"-style header with address + Beispiel-Chip -->
+                        <div class="flex items-center justify-between px-4 py-2.5 bg-gray-50 border-b border-gray-200">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                                <span class="text-xs sm:text-[13px] font-mono text-gray-700 truncate">Schulstraße&nbsp;2, 76571&nbsp;Gaggenau</span>
+                            </div>
+                            <span class="text-[10px] uppercase tracking-wider bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ml-2">Beispiel</span>
+                        </div>
+
+                        <!-- Stylised map SVG + info-card overlay -->
+                        <div class="relative">
+                            <svg viewBox="0 0 400 280" class="w-full h-auto block" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                                <!-- Map base -->
+                                <rect width="400" height="280" fill="#eef2f6"/>
+
+                                <!-- Parks / green blocks -->
+                                <rect x="15"  y="215" width="110" height="55" fill="#d8ecd9" rx="3"/>
+                                <rect x="315" y="10"  width="80"  height="65" fill="#d8ecd9" rx="3"/>
+
+                                <!-- Streets: broad tarmac + white center stripe -->
+                                <g stroke="#c9d1da" stroke-width="16" stroke-linecap="square" fill="none">
+                                    <line x1="-10" y1="90"  x2="410" y2="90"/>
+                                    <line x1="-10" y1="205" x2="410" y2="205"/>
+                                    <line x1="140" y1="-10" x2="140" y2="290"/>
+                                    <line x1="285" y1="-10" x2="285" y2="290"/>
+                                </g>
+                                <g stroke="#ffffff" stroke-width="1.2" stroke-dasharray="5 4" fill="none" opacity="0.8">
+                                    <line x1="-10" y1="90"  x2="410" y2="90"/>
+                                    <line x1="-10" y1="205" x2="410" y2="205"/>
+                                    <line x1="140" y1="-10" x2="140" y2="290"/>
+                                    <line x1="285" y1="-10" x2="285" y2="290"/>
+                                </g>
+
+                                <!-- Building blocks (neighbors, subtle grey rectangles) -->
+                                <g fill="#e5eaf0" stroke="#cbd5e1" stroke-width="0.6">
+                                    <rect x="20"  y="20"  width="100" height="55" rx="2"/>
+                                    <rect x="160" y="18"  width="110" height="55" rx="2"/>
+                                    <rect x="25"  y="115" width="95"  height="72" rx="2"/>
+                                    <rect x="160" y="115" width="40"  height="34" rx="2"/>
+                                    <rect x="160" y="155" width="40"  height="32" rx="2"/>
+                                    <rect x="260" y="115" width="22"  height="72" rx="2"/>
+                                    <rect x="305" y="120" width="80"  height="30" rx="2"/>
+                                    <rect x="305" y="160" width="80"  height="28" rx="2"/>
+                                    <rect x="160" y="225" width="110" height="45" rx="2"/>
+                                    <rect x="305" y="225" width="80"  height="45" rx="2"/>
+                                </g>
+
+                                <!-- Highlighted "your" plot — white w/ green outline -->
+                                <rect x="207" y="115" width="48" height="72" rx="3" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+
+                                <!-- Address pin on the plot -->
+                                <g transform="translate(231,142)">
+                                    <path d="M 0,-14 C 7,-14 12,-9 12,-3 C 12,5 0,16 0,16 C 0,16 -12,5 -12,-3 C -12,-9 -7,-14 0,-14 Z"
+                                          fill="#15803d" stroke="#ffffff" stroke-width="1.5"/>
+                                    <circle cx="0" cy="-3" r="3.5" fill="#ffffff"/>
+                                </g>
+
+                                <!-- Measurement points (all green, fine white halo + subtle shadow) -->
+                                <g>
+                                    <circle cx="215" cy="128" r="5" fill="#22c55e" stroke="#ffffff" stroke-width="1.6"/>
+                                    <circle cx="248" cy="125" r="5" fill="#22c55e" stroke="#ffffff" stroke-width="1.6"/>
+                                    <circle cx="248" cy="172" r="5" fill="#22c55e" stroke="#ffffff" stroke-width="1.6"/>
+                                    <circle cx="188" cy="138" r="5" fill="#22c55e" stroke="#ffffff" stroke-width="1.6"/>
+                                    <circle cx="195" cy="48"  r="5" fill="#22c55e" stroke="#ffffff" stroke-width="1.6"/>
+                                    <circle cx="80"  cy="148" r="5" fill="#22c55e" stroke="#ffffff" stroke-width="1.6"/>
+                                    <circle cx="325" cy="138" r="5" fill="#22c55e" stroke="#ffffff" stroke-width="1.6"/>
+                                    <circle cx="220" cy="245" r="5" fill="#22c55e" stroke="#ffffff" stroke-width="1.6"/>
+                                </g>
+
+                                <!-- Subtle pulse on the central point to suggest "live data" -->
+                                <circle cx="215" cy="128" r="5" fill="#22c55e" opacity="0.55" class="tool-pulse" style="transform-origin:215px 128px;"/>
+                            </svg>
+
+                            <!-- Info-card overlay (bottom-left on the map) -->
+                            <div class="absolute bottom-3 left-3 bg-white rounded-lg shadow-lg border border-gray-100 px-3.5 py-2.5 max-w-[260px]">
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-brand-500"></span>
+                                    <span class="text-[13px] font-bold text-navy-800">Keine Auffälligkeiten</span>
+                                </div>
+                                <div class="mt-1 text-[11px] text-gray-500 leading-snug">
+                                    78&nbsp;Messpunkte analysiert<br class="sm:hidden">
+                                    <span class="hidden sm:inline"> · </span>Seit&nbsp;2017 stabil
+                                </div>
+                            </div>
+
+                            <!-- Legend corner (top-right, subtle) -->
+                            <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-sm rounded-md px-2 py-1 text-[10px] text-gray-500 border border-gray-100 flex items-center gap-1.5">
+                                <span class="inline-block w-1.5 h-1.5 rounded-full bg-brand-500"></span>
+                                <span>Messpunkt</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Caption under mockup with arrow pointing to the form -->
+                    <div class="mt-4 flex items-center gap-2 text-sm text-gray-200/80 justify-center lg:justify-start">
+                        <svg class="w-4 h-4 text-brand-400 hidden lg:block" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+                        </svg>
+                        <span>So sieht Ihre Analyse aus &mdash; Adresse links eintragen.</span>
+                    </div>
                 </div>
 
-                <!-- Scope Disclaimer -->
-                <p class="mt-8 text-xs text-white/60 max-w-xl mx-auto leading-relaxed">
-                    Automatisiertes Datenscreening aus &ouml;ffentlichen EU-Quellen. Keine Laboranalyse, kein Sachverst&auml;ndigengutachten.
-                </p>
-
-                <p class="mt-4 text-[11px] text-white/50">Foto: Markus Spiske / Pexels &middot; Bamberg</p>
             </div>
         </div>
     </section>
