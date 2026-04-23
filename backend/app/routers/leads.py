@@ -26,6 +26,7 @@ from app.pdf_renderer import html_to_pdf
 from app.rate_limit import limiter
 from app.routers.reports import geocode_address
 from app.soil_data import SoilDataLoader
+from app.static_map import fetch_static_map
 
 router = APIRouter(prefix="/api/leads", tags=["leads"])
 logger = logging.getLogger(__name__)
@@ -141,7 +142,11 @@ async def _generate_and_send_lead_report(
             logger.warning("Soil data query failed for (%s, %s), using empty profile", lat, lon)
             soil_profile = {}
 
-        # 5. Generate HTML report → render to PDF via Chrome
+        # 5. Fetch static OSM map for page 1 (empty string on failure; the
+        #    report template renders a grey coord-fallback in that case).
+        map_data_uri = await fetch_static_map(lat, lon)
+
+        # 6. Generate HTML report → render to PDF via Chrome
         html = generate_html_report(
             address=display_name,
             lat=lat,
@@ -154,6 +159,7 @@ async def _generate_and_send_lead_report(
             soil_profile=soil_profile,
             answers=answers or {},
             radius_m=radius_m,
+            map_data_uri=map_data_uri,
         )
         pdf_bytes = html_to_pdf(html)
         if pdf_bytes is None:
@@ -161,7 +167,7 @@ async def _generate_and_send_lead_report(
             pdf_bytes = html.encode("utf-8")
             logger.warning("PDF rendering failed, sending HTML as fallback for %s", email)
 
-        # 6. Send email
+        # 7. Send email
         await send_report_email(
             recipient_email=email,
             report_address=display_name,

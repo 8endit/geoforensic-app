@@ -17,6 +17,7 @@ the full report does not actually render.
 """
 
 import base64
+import hashlib
 from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
@@ -235,6 +236,7 @@ def generate_html_report(
     egms_period_end: int | None = None,
     operator_legal_name: str | None = None,
     operator_imprint_url: str | None = None,
+    map_data_uri: str | None = None,
 ) -> str:
     """Generate a professional HTML report string."""
     answers = answers or {}
@@ -257,6 +259,26 @@ def generate_html_report(
     if operator_imprint_url is None:
         operator_imprint_url = _settings.operator_imprint_url
     egms_period = f"{egms_period_start}&ndash;{egms_period_end}"
+
+    # Bericht-Nr: "YYYYMMDD-XXXXXXXX" where XXXXXXXX is an 8-char hex hash of
+    # date + address. Stable for a given address on a given day (idempotent
+    # when a user re-requests the report), but does not reveal any sequential
+    # counter (old format "-0042" leaked daily volume).
+    _date_str = now.strftime("%Y%m%d")
+    _nr_hash = hashlib.sha256(f"{_date_str}|{address}".encode("utf-8")).hexdigest()[:8].upper()
+    report_number = f"{_date_str}-{_nr_hash}"
+
+    # Map snippet: if the caller fetched one we embed it; otherwise show a
+    # grey coord-labelled fallback so the PDF layout never collapses.
+    if map_data_uri:
+        map_html = f'<img src="{map_data_uri}" alt="Kartenausschnitt der Adresse" class="map-snippet">'
+    else:
+        map_html = (
+            '<div class="map-fallback">'
+            'Karte derzeit nicht verfügbar'
+            f'<div class="coords-fallback">{lat:.4f}° N · {lon:.4f}° E</div>'
+            '</div>'
+        )
     soilgrids = soil_profile.get("soilgrids", {})
     metals = soil_profile.get("metals", {})
     metal_status = soil_profile.get("metal_status", {})
@@ -289,23 +311,14 @@ def generate_html_report(
     else:
         einschaetzung_html = f"<p>{_EINSCHAETZUNG_FALLBACK.get(ampel, _EINSCHAETZUNG_FALLBACK['gelb'])}</p>"
 
-    # Blurred-card values: use real data when available, plausible mock otherwise.
-    # Mock numbers are illustrative, not bound to the address — the lock overlay
-    # makes that clear and the upgrade unlocks the real per-location values.
-    m = metals or {"Cd": 0.21, "Pb": 28.0, "Hg": 0.09, "As": 6.4, "Cr": 34.0, "Cu": 17.0, "Ni": 19.0, "Zn": 62.0}
-    ph_v   = soilgrids.get("phh2o") if soilgrids.get("phh2o") is not None else 6.8
-    soc_v  = soilgrids.get("soc")   if soilgrids.get("soc")   is not None else 31.0
-    clay_v = soilgrids.get("clay")  if soilgrids.get("clay")  is not None else 18.0
-    silt_v = soilgrids.get("silt")  if soilgrids.get("silt")  is not None else 58.0
-    sand_v = soilgrids.get("sand")  if soilgrids.get("sand")  is not None else 24.0
-    texture_label = _texture_name(clay_v, sand_v, silt_v)
-    p_v = nutrients.get("P")        if nutrients.get("P")        is not None else 48.0
-    n_v = nutrients.get("N_total")  if nutrients.get("N_total")  is not None else 1820.0
-    mean_v = mean_velocity if has_egms else -3.2
-    max_v  = max_velocity  if has_egms else -4.8
-
+    # The locked cards render opaque placeholders (▓▓▓) instead of real or
+    # mock values. This is the paywall hardening from fix-list item 5: even
+    # if a reader strips the CSS blur filter, copies PDF text, or runs OCR,
+    # only placeholder tokens appear. Real values are reserved for the
+    # full report. We keep the per-metal cells structurally so the layout
+    # still communicates "eight metals are screened here".
     metal_cells = "".join(
-        f'<div class="metal-cell"><div class="metal-sym">{sym}</div><div class="metal-val">{m[sym]:.2f} mg/kg</div></div>'
+        f'<div class="metal-cell"><div class="metal-sym">{sym}</div><div class="metal-val">▓▓▓ mg/kg</div></div>'
         for sym in ["Cd", "Pb", "Hg", "As", "Cr", "Cu", "Ni", "Zn"]
     )
 
@@ -348,6 +361,28 @@ def generate_html_report(
   .header-meta {{ font-size:10px; opacity:.85; text-align:right; }}
   .header-meta .nr {{ font-family:ui-monospace,monospace; }}
 
+  .address-map-row {{
+    display:flex; gap:16px; align-items:stretch;
+    margin:6px 4px 18px;
+  }}
+  .address-map-row .address-block {{
+    flex:1 1 auto; margin:0;
+    padding-right:16px; border-right:1px solid #eef1f3;
+  }}
+  .map-snippet {{
+    width:260px; height:160px; border-radius:6px;
+    border:1px solid var(--border); display:block; flex:0 0 auto;
+  }}
+  .map-fallback {{
+    width:260px; height:160px; flex:0 0 auto;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    border-radius:6px; border:1px dashed #d1d5db; background:#f9fafb;
+    color:var(--gray); font-size:10px; text-align:center; padding:0 10px;
+  }}
+  .map-fallback .coords-fallback {{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color:var(--dark); margin-top:4px; font-size:11px;
+  }}
   .address-block {{ margin:6px 4px 18px; }}
   .address-block .label {{
     font-size:10px; text-transform:uppercase; letter-spacing:.08em;
@@ -402,9 +437,14 @@ def generate_html_report(
 
   /* Paywall-gated cards */
   .locked {{ overflow:hidden; }}
+  .locked .teaser-note {{
+    font-size:11px; color:var(--dark); margin:0 0 10px; line-height:1.5;
+    padding:6px 10px; background:#f0f5f1; border-left:2px solid var(--accent);
+    border-radius:0 4px 4px 0;
+  }}
   .locked .locked-content {{
-    filter: blur(4px) saturate(.7); pointer-events:none; user-select:none;
-    -webkit-filter: blur(4px) saturate(.7);
+    filter: blur(8px) saturate(.7); pointer-events:none; user-select:none;
+    -webkit-filter: blur(8px) saturate(.7);
   }}
   .lock-overlay {{
     position:absolute; inset:0;
@@ -439,6 +479,7 @@ def generate_html_report(
     background:linear-gradient(135deg, var(--accent-deep), var(--accent));
     color:white; border-radius:10px; padding:22px 26px; margin:14px 0 8px;
     text-align:center; position:relative; overflow:hidden;
+    page-break-inside:avoid; break-inside:avoid;
   }}
   .cta > * {{ position:relative; }}
   .cta .kicker {{ font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:#a7d4b5; font-weight:700; }}
@@ -471,15 +512,18 @@ def generate_html_report(
 <div class="header">
   {logo_html}
   <div class="header-meta">
-    <div>Bericht-Nr. <span class="nr">{now.strftime('%Y%m%d')}-{abs(hash(address)) % 10000:04d}</span></div>
+    <div>Bericht-Nr. <span class="nr">{report_number}</span></div>
     <div>Erstellt: {now.strftime('%d.%m.%Y')}</div>
   </div>
 </div>
 
-<div class="address-block">
-  <div class="label">Gesamtbewertung für</div>
-  <div class="addr">{escape(address)}</div>
-  <div class="coords">{lat:.4f}° N · {lon:.4f}° E</div>
+<div class="address-map-row">
+  <div class="address-block">
+    <div class="label">Gesamtbewertung für</div>
+    <div class="addr">{escape(address)}</div>
+    <div class="coords">{lat:.4f}° N · {lon:.4f}° E</div>
+  </div>
+  {map_html}
 </div>
 
 <div class="section-label">Sichtbar im kostenlosen Bericht</div>
@@ -496,6 +540,7 @@ def generate_html_report(
       <p>{point_count} InSAR-Messpunkte im Umkreis von {radius_m}&thinsp;m ausgewertet. Die Ampel basiert auf der mittleren Geschwindigkeit aller Messpunkte; die konkreten mm/a-Werte stehen im Vollbericht.</p>
     </div>
   </div>
+  <p class="ss" style="margin-top:10px; padding-top:8px; border-top:1px solid #eef1f3;"><span style="color:var(--gray); font-size:10px;">Der GeoScore kombiniert mittlere Geschwindigkeit, Streuung und Messpunktdichte im Umkreis.</span></p>
 </div>
 
 <div class="card">
@@ -504,7 +549,7 @@ def generate_html_report(
     <div class="kpi"><div class="num">{point_count}</div><div class="lbl">Messpunkte im Umkreis von {radius_m}&thinsp;m</div></div>
     <div class="kpi" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
       <span class="ampel-badge {_ampel_class(ampel)}">{_ampel_label(ampel)}</span>
-      <div class="lbl" style="margin-top:6px;">Gesamtbewertung</div>
+      <div class="lbl" style="margin-top:6px;">Status Bodenbewegung</div>
     </div>
   </div>
   <p class="ss"><span style="color:var(--gray);">{bb_text}</span></p>
@@ -520,47 +565,48 @@ def generate_html_report(
 
 <div class="card locked">
   <h2>Schwermetalle &amp; Schadstoffe</h2>
+  <p class="teaser-note">Im Vollbericht: exakte Messwerte für Cd, Pb, Hg, As, Cr, Cu, Ni und Zn, jeweils mit Ampel-Einordnung gegen die BBodSchV-Vorsorgewerte.</p>
   <div class="locked-content">
     <div class="metal-grid">{metal_cells}</div>
-    <p class="ss" style="margin-top:8px;"><span style="color:var(--gray); font-size:10px;">Vergleich gegen Vorsorgewerte nach BBodSchV Anhang 2 (Cd, Pb, Hg, As, Cr, Cu, Ni, Zn).</span></p>
   </div>
   {_LOCK_PILL_HTML}
 </div>
 
 <div class="card locked">
   <h2>Bodenqualität &amp; Textur</h2>
+  <p class="teaser-note">Im Vollbericht: pH-Wert, organischer Kohlenstoff, Lagerungsdichte und die konkrete Bodenart (Ton/Sand/Schluff-Anteile) aus dem SoilGrids-250&thinsp;m-Raster.</p>
   <div class="locked-content">
     <div class="stat-grid-3">
-      <div class="stat-cell"><div class="lbl">pH-Wert</div><div class="val">{ph_v:.1f}</div><div class="sub">{'leicht sauer' if ph_v < 7 else 'neutral' if ph_v < 7.5 else 'leicht alkalisch'}</div></div>
-      <div class="stat-cell"><div class="lbl">Org. Kohlenstoff</div><div class="val">{soc_v:.1f} g/kg</div><div class="sub">{'mittel' if soc_v >= 20 else 'niedrig'}</div></div>
-      <div class="stat-cell"><div class="lbl">Bodenart</div><div class="val" style="font-size:13px;">{texture_label.split(' (')[0]}</div><div class="sub">Ton/Sand/Schluff</div></div>
+      <div class="stat-cell"><div class="lbl">pH-Wert</div><div class="val">▓▓▓</div><div class="sub">Säuregrad</div></div>
+      <div class="stat-cell"><div class="lbl">Org. Kohlenstoff</div><div class="val">▓▓▓ g/kg</div><div class="sub">Humusgehalt</div></div>
+      <div class="stat-cell"><div class="lbl">Bodenart</div><div class="val" style="font-size:13px;">▓▓▓</div><div class="sub">Ton/Sand/Schluff</div></div>
     </div>
-    <p class="ss" style="margin-top:8px;"><span style="color:var(--gray); font-size:10px;">Ton {clay_v:.0f}% · Schluff {silt_v:.0f}% · Sand {sand_v:.0f}% (SoilGrids 250m).</span></p>
   </div>
   {_LOCK_PILL_HTML}
 </div>
 
 <div class="card locked">
   <h2>Nährstoffe (Phosphor &amp; Stickstoff)</h2>
+  <p class="teaser-note">Im Vollbericht: Phosphor- und Stickstoff-Werte aus der EU-LUCAS-Topsoil-Datenbank, eingeordnet gegen agronomische Referenzbereiche.</p>
   <div class="locked-content">
     <div class="stat-grid-3" style="grid-template-columns:repeat(2,1fr);">
-      <div class="stat-cell"><div class="lbl">Phosphor (P)</div><div class="val">{p_v:.0f} mg/kg</div><div class="sub">{'optimal (30–80)' if 30 <= p_v <= 80 else 'erhöht' if p_v > 80 else 'niedrig'}</div></div>
-      <div class="stat-cell"><div class="lbl">Gesamt-Stickstoff (N)</div><div class="val">{n_v:.0f} mg/kg</div><div class="sub">Referenzwert</div></div>
+      <div class="stat-cell"><div class="lbl">Phosphor (P)</div><div class="val">▓▓▓ mg/kg</div><div class="sub">Nährstoffgehalt</div></div>
+      <div class="stat-cell"><div class="lbl">Gesamt-Stickstoff (N)</div><div class="val">▓▓▓ mg/kg</div><div class="sub">Referenzwert</div></div>
     </div>
-    <p class="ss" style="margin-top:8px;"><span style="color:var(--gray); font-size:10px;">Quelle: LUCAS Topsoil Survey, nächstgelegener Messpunkt {lucas_dist if lucas_dist > 0 else '–'} km.</span></p>
   </div>
   {_LOCK_PILL_HTML}
 </div>
 
 <div class="card locked">
   <h2>InSAR-Detailwerte der Messpunkte</h2>
+  <p class="teaser-note">Im Vollbericht: mittlere und maximale Geschwindigkeit in mm/a, komplette Zeitreihe pro Messpunkt seit 2017 und eine Trendklassifikation (beschleunigend / stabil / abklingend).</p>
   <div class="locked-content">
     <div class="stat-grid-3">
-      <div class="stat-cell warn"><div class="lbl">Mittl. Geschw.</div><div class="val">{mean_v:+.1f} mm/a</div></div>
-      <div class="stat-cell warn"><div class="lbl">Max. Geschw.</div><div class="val">{max_v:+.1f} mm/a</div></div>
-      <div class="stat-cell"><div class="lbl">GeoScore</div><div class="val">{score} / 100</div></div>
+      <div class="stat-cell warn"><div class="lbl">Mittl. Geschw.</div><div class="val">▓▓▓ mm/a</div></div>
+      <div class="stat-cell warn"><div class="lbl">Max. Geschw.</div><div class="val">▓▓▓ mm/a</div></div>
+      <div class="stat-cell"><div class="lbl">Trend</div><div class="val">▓▓▓</div></div>
     </div>
-    <p class="ss" style="margin-top:8px;"><span style="color:var(--gray); font-size:10px;">Aggregierte Geschwindigkeitswerte der Messpunkte im {radius_m}&thinsp;m-Radius, Messzeitraum {egms_period} (Copernicus EGMS L3 Ortho, Sentinel-1).</span></p>
+    <p class="ss" style="margin-top:8px;"><span style="color:var(--gray); font-size:10px;">Messzeitraum {egms_period}, {radius_m}&thinsp;m-Radius (Copernicus EGMS L3 Ortho, Sentinel-1).</span></p>
   </div>
   {_LOCK_PILL_HTML}
 </div>

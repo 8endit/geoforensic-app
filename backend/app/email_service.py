@@ -104,13 +104,13 @@ _HTML_TEMPLATE = """<!DOCTYPE html>
             </div>
             {upsell}
 
-            <p>Rueckfragen? Antworten Sie einfach auf diese E-Mail oder schreiben Sie an <a href="mailto:team@geoforensic.de">team@geoforensic.de</a>.</p>
+            <p>Rückfragen? Antworten Sie einfach auf diese E-Mail oder schreiben Sie an <a href="mailto:team@geoforensic.de">team@geoforensic.de</a>.</p>
 
-            <p style="margin-top: 28px;">Mit freundlichen Gruessen<br>Ihr Bodenbericht-Team</p>
+            <p style="margin-top: 28px;">Mit freundlichen Grüßen<br>Ihr Bodenbericht-Team</p>
 
             <p class="disclaimer">
               <strong style="color: #4b5563;">Hinweis:</strong>
-              Dieser Bericht ist ein automatisiertes Datenscreening auf Basis oeffentlich verfuegbarer EU-Satelliten- und Bodendaten. Er ersetzt keine fachliche Einzelfallbewertung durch eine sachverstaendige Person.
+              Dieser Bericht ist ein automatisiertes Datenscreening auf Basis öffentlich verfügbarer EU-Satelliten- und Bodendaten. Er ersetzt keine fachliche Einzelfallbewertung durch eine sachverständige Person.
             </p>
           </td>
         </tr>
@@ -141,23 +141,23 @@ _HTML_TEMPLATE = """<!DOCTYPE html>
 _TEASER_INFO_ITEMS = (
     "<li>Ampel-Einstufung Ihres Standorts</li>"
     "<li>GeoScore auf Basis des Copernicus European Ground Motion Service</li>"
-    "<li>Persoenliche Einschaetzung basierend auf Ihren Angaben</li>"
+    "<li>Persönliche Einschätzung basierend auf Ihren Angaben</li>"
 )
 
 _FULL_INFO_ITEMS = (
     "<li>Ampel-Einstufung Ihres Standorts</li>"
     "<li>Bodenbewegungs-Messpunkte aus dem Copernicus European Ground Motion Service</li>"
-    "<li>Bodenqualitaet (pH, Naehrstoffe, Textur) aus ISRIC SoilGrids und JRC LUCAS</li>"
+    "<li>Bodenqualität (pH, Nährstoffe, Textur) aus ISRIC SoilGrids und JRC LUCAS</li>"
     "<li>Einordnung im regionalen und landesweiten Vergleich</li>"
 )
 
 _TEASER_UPSELL = (
     '<p style="margin-top: 20px; font-size: 14px; color: #4b5563;">'
-    "Dies ist eine kostenlose Kurzfassung. Den ausfuehrlichen Bericht mit "
-    "Schwermetall-Analyse, Bodenqualitaet und Handlungsempfehlung entwickeln "
-    'wir gerade &mdash; trag dich gerne in unsere '
+    "Dies ist eine kostenlose Kurzfassung. Den ausführlichen Bericht mit "
+    "Schwermetall-Analyse, Bodenqualität und Handlungsempfehlung entwickeln "
+    'wir gerade &mdash; tragen Sie sich gerne in unsere '
     '<a href="https://bodenbericht.de/#premium" style="color:#15803d;">Warteliste</a> '
-    "ein und wir benachrichtigen dich, sobald die Premium-Version verfuegbar ist."
+    "ein und wir benachrichtigen Sie, sobald die Premium-Version verfügbar ist."
     "</p>"
 )
 
@@ -165,13 +165,13 @@ _TEASER_UPSELL = (
 def _build_html_body(address: str, is_teaser: bool = True) -> str:
     if is_teaser:
         headline = "Ihre kostenlose Boden-Kurzfassung."
-        intro = "vielen Dank fuer Ihre Anfrage. Fuer den folgenden Standort haben wir eine kostenlose Kurzfassung erstellt:"
+        intro = "vielen Dank für Ihre Anfrage. Für den folgenden Standort haben wir eine kostenlose Kurzfassung erstellt:"
         info_title = "Was in der Kurzfassung steht"
         info_items = _TEASER_INFO_ITEMS
         upsell = _TEASER_UPSELL
     else:
         headline = "Ihr Bodenbericht ist fertig."
-        intro = "vielen Dank fuer Ihre Anfrage. Fuer den folgenden Standort haben wir Ihren Bodenbericht erstellt:"
+        intro = "vielen Dank für Ihre Anfrage. Für den folgenden Standort haben wir Ihren Bodenbericht erstellt:"
         info_title = "Was im Bericht steht"
         info_items = _FULL_INFO_ITEMS
         upsell = ""
@@ -190,27 +190,27 @@ def _build_text_body(address: str, is_teaser: bool = True) -> str:
     if is_teaser:
         body_lines = (
             "Guten Tag,\n\n"
-            f"Ihre kostenlose Boden-Kurzfassung fuer\n{address}\n"
+            f"Ihre kostenlose Boden-Kurzfassung für\n{address}\n"
             "ist fertig. Das PDF finden Sie im Anhang.\n\n"
-            "Dies ist eine kostenlose Kurzfassung. Den ausfuehrlichen Bericht mit "
-            "Schwermetall-Analyse, Bodenqualitaet und Handlungsempfehlung "
-            "entwickeln wir gerade — trag dich gerne in unsere Warteliste ein "
-            "(https://bodenbericht.de/#premium) und wir benachrichtigen dich, "
-            "sobald die Premium-Version verfuegbar ist.\n\n"
+            "Dies ist eine kostenlose Kurzfassung. Den ausführlichen Bericht mit "
+            "Schwermetall-Analyse, Bodenqualität und Handlungsempfehlung "
+            "entwickeln wir gerade — tragen Sie sich gerne in unsere Warteliste ein "
+            "(https://bodenbericht.de/#premium) und wir benachrichtigen Sie, "
+            "sobald die Premium-Version verfügbar ist.\n\n"
         )
     else:
         body_lines = (
             "Guten Tag,\n\n"
-            f"Ihr Bodenbericht fuer\n{address}\n"
+            f"Ihr Bodenbericht für\n{address}\n"
             "ist fertig. Das PDF finden Sie im Anhang.\n\n"
         )
     return (
         body_lines
-        + "Der Bericht ist ein automatisiertes Datenscreening auf Basis oeffentlicher "
+        + "Der Bericht ist ein automatisiertes Datenscreening auf Basis öffentlicher "
         "EU-Satelliten- und Bodendaten (Copernicus EGMS, ISRIC SoilGrids, JRC LUCAS). "
-        "Er ersetzt keine fachliche Einzelfallbewertung durch eine sachverstaendige Person.\n\n"
-        "Bei Rueckfragen erreichen Sie uns unter team@geoforensic.de.\n\n"
-        "Mit freundlichen Gruessen\n"
+        "Er ersetzt keine fachliche Einzelfallbewertung durch eine sachverständige Person.\n\n"
+        "Bei Rückfragen erreichen Sie uns unter team@geoforensic.de.\n\n"
+        "Mit freundlichen Grüßen\n"
         "Ihr Bodenbericht-Team\n\n"
         "---\n"
         "Bodenbericht · Ein Service der Tepnosholding GmbH\n"
@@ -250,9 +250,19 @@ async def send_report_email(
     msg["To"] = recipient_email
     msg["Reply-To"] = "team@geoforensic.de"
 
-    # Plaintext first, then HTML as alternative.
-    msg.set_content(_build_text_body(report_address, is_teaser=is_teaser))
-    msg.add_alternative(_build_html_body(report_address, is_teaser=is_teaser), subtype="html")
+    # Plaintext first, then HTML as alternative. charset="utf-8" is explicit
+    # so we never fall back to ASCII/cp1252 (which silently drops umlauts
+    # in the plaintext part on some MTAs).
+    msg.set_content(
+        _build_text_body(report_address, is_teaser=is_teaser),
+        subtype="plain",
+        charset="utf-8",
+    )
+    msg.add_alternative(
+        _build_html_body(report_address, is_teaser=is_teaser),
+        subtype="html",
+        charset="utf-8",
+    )
 
     # Attach the inline logo to the HTML part (not the plaintext part).
     # The HTML alternative is the LAST entry in the payload after set_content + add_alternative.
