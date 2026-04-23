@@ -33,3 +33,7 @@ next-env.d.ts
 
 # Landing build tools (local only, not deployed)
 landing/tailwindcss.exe
+
+# Output of scripts/regenerate-report.sh — PDFs copied out of the backend
+# container for admin inspection. Lead-identifying, never commit.
+regenerated-reports/
