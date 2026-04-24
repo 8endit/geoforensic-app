@@ -23,6 +23,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
 COPY scripts ./scripts
+# Alembic config + migration scripts must be in the image so
+# `alembic upgrade head` works at container start (see
+# docker-compose.yml backend service `command:` override). alembic.ini
+# points at script_location = alembic which is resolved relative to
+# the WORKDIR /app.
+COPY alembic.ini ./alembic.ini
+COPY alembic ./alembic
 
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
