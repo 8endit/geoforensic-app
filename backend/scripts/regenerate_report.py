@@ -94,6 +94,7 @@ async def regenerate(email: str) -> int:
                     print(f"    region:        {region_line}")
 
             radius_m = settings.egms_radius_m
+            ELEVATED_THRESHOLD_MM_YR = 2.0
             async with SessionLocal() as db:
                 res = await db.execute(
                     text(
@@ -111,13 +112,39 @@ async def regenerate(email: str) -> int:
                 )
                 points = [dict(row._mapping) for row in res]
 
+                ts_res = await db.execute(
+                    text(
+                        """
+                        SELECT
+                            DATE_TRUNC('quarter', t.measurement_date)::date AS period,
+                            AVG(t.displacement_mm) AS avg_displacement
+                        FROM egms_timeseries t
+                        JOIN egms_points p ON t.point_id = p.id
+                        WHERE ST_DWithin(
+                            p.geom::geography,
+                            ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
+                            :radius_m
+                        )
+                        GROUP BY period
+                        ORDER BY period
+                        """
+                    ),
+                    {"lat": lat, "lon": lon, "radius_m": radius_m},
+                )
+                timeseries = [
+                    (row._mapping["period"], float(row._mapping["avg_displacement"]))
+                    for row in ts_res
+                ]
+
             if points:
                 velocities = [abs(float(p["mean_velocity_mm_yr"])) for p in points]
                 mean_v = sum(velocities) / len(velocities)
                 max_v = max(velocities)
                 ampel, geo_score = _ampel_from_velocity(mean_v)
+                elevated_count = sum(1 for v in velocities if v > ELEVATED_THRESHOLD_MM_YR)
             else:
                 mean_v, max_v, ampel, geo_score = 0.0, 0.0, "gruen", None
+                elevated_count = 0
 
             try:
                 soil_profile = SoilDataLoader.get().query_full_profile(lat, lon)
@@ -144,6 +171,9 @@ async def regenerate(email: str) -> int:
                 radius_m=radius_m,
                 map_data_uri=map_data_uri,
                 region=region,
+                timeseries=timeseries,
+                elevated_count=elevated_count,
+                elevated_threshold_mm_yr=ELEVATED_THRESHOLD_MM_YR,
             )
             pdf_bytes = html_to_pdf(html) or html.encode("utf-8")
 
@@ -153,6 +183,8 @@ async def regenerate(email: str) -> int:
             print(f"    ampel:         {ampel}")
             print(f"    geo_score:     {geo_score}")
             print(f"    points/radius: {len(points)} in {radius_m} m")
+            print(f"    elevated:      {elevated_count} of {len(points)} > {ELEVATED_THRESHOLD_MM_YR} mm/a")
+            print(f"    time series:   {len(timeseries)} quarterly aggregates")
             print(f"    soil data:     {'ok' if soil_ok else 'FAILED'}")
             print(f"    static map:    {'ok' if map_ok else 'FAILED (grey fallback used)'}")
             print(f"    PDF bytes:     {len(pdf_bytes)}")

@@ -156,6 +156,71 @@ def _status_label(status: str) -> str:
     return {"ok": "Unbedenklich", "warn": "Erhöht", "critical": "Kritisch"}.get(status, "?")
 
 
+def _svg_timeseries(timeseries: list, width: int = 480, height: int = 130) -> str:
+    """Render the quarterly aggregated displacement as a qualitative line chart.
+
+    The y-axis is intentionally **unlabeled** (no mm values) — we keep the
+    exact numbers behind the paywall. The chart communicates direction only:
+    ↑ Hebung / ↓ Absenkung, with a dashed baseline at y=0 (start of the
+    measurement window). Returns empty string if there is no data to plot,
+    so the caller can drop the chart block entirely in that case.
+    """
+    if not timeseries or len(timeseries) < 2:
+        return ""
+
+    values = [v for _, v in timeseries]
+    y_min = min(values + [0.0])
+    y_max = max(values + [0.0])
+    y_span = y_max - y_min
+    if y_span < 1e-9:
+        # Perfectly flat signal — pad so the line sits in the middle
+        y_min, y_max, y_span = -1.0, 1.0, 2.0
+
+    pad_left, pad_right, pad_top, pad_bottom = 48, 12, 14, 22
+    plot_w = width - pad_left - pad_right
+    plot_h = height - pad_top - pad_bottom
+
+    def x_of(i: int) -> float:
+        if len(values) == 1:
+            return pad_left + plot_w / 2
+        return pad_left + (i / (len(values) - 1)) * plot_w
+
+    def y_of(v: float) -> float:
+        # Higher displacement = Hebung = visually up (so invert).
+        return pad_top + plot_h * (1 - (v - y_min) / y_span)
+
+    zero_y = y_of(0.0)
+    line_points = " ".join(f"{x_of(i):.1f},{y_of(v):.1f}" for i, v in enumerate(values))
+    # Area underneath the line for visual weight
+    area_points = (
+        f"{x_of(0):.1f},{zero_y:.1f} "
+        + line_points
+        + f" {x_of(len(values)-1):.1f},{zero_y:.1f}"
+    )
+
+    # X-axis ticks: first and last period only, keep it readable
+    first_period = timeseries[0][0]
+    last_period = timeseries[-1][0]
+    first_label = first_period.strftime("%Y") if hasattr(first_period, "strftime") else str(first_period)[:4]
+    last_label = last_period.strftime("%Y") if hasattr(last_period, "strftime") else str(last_period)[:4]
+
+    return f"""<svg width="100%" viewBox="0 0 {width} {height}" preserveAspectRatio="xMidYMid meet" class="ts-chart">
+      <!-- y-axis direction labels (no numeric ticks — paywall-safe) -->
+      <text x="6" y="{pad_top + 4}" font-size="9" fill="#64748b">↑ Hebung</text>
+      <text x="6" y="{height - pad_bottom + 4}" font-size="9" fill="#64748b">↓ Absenkung</text>
+      <text x="{pad_left - 4}" y="{zero_y + 3}" font-size="8" text-anchor="end" fill="#94a3b8">0</text>
+      <!-- zero baseline (start of measurement window) -->
+      <line x1="{pad_left}" y1="{zero_y:.1f}" x2="{width - pad_right}" y2="{zero_y:.1f}"
+            stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3"/>
+      <!-- filled area + trend line -->
+      <polygon points="{area_points}" fill="#5B9A6F" fill-opacity="0.18"/>
+      <polyline points="{line_points}" fill="none" stroke="#5B9A6F" stroke-width="2" stroke-linejoin="round"/>
+      <!-- x-axis year labels -->
+      <text x="{x_of(0):.1f}" y="{height - 4}" font-size="9" fill="#64748b" text-anchor="start">{first_label}</text>
+      <text x="{x_of(len(values)-1):.1f}" y="{height - 4}" font-size="9" fill="#64748b" text-anchor="end">{last_label}</text>
+    </svg>"""
+
+
 def _ampel_class(ampel: str) -> str:
     return {"gruen": "healthy", "gelb": "degraded", "rot": "unhealthy"}.get(ampel, "degraded")
 
@@ -238,6 +303,9 @@ def generate_html_report(
     operator_imprint_url: str | None = None,
     map_data_uri: str | None = None,
     region: dict | None = None,
+    timeseries: list | None = None,
+    elevated_count: int = 0,
+    elevated_threshold_mm_yr: float = 2.0,
 ) -> str:
     """Generate a professional HTML report string."""
     answers = answers or {}
@@ -311,6 +379,33 @@ def generate_html_report(
         else "Kritische Bodenbewegungen gemessen. Fachliche Einschätzung empfohlen." if ampel == "rot"
         else "Für diesen Standort liegen keine InSAR-Satellitendaten im Untersuchungsradius vor."
     )
+
+    # Ampel-Begründung (A3): concrete counts instead of the one-liner fallback.
+    # We show "X von N Messpunkten zeigten Werte über Y mm/a" whenever there
+    # is measurement data, so the reader can tell where the Ampel comes from.
+    # Exact mm/a per point stays behind the paywall.
+    if point_count > 0:
+        if elevated_count == 0:
+            ampel_reason = (
+                f"Alle {point_count} Messpunkte im Umkreis blieben unter dem "
+                f"Schwellwert von {elevated_threshold_mm_yr:g}&thinsp;mm/a."
+            )
+        elif elevated_count == 1:
+            ampel_reason = (
+                f"1 von {point_count} Messpunkten zeigte Werte über "
+                f"{elevated_threshold_mm_yr:g}&thinsp;mm/a."
+            )
+        else:
+            ampel_reason = (
+                f"{elevated_count} von {point_count} Messpunkten zeigten "
+                f"Werte über {elevated_threshold_mm_yr:g}&thinsp;mm/a."
+            )
+    else:
+        ampel_reason = ""
+
+    # Timeseries chart (A1): render only when we have usable data. Empty
+    # string means the template-level conditional drops the whole card.
+    timeseries_svg = _svg_timeseries(timeseries or [])
 
     # Einschaetzung — quiz answers if present, otherwise ampel-specific fallback
     nutzung = answers.get("nutzung", "")
@@ -435,6 +530,9 @@ def generate_html_report(
   .gauge-row .label {{ font-size:10px; font-weight:600; color:var(--accent); text-align:center; margin-top:-4px; }}
 
   .kpi-grid {{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:8px 0 10px; }}
+  .ts-wrap {{ margin:10px 0 6px; padding:8px 4px 6px; background:#f9fafb; border-radius:6px; border:1px solid #eef1f3; }}
+  .ts-chart {{ display:block; }}
+  .ts-caption {{ font-size:10px; color:var(--gray); text-align:center; margin-top:2px; padding:0 8px; line-height:1.4; }}
   .kpi {{ text-align:center; padding:12px 8px; background:#f8fafc; border-radius:8px; border:1px solid var(--border); }}
   .kpi .num {{ font-size:22px; font-weight:700; color:var(--accent); }}
   .kpi .lbl {{ font-size:9px; color:var(--gray); text-transform:uppercase; letter-spacing:.03em; margin-top:2px; }}
@@ -569,6 +667,8 @@ def generate_html_report(
     </div>
   </div>
   <p class="ss"><span style="color:var(--gray);">{bb_text}</span></p>
+  {f'<p class="ss" style="margin-top:4px;"><span style="color:var(--dark); font-size:11px;">{ampel_reason}</span></p>' if ampel_reason else ''}
+  {f'<div class="ts-wrap">{timeseries_svg}<div class="ts-caption">Kumulierte mittlere Bodenbewegung im Umkreis seit {egms_period_start}. Exakte mm-Werte und Geschwindigkeit pro Messpunkt im Vollbericht.</div></div>' if timeseries_svg else ''}
   <p class="ss" style="margin-top:6px;"><span style="color:var(--gray); font-size:10px;">Messzeitraum: {egms_period} (Copernicus EGMS, Sentinel-1).</span></p>
 </div>
 

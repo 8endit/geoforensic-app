@@ -102,6 +102,10 @@ async def _generate_and_send_lead_report(
         #    and the SQL query can never drift apart.
         settings = get_settings()
         radius_m = settings.egms_radius_m
+        # Threshold above which a measurement point counts as "elevated" for
+        # the Ampel-begruendung line in the report. 2 mm/a is the
+        # standard gelb/yellow boundary used throughout the app.
+        ELEVATED_THRESHOLD_MM_YR = 2.0
         async with SessionLocal() as db:
             result = await db.execute(
                 text(
@@ -125,14 +129,45 @@ async def _generate_and_send_lead_report(
             )
             points = [dict(row._mapping) for row in result]
 
+            # Aggregated quarterly time series across all points in the radius.
+            # Values are average cumulative displacement in mm — we hand them
+            # to the report template which renders a qualitative chart (no
+            # numeric y-axis labels), so the raw mm numbers stay behind the
+            # paywall while the shape of the trend is visible for free.
+            ts_result = await db.execute(
+                text(
+                    """
+                    SELECT
+                        DATE_TRUNC('quarter', t.measurement_date)::date AS period,
+                        AVG(t.displacement_mm) AS avg_displacement
+                    FROM egms_timeseries t
+                    JOIN egms_points p ON t.point_id = p.id
+                    WHERE ST_DWithin(
+                        p.geom::geography,
+                        ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
+                        :radius_m
+                    )
+                    GROUP BY period
+                    ORDER BY period
+                    """
+                ),
+                {"lat": lat, "lon": lon, "radius_m": radius_m},
+            )
+            timeseries = [
+                (row._mapping["period"], float(row._mapping["avg_displacement"]))
+                for row in ts_result
+            ]
+
         # 3. Compute metrics
         if points:
             velocities = [abs(float(p["mean_velocity_mm_yr"])) for p in points]
             mean_v = sum(velocities) / len(velocities)
             max_v = max(velocities)
             ampel, geo_score = _ampel_from_velocity(mean_v)
+            elevated_count = sum(1 for v in velocities if v > ELEVATED_THRESHOLD_MM_YR)
         else:
             mean_v, max_v, ampel, geo_score = 0.0, 0.0, "gruen", None
+            elevated_count = 0
 
         # 4. Query soil data (SoilGrids + LUCAS + CORINE)
         try:
@@ -161,6 +196,9 @@ async def _generate_and_send_lead_report(
             radius_m=radius_m,
             map_data_uri=map_data_uri,
             region=region,
+            timeseries=timeseries,
+            elevated_count=elevated_count,
+            elevated_threshold_mm_yr=ELEVATED_THRESHOLD_MM_YR,
         )
         pdf_bytes = html_to_pdf(html)
         if pdf_bytes is None:
