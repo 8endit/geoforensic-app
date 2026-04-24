@@ -414,6 +414,7 @@ def generate_html_report(
     elevated_count: int = 0,
     elevated_threshold_mm_yr: float = 2.0,
     points: list | None = None,
+    pointmap_data_uri: str | None = None,
 ) -> str:
     """Generate a professional HTML report string."""
     answers = answers or {}
@@ -523,13 +524,23 @@ def generate_html_report(
     # string means the template-level conditional drops the whole card.
     timeseries_svg = _svg_timeseries(timeseries or [])
 
-    pointmap_svg = _svg_pointmap(
-        points or [],
-        center_lat=lat,
-        center_lon=lon,
-        radius_m=radius_m,
-        threshold_mm_yr=elevated_threshold_mm_yr,
-    )
+    # Raster pointmap (OSM basemap + coloured dots) is the preferred
+    # visualisation; when it's unavailable (network fail, tile service
+    # down, etc.) we fall back to the pure-SVG scatter built in
+    # ``_svg_pointmap`` so the PDF still communicates point distribution.
+    if pointmap_data_uri:
+        pointmap_block = (
+            f'<img src="{pointmap_data_uri}" alt="Messpunkte im Umkreis" class="pointmap-img">'
+        )
+    else:
+        svg = _svg_pointmap(
+            points or [],
+            center_lat=lat,
+            center_lon=lon,
+            radius_m=radius_m,
+            threshold_mm_yr=elevated_threshold_mm_yr,
+        )
+        pointmap_block = svg
 
     # Einschaetzung — quiz answers if present, otherwise ampel-specific fallback
     nutzung = answers.get("nutzung", "")
@@ -659,6 +670,7 @@ def generate_html_report(
   .ts-caption {{ font-size:10px; color:var(--gray); text-align:center; margin-top:2px; padding:0 8px; line-height:1.4; }}
   .pm-wrap {{ margin:10px 0 6px; padding:10px 4px 6px; background:#f9fafb; border-radius:6px; border:1px solid #eef1f3; }}
   .pointmap {{ display:block; max-width:460px; margin:0 auto; }}
+  .pointmap-img {{ display:block; width:100%; max-width:560px; margin:0 auto; border-radius:6px; }}
   .pm-caption {{ font-size:10px; color:var(--gray); text-align:center; margin-top:4px; padding:0 8px; line-height:1.4; }}
   .kpi {{ text-align:center; padding:12px 8px; background:#f8fafc; border-radius:8px; border:1px solid var(--border); }}
   .kpi .num {{ font-size:22px; font-weight:700; color:var(--accent); }}
@@ -796,7 +808,7 @@ def generate_html_report(
   <p class="ss"><span style="color:var(--gray);">{bb_text}</span></p>
   {f'<p class="ss" style="margin-top:4px;"><span style="color:var(--dark); font-size:11px;">{ampel_reason}</span></p>' if ampel_reason else ''}
   {f'<div class="ts-wrap">{timeseries_svg}<div class="ts-caption">Wie stark sich der Boden seit {egms_period_start} insgesamt bewegt hat, gemittelt über alle Messpunkte im Umkreis. Die genauen Millimeter-Werte stehen im Vollbericht.</div></div>' if timeseries_svg else ''}
-  {f'<div class="pm-wrap">{pointmap_svg}<div class="pm-caption">Lage der {point_count} Satelliten-Messpunkte im Umkreis von {radius_m}&thinsp;m um die Adresse. Farbe zeigt die Klassifikation je Punkt; die exakten mm/a-Werte stehen im Vollbericht.</div></div>' if pointmap_svg else ''}
+  {f'<div class="pm-wrap">{pointmap_block}<div class="pm-caption">Lage der {point_count} Satelliten-Messpunkte im Umkreis von {radius_m}&thinsp;m um die Adresse. Farbe zeigt die Klassifikation je Punkt, Größe die Stärke der Bewegung; die exakten mm/a-Werte stehen im Vollbericht.</div></div>' if pointmap_block else ''}
   <p class="ss" style="margin-top:6px;"><span style="color:var(--gray); font-size:10px;">Messzeitraum: {egms_period}. Quelle ist das europäische Copernicus-Programm, Satellit Sentinel-1.</span></p>
 </div>
 

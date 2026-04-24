@@ -24,6 +24,7 @@ from app.email_service import send_report_email
 from app.html_report import generate_html_report
 from app.models import Ampel, Lead, Report, ReportStatus
 from app.pdf_renderer import html_to_pdf
+from app.pointmap import render_pointmap
 from app.rate_limit import limiter
 from app.routers.reports import geocode_address
 from app.soil_data import SoilDataLoader
@@ -183,6 +184,23 @@ async def _generate_and_send_lead_report(
         #    report template renders a grey coord-fallback in that case).
         map_data_uri = await fetch_static_map(lat, lon)
 
+        # 5b. Render OSM-backed pointmap (matplotlib + contextily). Empty
+        #     string falls back to the SVG scatter in the template so a bad
+        #     tile fetch never blocks the PDF.
+        pointmap_data_uri = ""
+        if points:
+            try:
+                pointmap_data_uri = await asyncio.to_thread(
+                    render_pointmap,
+                    center_lat=lat,
+                    center_lon=lon,
+                    radius_m=radius_m,
+                    points=points,
+                    threshold_mm_yr=ELEVATED_THRESHOLD_MM_YR,
+                )
+            except Exception:
+                logger.warning("pointmap rendering raised — using SVG fallback", exc_info=True)
+
         # 6. Generate HTML report → render to PDF via Chrome
         html = generate_html_report(
             address=display_name,
@@ -202,6 +220,7 @@ async def _generate_and_send_lead_report(
             elevated_count=elevated_count,
             elevated_threshold_mm_yr=ELEVATED_THRESHOLD_MM_YR,
             points=points,
+            pointmap_data_uri=pointmap_data_uri,
         )
         pdf_bytes = html_to_pdf(html)
         if pdf_bytes is None:
