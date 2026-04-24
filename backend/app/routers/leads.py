@@ -21,6 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_settings
 from app.dependencies import get_db
 from app.email_service import send_report_email
+from app.full_report import generate_full_report
 from app.html_report import generate_html_report
 from app.models import Ampel, Lead, Report, ReportStatus
 from app.pdf_renderer import html_to_pdf
@@ -86,13 +87,10 @@ async def _generate_and_send_lead_report(
     """
     from app.database import SessionLocal
 
+    # Source-based routing: teaser sources (quiz, landing, waitlist) get the
+    # short HTML teaser PDF; everything else triggers the full FPDF report.
+    # Payment gating is separate — this function only chooses the renderer.
     is_teaser = source in TEASER_SOURCES
-    if not is_teaser:
-        logger.warning(
-            "Lead source %r requested full report, but paid flow is not wired yet — sending teaser as fallback",
-            source,
-        )
-        is_teaser = True
 
     try:
         # 1. Geocode (or use pre-computed result from request handler)
@@ -186,53 +184,65 @@ async def _generate_and_send_lead_report(
             logger.warning("Soil data query failed for (%s, %s), using empty profile", lat, lon)
             soil_profile = {}
 
-        # 5. Fetch static OSM map for page 1 (empty string on failure; the
-        #    report template renders a grey coord-fallback in that case).
-        map_data_uri = await fetch_static_map(lat, lon)
+        # 5. Render the PDF. Teaser and full report share the same data
+        #    (geocode + EGMS + soil above) but differ in their rendering
+        #    pipeline: teaser → HTML → Chrome; full → FPDF direct.
+        if is_teaser:
+            map_data_uri = await fetch_static_map(lat, lon)
 
-        # 5b. Render OSM-backed pointmap (matplotlib + contextily). Empty
-        #     string falls back to the SVG scatter in the template so a bad
-        #     tile fetch never blocks the PDF.
-        pointmap_data_uri = ""
-        if points:
-            try:
-                pointmap_data_uri = await asyncio.to_thread(
-                    render_pointmap,
-                    center_lat=lat,
-                    center_lon=lon,
-                    radius_m=radius_m,
-                    points=points,
-                    threshold_mm_yr=ELEVATED_THRESHOLD_MM_YR,
-                )
-            except Exception:
-                logger.warning("pointmap rendering raised — using SVG fallback", exc_info=True)
+            pointmap_data_uri = ""
+            if points:
+                try:
+                    pointmap_data_uri = await asyncio.to_thread(
+                        render_pointmap,
+                        center_lat=lat,
+                        center_lon=lon,
+                        radius_m=radius_m,
+                        points=points,
+                        threshold_mm_yr=ELEVATED_THRESHOLD_MM_YR,
+                    )
+                except Exception:
+                    logger.warning("pointmap rendering raised — using SVG fallback", exc_info=True)
 
-        # 6. Generate HTML report → render to PDF via Chrome
-        html = generate_html_report(
-            address=display_name,
-            lat=lat,
-            lon=lon,
-            ampel=ampel,
-            point_count=len(points),
-            mean_velocity=mean_v,
-            max_velocity=max_v,
-            geo_score=geo_score,
-            soil_profile=soil_profile,
-            answers=answers or {},
-            radius_m=radius_m,
-            map_data_uri=map_data_uri,
-            region=region,
-            timeseries=timeseries,
-            elevated_count=elevated_count,
-            elevated_threshold_mm_yr=ELEVATED_THRESHOLD_MM_YR,
-            points=points,
-            pointmap_data_uri=pointmap_data_uri,
-        )
-        pdf_bytes = html_to_pdf(html)
-        if pdf_bytes is None:
-            # Fallback: send HTML as attachment
-            pdf_bytes = html.encode("utf-8")
-            logger.warning("PDF rendering failed, sending HTML as fallback for %s", email)
+            html = generate_html_report(
+                address=display_name,
+                lat=lat,
+                lon=lon,
+                ampel=ampel,
+                point_count=len(points),
+                mean_velocity=mean_v,
+                max_velocity=max_v,
+                geo_score=geo_score,
+                soil_profile=soil_profile,
+                answers=answers or {},
+                radius_m=radius_m,
+                map_data_uri=map_data_uri,
+                region=region,
+                timeseries=timeseries,
+                elevated_count=elevated_count,
+                elevated_threshold_mm_yr=ELEVATED_THRESHOLD_MM_YR,
+                points=points,
+                pointmap_data_uri=pointmap_data_uri,
+            )
+            pdf_bytes = html_to_pdf(html)
+            if pdf_bytes is None:
+                pdf_bytes = html.encode("utf-8")
+                logger.warning("PDF rendering failed, sending HTML as fallback for %s", email)
+        else:
+            # Full report (FPDF, synchronous) — CPU-bound, wrap in thread.
+            pdf_bytes = await asyncio.to_thread(
+                generate_full_report,
+                address=display_name,
+                lat=lat,
+                lon=lon,
+                ampel=ampel,
+                point_count=len(points),
+                mean_velocity=mean_v,
+                max_velocity=max_v,
+                geo_score=geo_score,
+                soil_profile=soil_profile,
+                answers=answers or {},
+            )
 
         # 7. Persist a Report row for this lead (C1). The row carries all
         #    structured values the template used — ampel, geo_score,
