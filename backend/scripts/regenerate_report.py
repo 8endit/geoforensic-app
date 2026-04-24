@@ -83,9 +83,15 @@ async def regenerate(email: str) -> int:
             continue
 
         try:
-            lat, lon, normalized_addr, _cc = await geocode_address(address)
+            lat, lon, normalized_addr, _cc, region = await geocode_address(address)
             print(f"    normalized:    {normalized_addr}")
             print(f"    coords:        {lat:.4f}, {lon:.4f}")
+            if region:
+                region_line = " · ".join(
+                    v for v in (region.get("county"), region.get("state"), region.get("country")) if v
+                )
+                if region_line:
+                    print(f"    region:        {region_line}")
 
             radius_m = settings.egms_radius_m
             async with SessionLocal() as db:
@@ -137,6 +143,7 @@ async def regenerate(email: str) -> int:
                 answers=answers,
                 radius_m=radius_m,
                 map_data_uri=map_data_uri,
+                region=region,
             )
             pdf_bytes = html_to_pdf(html) or html.encode("utf-8")
 

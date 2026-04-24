@@ -82,13 +82,48 @@ def _normalize_nominatim_address(hit: dict) -> str:
     return ", ".join(parts)
 
 
-async def geocode_address(address: str) -> tuple[float, float, str, str]:
-    """Resolve address via Nominatim and return (lat, lon, address_display, country_code).
+def _extract_region(hit: dict) -> dict[str, str]:
+    """Extract admin-region metadata from a Nominatim hit.
+
+    Returns labels suitable for display in the PDF header underneath the
+    street address. Values are whatever Nominatim returned; missing keys
+    simply drop out of the dict so the template can render with whatever
+    is present. Works for DE (Landkreis / Bundesland) and NL (gemeente /
+    provincie) equivalently.
+    """
+    addr = hit.get("address") or {}
+    out: dict[str, str] = {}
+    # Primary locality (gemeente / Stadt) — redundant with the address line
+    # but useful as a separate field for layout
+    for key in ("city", "town", "village", "municipality"):
+        if addr.get(key):
+            out["city"] = addr[key]
+            break
+    # County / Landkreis / Kreis — DE has "county", NL sometimes "state_district"
+    for key in ("county", "state_district", "district"):
+        if addr.get(key):
+            out["county"] = addr[key]
+            break
+    # Bundesland / provincie
+    if addr.get("state"):
+        out["state"] = addr["state"]
+    # Country — human-readable name, not the 2-letter code
+    if addr.get("country"):
+        out["country"] = addr["country"]
+    return out
+
+
+async def geocode_address(address: str) -> tuple[float, float, str, str, dict[str, str]]:
+    """Resolve address via Nominatim and return 5-tuple:
+        (lat, lon, address_display, country_code, region)
 
     ``address_display`` is the normalized postal-form address built from
     ``address.*`` components (see :func:`_normalize_nominatim_address`) —
-    **not** Nominatim's raw ``display_name``. Existing callers that unpack
-    into ``display_name`` keep working; only the string content changed.
+    **not** Nominatim's raw ``display_name``.
+
+    ``region`` is a dict with optional keys ``city``, ``county``, ``state``,
+    ``country`` — useful for rendering the PDF header without exposing the
+    full comma-chain of the raw display_name.
     """
     global _last_nominatim_call
     query = address.strip()
@@ -143,7 +178,13 @@ async def geocode_address(address: str) -> tuple[float, float, str, str]:
 
     hit = results[0]
     country_code = hit.get("address", {}).get("country_code", "").lower()
-    return float(hit["lat"]), float(hit["lon"]), _normalize_nominatim_address(hit), country_code
+    return (
+        float(hit["lat"]),
+        float(hit["lon"]),
+        _normalize_nominatim_address(hit),
+        country_code,
+        _extract_region(hit),
+    )
 
 
 async def query_egms_points(
@@ -306,7 +347,7 @@ async def preview_report(
     payload: PreviewRequest,
     db: AsyncSession = Depends(get_db),
 ) -> PreviewResponse:
-    lat, lon, display_name, country_code = await geocode_address(payload.address)
+    lat, lon, display_name, country_code, _region = await geocode_address(payload.address)
     try:
         points = await query_egms_points(db, lat, lon, radius_m=500)
     except Exception as exc:  # noqa: BLE001
@@ -337,7 +378,7 @@ async def create_report(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> ReportCreateResponse:
-    lat, lon, display_name, country_code = await geocode_address(payload.address)
+    lat, lon, display_name, country_code, _region = await geocode_address(payload.address)
     selected_modules = list(dict.fromkeys(payload.selected_modules))
     report = Report(
         user_id=current_user.id,

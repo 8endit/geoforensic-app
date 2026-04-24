@@ -237,6 +237,7 @@ def generate_html_report(
     operator_legal_name: str | None = None,
     operator_imprint_url: str | None = None,
     map_data_uri: str | None = None,
+    region: dict | None = None,
 ) -> str:
     """Generate a professional HTML report string."""
     answers = answers or {}
@@ -279,6 +280,19 @@ def generate_html_report(
             f'<div class="coords-fallback">{lat:.4f}° N · {lon:.4f}° E</div>'
             '</div>'
         )
+
+    # Region line: Landkreis · Bundesland · Land. Rendered small under the
+    # address, only if Nominatim supplied the components. Falls back to empty
+    # string so the layout collapses cleanly when nothing is available.
+    region_html = ""
+    if region:
+        region_parts = [p for p in (region.get("county"), region.get("state"), region.get("country")) if p]
+        if region_parts:
+            region_html = (
+                '<div class="region">'
+                + escape(" · ".join(region_parts))
+                + '</div>'
+            )
     soilgrids = soil_profile.get("soilgrids", {})
     metals = soil_profile.get("metals", {})
     metal_status = soil_profile.get("metal_status", {})
@@ -391,6 +405,7 @@ def generate_html_report(
   .address-block .addr {{
     font-size:18px; font-weight:700; color:var(--accent); line-height:1.25; margin-top:2px;
   }}
+  .address-block .region {{ font-size:11px; color:var(--dark); margin-top:3px; opacity:0.75; }}
   .address-block .coords {{ font-size:10px; color:var(--gray); margin-top:2px; }}
 
   .section-label {{
@@ -521,6 +536,7 @@ def generate_html_report(
   <div class="address-block">
     <div class="label">Gesamtbewertung für</div>
     <div class="addr">{escape(address)}</div>
+    {region_html}
     <div class="coords">{lat:.4f}° N · {lon:.4f}° E</div>
   </div>
   {map_html}

@@ -66,7 +66,7 @@ async def _generate_and_send_lead_report(
     address: str,
     answers: dict,
     db_url: str,
-    geocoded: tuple[float, float, str, str] | None = None,
+    geocoded: tuple[float, float, str, str, dict] | None = None,
     source: str = "quiz",
 ) -> None:
     """Background task: geocode → EGMS query → PDF → email.
@@ -94,9 +94,9 @@ async def _generate_and_send_lead_report(
     try:
         # 1. Geocode (or use pre-computed result from request handler)
         if geocoded is not None:
-            lat, lon, display_name, country_code = geocoded
+            lat, lon, display_name, country_code, region = geocoded
         else:
-            lat, lon, display_name, country_code = await geocode_address(address)
+            lat, lon, display_name, country_code, region = await geocode_address(address)
 
         # 2. EGMS query — radius comes from settings so copy in the PDF
         #    and the SQL query can never drift apart.
@@ -160,6 +160,7 @@ async def _generate_and_send_lead_report(
             answers=answers or {},
             radius_m=radius_m,
             map_data_uri=map_data_uri,
+            region=region,
         )
         pdf_bytes = html_to_pdf(html)
         if pdf_bytes is None:
@@ -195,7 +196,7 @@ async def capture_lead(
     # If address provided: validate synchronously via geocoding BEFORE saving
     # the lead, so the user gets immediate feedback on typos instead of a silent
     # failure in the background report pipeline.
-    geocoded: tuple[float, float, str, str] | None = None
+    geocoded: tuple[float, float, str, str, dict] | None = None
     address_clean: str | None = None
     if payload.address and payload.address.strip():
         address_clean = payload.address.strip()
