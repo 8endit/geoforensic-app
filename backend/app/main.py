@@ -1,9 +1,10 @@
 import os
+import re
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 import sentry_sdk
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -19,6 +20,52 @@ from app.routers import admin, auth, geocode, health, leads, modules, payments, 
 
 settings = get_settings()
 
+
+# ── Sentry PII scrubbing ───────────────────────────────────────────
+# Redact anything that looks like an email address before an event leaves
+# the backend. Lead emails routinely appear in log.exception strings
+# (e.g. "Failed to persist Report row for lead_id=X (email=Y)") — with
+# LoggingIntegration those strings land in Sentry's message/logentry,
+# and we do NOT want Sentry to store subject PII long-term. The regex
+# is deliberately tight (only touches the local-part) so stack traces
+# stay readable.
+_EMAIL_RE = re.compile(r"\b([A-Za-z0-9._%+-]+)@([A-Za-z0-9.-]+\.[A-Za-z]{2,})\b")
+
+
+def _scrub_emails(text_value):
+    if not isinstance(text_value, str):
+        return text_value
+    return _EMAIL_RE.sub(r"[email]@\2", text_value)
+
+
+def _sentry_before_send(event, hint):
+    """Walk the event and scrub emails out of message/logentry/extra/tags."""
+    try:
+        # Main message body of the event
+        if "message" in event:
+            event["message"] = _scrub_emails(event["message"])
+        if "logentry" in event and isinstance(event["logentry"], dict):
+            if "message" in event["logentry"]:
+                event["logentry"]["message"] = _scrub_emails(event["logentry"]["message"])
+            if "formatted" in event["logentry"]:
+                event["logentry"]["formatted"] = _scrub_emails(event["logentry"]["formatted"])
+        # Exception chain
+        for exc in (event.get("exception", {}) or {}).get("values", []) or []:
+            if "value" in exc:
+                exc["value"] = _scrub_emails(exc["value"])
+        # Flat extras + tags
+        for key in ("extra", "tags"):
+            bag = event.get(key) or {}
+            if isinstance(bag, dict):
+                for k, v in list(bag.items()):
+                    if isinstance(v, str):
+                        bag[k] = _scrub_emails(v)
+    except Exception:
+        # Never let a scrubbing mistake drop a real error report.
+        pass
+    return event
+
+
 # Sentry-Init muss vor FastAPI-App-Creation passieren, damit die FastAPI-Integration
 # alle Request-Lifecycles erfassen kann. Wenn SENTRY_DSN nicht gesetzt ist (z.B.
 # lokal), ist Sentry no-op — sdk wirft keinen Fehler, schickt nur nichts.
@@ -32,6 +79,8 @@ if _sentry_dsn:
         traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
         # Keine personenbezogenen Daten (IP, User-ID) automatisch mitsenden
         send_default_pii=False,
+        # PII-Scrubber: keine E-Mails in Sentry-Events
+        before_send=_sentry_before_send,
     )
 
 

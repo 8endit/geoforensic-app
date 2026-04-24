@@ -215,6 +215,28 @@ async def activity(db: AsyncSession = Depends(get_db)) -> dict:
     }
 
 
+@router.post("/sentry-test")
+async def sentry_test(
+    _: None = Depends(_require_admin),
+) -> dict:
+    """Raise a controlled exception so Sentry captures it.
+
+    Used once per deploy to confirm the DSN is wired correctly and
+    events actually arrive in the Sentry project. The endpoint is
+    admin-token gated so a random visitor cannot burn through your
+    Sentry event quota. Returns nothing useful — always raises.
+    """
+    # The message carries a fake lookalike email so the before_send
+    # scrubber can be verified at the same time — it should become
+    # "[email]@example.test" in the Sentry event.
+    raise RuntimeError(
+        "Sentry test triggered by admin — if you see this in Sentry "
+        "with email redacted to [email]@example.test, both DSN and "
+        "before_send scrubber are working. Test was triggered for "
+        "admin@example.test."
+    )
+
+
 @router.get("/reports/{report_id}/pdf")
 async def download_report_pdf(
     report_id: str,
