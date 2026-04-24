@@ -489,6 +489,36 @@ def generate_html_report(
         else "Für diesen Standort liegen keine InSAR-Satellitendaten im Untersuchungsradius vor."
     )
 
+    # Data-density classification: translates raw point count into a
+    # Belastbarkeits-Badge so the reader can tell at a glance how much
+    # statistical weight the Ampel carries. Thresholds follow our own
+    # density study in docs/EGMS_DATA_REPORT.md (50 / 20 / <20 buckets).
+    if point_count == 0:
+        density_class, density_label, density_detail = (
+            "none", "Keine Messdaten",
+            "Im Untersuchungsradius liegen keine Satelliten-Messpunkte. "
+            "Das kommt in ländlichen Lagen mit wenig Bebauung vor."
+        )
+    elif point_count >= 50:
+        density_class, density_label, density_detail = (
+            "solid", "Solide Datenlage",
+            f"Mit {point_count} Messpunkten im 500&thinsp;m-Umkreis ist die Klassifikation "
+            "statistisch belastbar."
+        )
+    elif point_count >= 20:
+        density_class, density_label, density_detail = (
+            "limited", "Eingeschränkte Datenlage",
+            f"{point_count} Messpunkte erlauben eine orientierende Aussage. "
+            "Für kritische Entscheidungen sollte der Vollbericht herangezogen werden."
+        )
+    else:
+        density_class, density_label, density_detail = (
+            "thin", "Dünne Datenlage",
+            f"Mit nur {point_count} Messpunkten im Umkreis ist die Klassifikation "
+            "nur eingeschränkt belastbar — typisch für ländliche Lagen mit geringer "
+            "Bebauungsdichte."
+        )
+
     # Ampel-Begründung (A3): concrete counts instead of the one-liner fallback.
     # We show "X von N Messpunkten zeigten Werte über Y mm/a" whenever there
     # is measurement data, so the reader can tell where the Ampel comes from.
@@ -682,6 +712,24 @@ def generate_html_report(
   .ampel-badge.degraded {{ background:var(--yellow); color:#5a4a1a; }}
   .ampel-badge.unhealthy {{ background:var(--red); }}
 
+  .density-badge {{
+    display:inline-flex; align-items:center; gap:5px;
+    margin-top:8px; padding:3px 9px; border-radius:999px;
+    font-size:9px; font-weight:600; letter-spacing:.02em;
+    border:1px solid transparent;
+  }}
+  .density-badge .density-dot {{
+    width:6px; height:6px; border-radius:50%; display:inline-block;
+  }}
+  .density-badge.density-solid   {{ background:#e9f4ec; color:#2f6a43; border-color:#c9e4d1; }}
+  .density-badge.density-solid   .density-dot {{ background:var(--green); }}
+  .density-badge.density-limited {{ background:#fbf5e1; color:#7a6210; border-color:#ecdb9a; }}
+  .density-badge.density-limited .density-dot {{ background:var(--yellow); }}
+  .density-badge.density-thin    {{ background:#f4e9e9; color:#7d3a36; border-color:#e4c7c5; }}
+  .density-badge.density-thin    .density-dot {{ background:var(--red); }}
+  .density-badge.density-none    {{ background:#eef1f5; color:#475569; border-color:#cbd5e1; }}
+  .density-badge.density-none    .density-dot {{ background:#94a3b8; }}
+
   .dot {{ width:9px; height:9px; border-radius:50%; display:inline-block; }}
   .dot.ok {{ background:var(--green); }}
   .dot.warn {{ background:var(--yellow); }}
@@ -799,13 +847,18 @@ def generate_html_report(
 <div class="card">
   <h2><span class="dot {bb_dot}"></span> Bodenbewegung (InSAR-Satellitendaten)</h2>
   <div class="kpi-grid">
-    <div class="kpi"><div class="num">{point_count}</div><div class="lbl">Messpunkte im Umkreis von {radius_m}&thinsp;m</div></div>
+    <div class="kpi">
+      <div class="num">{point_count}</div>
+      <div class="lbl">Messpunkte im Umkreis von {radius_m}&thinsp;m</div>
+      <div class="density-badge density-{density_class}"><span class="density-dot"></span>{density_label}</div>
+    </div>
     <div class="kpi" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
       <span class="ampel-badge {_ampel_class(ampel)}">{_ampel_label(ampel)}</span>
       <div class="lbl" style="margin-top:6px;">Status Bodenbewegung</div>
     </div>
   </div>
   <p class="ss"><span style="color:var(--gray);">{bb_text}</span></p>
+  <p class="ss" style="margin-top:4px;"><span style="color:var(--gray); font-size:10px;">{density_detail}</span></p>
   {f'<p class="ss" style="margin-top:4px;"><span style="color:var(--dark); font-size:11px;">{ampel_reason}</span></p>' if ampel_reason else ''}
   {f'<div class="ts-wrap">{timeseries_svg}<div class="ts-caption">Wie stark sich der Boden seit {egms_period_start} insgesamt bewegt hat, gemittelt über alle Messpunkte im Umkreis. Die genauen Millimeter-Werte stehen im Vollbericht.</div></div>' if timeseries_svg else ''}
   {f'<div class="pm-wrap">{pointmap_block}<div class="pm-caption">Lage der {point_count} Satelliten-Messpunkte im Umkreis von {radius_m}&thinsp;m um die Adresse. Farbe zeigt die Klassifikation je Punkt, Größe die Stärke der Bewegung; die exakten mm/a-Werte stehen im Vollbericht.</div></div>' if pointmap_block else ''}

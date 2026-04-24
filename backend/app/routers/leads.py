@@ -168,6 +168,12 @@ async def _generate_and_send_lead_report(
             max_v = max(velocities)
             ampel, geo_score = _ampel_from_velocity(mean_v)
             elevated_count = sum(1 for v in velocities if v > ELEVATED_THRESHOLD_MM_YR)
+            # Data-density cap: with fewer than 20 points in the 500 m ring the
+            # statistical claim is too weak to justify a high score, regardless
+            # of the mean velocity. Cap at 70 so the user sees a Score that
+            # matches the Belastbarkeits-Hinweis in the report.
+            if geo_score is not None and len(points) < 20 and geo_score > 70:
+                geo_score = 70
         else:
             mean_v, max_v, ampel, geo_score = 0.0, 0.0, "gruen", None
             elevated_count = 0
