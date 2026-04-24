@@ -145,6 +145,25 @@ Must be followed for ALL new pages on geoforensic.de:
 - **BGR BBD (Bodenbewegungsdienst Deutschland):** License NOT yet confirmed. Likely dl-de/by-2.0 (commercial OK). Pending email to BBD@bgr.de.
 - **bodemdalingskaart.nl:** CC BY-SA 4.0. CAUTION: the SA (ShareAlike) copyleft means derivative works must use the same license. Do NOT use this data if it would force our reports to be open-licensed. Stick with EGMS (CC BY 4.0, no copyleft) as primary source.
 
+#### Datendichte-Hinweis
+Je dichter das Messpunkte-Netz pro Adresse, desto präziser lässt sich der
+Bericht rechnen — mittlere Geschwindigkeit, Streuung, Trendklassifikation und
+GeoScore werden statistisch belastbarer je mehr Punkte im Untersuchungsradius
+liegen. Grobe Referenzwerte für ein 500 m-Umfeld in einer deutschen
+Wohnsiedlung:
+
+| Quelle | typisch Punkte / 500 m | Messzeitraum | NL abgedeckt? |
+|---|---|---|---|
+| EGMS | 50 – 80 | 2019 – 2023 | ja |
+| BGR BBD | 80 – 120 | 2015 – 2024 | nein |
+
+Unsere aktuelle Wahl (EGMS als einzige Quelle) ist ein bewusster Kompromiss
+aus Lizenz-Sicherheit, EU-Abdeckung (NL ist Markt #1) und Datendichte. Für
+deutsche Adressen bedeutet sie ca. 30–40 % weniger Messpunkte als der
+BGR-Datensatz. Hybrid-Integration (EGMS-Basis + BGR BBD additiv für
+DE-Adressen) steht auf der Roadmap für die geoforensic.de-Vollversion — dafür
+muss die BGR-Lizenz vorher geklärt sein.
+
 ### Legal Requirements
 - **Germany:** Standard Gewerbeanmeldung, no special license needed. Get Berufshaftpflichtversicherung (~EUR 150/year). AGB with disclaimer required for B2C.
 - **Netherlands:** No Dutch entity needed (EU Services Directive). Register for OSS (One-Stop Shop) VAT when NL B2C revenue exceeds EUR 10k/year.

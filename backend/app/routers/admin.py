@@ -77,24 +77,51 @@ async def list_leads(
     db: AsyncSession = Depends(get_db),
     _: None = Depends(_require_admin),
 ) -> dict:
-    """List recent leads with quiz answers."""
+    """List recent leads with quiz answers and the most recent Report
+    attached to each lead (if any).
+
+    The Report section comes from the `reports` table, populated for every
+    bodenbericht.de lead flow that completed successfully. Leads that
+    predate the C1 persistence change, or leads where DB-insert failed,
+    simply return ``report: null``.
+    """
     result = await db.execute(
         select(Lead).order_by(Lead.created_at.desc()).limit(limit)
     )
     leads = result.scalars().all()
-    return {
-        "total": len(leads),
-        "leads": [
-            {
-                "id": str(l.id),
-                "email": l.email,
-                "source": l.source,
-                "quiz_answers": l.quiz_answers or {},
-                "created_at": l.created_at.isoformat() if l.created_at else None,
+
+    # For each lead, grab the latest attached Report (newest first). Kept as
+    # one query per lead for simplicity; list size is bounded by `limit`.
+    lead_dicts = []
+    for l in leads:
+        latest_report = None
+        r_result = await db.execute(
+            select(Report)
+            .where(Report.lead_id == l.id)
+            .order_by(Report.created_at.desc())
+            .limit(1)
+        )
+        r = r_result.scalar_one_or_none()
+        if r is not None:
+            latest_report = {
+                "id": str(r.id),
+                "ampel": r.ampel.value if r.ampel else None,
+                "geo_score": r.geo_score,
+                "point_count": (r.report_data or {}).get("point_count"),
+                "elevated_count": (r.report_data or {}).get("elevated_count"),
+                "address_display": (r.report_data or {}).get("address_display") or r.address_input,
+                "created_at": r.created_at.isoformat() if r.created_at else None,
             }
-            for l in leads
-        ],
-    }
+        lead_dicts.append({
+            "id": str(l.id),
+            "email": l.email,
+            "source": l.source,
+            "quiz_answers": l.quiz_answers or {},
+            "created_at": l.created_at.isoformat() if l.created_at else None,
+            "report": latest_report,
+        })
+
+    return {"total": len(lead_dicts), "leads": lead_dicts}
 
 
 @router.get("/activity")

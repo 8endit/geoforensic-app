@@ -10,6 +10,7 @@ wired up, all inbound leads receive the teaser and a warning is logged if a
 """
 
 import logging
+import uuid
 from datetime import datetime
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Request, status
@@ -21,7 +22,7 @@ from app.config import get_settings
 from app.dependencies import get_db
 from app.email_service import send_report_email
 from app.html_report import generate_html_report
-from app.models import Lead
+from app.models import Ampel, Lead, Report, ReportStatus
 from app.pdf_renderer import html_to_pdf
 from app.rate_limit import limiter
 from app.routers.reports import geocode_address
@@ -68,6 +69,7 @@ async def _generate_and_send_lead_report(
     db_url: str,
     geocoded: tuple[float, float, str, str, dict] | None = None,
     source: str = "quiz",
+    lead_id: "uuid.UUID | None" = None,
 ) -> None:
     """Background task: geocode → EGMS query → PDF → email.
 
@@ -206,7 +208,61 @@ async def _generate_and_send_lead_report(
             pdf_bytes = html.encode("utf-8")
             logger.warning("PDF rendering failed, sending HTML as fallback for %s", email)
 
-        # 7. Send email
+        # 7. Persist a Report row for this lead (C1). The row carries all
+        #    structured values the template used — ampel, geo_score,
+        #    point_count, elevated_count, mean/max velocity, region, how
+        #    many timeseries quarters were available — so the admin can
+        #    audit what went into the mail without re-running the pipeline.
+        #
+        #    The PDF bytes themselves are NOT stored here (see ticket C2).
+        #    Exception safety: any DB failure is logged and swallowed so
+        #    the email still goes out. Losing the email over a DB hiccup
+        #    would be worse than losing the audit spur for that one lead.
+        report_id: uuid.UUID | None = None
+        if lead_id is not None:
+            try:
+                country_code_str = (country_code or "").upper()[:2] or "DE"
+                report_data = {
+                    "point_count": len(points),
+                    "elevated_count": elevated_count,
+                    "elevated_threshold_mm_yr": ELEVATED_THRESHOLD_MM_YR,
+                    "mean_velocity_mm_yr": round(mean_v, 3) if points else None,
+                    "max_velocity_mm_yr": round(max_v, 3) if points else None,
+                    "timeseries_quarters": len(timeseries),
+                    "radius_m": radius_m,
+                    "region": region or {},
+                    "source": source,
+                    "is_teaser": is_teaser,
+                    "address_display": display_name,
+                }
+                async with SessionLocal() as db:
+                    ampel_enum = Ampel(ampel) if ampel in {"gruen", "gelb", "rot"} else None
+                    report = Report(
+                        user_id=None,
+                        lead_id=lead_id,
+                        address_input=display_name,
+                        latitude=lat,
+                        longitude=lon,
+                        radius_m=radius_m,
+                        country=country_code_str,
+                        status=ReportStatus.completed,
+                        ampel=ampel_enum,
+                        geo_score=geo_score,
+                        paid=False,
+                        report_data=report_data,
+                    )
+                    db.add(report)
+                    await db.commit()
+                    await db.refresh(report)
+                    report_id = report.id
+            except Exception:
+                logger.exception(
+                    "Failed to persist Report row for lead_id=%s (email=%s) — "
+                    "mail will still be sent, audit spur is lost for this lead.",
+                    lead_id, email,
+                )
+
+        # 8. Send email
         await send_report_email(
             recipient_email=email,
             report_address=display_name,
@@ -215,8 +271,8 @@ async def _generate_and_send_lead_report(
             is_teaser=is_teaser,
         )
         logger.info(
-            "Lead report sent to %s for address %s (%s, %d pts, source=%s, teaser=%s)",
-            email, address, ampel, len(points), source, is_teaser,
+            "Lead report sent to %s for address %s (%s, %d pts, source=%s, teaser=%s, report_id=%s)",
+            email, address, ampel, len(points), source, is_teaser, report_id,
         )
 
     except Exception:
@@ -257,7 +313,9 @@ async def capture_lead(
     await db.commit()
     await db.refresh(lead)
 
-    # Schedule background report generation with the already-verified geocode
+    # Schedule background report generation with the already-verified
+    # geocode. lead.id is forwarded so the background task can link its
+    # Report row back to this Lead for audit.
     if address_clean and geocoded:
         background_tasks.add_task(
             _generate_and_send_lead_report,
@@ -267,6 +325,7 @@ async def capture_lead(
             db_url="",  # uses SessionLocal directly
             geocoded=geocoded,
             source=payload.source,
+            lead_id=lead.id,
         )
 
     return LeadResponse(

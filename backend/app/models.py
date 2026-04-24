@@ -48,7 +48,12 @@ class Report(Base):
     __tablename__ = "reports"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    # user_id is nullable since the bodenbericht.de lead flow persists
+    # reports without an attached user account. Paid-flow reports keep it.
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
+    # lead_id is set by the free lead flow so the reports table can be
+    # queried back from the Lead side for audit / admin inspection / stats.
+    lead_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("leads.id", ondelete="SET NULL"), nullable=True, index=True)
     address_input: Mapped[str] = mapped_column(Text, nullable=False)
     latitude: Mapped[float] = mapped_column(Float, nullable=False)
     longitude: Mapped[float] = mapped_column(Float, nullable=False)
@@ -63,7 +68,8 @@ class Report(Base):
     pdf_path: Mapped[str | None] = mapped_column(String(512))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    user: Mapped["User"] = relationship(back_populates="reports")
+    user: Mapped["User | None"] = relationship(back_populates="reports")
+    lead: Mapped["Lead | None"] = relationship(back_populates="reports")
     payment: Mapped["Payment | None"] = relationship(back_populates="report", uselist=False)
 
 
@@ -116,4 +122,14 @@ class Lead(Base):
     quiz_answers: Mapped[dict | None] = mapped_column(JSONB)
     source: Mapped[str] = mapped_column(String(100), nullable=False, default="quiz")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    # Reports that were produced from this lead. A lead can trigger
+    # multiple reports over time (first the free teaser, later the paid
+    # full version), so this is a 1-to-many. Ordered newest-first for
+    # convenience in admin views.
+    reports: Mapped[list["Report"]] = relationship(
+        back_populates="lead",
+        order_by="Report.created_at.desc()",
+        passive_deletes=True,
+    )
 
