@@ -201,6 +201,7 @@ async def _generate_and_send_lead_report(
             timeseries=timeseries,
             elevated_count=elevated_count,
             elevated_threshold_mm_yr=ELEVATED_THRESHOLD_MM_YR,
+            points=points,
         )
         pdf_bytes = html_to_pdf(html)
         if pdf_bytes is None:

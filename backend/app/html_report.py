@@ -18,6 +18,7 @@ the full report does not actually render.
 
 import base64
 import hashlib
+import math
 from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
@@ -221,6 +222,112 @@ def _svg_timeseries(timeseries: list, width: int = 480, height: int = 130) -> st
     </svg>"""
 
 
+def _svg_pointmap(
+    points: list,
+    center_lat: float,
+    center_lon: float,
+    radius_m: int,
+    threshold_mm_yr: float,
+    size: int = 300,
+) -> str:
+    """Render EGMS points around the address as a radius-centric scatter map.
+
+    Each measurement point is a small dot coloured by Ampel (green / yellow /
+    red) based on ``|mean_velocity_mm_yr|`` vs. ``threshold_mm_yr`` and the
+    5 mm/a cut for red. The actual mm/a values are never written on the map —
+    individual velocities stay paywall-safe, the map only communicates spatial
+    distribution of the classification.
+
+    Projection is a flat equirectangular approximation: correct for a 500 m
+    disc at mid-European latitudes; fine for a qualitative teaser map.
+    """
+    if not points:
+        return ""
+
+    pad = 30
+    cx = cy = size / 2
+    r_px = size / 2 - pad
+    meters_per_px = radius_m / r_px
+
+    lat_rad = math.radians(center_lat)
+    m_per_deg_lat = 111_320.0
+    m_per_deg_lon = 111_320.0 * math.cos(lat_rad) or 1.0
+
+    dots = []
+    counts = {"gruen": 0, "gelb": 0, "rot": 0}
+    for p in points:
+        try:
+            p_lat = float(p["lat"])
+            p_lon = float(p["lon"])
+            v_abs = abs(float(p["mean_velocity_mm_yr"]))
+        except (KeyError, TypeError, ValueError):
+            continue
+        dx_m = (p_lon - center_lon) * m_per_deg_lon
+        dy_m = (p_lat - center_lat) * m_per_deg_lat
+        if v_abs < threshold_mm_yr:
+            color, key = "#5B9A6F", "gruen"
+        elif v_abs <= 5.0:
+            color, key = "#C4A94D", "gelb"
+        else:
+            color, key = "#B85450", "rot"
+        counts[key] += 1
+        px = cx + dx_m / meters_per_px
+        py = cy - dy_m / meters_per_px
+        dots.append(
+            f'<circle cx="{px:.1f}" cy="{py:.1f}" r="3" '
+            f'fill="{color}" fill-opacity="0.85" stroke="white" stroke-width="0.6"/>'
+        )
+
+    # Scale bar: 100 m if the radius is large enough, else 50 m
+    scale_m = 100 if radius_m >= 300 else 50
+    scale_px = scale_m / meters_per_px
+    scale_x = pad
+    scale_y = size - 14
+
+    legend_items = [
+        ("#5B9A6F", f"&lt; {threshold_mm_yr:g} mm/a", counts["gruen"]),
+        ("#C4A94D", f"{threshold_mm_yr:g}&ndash;5 mm/a", counts["gelb"]),
+        ("#B85450", "&gt; 5 mm/a", counts["rot"]),
+    ]
+    legend_svg = ""
+    lx = size + 14
+    ly = pad
+    for color, label, n in legend_items:
+        legend_svg += (
+            f'<circle cx="{lx + 6}" cy="{ly + 6}" r="4" fill="{color}" '
+            f'stroke="white" stroke-width="0.6"/>'
+            f'<text x="{lx + 18}" y="{ly + 10}" font-size="10" fill="#1e293b">{label}</text>'
+            f'<text x="{lx + 18}" y="{ly + 22}" font-size="9" fill="#64748b">'
+            f'{n} {"Punkt" if n == 1 else "Punkte"}</text>'
+        )
+        ly += 32
+
+    total_w = size + 130
+    return f"""<svg width="100%" viewBox="0 0 {total_w} {size}" preserveAspectRatio="xMidYMid meet" class="pointmap">
+      <defs>
+        <pattern id="pm-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#eef2f6" stroke-width="1"/>
+        </pattern>
+        <clipPath id="pm-disc"><circle cx="{cx}" cy="{cy}" r="{r_px}"/></clipPath>
+      </defs>
+      <circle cx="{cx}" cy="{cy}" r="{r_px}" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+      <g clip-path="url(#pm-disc)">
+        <rect x="0" y="0" width="{size}" height="{size}" fill="url(#pm-grid)"/>
+      </g>
+      {''.join(dots)}
+      <circle cx="{cx}" cy="{cy}" r="5" fill="#1e293b" stroke="white" stroke-width="1.5"/>
+      <text x="{cx}" y="{cy - 10}" font-size="9" font-weight="600" text-anchor="middle" fill="#1e293b">Adresse</text>
+      <text x="{size - pad}" y="{pad - 6}" font-size="9" text-anchor="end" fill="#94a3b8">N ↑</text>
+      <line x1="{scale_x}" y1="{scale_y}" x2="{scale_x + scale_px:.1f}" y2="{scale_y}"
+            stroke="#475569" stroke-width="1.5"/>
+      <line x1="{scale_x}" y1="{scale_y - 3}" x2="{scale_x}" y2="{scale_y + 3}" stroke="#475569" stroke-width="1.5"/>
+      <line x1="{scale_x + scale_px:.1f}" y1="{scale_y - 3}" x2="{scale_x + scale_px:.1f}" y2="{scale_y + 3}"
+            stroke="#475569" stroke-width="1.5"/>
+      <text x="{scale_x + scale_px / 2:.1f}" y="{scale_y - 6}" font-size="9" text-anchor="middle" fill="#475569">{scale_m} m</text>
+      {legend_svg}
+    </svg>"""
+
+
 def _ampel_class(ampel: str) -> str:
     return {"gruen": "healthy", "gelb": "degraded", "rot": "unhealthy"}.get(ampel, "degraded")
 
@@ -306,6 +413,7 @@ def generate_html_report(
     timeseries: list | None = None,
     elevated_count: int = 0,
     elevated_threshold_mm_yr: float = 2.0,
+    points: list | None = None,
 ) -> str:
     """Generate a professional HTML report string."""
     answers = answers or {}
@@ -414,6 +522,14 @@ def generate_html_report(
     # Timeseries chart (A1): render only when we have usable data. Empty
     # string means the template-level conditional drops the whole card.
     timeseries_svg = _svg_timeseries(timeseries or [])
+
+    pointmap_svg = _svg_pointmap(
+        points or [],
+        center_lat=lat,
+        center_lon=lon,
+        radius_m=radius_m,
+        threshold_mm_yr=elevated_threshold_mm_yr,
+    )
 
     # Einschaetzung — quiz answers if present, otherwise ampel-specific fallback
     nutzung = answers.get("nutzung", "")
@@ -541,6 +657,9 @@ def generate_html_report(
   .ts-wrap {{ margin:10px 0 6px; padding:8px 4px 6px; background:#f9fafb; border-radius:6px; border:1px solid #eef1f3; }}
   .ts-chart {{ display:block; }}
   .ts-caption {{ font-size:10px; color:var(--gray); text-align:center; margin-top:2px; padding:0 8px; line-height:1.4; }}
+  .pm-wrap {{ margin:10px 0 6px; padding:10px 4px 6px; background:#f9fafb; border-radius:6px; border:1px solid #eef1f3; }}
+  .pointmap {{ display:block; max-width:460px; margin:0 auto; }}
+  .pm-caption {{ font-size:10px; color:var(--gray); text-align:center; margin-top:4px; padding:0 8px; line-height:1.4; }}
   .kpi {{ text-align:center; padding:12px 8px; background:#f8fafc; border-radius:8px; border:1px solid var(--border); }}
   .kpi .num {{ font-size:22px; font-weight:700; color:var(--accent); }}
   .kpi .lbl {{ font-size:9px; color:var(--gray); text-transform:uppercase; letter-spacing:.03em; margin-top:2px; }}
@@ -677,6 +796,7 @@ def generate_html_report(
   <p class="ss"><span style="color:var(--gray);">{bb_text}</span></p>
   {f'<p class="ss" style="margin-top:4px;"><span style="color:var(--dark); font-size:11px;">{ampel_reason}</span></p>' if ampel_reason else ''}
   {f'<div class="ts-wrap">{timeseries_svg}<div class="ts-caption">Wie stark sich der Boden seit {egms_period_start} insgesamt bewegt hat, gemittelt über alle Messpunkte im Umkreis. Die genauen Millimeter-Werte stehen im Vollbericht.</div></div>' if timeseries_svg else ''}
+  {f'<div class="pm-wrap">{pointmap_svg}<div class="pm-caption">Lage der {point_count} Satelliten-Messpunkte im Umkreis von {radius_m}&thinsp;m um die Adresse. Farbe zeigt die Klassifikation je Punkt; die exakten mm/a-Werte stehen im Vollbericht.</div></div>' if pointmap_svg else ''}
   <p class="ss" style="margin-top:6px;"><span style="color:var(--gray); font-size:10px;">Messzeitraum: {egms_period}. Quelle ist das europäische Copernicus-Programm, Satellit Sentinel-1.</span></p>
 </div>
 
