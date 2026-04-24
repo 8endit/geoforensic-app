@@ -110,7 +110,7 @@ _HTML_TEMPLATE = """<!DOCTYPE html>
 
             <p class="disclaimer">
               <strong style="color: #4b5563;">Hinweis:</strong>
-              Dieser Bericht ist ein automatisiertes Datenscreening auf Basis öffentlich verfügbarer EU-Satelliten- und Bodendaten. Er ersetzt keine fachliche Einzelfallbewertung durch eine sachverständige Person.
+              Dieser Bericht fasst öffentlich verfügbare EU-Satelliten- und Bodendaten für Ihre Adresse zusammen. Die Auswertung läuft automatisiert &mdash; eine fachliche Einzelbewertung vor Ort ersetzt er nicht.
             </p>
           </td>
         </tr>
@@ -206,9 +206,9 @@ def _build_text_body(address: str, is_teaser: bool = True) -> str:
         )
     return (
         body_lines
-        + "Der Bericht ist ein automatisiertes Datenscreening auf Basis öffentlicher "
-        "EU-Satelliten- und Bodendaten (Copernicus EGMS, ISRIC SoilGrids, JRC LUCAS). "
-        "Er ersetzt keine fachliche Einzelfallbewertung durch eine sachverständige Person.\n\n"
+        + "Der Bericht fasst öffentlich verfügbare EU-Satelliten- und Bodendaten "
+        "für Ihre Adresse zusammen. Die Auswertung läuft automatisiert — eine "
+        "fachliche Einzelbewertung vor Ort ersetzt er nicht.\n\n"
         "Bei Rückfragen erreichen Sie uns unter team@geoforensic.de.\n\n"
         "Mit freundlichen Grüßen\n"
         "Ihr Bodenbericht-Team\n\n"

@@ -31,7 +31,14 @@ async def fetch_static_map(
     height: int = 250,
     zoom: int = 16,
 ) -> str:
-    """Return ``data:image/png;base64,...`` or empty string on failure."""
+    """Return ``data:image/png;base64,...`` or empty string on failure.
+
+    Every outcome is logged at INFO/WARNING so an operator tailing the
+    backend container can tell at a glance whether the external
+    staticmap service is up, rate-limiting, or returning placeholder
+    "service unavailable" PNGs. The empty-string return path is what
+    the report template keys off of for the grey coord-fallback block.
+    """
     params = {
         "center": f"{lat},{lon}",
         "zoom": zoom,
@@ -46,11 +53,40 @@ async def fetch_static_map(
                 headers={"User-Agent": STATIC_MAP_USER_AGENT},
             )
             resp.raise_for_status()
-            if not resp.content or len(resp.content) < 500:
-                # Defensive: service sometimes returns a 200 with a tiny
-                # "service unavailable" PNG. Treat that as failure.
+            content_len = len(resp.content) if resp.content else 0
+            if content_len < 500:
+                # The service answered with 200 but the body is too small to
+                # be a real map (Gravitystorm tends to send a ~200-byte
+                # "service unavailable" PNG at peak times). Log this loud
+                # enough that the operator notices — without this line the
+                # failure was completely silent.
+                logger.warning(
+                    "Static map service returned %d bytes for (%s, %s) "
+                    "status=%s — treating as soft failure, grey fallback "
+                    "will be used in the PDF.",
+                    content_len, lat, lon, resp.status_code,
+                )
                 return ""
+            logger.info(
+                "Static map fetched: %d bytes for (%s, %s)",
+                content_len, lat, lon,
+            )
             return "data:image/png;base64," + base64.b64encode(resp.content).decode("ascii")
+    except httpx.HTTPStatusError as exc:
+        logger.warning(
+            "Static map HTTP %s for (%s, %s): %s",
+            exc.response.status_code, lat, lon, exc,
+        )
+        return ""
+    except httpx.TimeoutException:
+        logger.warning(
+            "Static map timeout (5s) for (%s, %s) — service too slow or unreachable.",
+            lat, lon,
+        )
+        return ""
     except Exception as exc:
-        logger.warning("Static map fetch failed for (%s, %s): %s", lat, lon, exc)
+        logger.warning(
+            "Static map fetch failed for (%s, %s): %s: %s",
+            lat, lon, type(exc).__name__, exc,
+        )
         return ""

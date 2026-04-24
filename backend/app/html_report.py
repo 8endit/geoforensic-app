@@ -383,22 +383,30 @@ def generate_html_report(
     # Ampel-Begründung (A3): concrete counts instead of the one-liner fallback.
     # We show "X von N Messpunkten zeigten Werte über Y mm/a" whenever there
     # is measurement data, so the reader can tell where the Ampel comes from.
-    # Exact mm/a per point stays behind the paywall.
+    # Exact mm/a per point stays behind the paywall. The parenthetical
+    # explains what "2 mm/a" means for a first-time reader.
+    threshold_explain = (
+        f"{elevated_threshold_mm_yr:g}&thinsp;Millimeter pro Jahr &mdash; "
+        "ab diesem Wert gilt eine Bewegung in der Fachliteratur als auffällig"
+    )
     if point_count > 0:
         if elevated_count == 0:
             ampel_reason = (
                 f"Alle {point_count} Messpunkte im Umkreis blieben unter dem "
-                f"Schwellwert von {elevated_threshold_mm_yr:g}&thinsp;mm/a."
+                f"Schwellwert von {elevated_threshold_mm_yr:g}&thinsp;mm/a "
+                f"({threshold_explain})."
             )
         elif elevated_count == 1:
             ampel_reason = (
                 f"1 von {point_count} Messpunkten zeigte Werte über "
-                f"{elevated_threshold_mm_yr:g}&thinsp;mm/a."
+                f"{elevated_threshold_mm_yr:g}&thinsp;mm/a "
+                f"({threshold_explain})."
             )
         else:
             ampel_reason = (
                 f"{elevated_count} von {point_count} Messpunkten zeigten "
-                f"Werte über {elevated_threshold_mm_yr:g}&thinsp;mm/a."
+                f"Werte über {elevated_threshold_mm_yr:g}&thinsp;mm/a "
+                f"({threshold_explain})."
             )
     else:
         ampel_reason = ""
@@ -651,7 +659,7 @@ def generate_html_report(
     </div>
     <div class="ss">
       <p><strong>{'Der Standort zeigt keine kritischen Auffälligkeiten.' if score >= 70 else 'Einzelne Parameter erfordern Aufmerksamkeit.' if score >= 40 else 'Mehrere Parameter zeigen kritische Werte.'}</strong></p>
-      <p>{point_count} InSAR-Messpunkte im Umkreis von {radius_m}&thinsp;m ausgewertet. Die Ampel basiert auf der mittleren Geschwindigkeit aller Messpunkte; die konkreten mm/a-Werte stehen im Vollbericht.</p>
+      <p>{point_count} Satelliten-Messpunkte im Umkreis von {radius_m}&thinsp;m ausgewertet. Diese Punkte erkennen millimetergenaue Bewegungen der Erdoberfläche. Die Ampel basiert auf der mittleren Geschwindigkeit aller Messpunkte; die konkreten mm/a-Werte stehen im Vollbericht.</p>
     </div>
   </div>
   <p class="ss" style="margin-top:10px; padding-top:8px; border-top:1px solid #eef1f3;"><span style="color:var(--gray); font-size:10px;">Der GeoScore kombiniert mittlere Geschwindigkeit, Streuung und Messpunktdichte im Umkreis.</span></p>
@@ -668,8 +676,8 @@ def generate_html_report(
   </div>
   <p class="ss"><span style="color:var(--gray);">{bb_text}</span></p>
   {f'<p class="ss" style="margin-top:4px;"><span style="color:var(--dark); font-size:11px;">{ampel_reason}</span></p>' if ampel_reason else ''}
-  {f'<div class="ts-wrap">{timeseries_svg}<div class="ts-caption">Kumulierte mittlere Bodenbewegung im Umkreis seit {egms_period_start}. Exakte mm-Werte und Geschwindigkeit pro Messpunkt im Vollbericht.</div></div>' if timeseries_svg else ''}
-  <p class="ss" style="margin-top:6px;"><span style="color:var(--gray); font-size:10px;">Messzeitraum: {egms_period} (Copernicus EGMS, Sentinel-1).</span></p>
+  {f'<div class="ts-wrap">{timeseries_svg}<div class="ts-caption">Wie stark sich der Boden seit {egms_period_start} insgesamt bewegt hat, gemittelt über alle Messpunkte im Umkreis. Die genauen Millimeter-Werte stehen im Vollbericht.</div></div>' if timeseries_svg else ''}
+  <p class="ss" style="margin-top:6px;"><span style="color:var(--gray); font-size:10px;">Messzeitraum: {egms_period}. Quelle ist das europäische Copernicus-Programm, Satellit Sentinel-1.</span></p>
 </div>
 
 <div class="card">
@@ -681,7 +689,7 @@ def generate_html_report(
 
 <div class="card locked">
   <h2>Schwermetalle &amp; Schadstoffe</h2>
-  <p class="teaser-note">Im Vollbericht: exakte Messwerte für Cd, Pb, Hg, As, Cr, Cu, Ni und Zn, jeweils mit Ampel-Einordnung gegen die BBodSchV-Vorsorgewerte.</p>
+  <p class="teaser-note">Im Vollbericht: exakte Messwerte für Cadmium, Blei, Quecksilber, Arsen, Chrom, Kupfer, Nickel und Zink, jeweils mit Ampel-Einordnung gegen die gesetzlichen Vorsorgewerte der Bundes-Bodenschutzverordnung.</p>
   <div class="locked-content">
     <div class="metal-grid">{metal_cells}</div>
   </div>
@@ -690,7 +698,7 @@ def generate_html_report(
 
 <div class="card locked">
   <h2>Bodenqualität &amp; Textur</h2>
-  <p class="teaser-note">Im Vollbericht: pH-Wert, organischer Kohlenstoff, Lagerungsdichte und die konkrete Bodenart (Ton/Sand/Schluff-Anteile) aus dem SoilGrids-250&thinsp;m-Raster.</p>
+  <p class="teaser-note">Im Vollbericht: pH-Wert, organischer Kohlenstoff, Lagerungsdichte und die konkrete Bodenart (Ton/Sand/Schluff-Anteile) &mdash; aus der internationalen Bodendatenbank SoilGrids, betrieben vom niederländischen Institut ISRIC.</p>
   <div class="locked-content">
     <div class="stat-grid-3">
       <div class="stat-cell"><div class="lbl">pH-Wert</div><div class="val">▓▓▓</div><div class="sub">Säuregrad</div></div>
@@ -703,7 +711,7 @@ def generate_html_report(
 
 <div class="card locked">
   <h2>Nährstoffe (Phosphor &amp; Stickstoff)</h2>
-  <p class="teaser-note">Im Vollbericht: Phosphor- und Stickstoff-Werte aus der EU-LUCAS-Topsoil-Datenbank, eingeordnet gegen agronomische Referenzbereiche.</p>
+  <p class="teaser-note">Im Vollbericht: Phosphor- und Stickstoff-Werte aus der EU-weiten Bodenprobendatenbank LUCAS, eingeordnet gegen Referenzbereiche der landwirtschaftlichen Fachliteratur.</p>
   <div class="locked-content">
     <div class="stat-grid-3" style="grid-template-columns:repeat(2,1fr);">
       <div class="stat-cell"><div class="lbl">Phosphor (P)</div><div class="val">▓▓▓ mg/kg</div><div class="sub">Nährstoffgehalt</div></div>
@@ -722,7 +730,7 @@ def generate_html_report(
       <div class="stat-cell warn"><div class="lbl">Max. Geschw.</div><div class="val">▓▓▓ mm/a</div></div>
       <div class="stat-cell"><div class="lbl">Trend</div><div class="val">▓▓▓</div></div>
     </div>
-    <p class="ss" style="margin-top:8px;"><span style="color:var(--gray); font-size:10px;">Messzeitraum {egms_period}, {radius_m}&thinsp;m-Radius (Copernicus EGMS L3 Ortho, Sentinel-1).</span></p>
+    <p class="ss" style="margin-top:8px;"><span style="color:var(--gray); font-size:10px;">Aggregierte Geschwindigkeit aller Messpunkte im {radius_m}&thinsp;m-Radius, Messzeitraum {egms_period}. Datengrundlage: europäische Satelliten aus dem Copernicus-Programm.</span></p>
   </div>
   {_LOCK_PILL_HTML}
 </div>
@@ -738,12 +746,12 @@ def generate_html_report(
 <div class="card">
   <h2 style="font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--gray); border:none; padding:0; margin:0 0 6px;">Datenquellen</h2>
   <p style="font-size:11px; color:var(--dark); margin:0;">
-    Copernicus EGMS (Sentinel-1) · LUCAS Topsoil Survey (EU) · SoilGrids 250m (ISRIC) · OpenStreetMap Nominatim · Referenzwerte: BBodSchV
+    Datengrundlage: europäische Satelliten (Copernicus Sentinel-1), EU-Bodenprobendatenbank (LUCAS), internationale Bodendatenbank (SoilGrids) und OpenStreetMap. Referenzwerte nach Bundes-Bodenschutzverordnung.
   </p>
 </div>
 
 <div class="disclaimer">
-  <strong>Hinweis:</strong> Dieser Bodenbericht ist ein automatisiertes Datenscreening auf Basis öffentlich verfügbarer Fernerkundungs- und Bodendaten (Copernicus EGMS, LUCAS, SoilGrids). Er ersetzt keine Ortsbesichtigung, Laboranalyse oder fachliche Einzelfallbewertung durch einen zugelassenen Sachverständigen gem. §18 BBodSchG. Messwerte basieren auf regionalen Durchschnittswerten und nicht auf standortspezifischen Beprobungen.
+  <strong>Hinweis:</strong> Dieser Bodenbericht fasst öffentlich verfügbare Satelliten- und Bodendaten für Ihre Adresse zusammen. Die Auswertung läuft automatisiert. Er ersetzt keine Ortsbesichtigung, keine Laboranalyse und keine fachliche Einzelfallbewertung durch einen zugelassenen Sachverständigen nach §18 BBodSchG. Die Messwerte beruhen auf regionalen Durchschnittswerten, nicht auf Proben vor Ort.
   <br><br>
   <em>Generated using European Union's Copernicus Land Monitoring Service information.</em>
 </div>
