@@ -55,6 +55,13 @@ class Settings(BaseSettings):
     operator_legal_name: str = "Tepnosholding GmbH"
     operator_imprint_url: str = "https://bodenbericht.de/impressum.html"
 
+    # Redis-backed Nominatim response cache. Empty URL disables the cache
+    # entirely (graceful fallback, the pipeline keeps working against the
+    # live Nominatim API). TTL default is 30 days — addresses effectively
+    # never change and Nominatim ToS explicitly encourage long-term caching.
+    redis_url: str = ""
+    geocode_cache_ttl_seconds: int = 30 * 24 * 60 * 60
+
 
 @lru_cache
 def get_settings() -> Settings:

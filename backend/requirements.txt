@@ -24,4 +24,5 @@ matplotlib
 openpyxl
 Pillow
 sentry-sdk[fastapi]
+redis>=5.0
 

@@ -3,6 +3,8 @@
 import httpx
 from fastapi import APIRouter, Query
 
+from app import geocode_cache
+
 router = APIRouter(prefix="/api/geocode", tags=["geocode"])
 
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
@@ -24,6 +26,11 @@ async def geocode_suggest(
     """Address autocomplete via Nominatim."""
     if len(q.strip()) < 3:
         return {"suggestions": []}
+
+    cache_key = geocode_cache.key_suggest(q, country)
+    cached = await geocode_cache.cache_get(cache_key)
+    if isinstance(cached, list):
+        return {"suggestions": cached}
 
     try:
         resp = await _client.get(
@@ -79,4 +86,5 @@ async def geocode_suggest(
             "lon": float(d["lon"]),
         })
 
+    await geocode_cache.cache_set(cache_key, suggestions)
     return {"suggestions": suggestions}

@@ -11,6 +11,7 @@ from fastapi.responses import Response, StreamingResponse
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app import geocode_cache
 from app.database import SessionLocal
 from app.dependencies import get_current_user, get_db
 from app.models import Ampel, Report, ReportStatus, User
@@ -133,6 +134,21 @@ async def geocode_address(address: str) -> tuple[float, float, str, str, dict[st
             detail="Adresse darf nicht leer sein",
         )
 
+    cache_key = geocode_cache.key_full(query)
+    cached = await geocode_cache.cache_get(cache_key)
+    if cached is not None:
+        try:
+            c_lat, c_lon, c_display, c_country, c_region = cached
+            return (
+                float(c_lat),
+                float(c_lon),
+                str(c_display),
+                str(c_country),
+                dict(c_region),
+            )
+        except (TypeError, ValueError) as exc:
+            logger.warning("geocode cache returned malformed value for %r: %s", query, exc)
+
     async with _nominatim_lock:
         # Nominatim policy: keep client-side pacing near 1 request/s.
         delay = NOMINATIM_MIN_INTERVAL_SECONDS - (time.monotonic() - _last_nominatim_call)
@@ -178,13 +194,15 @@ async def geocode_address(address: str) -> tuple[float, float, str, str, dict[st
 
     hit = results[0]
     country_code = hit.get("address", {}).get("country_code", "").lower()
-    return (
+    result = (
         float(hit["lat"]),
         float(hit["lon"]),
         _normalize_nominatim_address(hit),
         country_code,
         _extract_region(hit),
     )
+    await geocode_cache.cache_set(cache_key, list(result))
+    return result
 
 
 async def query_egms_points(
