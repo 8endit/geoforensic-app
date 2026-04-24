@@ -88,7 +88,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             <th class="px-3 py-2">Email</th>
             <th class="px-3 py-2">Adresse</th>
             <th class="px-3 py-2">Quelle</th>
-            <th class="px-3 py-2">Report</th>
+            <th class="px-3 py-2">Variante</th>
+            <th class="px-3 py-2">Ampel</th>
+            <th class="px-3 py-2">Score</th>
+            <th class="px-3 py-2">PDF</th>
             <th class="px-3 py-2">Nutzung</th>
             <th class="px-3 py-2">Bedenken</th>
             <th class="px-3 py-2">Dringlichkeit</th>
@@ -126,6 +129,38 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       throw new Error(`HTTP ${res.status}: ${res.statusText}`);
     }
     return await res.json();
+  }
+
+  // Fetch the report PDF as a blob (need the admin token header, cannot
+  // use a plain anchor href), then trigger a browser download with a
+  // sensible filename from the Content-Disposition header.
+  async function downloadReportPdf(reportId) {
+    const token = getToken();
+    try {
+      const res = await fetch(`/api/_admin/reports/${reportId}/pdf`, {
+        headers: token ? { 'X-Admin-Token': token } : {},
+      });
+      if (!res.ok) {
+        alert(res.status === 404
+          ? 'Kein PDF für diesen Bericht gespeichert (Lead vor C2 oder Rendering gescheitert).'
+          : `Fehler: HTTP ${res.status}`);
+        return;
+      }
+      const cd = res.headers.get('Content-Disposition') || '';
+      const match = cd.match(/filename="([^"]+)"/);
+      const filename = match ? match[1] : `report-${reportId}.pdf`;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Fehler beim Download: ' + err.message);
+    }
   }
 
   function fmtTime(iso) {
@@ -168,21 +203,42 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       } else {
         document.getElementById('leads-empty').classList.add('hidden');
         const TEASER_SOURCES = new Set(['quiz', 'landing', 'premium-waitlist']);
+        const AMPEL_STYLE = {
+          gruen: 'background:#dcfce7;color:#166534;',
+          gelb:  'background:#fef3c7;color:#92400e;',
+          rot:   'background:#fee2e2;color:#991b1b;',
+        };
+        const AMPEL_LABEL = { gruen: 'grün', gelb: 'gelb', rot: 'rot' };
         document.getElementById('leads-body').innerHTML = leads.map(l => {
           const q = l.quiz_answers || {};
           const address = q.address || shortText(q.source_page || '', 30);
           const isTeaser = TEASER_SOURCES.has(l.source);
-          const reportBadge = isTeaser
+          const variantBadge = isTeaser
             ? '<span class="pill pill-gray" style="background:#e0f2fe;color:#075985;">TEASER</span>'
             : (l.source === 'paid'
                 ? '<span class="pill pill-gray" style="background:#dcfce7;color:#166534;">VOLL</span>'
                 : '<span class="pill pill-gray">—</span>');
+          // Report data attached to the lead (set by C1 pipeline).
+          // Missing for pre-C1 leads — show em-dash placeholders.
+          const r = l.report;
+          const ampelCell = r && r.ampel
+            ? `<span class="pill" style="${AMPEL_STYLE[r.ampel] || ''}">${AMPEL_LABEL[r.ampel] || r.ampel}</span>`
+            : '<span class="text-gray-300">—</span>';
+          const scoreCell = r && r.geo_score !== null && r.geo_score !== undefined
+            ? `<span class="font-mono text-xs">${r.geo_score}</span>`
+            : '<span class="text-gray-300">—</span>';
+          const pdfCell = r && r.has_pdf
+            ? `<a href="#" onclick="downloadReportPdf('${r.id}');return false;" class="text-xs text-[#1e3352] underline hover:no-underline">Download</a>`
+            : '<span class="text-gray-300">—</span>';
           return `<tr class="hover:bg-gray-50">
             <td class="px-3 py-2 text-xs text-gray-500 font-mono">${fmtTime(l.created_at)}</td>
             <td class="px-3 py-2 font-medium">${l.email}</td>
             <td class="px-3 py-2 text-xs">${shortText(address, 40)}</td>
             <td class="px-3 py-2"><span class="pill pill-gray">${l.source}</span></td>
-            <td class="px-3 py-2">${reportBadge}</td>
+            <td class="px-3 py-2">${variantBadge}</td>
+            <td class="px-3 py-2">${ampelCell}</td>
+            <td class="px-3 py-2">${scoreCell}</td>
+            <td class="px-3 py-2">${pdfCell}</td>
             <td class="px-3 py-2 text-xs">${shortText(q.nutzung || '', 25)}</td>
             <td class="px-3 py-2 text-xs">${shortText(q.bedenken || '', 25)}</td>
             <td class="px-3 py-2 text-xs">${shortText(q.dringlichkeit || '', 25)}</td>

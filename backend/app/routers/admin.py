@@ -1,9 +1,11 @@
 """Admin activity endpoint — lightweight dashboard data from existing tables."""
 
 import os
+import uuid
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Header, status
+from fastapi.responses import Response
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -111,6 +113,9 @@ async def list_leads(
                 "elevated_count": (r.report_data or {}).get("elevated_count"),
                 "address_display": (r.report_data or {}).get("address_display") or r.address_input,
                 "created_at": r.created_at.isoformat() if r.created_at else None,
+                # has_pdf tells the admin UI whether a PDF download link is
+                # worth showing. Non-null pdf_bytes = PDF available.
+                "has_pdf": r.pdf_bytes is not None,
             }
         lead_dicts.append({
             "id": str(l.id),
@@ -208,3 +213,53 @@ async def activity(db: AsyncSession = Depends(get_db)) -> dict:
         "users": user_summaries,
         "recent": recent,
     }
+
+
+@router.get("/reports/{report_id}/pdf")
+async def download_report_pdf(
+    report_id: str,
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(_require_admin),
+) -> Response:
+    """Stream the stored PDF bytes for a report.
+
+    Returns the exact PDF that was mailed to the recipient. No re-render
+    happens here — if the template code has moved on since then, this
+    endpoint still serves the historical version.
+
+    404 if the report does not exist or does not have pdf_bytes attached
+    (rows created before the C2 migration, or rows where the pipeline
+    fell back to attaching HTML instead of a PDF).
+    """
+    try:
+        rid = uuid.UUID(report_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid report id",
+        )
+
+    result = await db.execute(select(Report).where(Report.id == rid))
+    report = result.scalar_one_or_none()
+    if report is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
+    if not report.pdf_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No PDF stored for this report (pre-C2 lead, or render failed)",
+        )
+
+    # Peek at the first bytes to decide Content-Type: "%PDF" = PDF,
+    # anything else means the pipeline fell back to attaching HTML bytes.
+    is_pdf = report.pdf_bytes[:4] == b"%PDF"
+    filename_stem = (report.address_input or f"report-{rid}").replace("/", "_")[:80]
+    if is_pdf:
+        headers = {
+            "Content-Disposition": f'attachment; filename="{filename_stem}.pdf"',
+        }
+        return Response(content=report.pdf_bytes, media_type="application/pdf", headers=headers)
+    else:
+        headers = {
+            "Content-Disposition": f'attachment; filename="{filename_stem}.html"',
+        }
+        return Response(content=report.pdf_bytes, media_type="text/html; charset=utf-8", headers=headers)

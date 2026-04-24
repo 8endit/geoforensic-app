@@ -3,7 +3,7 @@ import uuid
 from datetime import date, datetime
 
 from geoalchemy2 import Geometry
-from sqlalchemy import Boolean, Date, DateTime, Enum, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Date, DateTime, Enum, Float, ForeignKey, Integer, LargeBinary, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -66,6 +66,11 @@ class Report(Base):
     paid: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     report_data: Mapped[dict | None] = mapped_column(JSONB)
     pdf_path: Mapped[str | None] = mapped_column(String(512))
+    # pdf_bytes stores the exact PDF that was mailed to the recipient, so
+    # the admin PDF-download endpoint can return it historically-exact.
+    # Nullable because pre-C2 rows and rows where rendering fell back to
+    # an HTML attachment do not have bytes to persist.
+    pdf_bytes: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     user: Mapped["User | None"] = relationship(back_populates="reports")

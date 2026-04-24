@@ -250,6 +250,13 @@ async def _generate_and_send_lead_report(
                         geo_score=geo_score,
                         paid=False,
                         report_data=report_data,
+                        # Persist the exact PDF bytes that were just mailed
+                        # so the admin can redownload the historic version.
+                        # On HTML fallback (PDF-render failed, pdf_bytes
+                        # already contains html.encode('utf-8')), we still
+                        # store it — the endpoint's Content-Type check
+                        # handles that case.
+                        pdf_bytes=pdf_bytes,
                     )
                     db.add(report)
                     await db.commit()
