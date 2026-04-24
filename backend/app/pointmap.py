@@ -28,6 +28,74 @@ _RED = "#B85450"
 _ADDRESS = "#1E3352"
 
 
+def render_address_pin(
+    center_lat: float,
+    center_lon: float,
+    half_extent_m: float = 180.0,
+    width_in: float = 4.3,
+    height_in: float = 2.7,
+    dpi: int = 160,
+) -> str:
+    """Render a small OSM basemap with a centered address pin.
+
+    Drop-in replacement for the flaky staticmap.openstreetmap.de call in
+    ``app.static_map.fetch_static_map``. Same CartoDB Positron tile source
+    the pointmap uses, so both maps share one provider. Empty string on
+    any failure (network, tile error, missing deps) — the report template
+    renders a grey coord-fallback in that case.
+    """
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        import contextily as cx
+        import pyproj
+    except ImportError as exc:
+        logger.warning("address pin deps missing: %s", exc)
+        return ""
+
+    try:
+        transformer = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
+        cx_m, cy_m = transformer.transform(center_lon, center_lat)
+
+        xmin, xmax = cx_m - half_extent_m, cx_m + half_extent_m
+        ymin, ymax = cy_m - half_extent_m, cy_m + half_extent_m
+
+        fig, ax = plt.subplots(figsize=(width_in, height_in), dpi=dpi)
+        ax.set_xlim(xmin, xmax)
+        ax.set_ylim(ymin, ymax)
+        ax.set_aspect("equal")
+        ax.set_axis_off()
+
+        try:
+            cx.add_basemap(
+                ax,
+                source=cx.providers.CartoDB.Positron,
+                crs="EPSG:3857",
+                reset_extent=False,
+                zoom=17,
+                attribution_size=5,
+            )
+        except Exception as exc:
+            logger.warning("address pin basemap fetch failed: %s: %s", type(exc).__name__, exc)
+            return ""
+
+        # Two-layer pin: red outer ring + white centre dot
+        ax.scatter([cx_m], [cy_m], s=340, c="#B85450", marker="o",
+                   edgecolors="white", linewidths=2.5, zorder=10)
+        ax.scatter([cx_m], [cy_m], s=70, c="white", marker="o",
+                   edgecolors="#B85450", linewidths=1.0, zorder=11)
+
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png", dpi=dpi, bbox_inches="tight",
+                    pad_inches=0.02, facecolor="white")
+        plt.close(fig)
+        return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode("ascii")
+    except Exception as exc:
+        logger.warning("address pin render failed: %s: %s", type(exc).__name__, exc)
+        return ""
+
+
 def render_pointmap(
     center_lat: float,
     center_lon: float,
