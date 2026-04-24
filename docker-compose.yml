@@ -32,6 +32,15 @@ services:
     volumes:
       - ./landing:/app/landing:ro
       - ${RASTER_DIR:-./rasters}:/app/rasters:ro
+    # Run pending Alembic migrations before uvicorn boots. The migrations
+    # themselves are idempotent (IF NOT EXISTS / DO blocks), so a no-op
+    # upgrade when the DB is already at head is instant. Without this
+    # line the operator has to remember to `docker compose exec backend
+    # alembic upgrade head` after every deploy, which is exactly the
+    # failure mode we just hit with the 2026-04-24 reports.lead_id patch.
+    command: >
+      sh -c "alembic upgrade head &&
+             exec uvicorn app.main:app --host 0.0.0.0 --port 8000"
     depends_on:
       db:
         condition: service_healthy
