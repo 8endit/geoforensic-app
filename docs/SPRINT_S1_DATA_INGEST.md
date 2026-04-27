@@ -1,17 +1,25 @@
 # SPRINT_S1_DATA_INGEST.md — Datenquellen + Server-Upload-Pfad
 
-**Stand:** 2026-04-27. Recherche-Ergebnis aus zwei parallelen
-Web-Recherchen + Repo-Inspektion. Begleitet die Strategie aus
+**Stand:** 2026-04-27, **mehrfach revidiert nach Live-Verifizierung**.
+Begleitet die Strategie aus
 [`MARKET_REALITY_DE_2026.md`](MARKET_REALITY_DE_2026.md) (Option B —
-Soil-Act + InSAR + Interpretations-Layer).
+Soil-Act + InSAR + eigene Modelle aus Roh-Quellen).
 
-**Wichtige Korrektur gegenüber Spec:** BBSR GIS-ImmoRisk ist als
-Datenquelle **derzeit blockiert**. Lizenz nicht öffentlich deklariert,
-kein Maschinen-Zugang. Mail-Anfrage ist Voraussetzung
-(siehe [`MAIL_BBSR_LIZENZ.md`](MAIL_BBSR_LIZENZ.md)). Die sechs
-BBSR-Layer (Hitze/Hagel/Sturm/Erdbeben/Waldbrand/Starkregen) müssen
-entweder warten oder direkt aus den Quell-Diensten (DWD, BGR) bezogen
-werden statt aus dem BBSR-Aggregat.
+**Verifizierungs-Doc:** Der einzige Layer-Katalog dem wir vertrauen
+ist [`DATA_SOURCES_VERIFIED.md`](DATA_SOURCES_VERIFIED.md). Bei jeder
+Diskrepanz zwischen diesem Doc und dem Verifizierungs-Doc gilt das
+Verifizierungs-Doc.
+
+**Korrekturen gegenüber früheren Versionen:**
+- BBSR GIS-ImmoRisk: blockiert (Lizenz nicht deklariert, kein
+  Maschinen-Zugang). Mail an `zentrale@bbr.bund.de` ausstehend.
+- Erdbebenzonen DIN EN 1998-1/NA: Quelle ist **GFZ Potsdam**, nicht
+  BGR. Frühere Annahme war falsch.
+- BfS Radon: kein einheitlicher WMS — 5 Landes-Verordnungen
+  einzeln zu pflegen. Kein Quick-Win.
+- DWD KOSTRA: kein WMS, nur Raster-Download. Pattern A statt C.
+- BfG HWRM: Lizenz nur Sekundärquelle bestätigt, Capabilities-Live-Test
+  ausstehend (Cloud-Sandbox blockt, vom VPS testen).
 
 ---
 
@@ -208,19 +216,21 @@ nach Phase-1.
 
 ---
 
-## 3. Reihenfolge der Umsetzung
+## 3. Reihenfolge der Umsetzung — revidiert nach Verifizierung
 
-Empfehlung für die nächsten 2–3 Sprints:
+Empfehlung für die nächsten 2–3 Sprints. Genaue Verifizierungs-Stati
+in [`DATA_SOURCES_VERIFIED.md`](DATA_SOURCES_VERIFIED.md).
 
-| Sprint | Inhalt | Voraussetzung |
-|---|---|---|
-| S1 | BfG Hochwasser-WMS integrieren + neuer Bericht-Abschnitt | keine, sofort starten |
-| S1.5 | BfS Radon-Lizenz-Check + Vorsorgegebiete-WMS | Metadaten-Lese-Aufgabe |
-| S2 | BGR Erdbebenzonen-WMS (DIN-relevant) | dl-de/by-2.0 verifizieren |
-| S2 | NRW-Bergbau-WMS (Bezirksreg. Arnsberg) | Capabilities-Check |
-| S3 | NL-i18n des Reports + KCAF/FunderMaps-Anbindung | Pricing-Entscheidung |
-| pending | BBSR | Mail-Antwort abwarten |
-| pending | Altlasten-Hinweislayer | Konzept docestate-Hybrid offen |
+| Sprint | Inhalt | Status | Voraussetzung |
+|---|---|---|---|
+| S1 | NRW Bergbau-WMS — neues Modul + Bericht-Abschnitt | grünes Licht | keine, sofort starten |
+| S1 | DWD KOSTRA Download-Pipeline + Raster-Hosting | Engineering startbar | vom VPS Index-File holen, ein Test-Raster ziehen |
+| S2 | BfG HWRM-WMS — nach Live-Verify | bedingt | Capabilities + AccessConstraints vom VPS lesen |
+| S3 | NL-i18n des Reports + KCAF/FunderMaps-Anbindung | offen | Pricing-Entscheidung |
+| pending | BBSR GIS-ImmoRisk | Mail-Antwort abwarten | `zentrale@bbr.bund.de` |
+| pending | GFZ Erdbebenzonen DIN EN 1998-1/NA | Quelle korrigiert, Lizenz-Klärung offen | Mail an GFZ |
+| pending | BfS / Landes-Radon | Patchwork, Phase-2 | je BL Lizenz-Check |
+| pending | Altlasten-Hinweislayer | Konzept docestate-Hybrid offen | unverändert |
 
 **Wichtig:** Vor jeder Layer-Integration ein **Lizenz-Verify-Schritt** —
 GetCapabilities-Call + Metadata-Eintrag im Geoportal lesen, Lizenz im

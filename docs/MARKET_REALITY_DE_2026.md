@@ -249,26 +249,38 @@ für Umsatz legt.
 - [ ] BBSR-Lizenz-Recherche (parallel, niedrige Priorität): Mail an
       `info@bbsr.bund.de`, Web-Recherche dl-de/by-2.0 für GIS-ImmoRisk
 
-### Sprint S2 (Woche 2) — „BfG Hochwasser + NL-Schiene anstoßen"
+### Sprint S2 (Woche 2) — „NRW Bergbau + KOSTRA + BfG-Verify"
 
-Hochwasser ersetzt die ursprünglich geplante BBSR-Integration als ersten
-Daten-Layer-Sprint, weil BBSR derzeit blockiert ist (siehe §3) und BfG
-sofort startbar ist (GeoNutzV, kommerziell OK).
+Reihenfolge nach Live-Verifizierung 2026-04-27 angepasst — die
+Verifikation hat ergeben, dass NRW Bergbau der einzige vollständig
+verifizierte Layer ist, BfG Hochwasser noch einen Live-Capabilities-Test
+vom VPS braucht. Details:
+[`DATA_SOURCES_VERIFIED.md`](DATA_SOURCES_VERIFIED.md).
 
-- [ ] BfG Hochwasser-WMS integrieren — `flood_data.py`-Modul + Aufruf
-      aus `_generate_and_send_lead_report` Full-Pfad + neuer
-      Bericht-Abschnitt im `full_report.py`
+- [ ] **NRW Bergbau-WMS integrieren** — neues Modul `mining_nrw.py`,
+      WMS GetFeatureInfo gegen `wms.nrw.de`, neuer Bericht-Abschnitt
+      (nur für NRW-Adressen, sonst „nicht relevant")
+- [ ] **DWD KOSTRA Download-Pipeline** — ASCII-Raster ziehen,
+      konvertieren zu GeoTIFF, in `RASTER_DIR` legen, neues Modul
+      `kostra_data.py` für Punkt-Lookup
+- [ ] **BfG HWRM Live-Verify vom VPS** — Capabilities + Layer-Namen
+      + AccessConstraints lesen, danach `flood_data.py`-Modul bauen
 - [ ] PDF-Template-i18n-Skelett (NL-Strings noch leer, Engine bereit)
-- [ ] BfS Radon Layer-Lizenz im Geoportal-Metadata verifizieren
 - [ ] NL-Sprachlektorat anfragen (Freelancer-Briefing schreiben)
 - [ ] Outreach-Mail an erste 5 NL-Taxateure für Pilot-Reports
 - [ ] BBSR-Lizenzanfrage rausschicken (parallel)
+- [ ] BGR-BBD-Mail rausschicken (parallel) — liegt seit Wochen
+      als Draft (`docs/MAIL_BGR_BBD.md`)
 
 ### Was **nicht** in S1/S2 kommt
 
 - BBSR-Layer (Hitze/Hagel/Sturm/Erdbeben/Waldbrand/Starkregen) —
   blockiert bis Lizenzantwort
-- Bergbau/Altlasten — kommt in S3+
+- BfS / Landes-Radon — Patchwork, mehrere Tage Klärung pro Land,
+  Phase-2
+- GFZ Erdbebenzonen DIN EN 1998-1/NA — Quelle korrigiert (war BGR,
+  ist GFZ), Lizenz-Klärung offen, Phase-2
+- Altlasten — unverändert verschoben (BBodSchG)
 - B2B-API-Endpoints — kommt nach NL-Launch
 - Cozy-Design für geoforensic.de — startet parallel sobald Cozy
   Kapazität hat, blockiert S1/S2 nicht
