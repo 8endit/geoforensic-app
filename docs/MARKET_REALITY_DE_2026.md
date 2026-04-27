@@ -61,7 +61,8 @@ Der einzige echte Moat, den wir heute identifizieren können:
 |---|---|---|---|---|---|---|
 | InSAR-Bodenbewegung mit Zeitreihen | ❌ | nur modelliert | ❌ | ❌ | ❌ | ✅ EGMS, gemessen |
 | EU-Soil-Directive-Compliance (Käufer-Sicht) | ❌ | EU-Taxo, B2B | ❌ | ❌ | ❌ | offen, aber Pole-Position möglich |
-| Adressgenaue Naturgefahren | ✅ | ✅ | teilweise | ✅ | ❌ | teilweise |
+| Adressgenaue Naturgefahren (Rohdaten) | ✅ | ✅ | teilweise | ✅ | ❌ | über BBSR ingesten geplant |
+| Naturgefahren mit **Käufer-Interpretation** | ❌ Web-Karte, Klassen-Werte | B2B-Reports | ❌ | B2B-Reports | ❌ | ✅ einziges B2C-PDF mit Story |
 | Altlasten DE-weit, günstig | ❌ | ❌ | ❌ | ❌ | ✅ aber teuer | offen |
 | Käufer-PDF mit Laiensprache | ❌ | ❌ | ❌ | ❌ | teilweise | ✅ Teaser läuft |
 | Banken-Integration | ❌ | über on-geo | ✅ Marktführer | teilweise | ❌ | nein |
@@ -88,7 +89,7 @@ Radon, Altlasten, Bergbau, Erdbeben, Naturgefahren-Mix.
 - K.A.R.L. ist EU-Taxonomie-zertifiziert — kein Asset-Manager-Hebel
 - Kopf-an-Kopf gegen 4 etablierte Player ohne Geld/Team → Selbstmord
 
-### Option B — „Soil-Act + InSAR" (Benjamins Originalidee)
+### Option B — „Soil-Act + InSAR + BBSR-Interpretations-Layer" (gewählt 2026-04-27)
 
 Schmaler positionieren auf zwei Achsen, die niemand sonst kombiniert:
 
@@ -100,17 +101,49 @@ Schmaler positionieren auf zwei Achsen, die niemand sonst kombiniert:
 2. **InSAR-Bodenbewegung mit Tiefe** — gemessene Zeitreihen pro
    Messpunkt, nicht aggregiertes Label. Einziger echter Moat.
 
-**Naturgefahren schlank:** nur Hochwasser + Radon + Bergbau (lokale
-Pflicht-Themen, BBSR deckt sie nicht alle ab). **Nicht versuchen,
-BBSR zu kopieren.**
+**BBSR ist Datenquelle, nicht Wettbewerber.** Refinement nach
+Diskussion 2026-04-27: BBSR GIS-ImmoRisk liefert eine staatliche
+Web-Karte mit Klassen-Werten („Hagelrisiko Klasse 3"), aber **keine
+Käufer-Interpretation, keine Bündelung, kein PDF**. Das ist exakt das
+France-ERP-Muster: kostenloses `georisques.gouv.fr` + bezahltes
+9,99-EUR-Bericht koexistieren, weil Bezahlbereitschaft aus
+„verständlich machen, bündeln, Notar-tauglich" entsteht — nicht aus
+Rohdaten-Zugang.
 
-**Altlasten als Pflicht-Layer:** docestate ist B2C, aber
-landesspezifisch und teuer (30–100 EUR pro BL) → echte Lücke für eine
-günstigere DE-weite Lösung.
+Konsequenz: Wir bauen die sechs Naturgefahren-Layer (Hitze, Hagel,
+Sturm, Erdbeben, Waldbrand, Starkregen) **nicht selbst**, sondern
+ingesten BBSR per WMS/API und legen unsere Interpretations-Schicht
+darüber. Spart Phase-2-Entwicklungszeit, ohne den Bericht magerer zu
+machen.
+
+**Lizenz-TODO:** BBSR-Lizenz (vermutlich dl-de/by-2.0, kommerziell
+nutzbar mit Attribution) muss verifiziert werden, bevor wir auf
+diesem Plan aufbauen. Siehe §7.
+
+**Eigene Layer trotzdem nötig:**
+- **Hochwasser** — BfG/Länder-WMS, präziser als BBSR-Aggregat
+- **Radon** — BfS-Vorsorgegebiete (BBSR deckt nicht ab)
+- **Bergbau** — landesspezifisch, BBSR deckt nicht ab
+- **Altlasten** — docestate ist B2C, landesspezifisch und teuer
+  (30–100 EUR pro BL) → echte Lücke für günstige DE-weite Lösung
 
 **B2B-API als zweites Standbein vorbereiten:** sobald
 Pflichtversicherung beschlossen wird, sind wir mit EGMS-Daten
 anschlussfähig.
+
+**Verkaufspfad-Klarstellung** (Antwort auf „lässt sich das sicher
+verkaufen?"):
+
+- **NL trägt 2026/2027:** Pflicht-Taxatie seit 1.4.2026 → Käufer mit
+  Label C/D/E wollen verstehen → unser InSAR-Bericht ist die
+  „Second Opinion". Das ist die unmittelbare Umsatzschiene.
+- **DE 2026/2027:** B2B-Pilot (Makler, Notare, Gutachterbüros) +
+  Bodenbewegung-Solo-Bericht für Bestandskäufer in Bergbau- und
+  Subsidenz-Regionen. Soil-Act ist hier noch nicht das
+  Verkaufsargument.
+- **DE ab 2027/2028:** Soil-Act-Transposition wird Pflicht-Markt
+  schaffen. Bis dahin sind wir mit Marke + Daten + B2B-Beziehungen in
+  Pole-Position. Soil-Act ist Wachstumshebel, nicht Startbatterie.
 
 ---
 
@@ -137,13 +170,26 @@ trifft Benjamin.
 
 ---
 
-## 6. Offene Entscheidung
+## 6. Strategie-Entscheidung — getroffen 2026-04-27
 
-- [ ] **Strategie:** Avista-Parität (Option A) oder
-      Soil-Act + InSAR-Pivot (Option B)?
+**Option B gewählt** mit Refinement: „Soil-Act + InSAR-Moat + BBSR als
+Datenquelle für Naturgefahren mit eigener Interpretations-Schicht".
 
-Sprint-Planung beginnt erst nach dieser Entscheidung. Bis dahin: kein
-neues Modul anfangen, keine neuen Daten-Lizenzen verhandeln.
+Begründung kurz:
+- A scheitert an BBSR-Gratis + on-geo/K.A.R.L.-Marktbesetzung
+- B nutzt einzigen Moat (gemessene InSAR-Tiefe) + regulatorischen Sog
+  (Soil-Act 2028)
+- Insight aus Diskussion: BBSR liefert Rohdaten, kein Produkt — wir
+  können BBSR-Daten ingesten statt selbst sechs Layer zu bauen
+  (France-ERP-Muster: gratis Behördenportal + bezahlter
+  Interpretations-Bericht koexistieren)
+
+Verbleibende offene Punkte zur Strategie:
+
+- [ ] BBSR-Lizenz verifizieren (vermutlich dl-de/by-2.0, kommerziell
+      OK mit Attribution) — blockiert Sprint S2
+- [ ] Pricing für NL-Launch festlegen (Vorschlag 29–39 EUR; Phase-1
+      des `PLAN_GEOFORENSIC_DE.md`)
 
 ---
 
@@ -153,15 +199,46 @@ neues Modul anfangen, keine neuen Daten-Lizenzen verhandeln.
 - [x] `CLAUDE.md` korrigieren — „No competitor exists" ist falsch
 - [x] `PLAN_GEOFORENSIC_DE.md` korrigieren — Markttabelle aktualisiert
 - [x] `DATA_SOURCES_GROUNDSURE_PARITY.md` korrigieren — Wettbewerbstabelle erweitert
+- [x] Refinement nach Diskussion: BBSR als Datenquelle, nicht Wettbewerber
+- [x] Strategie-Entscheidung dokumentiert: Option B gewählt
 
 ---
 
-## 8. Konkrete nächste 2 Wochen (nach Strategieentscheidung)
+## 8. Konkrete nächste 2 Wochen — Sprint S1 + S2
 
-Das hängt komplett von §6 ab. Vorgeschlagener Ablauf:
+Strategie B ist gesetzt. Vorgeschlagene Aufteilung:
 
-1. **Heute:** Spec ist gespeichert, Repo-Docs sind aktualisiert.
-2. **Diese Woche:** Benjamin entscheidet Option A oder B.
-3. **Nächste Woche:** Sprint-Planung gemäß Entscheidung.
+### Sprint S1 (Woche 1) — „No-Regret + Paid-Flow scharf"
 
-Ohne Entscheidung in §6 ist jeder neue Sprint ein Schuss ins Dunkle.
+Alles, was unabhängig von BBSR-Lizenzklärung läuft und das Fundament
+für Umsatz legt.
+
+- [ ] Sentry DSN scharfschalten + Test-Crash verifizieren
+- [ ] Better Stack Uptime-Pings auf bodenbericht.de + /api/health
+- [ ] SSH Password-Login auf VPS abschalten (Handbook §2.2)
+- [ ] `full_report.py` an Lead-Flow anbinden — Phase-1.1 aus
+      `PLAN_GEOFORENSIC_DE.md`
+- [ ] Stripe-Konto Live-Modus prüfen + Webhook-Secret in Prod
+- [ ] BBSR-Lizenz-Recherche (parallel, niedrige Priorität): Mail an
+      `info@bbsr.bund.de`, Web-Recherche dl-de/by-2.0 für GIS-ImmoRisk
+
+### Sprint S2 (Woche 2) — „NL-Schiene + erste BBSR-Integration"
+
+Setzt voraus, dass Pricing entschieden ist (29 oder 39 EUR) und
+BBSR-Lizenz geklärt (oder zumindest als „high confidence kommerziell OK"
+eingestuft).
+
+- [ ] PDF-Template-i18n-Skelett (NL-Strings noch leer, Engine bereit)
+- [ ] Erste BBSR-WMS-Integration: ein Layer als Proof
+      (Vorschlag: Starkregen, weil alle BL betroffen)
+- [ ] Interpretations-Block-Skelett im Report:
+      „Klassen-Wert → Käufer-Erklärung in 2 Sätzen"
+- [ ] NL-Sprachlektorat anfragen (Freelancer-Briefing schreiben)
+- [ ] Outreach-Mail an erste 5 NL-Taxateure für Pilot-Reports
+
+### Was **nicht** in S1/S2 kommt
+
+- Hochwasser/Radon/Bergbau/Altlasten — kommt in S3+
+- B2B-API-Endpoints — kommt nach NL-Launch
+- Cozy-Design für geoforensic.de — startet parallel sobald Cozy Kapazität
+  hat, blockiert S1/S2 nicht
