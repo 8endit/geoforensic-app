@@ -101,24 +101,46 @@ Schmaler positionieren auf zwei Achsen, die niemand sonst kombiniert:
 2. **InSAR-Bodenbewegung mit Tiefe** — gemessene Zeitreihen pro
    Messpunkt, nicht aggregiertes Label. Einziger echter Moat.
 
-**BBSR ist Datenquelle, nicht Wettbewerber.** Refinement nach
-Diskussion 2026-04-27: BBSR GIS-ImmoRisk liefert eine staatliche
-Web-Karte mit Klassen-Werten („Hagelrisiko Klasse 3"), aber **keine
-Käufer-Interpretation, keine Bündelung, kein PDF**. Das ist exakt das
-France-ERP-Muster: kostenloses `georisques.gouv.fr` + bezahltes
-9,99-EUR-Bericht koexistieren, weil Bezahlbereitschaft aus
-„verständlich machen, bündeln, Notar-tauglich" entsteht — nicht aus
-Rohdaten-Zugang.
+**BBSR ist Datenquelle, nicht Wettbewerber — aber derzeit blockiert.**
 
-Konsequenz: Wir bauen die sechs Naturgefahren-Layer (Hitze, Hagel,
-Sturm, Erdbeben, Waldbrand, Starkregen) **nicht selbst**, sondern
-ingesten BBSR per WMS/API und legen unsere Interpretations-Schicht
-darüber. Spart Phase-2-Entwicklungszeit, ohne den Bericht magerer zu
-machen.
+Refinement nach Diskussion 2026-04-27: BBSR GIS-ImmoRisk liefert eine
+staatliche Web-Karte mit Klassen-Werten („Hagelrisiko Klasse 3"), aber
+**keine Käufer-Interpretation, keine Bündelung, kein PDF**. Das ist
+exakt das France-ERP-Muster: kostenloses `georisques.gouv.fr` +
+bezahltes 9,99-EUR-Bericht koexistieren, weil Bezahlbereitschaft aus
+„verständlich machen, bündeln, Notar-tauglich" entsteht.
 
-**Lizenz-TODO:** BBSR-Lizenz (vermutlich dl-de/by-2.0, kommerziell
-nutzbar mit Attribution) muss verifiziert werden, bevor wir auf
-diesem Plan aufbauen. Siehe §7.
+**Update nach Lizenz-Recherche 2026-04-27 (Web-Agent):** Die ursprüngliche
+Annahme „BBSR per WMS ingesten" ist **so nicht haltbar**:
+
+1. **Lizenz nicht öffentlich deklariert.** Weder im Footer der
+   Web-Anwendung, noch in den Nutzungshinweisen, noch im
+   GDI-DE-Katalog ist eine Lizenz für GIS-ImmoRisk angegeben.
+   Drittdaten von GDV/Munich Re/DWD/KIT im Mix → die pauschale
+   Annahme dl-de/by-2.0 wäre ein Rechtsrisiko.
+2. **Kein Maschinen-Zugang.** Kein WMS, kein WFS, keine API.
+   Suche im GDI-DE-Katalog nach „GIS-ImmoRisk" liefert null Treffer.
+   Nur Web-Tool mit Adress-Suche, Ausgabe rein im Browser. Scraping
+   rechtlich und technisch fragil.
+3. **GeoNutzV greift nicht automatisch** — GeoNutzV deckt nur
+   Geobasisdaten der Bundesverwaltung. GIS-ImmoRisk sind
+   Geofachdaten aus einem Forschungsprojekt mit Verbund-Datenquellen.
+
+**Aktueller Plan B-Refinement-2 (gilt jetzt):**
+
+- **BBSR ist „blockiert".** Mail an `zentrale@bbr.bund.de` mit
+  Lizenz-/Zugangs-Anfrage ist Voraussetzung
+  (Vorlage: `docs/MAIL_BBSR_LIZENZ.md`). Bis schriftliche Antwort:
+  weder ingesten noch verlinken.
+- **Statt BBSR-Aggregat: direkte Quell-WMS** der Behörden, die BBSR
+  ohnehin nutzt — DWD (Hitze, Starkregen), BGR (Erdbebenzonen). Mehr
+  Code-Aufwand, aber lizenzsauber (alle GeoNutzV/dl-de).
+- **Schnellster Win: BfG Hochwasser-WMS** — explizit GeoNutzV,
+  kommerziell OK, INSPIRE-konform. Sofort startbar, siehe
+  `docs/SPRINT_S1_DATA_INGEST.md`.
+- **Altlasten** bleiben verschoben (BBodSchG-Datenschutz erlaubt
+  keine flächendeckende automatisierte Auskunft; docestate-Modell
+  ist Hybrid mit menschlichem Bearbeitungsschritt).
 
 **Eigene Layer trotzdem nötig:**
 - **Hochwasser** — BfG/Länder-WMS, präziser als BBSR-Aggregat
@@ -186,10 +208,15 @@ Begründung kurz:
 
 Verbleibende offene Punkte zur Strategie:
 
-- [ ] BBSR-Lizenz verifizieren (vermutlich dl-de/by-2.0, kommerziell
-      OK mit Attribution) — blockiert Sprint S2
+- [ ] **BBSR-Lizenzanfrage rausschicken** —
+      `docs/MAIL_BBSR_LIZENZ.md` an `zentrale@bbr.bund.de`. Recherche
+      hat ergeben: Lizenz NICHT öffentlich deklariert, kein
+      Maschinen-Zugang. Vor Antwort weder ingesten noch verlinken.
 - [ ] Pricing für NL-Launch festlegen (Vorschlag 29–39 EUR; Phase-1
       des `PLAN_GEOFORENSIC_DE.md`)
+- [ ] Daten-Layer-Reihenfolge festlegen — Vorschlag in
+      `docs/SPRINT_S1_DATA_INGEST.md` §3 (BfG Hochwasser zuerst,
+      sofort startbar)
 
 ---
 
@@ -222,23 +249,26 @@ für Umsatz legt.
 - [ ] BBSR-Lizenz-Recherche (parallel, niedrige Priorität): Mail an
       `info@bbsr.bund.de`, Web-Recherche dl-de/by-2.0 für GIS-ImmoRisk
 
-### Sprint S2 (Woche 2) — „NL-Schiene + erste BBSR-Integration"
+### Sprint S2 (Woche 2) — „BfG Hochwasser + NL-Schiene anstoßen"
 
-Setzt voraus, dass Pricing entschieden ist (29 oder 39 EUR) und
-BBSR-Lizenz geklärt (oder zumindest als „high confidence kommerziell OK"
-eingestuft).
+Hochwasser ersetzt die ursprünglich geplante BBSR-Integration als ersten
+Daten-Layer-Sprint, weil BBSR derzeit blockiert ist (siehe §3) und BfG
+sofort startbar ist (GeoNutzV, kommerziell OK).
 
+- [ ] BfG Hochwasser-WMS integrieren — `flood_data.py`-Modul + Aufruf
+      aus `_generate_and_send_lead_report` Full-Pfad + neuer
+      Bericht-Abschnitt im `full_report.py`
 - [ ] PDF-Template-i18n-Skelett (NL-Strings noch leer, Engine bereit)
-- [ ] Erste BBSR-WMS-Integration: ein Layer als Proof
-      (Vorschlag: Starkregen, weil alle BL betroffen)
-- [ ] Interpretations-Block-Skelett im Report:
-      „Klassen-Wert → Käufer-Erklärung in 2 Sätzen"
+- [ ] BfS Radon Layer-Lizenz im Geoportal-Metadata verifizieren
 - [ ] NL-Sprachlektorat anfragen (Freelancer-Briefing schreiben)
 - [ ] Outreach-Mail an erste 5 NL-Taxateure für Pilot-Reports
+- [ ] BBSR-Lizenzanfrage rausschicken (parallel)
 
 ### Was **nicht** in S1/S2 kommt
 
-- Hochwasser/Radon/Bergbau/Altlasten — kommt in S3+
+- BBSR-Layer (Hitze/Hagel/Sturm/Erdbeben/Waldbrand/Starkregen) —
+  blockiert bis Lizenzantwort
+- Bergbau/Altlasten — kommt in S3+
 - B2B-API-Endpoints — kommt nach NL-Launch
-- Cozy-Design für geoforensic.de — startet parallel sobald Cozy Kapazität
-  hat, blockiert S1/S2 nicht
+- Cozy-Design für geoforensic.de — startet parallel sobald Cozy
+  Kapazität hat, blockiert S1/S2 nicht
