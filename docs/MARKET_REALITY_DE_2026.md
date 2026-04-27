@@ -257,29 +257,34 @@ verifizierte Layer ist, BfG Hochwasser noch einen Live-Capabilities-Test
 vom VPS braucht. Details:
 [`DATA_SOURCES_VERIFIED.md`](DATA_SOURCES_VERIFIED.md).
 
-- [ ] **NRW Bergbau-WMS integrieren** — neues Modul `mining_nrw.py`,
-      WMS GetFeatureInfo gegen `wms.nrw.de`, neuer Bericht-Abschnitt
-      (nur für NRW-Adressen, sonst „nicht relevant")
-- [ ] **DWD KOSTRA Download-Pipeline** — ASCII-Raster ziehen,
-      konvertieren zu GeoTIFF, in `RASTER_DIR` legen, neues Modul
-      `kostra_data.py` für Punkt-Lookup
-- [ ] **BfG HWRM Live-Verify vom VPS** — Capabilities + Layer-Namen
-      + AccessConstraints lesen, danach `flood_data.py`-Modul bauen
-- [ ] PDF-Template-i18n-Skelett (NL-Strings noch leer, Engine bereit)
-- [ ] NL-Sprachlektorat anfragen (Freelancer-Briefing schreiben)
-- [ ] Outreach-Mail an erste 5 NL-Taxateure für Pilot-Reports
-- [ ] BBSR-Lizenzanfrage rausschicken (parallel)
-- [ ] BGR-BBD-Mail rausschicken (parallel) — liegt seit Wochen
-      als Draft (`docs/MAIL_BGR_BBD.md`)
+- [x] **NRW Bergbau-WMS integriert** — `mining_nrw.py` + Sektion 3
+- [x] **BfG Hochwasser integriert** — `flood_data.py` + Sektion 4.
+      Lizenz **DL-DE/Zero-2.0** (besser als erwartet, keine
+      Attribution-Pflicht). Layer-Namen Best-Guess, Env-Var-Override
+      vorgesehen
+- [x] **DWD KOSTRA integriert** — `download_kostra.py` Pull-Script +
+      `kostra_data.py` Lookup-Modul + Sektion 5. Daten-Download steht
+      noch aus (vom VPS aus laufen lassen)
+- [ ] BfG-Layer-Namen vom VPS verifizieren
+- [ ] KOSTRA-Daten vom VPS einmal ziehen
+- [ ] PDF-Template-i18n-Skelett (NL-Strings noch leer)
+- [ ] NL-Sprachlektorat anfragen
+- [ ] Outreach-Mail an erste 5 NL-Taxateure
+- [ ] BBSR-Lizenzanfrage rausschicken
+- [ ] BGR-BBD-Mail rausschicken (`docs/MAIL_BGR_BBD.md`)
+- [ ] GFZ-Erdbebenzonen-Anfrage rausschicken
+      (`docs/MAIL_GFZ_ERDBEBEN.md`, neu)
 
 ### Was **nicht** in S1/S2 kommt
 
 - BBSR-Layer (Hitze/Hagel/Sturm/Erdbeben/Waldbrand/Starkregen) —
   blockiert bis Lizenzantwort
-- BfS / Landes-Radon — Patchwork, mehrere Tage Klärung pro Land,
-  Phase-2
-- GFZ Erdbebenzonen DIN EN 1998-1/NA — Quelle korrigiert (war BGR,
-  ist GFZ), Lizenz-Klärung offen, Phase-2
+- Landes-Radon — Sachsen ist als einziges BL verifiziert
+  (dl-de/by-2.0), aber für nur ein Bundesland zu schmaler ROI im
+  ersten Wurf. Modul `radon_data.py` mit Per-State-Dispatcher folgt
+  wenn 2+ BL klar sind.
+- GFZ Erdbebenzonen DIN EN 1998-1/NA — keine maschinenlesbare API,
+  DIN-Urheberrecht-Risiko, Mail-Antwort ausstehend
 - Altlasten — unverändert verschoben (BBodSchG)
 - B2B-API-Endpoints — kommt nach NL-Launch
 - Cozy-Design für geoforensic.de — startet parallel sobald Cozy

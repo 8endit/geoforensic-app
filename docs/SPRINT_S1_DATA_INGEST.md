@@ -216,21 +216,21 @@ nach Phase-1.
 
 ---
 
-## 3. Reihenfolge der Umsetzung — revidiert nach Verifizierung
+## 3. Reihenfolge der Umsetzung — Stand nach Code-Integration 2026-04-27
 
-Empfehlung für die nächsten 2–3 Sprints. Genaue Verifizierungs-Stati
+Drei Layer integriert in dieser Session. Genaue Verifizierungs-Stati
 in [`DATA_SOURCES_VERIFIED.md`](DATA_SOURCES_VERIFIED.md).
 
-| Sprint | Inhalt | Status | Voraussetzung |
-|---|---|---|---|
-| S1 | NRW Bergbau-WMS — neues Modul + Bericht-Abschnitt | grünes Licht | keine, sofort starten |
-| S1 | DWD KOSTRA Download-Pipeline + Raster-Hosting | Engineering startbar | vom VPS Index-File holen, ein Test-Raster ziehen |
-| S2 | BfG HWRM-WMS — nach Live-Verify | bedingt | Capabilities + AccessConstraints vom VPS lesen |
-| S3 | NL-i18n des Reports + KCAF/FunderMaps-Anbindung | offen | Pricing-Entscheidung |
-| pending | BBSR GIS-ImmoRisk | Mail-Antwort abwarten | `zentrale@bbr.bund.de` |
-| pending | GFZ Erdbebenzonen DIN EN 1998-1/NA | Quelle korrigiert, Lizenz-Klärung offen | Mail an GFZ |
-| pending | BfS / Landes-Radon | Patchwork, Phase-2 | je BL Lizenz-Check |
-| pending | Altlasten-Hinweislayer | Konzept docestate-Hybrid offen | unverändert |
+| Sprint | Inhalt | Status |
+|---|---|---|
+| S1 | **NRW Bergbau-WMS** — `mining_nrw.py` + Sektion 3 | **integriert** |
+| S1 | **BfG Hochwasser-WMS** — `flood_data.py` + Sektion 4, Lizenz DL-DE/Zero-2.0 | **integriert** (Layer-Namen Best-Guess, Live-Verify vom VPS empfohlen) |
+| S1 | **DWD KOSTRA** — `download_kostra.py` Pull + `kostra_data.py` Lookup + Sektion 5 | **integriert** (Daten-Download vom VPS ausstehend) |
+| S2 | NL-i18n des Reports + KCAF/FunderMaps-Anbindung | offen — Pricing-Entscheidung |
+| S2 | BBSR GIS-ImmoRisk | Mail-Antwort abwarten (`zentrale@bbr.bund.de`) |
+| S3 | Radon Sachsen + andere BL | `radon_data.py` mit Per-State-Dispatcher wenn 2+ BL klar |
+| S3 | GFZ Erdbebenzonen DIN EN 1998-1/NA | Mail-Antwort abwarten (`MAIL_GFZ_ERDBEBEN.md`) |
+| pending | Altlasten-Hinweislayer | Konzept docestate-Hybrid offen |
 
 **Wichtig:** Vor jeder Layer-Integration ein **Lizenz-Verify-Schritt** —
 GetCapabilities-Call + Metadata-Eintrag im Geoportal lesen, Lizenz im

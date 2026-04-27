@@ -82,6 +82,10 @@ def generate_full_report(
     answers: dict | None = None,
     # NRW Bergbau (None for non-NRW addresses; populated dict for NRW)
     mining_data: dict | None = None,
+    # DWD KOSTRA Starkregen (None if loader not initialized; dict otherwise)
+    kostra_data: dict | None = None,
+    # BfG Hochwasser-Szenarien HQ_haeufig / HQ100 / HQ_extrem
+    flood_data: dict | None = None,
 ) -> bytes:
     """Generate a comprehensive Bodenbericht PDF."""
     answers = answers or {}
@@ -250,8 +254,14 @@ def generate_full_report(
     # ── Section: Bergbau / Altbergbau ───────────────────────────────
     _section_bergbau(pdf, fn, mining_data)
 
+    # ── Section: Hochwasser (BfG HWRM) ──────────────────────────────
+    _section_flood(pdf, fn, flood_data)
+
+    # ── Section: Niederschlag / Starkregen (KOSTRA) ─────────────────
+    _section_kostra(pdf, fn, kostra_data)
+
     # ── Section: Bodenqualitaet ─────────────────────────────────────
-    _section_header(pdf, fn, "4. Bodenqualitaet (SoilGrids 250m)")
+    _section_header(pdf, fn, "6. Bodenqualitaet (SoilGrids 250m)")
 
     if any(v is not None for v in soilgrids.values()):
         pdf.set_font(fn, "B", 8)
@@ -313,7 +323,7 @@ def generate_full_report(
     pdf.ln(4)
 
     # ── Section: Naehrstoffe ────────────────────────────────────────
-    _section_header(pdf, fn, "5. Naehrstoffe")
+    _section_header(pdf, fn, "7. Naehrstoffe")
 
     if nutrients:
         pdf.set_font(fn, "", 9)
@@ -335,7 +345,7 @@ def generate_full_report(
 
     # ── Section: Individuelle Einschaetzung ─────────────────────────
     if answers:
-        _section_header(pdf, fn, "6. Ihre individuelle Einschaetzung")
+        _section_header(pdf, fn, "8. Ihre individuelle Einschaetzung")
         pdf.set_font(fn, "", 9)
         pdf.set_text_color(50, 50, 50)
 
@@ -354,13 +364,18 @@ def generate_full_report(
     _section_header(pdf, fn, "Gepruefte Datenquellen")
     pdf.set_font(fn, "", 8)
     has_mining = bool(mining_data and not mining_data.get("error"))
+    has_kostra = bool(kostra_data and kostra_data.get("available"))
+    has_flood = bool(flood_data and not flood_data.get("error"))
     sources = [
         (has_egms, "Copernicus EGMS L3 Ortho (Sentinel-1, 2019-2022)"),
         (True, "Nominatim / OpenStreetMap (Geocodierung)"),
         (bool(metals), "LUCAS Topsoil Survey (Schwermetalle, Naehrstoffe)"),
         (bool(soilgrids.get("phh2o")), "SoilGrids 250m (pH, SOC, Textur, Dichte)"),
         (has_mining, "Bergbauberechtigungen NRW (Bezirksregierung Arnsberg, dl-de/by-2.0)"),
-        (False, "Hochwasser-Gefahrenkarten (in Vorbereitung)"),
+        (has_flood, "BfG Hochwassergefahrenkarten HWRM-RL (DL-DE/Zero-2.0)"),
+        (has_kostra, "DWD KOSTRA-DWD-2020 Starkregen (GeoNutzV)"),
+        (False, "Radon-Vorsorgegebiete (Landesabhaengig, in Vorbereitung)"),
+        (False, "Erdbebenzonen DIN EN 1998-1/NA (in Vorbereitung)"),
         (False, "Altlastenkataster (in Vorbereitung)"),
     ]
     for active, name in sources:
@@ -484,6 +499,189 @@ def _section_bergbau(pdf: FPDF, fn: str, mining_data: dict | None) -> None:
         "dass im Untergrund Abbau stattgefunden hat oder vorgesehen war "
         "und ist im Einzelfall durch ein qualifiziertes Bergbau-Fachgutachten "
         "zu bewerten."
+    ))
+    pdf.ln(2)
+
+
+def _section_flood(pdf: FPDF, fn: str, flood_data: dict | None) -> None:
+    """Render the "Hochwasser" section using the BfG HWRM-RL aggregate WMS.
+
+    Three states:
+    - ``flood_data is None``                       → "wird in Folgeversion ergaenzt"
+    - top-level ``error`` set                      → service-unavailable notice
+    - all three scenarios ``in_zone is False``     → all-clear (green)
+    - any scenario ``in_zone is True``             → scenario list with risk badge
+    """
+    _section_header(pdf, fn, "4. Hochwasser (BfG HWRM-RL)")
+    pdf.set_font(fn, "", 9)
+    pdf.set_text_color(80, 80, 80)
+
+    if flood_data is None:
+        pdf.multi_cell(0, 5, (
+            "Die bundesweite Hochwasser-Auswertung (BfG, HWRM-Richtlinie) "
+            "wird in einer Folgeversion dieses Berichts ergaenzt."
+        ))
+        pdf.ln(4)
+        return
+
+    if flood_data.get("error"):
+        pdf.multi_cell(0, 5, (
+            "Die BfG-Hochwasserdaten waren zum Zeitpunkt der Berichterstellung "
+            "nicht erreichbar. Bitte fordern Sie ggf. einen aktualisierten "
+            "Bericht an oder konsultieren Sie das BfG-Geoportal "
+            "(geoportal.bafg.de) direkt."
+        ))
+        pdf.ln(4)
+        return
+
+    scenarios = flood_data.get("scenarios") or {}
+    haeufig = scenarios.get("haeufig", {})
+    hq100 = scenarios.get("hq100", {})
+    extrem = scenarios.get("extrem", {})
+
+    # Risk-class derivation: häufig > HQ100 > extrem (descending severity).
+    if haeufig.get("in_zone"):
+        risk_label = "BETROFFEN — haeufiges Hochwasser"
+        risk_color = (184, 84, 80)  # red
+    elif hq100.get("in_zone"):
+        risk_label = "BETROFFEN — 100-jaehriges Hochwasser"
+        risk_color = (196, 169, 77)  # yellow
+    elif extrem.get("in_zone"):
+        risk_label = "BETROFFEN — extremes Hochwasser"
+        risk_color = (196, 169, 77)  # yellow (still serious but rare)
+    else:
+        risk_label = "NICHT BETROFFEN"
+        risk_color = (91, 154, 111)  # green
+
+    pdf.set_fill_color(*risk_color)
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font(fn, "B", 12)
+    pdf.cell(80, 10, f"  {risk_label}", fill=True, new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(3)
+
+    # Detailed table
+    pdf.set_font(fn, "B", 8)
+    pdf.set_fill_color(240, 240, 240)
+    pdf.set_text_color(50, 50, 50)
+    w = [55, 50, 30, 55]
+    pdf.cell(w[0], 6, "Szenario", border=1, fill=True)
+    pdf.cell(w[1], 6, "Wiederkehr", border=1, fill=True)
+    pdf.cell(w[2], 6, "Im Gebiet?", border=1, fill=True, align="C")
+    pdf.cell(w[3], 6, "Bedeutung", border=1, fill=True)
+    pdf.ln()
+
+    rows = [
+        (haeufig, "haeufiges Hochwasser", "T = 5 – 20 a", "haeufig wiederkehrend"),
+        (hq100, "100-jaehriges Hochwasser", "T = 100 a", "Bemessungsereignis"),
+        (extrem, "extremes Hochwasser", "≈ 1.5 × HQ100", "selten, aber moeglich"),
+    ]
+
+    pdf.set_font(fn, "", 8)
+    for entry, label, period, meaning in rows:
+        in_zone = entry.get("in_zone")
+        if in_zone is True:
+            mark, mark_color = "JA", (184, 84, 80)
+        elif in_zone is False:
+            mark, mark_color = "nein", (91, 154, 111)
+        else:
+            mark, mark_color = "n.a.", (150, 150, 150)
+        pdf.set_text_color(50, 50, 50)
+        pdf.cell(w[0], 5, label, border=1)
+        pdf.cell(w[1], 5, period, border=1)
+        pdf.set_text_color(*mark_color)
+        pdf.set_font(fn, "B", 8)
+        pdf.cell(w[2], 5, mark, border=1, align="C")
+        pdf.set_text_color(50, 50, 50)
+        pdf.set_font(fn, "", 8)
+        pdf.cell(w[3], 5, meaning, border=1)
+        pdf.ln()
+
+    pdf.ln(2)
+    pdf.set_font(fn, "I", 7)
+    pdf.set_text_color(120, 120, 120)
+    pdf.multi_cell(0, 3.5, (
+        "Quelle: Bundesanstalt fuer Gewaesserkunde (BfG), nationale "
+        "Hochwassergefahrenkarten gem. HWRM-Richtlinie 2007/60/EG, "
+        "Datenstand 2. Zyklus (2016-2021), DL-DE/Zero-2.0. "
+        "Detailliertere Karten bieten die Geoportale der jeweiligen "
+        "Bundeslaender (z.B. ELWAS-WEB NRW, IÜG Bayern, hochwasser.baden-"
+        "wuerttemberg.de). Die Auskunft ersetzt keine fachliche "
+        "Hochwasserrisiko-Begutachtung."
+    ))
+    pdf.ln(2)
+
+
+def _section_kostra(pdf: FPDF, fn: str, kostra_data: dict | None) -> None:
+    """Render the "Niederschlag / Starkregen" section using KOSTRA-DWD-2020.
+
+    Three states:
+    - ``kostra_data is None`` or ``available is False`` → "Daten in
+      Vorbereitung" (rasters not on disk yet)
+    - some slot values present → table with values + buyer-friendly
+      interpretation
+    - all slots NODATA for this point → "kein KOSTRA-Wert fuer den
+      Standort verfuegbar"
+    """
+    _section_header(pdf, fn, "5. Niederschlag / Starkregen (KOSTRA-DWD-2020)")
+    pdf.set_font(fn, "", 9)
+    pdf.set_text_color(80, 80, 80)
+
+    if not kostra_data or not kostra_data.get("available"):
+        pdf.multi_cell(0, 5, (
+            "Starkregen-Statistiken aus KOSTRA-DWD-2020 (Deutscher Wetterdienst) "
+            "werden zurzeit fuer diesen Standort vorbereitet. Die Daten zeigen, "
+            "wie hoch der Regen waehrend eines extremen Ereignisses voraussichtlich "
+            "ausfaellt — wichtig fuer die Einschaetzung von Keller- und "
+            "Hangwasser-Risiken."
+        ))
+        pdf.ln(4)
+        return
+
+    slots = kostra_data.get("slots") or {}
+    any_value = any(s.get("value") is not None for s in slots.values())
+
+    if not any_value:
+        pdf.multi_cell(0, 5, (
+            "Fuer den abgefragten Punkt liegen keine KOSTRA-Niederschlagswerte vor. "
+            "Das kann bei Off-Grid-Standorten (z.B. Hochgebirge, Inseln) vorkommen — "
+            "regional verfuegbare Werte des naechstgelegenen Rasterpunkts liefert "
+            "der DWD CDC OpenData-Server direkt."
+        ))
+        pdf.ln(4)
+        return
+
+    pdf.set_font(fn, "", 8)
+    pdf.set_fill_color(240, 240, 240)
+    pdf.set_text_color(50, 50, 50)
+    pdf.set_font(fn, "B", 8)
+    w = [70, 30, 20, 70]
+    pdf.cell(w[0], 6, "Bemessungsereignis", border=1, fill=True)
+    pdf.cell(w[1], 6, "Niederschlag", border=1, fill=True, align="R")
+    pdf.cell(w[2], 6, "Einheit", border=1, fill=True, align="C")
+    pdf.cell(w[3], 6, "Bedeutung", border=1, fill=True)
+    pdf.ln()
+
+    pdf.set_font(fn, "", 8)
+    for slot_name, entry in slots.items():
+        label = entry.get("label", slot_name)
+        unit = entry.get("unit", "mm")
+        buyer = entry.get("buyer_text", "")
+        value = entry.get("value")
+        value_str = f"{value:.1f}" if isinstance(value, (int, float)) else "n.a."
+        pdf.set_text_color(50, 50, 50)
+        pdf.cell(w[0], 5, label, border=1)
+        pdf.cell(w[1], 5, value_str, border=1, align="R")
+        pdf.cell(w[2], 5, unit, border=1, align="C")
+        pdf.cell(w[3], 5, buyer, border=1)
+        pdf.ln()
+    pdf.ln(2)
+
+    pdf.set_font(fn, "I", 7)
+    pdf.set_text_color(120, 120, 120)
+    pdf.multi_cell(0, 3.5, (
+        "Quelle: DWD KOSTRA-DWD-2020, DOI 10.5676/DWD/KOSTRA-DWD-2020. "
+        "Werte sind statistische Bemessungsniederschlaege (Wiederkehrintervall T) "
+        "und ersetzen keine standortspezifische hydrologische Begutachtung."
     ))
     pdf.ln(2)
 
