@@ -177,19 +177,44 @@ pro Abfrage (ALKIS, kommerzielle Provider) oder nur per E-Mail-Antrag verfügbar
 
 ## Wer hat wie viel davon heute?
 
-Zum Vergleich: was bieten deutsche Konkurrenten (schätzend, öffentliche Demos):
+Zum Vergleich: was bieten deutsche Konkurrenten (schätzend, öffentliche Demos).
+**Erweitert 2026-04-27** um BBSR, K.A.R.L., on-geo, EnviroTrust, docestate —
+volle Recherche siehe [`MARKET_REALITY_DE_2026.md`](MARKET_REALITY_DE_2026.md).
 
-| Anbieter | Bodenbewegung | Altlasten | Hochwasser | Radon | Bergbau | Preis |
-|---|---|---|---|---|---|---|
-| **Bodenbericht heute** | ✅ | ❌ | ❌ | ❌ | ❌ | €0 |
-| **Bodenbericht Phase 1** | ✅ | ✅ (Top5) | ✅ | ✅ | ✅ | ?€ |
-| Avista | ❌ | ✅ (DE-weit) | ✅ | ❌ | ❌ | €40-90 |
-| BuildersOnline | teilweise | ✅ | ✅ | ✅ | ✅ | €50-120 |
-| Groundsure (UK) | ✅ | ✅ | ✅ | ✅ | ✅ | £80-180 |
-| FunderConsult (NL) | ✅ (nur A-E-Label) | ❌ | ❌ | - | - | €7.95 |
+| Anbieter | Bodenbewegung | Altlasten | Hochwasser | Radon | Bergbau | Naturgefahren-Mix | Preis | Modell |
+|---|---|---|---|---|---|---|---|---|
+| **Bodenbericht heute** | ✅ EGMS, gemessen | ❌ | ❌ | ❌ | ❌ | ❌ | €0 (Lead-Magnet) | B2C-PDF |
+| **Bodenbericht Phase 1 (geplant)** | ✅ | ✅ (Top5) | ✅ | ✅ | ✅ | (siehe BBSR) | ?€ | B2C-PDF |
+| **BBSR GIS-ImmoRisk** | ❌ | ❌ | (Starkregen) | ❌ | ❌ | ✅ Hitze/Erdbeben/Waldbrand/Hagel/Sturm/Starkregen | gratis | staatlich, B2C-Web |
+| **K.A.R.L.® TAXO** (Köln.Assekuranz / on-geo) | ❌ (modelliert) | ❌ | ✅ | ❌ | ❌ | ✅ + EU-Taxo + CMIP6 | B2B Enterprise | B2B-API |
+| **on-geo Lora** | ❌ | teilweise | teilweise | ❌ | ❌ | teilweise | B2B-Software | 95 % aller DE-Banken |
+| **EnviroTrust** | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ Flut/Hitze/Sturm/Waldbrand/Luft | B2B | Asset Manager |
+| **docestate.com** | ❌ | ✅ (pro BL) | ❌ | ❌ | ❌ | ❌ | €30–100 | B2C-Web |
+| Avista | ❌ | ✅ (DE-weit) | ✅ | ❌ | ❌ | ✅ | €40–90 | B2C-PDF |
+| BuildersOnline | teilweise | ✅ | ✅ | ✅ | ✅ | ✅ | €50–120 | B2C-PDF |
+| Groundsure (UK) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | £80–180 | B2C-PDF |
+| FunderConsult (NL) | ✅ (nur A–E-Label) | ❌ | ❌ | – | – | – | €7,95 | B2C-Web |
 
-Unser Alleinstellungs-Merkmal nach Phase 1 = **EGMS-Tiefe + DACH-Altlastenlage +
-Preispunkt** (Avista hat keinen InSAR-Zeitbezug, wir schon).
+**Lesart:**
+
+- **Naturgefahren-Mix in DE ist nicht mehr Wachstumsfeld** — BBSR liefert
+  6 Layer gratis. Wer für sowas zahlen soll, fragt: „Warum, wenn der
+  Bund's gratis macht?"
+- **B2B-Banken-Schiene ist zu** — on-geo sitzt drin, K.A.R.L. ist
+  EU-Taxonomie-zertifiziert.
+- **Bodenbewegung mit Zeitreihen-Tiefe** ist der einzige Layer, den
+  niemand sonst hat. K.A.R.L. nutzt Modelle, BBSR aggregierte Karten.
+- **Altlasten DE-weit + günstig** ist eine echte Lücke (docestate ist
+  landesspezifisch und teuer).
+
+Unser Alleinstellungs-Merkmal nach Phase 1 = **EGMS-Tiefe (gemessen, nicht
+modelliert) + DACH-Altlastenlage in der Breite + Preispunkt unter
+docestate** — falls wir bei Avista-Parität bleiben.
+
+**Achtung:** Strategiefrage Avista-Parität vs. Soil-Act/InSAR-Pivot ist
+**offen** (siehe `PLAN_GEOFORENSIC_DE.md` §7). Falls Pivot: Phase-1-Liste
+oben ist deutlich kürzer (Hochwasser + Radon + Bergbau + Altlasten, der
+Rest fällt weg, weil BBSR ihn gratis macht).
 
 ---
 
