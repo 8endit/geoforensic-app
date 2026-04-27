@@ -26,8 +26,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_settings
 from app.dependencies import get_db
 from app.email_service import send_report_email
+from app.flood_data import query_flood
 from app.full_report import generate_full_report
 from app.html_report import generate_html_report
+from app.kostra_data import KostraLoader
 from app.mining_nrw import query_mining_nrw
 from app.models import Ampel, Lead, Report, ReportStatus
 from app.pdf_renderer import html_to_pdf
@@ -184,10 +186,13 @@ async def _generate_and_send_lead_report(
         #    Chrome-headless renderer (with a static OSM map on page 1);
         #    the full variant uses FPDF directly and does not embed a
         #    map, so we skip the static-map fetch in that branch.
-        # mining_data carries the NRW Bergbau lookup result (or None if
-        # not queried). Defined here so it stays in scope for the audit
-        # log in step 6 regardless of which branch ran.
+        # mining_data, kostra_data, flood_data carry the per-layer
+        # lookup results (or None if not queried for this address /
+        # branch). Defined here so they stay in scope for the audit log
+        # in step 6 regardless of which branch ran.
         mining_data: dict | None = None
+        kostra_data: dict | None = None
+        flood_data: dict | None = None
         if is_teaser:
             map_data_uri = await fetch_static_map(lat, lon)
             html = generate_html_report(
@@ -229,6 +234,41 @@ async def _generate_and_send_lead_report(
                     )
                     mining_data = {"in_zone": False, "fields": [], "error": "lookup_exception"}
 
+            # BfG Hochwasser: nationaler Aggregat, deckt DE-Adressen ab.
+            # Bei NL/AT/CH liefert das WMS einfach nichts und die Sektion
+            # zeigt "nicht im Gebiet" — das ist akzeptabel als first cut;
+            # eine Country-Gate-Optimierung können wir später ergänzen.
+            if country_code.lower() == "de":
+                try:
+                    flood_data = await query_flood(lat, lon)
+                except Exception:
+                    logger.exception(
+                        "BfG flood lookup failed unexpectedly for (%s, %s); "
+                        "report will render the service-unavailable notice.",
+                        lat, lon,
+                    )
+                    flood_data = {
+                        "any_in_zone": False,
+                        "scenarios": {},
+                        "error": "lookup_exception",
+                    }
+
+            # KOSTRA Starkregen: für alle DE-Adressen, sofern Raster
+            # verfügbar. Loader-Singleton degradiert sauber wenn die
+            # Files nicht auf Platte liegen — query() liefert dann
+            # available=False und der Report rendert "Daten in
+            # Vorbereitung".
+            if country_code.lower() == "de":
+                try:
+                    kostra_data = KostraLoader.get().query(lat, lon)
+                except Exception:
+                    logger.exception(
+                        "KOSTRA lookup failed unexpectedly for (%s, %s); "
+                        "report will render the unavailable-state notice.",
+                        lat, lon,
+                    )
+                    kostra_data = {"available": False, "slots": {}}
+
             pdf_bytes = generate_full_report(
                 address=display_name,
                 lat=lat,
@@ -241,6 +281,8 @@ async def _generate_and_send_lead_report(
                 soil_profile=soil_profile,
                 answers=answers or {},
                 mining_data=mining_data,
+                kostra_data=kostra_data,
+                flood_data=flood_data,
             )
 
         # 6. Persist a Report row for this lead (C1). The row carries all
@@ -269,7 +311,7 @@ async def _generate_and_send_lead_report(
                     "source": source,
                     "is_teaser": is_teaser,
                     "address_display": display_name,
-                    # Compact audit record of the NRW Bergbau lookup —
+                    # Compact audit records of the per-layer lookups —
                     # full feature attributes stay out of the audit JSONB.
                     "mining_nrw": (
                         {
@@ -278,6 +320,29 @@ async def _generate_and_send_lead_report(
                             "error": mining_data.get("error"),
                         }
                         if mining_data is not None
+                        else None
+                    ),
+                    "flood_bfg": (
+                        {
+                            "any_in_zone": bool(flood_data.get("any_in_zone")),
+                            "scenarios_in_zone": [
+                                k for k, v in (flood_data.get("scenarios") or {}).items()
+                                if v.get("in_zone") is True
+                            ],
+                            "error": flood_data.get("error"),
+                        }
+                        if flood_data is not None
+                        else None
+                    ),
+                    "kostra": (
+                        {
+                            "available": bool(kostra_data.get("available")),
+                            "slots_with_value": [
+                                k for k, v in (kostra_data.get("slots") or {}).items()
+                                if v.get("value") is not None
+                            ],
+                        }
+                        if kostra_data is not None
                         else None
                     ),
                 }

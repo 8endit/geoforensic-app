@@ -28,85 +28,112 @@ unten in §6.
 
 ## Layer 1 — BfG Hochwassergefahren-/Risikokarten (HWRM)
 
-**Status:** TEILWEISE VERIFIZIERT — Live-Capabilities-Test offen
+**Status:** TEILWEISE VERIFIZIERT — integriert mit Env-Var-Override
+für Layer-Namen, Live-Capabilities-Test bleibt empfohlen
 
 | Feld | Wert |
 |---|---|
 | Portal-URL | `https://geoportal.bafg.de/karten/HWRM_Aktuell/` |
-| WMS-Basis (vermutet) | `https://geoportal.bafg.de/arcgis/services/INSPIRE/AM/MapServer/WMSServer` |
-| Layer-Namen | unbekannt — Capabilities nicht direkt gelesen |
-| Format | WMS 1.3.0 (ArcGIS) |
-| Granularität | Polygone, bundesweit aggregiert aus Länder-Meldungen |
-| Lizenz | GeoNutzV (nur Sekundärquelle) |
-| Lizenz-URL 1 | `https://www.gesetze-im-internet.de/geonutzv/` (Verordnungstext) |
-| Lizenz-URL 2 | gispoint.de Sekundärzitat: „BfG provides geodata under GeoNutzV — free of charge for commercial and non-commercial use" |
-| Kommerziell OK | ja (laut Sekundärquelle) — **direkt aus AccessConstraints des Capabilities-XML noch nicht bestätigt** |
-| Attribution | „© BfG, GeoNutzV" — exakter Wortlaut noch nicht verifiziert |
+| WMS-Endpunkt | `https://geoportal.bafg.de/arcgis1/rest/services/INSPIRE/NZ/MapServer/exts/InspireView/service` |
+| INSPIRE-Theme | NZ (Natural Risk Zones), nicht AM wie zuvor angenommen |
+| Layer-Namen (best-guess) | `HQ_haeufig` (T=5–20a), `HQ100` (T=100a), `HQ_extrem` (≈ 1.5×HQ100) |
+| Format | WMS 1.3.0 (ArcGIS InspireView) |
+| Granularität | Polygone, bundesweit aus Länder-Meldungen aggregiert |
+| **Lizenz** | **Datenlizenz Deutschland — Zero — Version 2.0 (DL-DE/Zero-2.0)** — keine Attribution-Pflicht, kein Copyleft, kommerziell OK |
+| Lizenz-URL 1 | `https://www.govdata.de/dl-de/zero-2-0` (Lizenztext) |
+| Lizenz-URL 2 | GovData-Eintrag „Überflutungsflächen-DE (HWRM-RL 2. Zyklus 2016-2021)" |
+| Kommerziell OK | **ja** — DL-DE/Zero-2.0 erlaubt jede Nutzung ohne Bedingungen |
+| Attribution | freiwillig (Empfehlung: „Datengrundlage: Bundesanstalt für Gewässerkunde (BfG), HWRM-RL 2. Zyklus 2016-2021, DL-DE/Zero-2.0") |
 
 **Caveats:**
-- WasserBLIcK-Hinweis: einzelne Länder schränken Detail-Daten ein.
-  Bundesweite Vollständigkeit nicht garantiert.
-- ArcGIS-Endpunkt antwortet bei automatisierten Requests mit 403,
-  auch mit Browser-User-Agent. Manueller Browser-Aufruf vom VPS oder
-  lokalen PC nötig.
+- ArcGIS-Endpunkt antwortet bei automatisierten Requests aus der
+  Cloud-Sandbox mit 403. Vom VPS oder lokal aus QGIS funktioniert er.
+- Die exakten WMS-`<Name>`-Strings sind nicht aus einem live abgerufenen
+  Capabilities-XML bestätigt — Best-Guess aus 3 Sekundärquellen
+  (LfU Bayern, klima-sicher-bauen.de, GovData). Override via Env-Vars
+  `BFG_FLOOD_LAYER_HAEUFIG`, `BFG_FLOOD_LAYER_HQ100`,
+  `BFG_FLOOD_LAYER_EXTREM`, falls die Live-Verifizierung andere
+  Strings ergibt.
+- Höhere Auflösung gibt es bei den Länder-Geoportalen (NRW
+  ELWAS-WEB, Bayern IÜG, BW hochwasser.baden-wuerttemberg.de) — der
+  BfG-Aggregat-Layer reicht für ein nationales Käufer-PDF.
 
-**TODO vor Ingest:**
-- [ ] Capabilities-XML manuell ziehen (curl mit Cookie/Browser-Header
-      vom VPS oder lokalem PC) und Layer-Namen + AccessConstraints
-      lesen
-- [ ] GeoNutzV-Wortlaut auf gesetze-im-internet.de selbst gegenlesen
+**TODO nach Deploy:**
+- [ ] Capabilities-XML vom VPS aus mit `curl -A "Mozilla/5.0"` ziehen
+      und Layer-Namen verifizieren — siehe §6 unten
+- [ ] Falls Layer-Namen abweichen: Env-Vars setzen, Backend neu
+      starten (kein Code-Change)
 
 ---
 
-## Layer 2 — BfS Radon-Vorsorgegebiete
+## Layer 2 — Radon-Vorsorgegebiete
 
-**Status:** NICHT VERIFIZIERT — fragmentiert über Bundesländer
+**Status:** **TEILWEISE VERIFIZIERT** — Sachsen ist VERIFIZIERT,
+andere 4 Bundesländer brauchen noch Klärung
+
+### Pro Bundesland
+
+| BL | Status | Lizenz | WMS-/Daten-Endpunkt |
+|---|---|---|---|
+| **Sachsen** | **VERIFIZIERT** | dl-de/by-2.0 (explizit zitiert) | MetaVer-Eintrag `8ad390b7-2b7e-4322-a188-c87f303ad8be` (WMS) |
+| Niedersachsen | NICHT VERIFIZIERT | unklar | kein WMS — 4 Gemeinden bekannt (Goslar, Clausthal-Zellerfeld, Braunlage), AGS-Workaround mit BKG VG250 möglich |
+| Bayern | TEILWEISE | dl-de/by-2.0 vermutet, nicht aus Metadaten | LfU-Index `lfu.bayern.de/umweltdaten/geodatendienste/index_wms.htm` — WMS-URL aus Index zu ziehen |
+| Sachsen-Anhalt | TEILWEISE | dl-de/by-2.0 vermutet | GeoWebDienste-Index `lvermgeo.sachsen-anhalt.de/de/geowebdienste-lsa/wms-dienste.html` |
+| Thüringen | TEILWEISE | dl-de/by-2.0 vermutet | Geoportal-Th Download-Index, oder AGS-Workaround |
+| BfS Bundes-Aggregat | TEILWEISE | unklar — BfS sagt selbst „nur Übersicht ohne Rechtskraft" | `https://www.imis.bfs.de/cgi-public/wms_geoportal?...` |
+
+### Sachsen-Detail (verifiziert)
 
 | Feld | Wert |
 |---|---|
-| BfS-Geoportal | `https://www.bfs.de/DE/themen/ion/umwelt/luft-boden/geoportal/geoportal_node.html` |
-| BfS-Aussage | „nur die offiziellen Bekanntmachungen der Länder sind verbindlich, die Karte hat keine Rechtskraft" |
-| Rechtsverbindlich | 16 separate Landesverordnungen (§121 StrlSchG) |
-| Bekannte Landes-Quellen | LfU Bayern, LFU Sachsen-Anhalt, sachsen.de, ggf. Niedersachsen, Thüringen |
-| Lizenz | uneinheitlich — pro Bundesland separat zu prüfen |
+| MetaVer-WMS-Eintrag | `https://metaver.de/trefferanzeige?docuuid=8ad390b7-2b7e-4322-a188-c87f303ad8be` |
+| MetaVer-WFS-Eintrag | `https://metaver.de/trefferanzeige?docuuid=127e7da5-9904-4f9c-97e4-a377bfb81091` |
+| Verordnungs-Status | Sächsisches Amtsblatt 03.12.2020, in Kraft seit 31.12.2020 |
+| Lizenz wörtlich | „Datenlizenz Deutschland – Namensnennung – Version 2.0 (dl-de/by-2-0)" |
+| Attribution | „Sächsisches Landesamt für Umwelt, Landwirtschaft und Geologie" |
+| Granularität | Gemeinde-Polygon |
 
-**Konsequenz:**
-- Eine BfS-Pauschalintegration ist **rechtlich nicht haltbar**.
-- Für eine kommerzielle Integration müssten 5 Landes-WMS gepflegt
-  werden (BY, NI, SN, ST, TH), je mit eigener Lizenz und Attribution.
-- Aufwand-Schätzung: mehrere Tage pro Bundesland für sauberes
-  Lizenz-Setup.
-
-**Empfehlung:**
-- Für Phase 1 verschieben.
-- Alternative: Hinweistext im Bericht („Radon-Vorsorgegebiete sind
-  in DE pro Bundesland geregelt — bitte beim zuständigen Landesamt
-  prüfen") + Link auf BfS-Übersicht.
+**Empfehlung:** Phase-2 — Sachsen kann morgen ingestet werden, Pattern
+für ein Modul `radon_data.py` mit Per-State-Dispatcher steht. NI-AGS-
+Workaround als zweiter Schritt. BY/ST/TH brauchen je 30–60min
+Geoportal-Klick-Klärung. Für **diese Session noch nicht integriert** —
+zu schmaler ROI für nur ein Bundesland im ersten Wurf.
 
 ---
 
 ## Layer 3 — Erdbebenzonen DIN EN 1998-1/NA
 
-**Status:** NICHT VERIFIZIERT — ursprüngliche Quelle (BGR) war falsch
+**Status:** NICHT VERIFIZIERT — **doppelt bestätigt verschoben**
 
 | Feld | Wert |
 |---|---|
 | Korrekte Quelle | **GFZ Potsdam**, nicht BGR |
-| GFZ-URL | `https://www.gfz.de/en/din4149-erdbebenzonenabfrage` |
-| Regional verfeinert | LGRB Baden-Württemberg |
+| GFZ-Web-Form (alt, NA:2011-01) | `https://www.gfz.de/en/din4149-erdbebenzonenabfrage` |
+| GFZ-Web-Form (NA:2023-11) | `https://koordb.gfz-potsdam.de/Koordinatenabfrage_DIN_html.php` |
+| GFZ-Erdbebenzonen + Untergrundklassen | `https://ebz.gfz-potsdam.de/index_ug_cms.php` |
+| Format | **NUR Web-Form Adress-Lookup, KEIN WMS/WFS/Download** |
+| Regional verfeinert | LGRB Baden-Württemberg (`geoportal.lgrb-bw.de`) |
 | BGR macht | nur **GERSEIS** (Erdbeben-Ereigniskatalog), NICHT die DIN-Zonen |
-| Lizenz | unbekannt — GFZ ist Helmholtz-Einrichtung, eigene Bedingungen |
-| Urheberrecht | Karte ist Teil einer DIN-Norm — DIN-Verlag-Lizenz möglich |
+| Lizenz | unbekannt — GFZ ist Helmholtz-Einrichtung |
+| GFZ-Disclaimer | „GFZ assumes no guarantee and liability" — kein Lizenz-Statement |
+| Urheberrecht | DIN-Norm! Wörtlich: „reproduction of standards documents is only permitted for authorized persons for scientific and non-commercial use" |
 
-**Caveats:**
-- Vor Ingest: GFZ schreiben (Lizenz-Anfrage analog BBSR/BBD) oder
-  DIN-Verlag konsultieren.
-- Mindestens 1 Tag Klärungsaufwand.
+**Konsequenzen aus zweiter Recherche-Runde 2026-04-27:**
+- Es gibt **keine maschinenlesbare Datenschnittstelle** bei GFZ —
+  nur drei Web-Forms für Adress-Lookups.
+- DIN-Urheberrecht ist real und plausibel relevant: die Zonenkarte
+  ist Anhang einer Norm, deren Reproduktion explizit eingeschränkt
+  ist. Ohne schriftliche Klärung beim GFZ und/oder DIN-Verlag ist
+  Ingest ein Rechtsrisiko.
+- Wie kommerzielle Statik-Tools (Dlubal etc.) das gelöst haben, ist
+  aus öffentlichen Quellen nicht ersichtlich — vermutlich
+  Direkt-Lizenzvertrag.
 
-**Empfehlung:**
-- Für Phase 1 verschieben.
-- Bei NL-Adressen ohnehin nicht relevant (NL hat nur sehr lokale
-  Beben in Groningen — eigenes KNMI-Thema).
+**Empfehlung:** **Verschoben**. Mail-Anfrage parallel zu BBSR/BGR-BBD
+rausschicken (Vorlage: `docs/MAIL_GFZ_ERDBEBEN.md`). Antwort kann ggf.
+„kostenpflichtig per DIN-Verlag" sein — dann technisch nicht in dieses
+Produkt integrierbar, in dem Fall im Bericht als „Hinweis-Layer" mit
+Link auf das GFZ-Webtool führen.
 
 ---
 
@@ -173,13 +200,14 @@ unten in §6.
 
 ## Zusammenfassung & Empfehlung
 
-| # | Layer | Status | Sofort startbar | Empfehlung |
+| # | Layer | Status | Code-Stand | Empfehlung |
 |---|---|---|---|---|
-| 5 | NRW Bergbau | VERIFIZIERT | ja | **Sofort starten** |
-| 4 | DWD KOSTRA | TEILW. VERIFIZIERT (Lizenz grün, Engineering klar) | ja, nach Capabilities-Lese vom VPS | Engineering kann beginnen |
-| 1 | BfG HWRM | TEILW. VERIFIZIERT (Live-Capabilities offen) | nein, erst Capabilities-Test vom VPS | Verify dann starten |
-| 2 | BfS Radon | NICHT VERIFIZIERT — Patchwork | nein | **Verschoben** |
-| 3 | GFZ Erdbeben | NICHT VERIFIZIERT — Quelle korrigiert | nein | **Verschoben**, Mail an GFZ |
+| 5 | NRW Bergbau | VERIFIZIERT | **integriert** (`mining_nrw.py` + Sektion 3) | Smoke-Test vom VPS |
+| 1 | BfG HWRM | TEILW. (Lizenz DL-DE/Zero-2.0, beste denkbare) | **integriert** (`flood_data.py` + Sektion 4) | Layer-Namen vom VPS verifizieren, ggf. Env-Vars setzen |
+| 4 | DWD KOSTRA | TEILW. (Lizenz grün, kein WMS) | **Pull-Script + Lookup-Modul integriert**, Daten ausstehend | `download_kostra.py` vom VPS laufen lassen, Filename-Schema verifizieren |
+| 2a | Radon Sachsen | VERIFIZIERT (dl-de/by-2.0) | nicht integriert | Phase-2 Modul `radon_data.py` mit Per-State-Dispatcher |
+| 2b | Radon BY/NI/ST/TH | TEILW. | nicht integriert | je BL 30–60min Klärung, NI per AGS-Workaround machbar |
+| 3 | GFZ Erdbeben | NICHT VERIFIZIERT — DIN-Urheberrecht-Risiko | nicht integriert | Mail an GFZ + ggf. DIN-Verlag (Vorlage `MAIL_GFZ_ERDBEBEN.md`) |
 
 ---
 
