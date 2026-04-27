@@ -80,6 +80,8 @@ def generate_full_report(
     soil_profile: dict,
     # Quiz answers
     answers: dict | None = None,
+    # NRW Bergbau (None for non-NRW addresses; populated dict for NRW)
+    mining_data: dict | None = None,
 ) -> bytes:
     """Generate a comprehensive Bodenbericht PDF."""
     answers = answers or {}
@@ -241,12 +243,15 @@ def generate_full_report(
     pdf.ln(4)
 
     # ════════════════════════════════════════════════════════════════
-    # PAGE 2: Soil quality + Nutrients + Personalization
+    # PAGE 2: Bergbau + Soil quality + Nutrients + Personalization
     # ════════════════════════════════════════════════════════════════
     pdf.add_page()
 
+    # ── Section: Bergbau / Altbergbau ───────────────────────────────
+    _section_bergbau(pdf, fn, mining_data)
+
     # ── Section: Bodenqualitaet ─────────────────────────────────────
-    _section_header(pdf, fn, "3. Bodenqualitaet (SoilGrids 250m)")
+    _section_header(pdf, fn, "4. Bodenqualitaet (SoilGrids 250m)")
 
     if any(v is not None for v in soilgrids.values()):
         pdf.set_font(fn, "B", 8)
@@ -308,7 +313,7 @@ def generate_full_report(
     pdf.ln(4)
 
     # ── Section: Naehrstoffe ────────────────────────────────────────
-    _section_header(pdf, fn, "4. Naehrstoffe")
+    _section_header(pdf, fn, "5. Naehrstoffe")
 
     if nutrients:
         pdf.set_font(fn, "", 9)
@@ -330,7 +335,7 @@ def generate_full_report(
 
     # ── Section: Individuelle Einschaetzung ─────────────────────────
     if answers:
-        _section_header(pdf, fn, "5. Ihre individuelle Einschaetzung")
+        _section_header(pdf, fn, "6. Ihre individuelle Einschaetzung")
         pdf.set_font(fn, "", 9)
         pdf.set_text_color(50, 50, 50)
 
@@ -348,11 +353,13 @@ def generate_full_report(
     # ── Datenquellen ────────────────────────────────────────────────
     _section_header(pdf, fn, "Gepruefte Datenquellen")
     pdf.set_font(fn, "", 8)
+    has_mining = bool(mining_data and not mining_data.get("error"))
     sources = [
         (has_egms, "Copernicus EGMS L3 Ortho (Sentinel-1, 2019-2022)"),
         (True, "Nominatim / OpenStreetMap (Geocodierung)"),
         (bool(metals), "LUCAS Topsoil Survey (Schwermetalle, Naehrstoffe)"),
         (bool(soilgrids.get("phh2o")), "SoilGrids 250m (pH, SOC, Textur, Dichte)"),
+        (has_mining, "Bergbauberechtigungen NRW (Bezirksregierung Arnsberg, dl-de/by-2.0)"),
         (False, "Hochwasser-Gefahrenkarten (in Vorbereitung)"),
         (False, "Altlastenkataster (in Vorbereitung)"),
     ]
@@ -395,6 +402,90 @@ def _tmp_png(data: bytes) -> str:
     f.write(data)
     f.close()
     return f.name
+
+
+def _section_bergbau(pdf: FPDF, fn: str, mining_data: dict | None) -> None:
+    """Render the "Bergbau / Altbergbau" section.
+
+    Three states:
+    - ``mining_data is None``    → out-of-scope notice (non-NRW address)
+    - ``mining_data["error"]``   → service-unavailable notice
+    - ``in_zone False``          → all-clear for the 200 m search bbox
+    - ``in_zone True``           → list of overlapping mining-rights fields
+    """
+    _section_header(pdf, fn, "3. Bergbau / Altbergbau")
+    pdf.set_font(fn, "", 9)
+    pdf.set_text_color(80, 80, 80)
+
+    if mining_data is None:
+        pdf.multi_cell(0, 5, (
+            "Die Auswertung von Bergbauberechtigungen ist aktuell nur fuer "
+            "Adressen in Nordrhein-Westfalen integriert (Quelle: "
+            "Bezirksregierung Arnsberg). Fuer Standorte ausserhalb NRW "
+            "wenden Sie sich bitte an das jeweilige Landes-Bergamt."
+        ))
+        pdf.ln(4)
+        return
+
+    if mining_data.get("error"):
+        pdf.multi_cell(0, 5, (
+            "Die Bergbau-Datenquelle (Bezirksregierung Arnsberg) war zum "
+            "Zeitpunkt der Berichterstellung nicht erreichbar. Bitte "
+            "fordern Sie ggf. einen aktualisierten Bericht an oder "
+            "konsultieren Sie das offizielle WMS direkt."
+        ))
+        pdf.ln(4)
+        return
+
+    fields = mining_data.get("fields") or []
+    if not mining_data.get("in_zone") or not fields:
+        pdf.set_text_color(91, 154, 111)  # green
+        pdf.set_font(fn, "B", 9)
+        pdf.cell(0, 6, "Kein Bergbau-Verdachtsgebiet im Untersuchungsumfeld",
+                 new_x="LMARGIN", new_y="NEXT")
+        pdf.set_text_color(80, 80, 80)
+        pdf.set_font(fn, "", 8)
+        pdf.multi_cell(0, 4, (
+            "Im 200-Meter-Umkreis dieser Adresse sind keine eingetragenen "
+            "Bergbauberechtigungen (gueltig oder erloschen) bekannt."
+        ))
+        pdf.ln(4)
+        return
+
+    # in_zone, with one or more overlapping fields
+    pdf.set_text_color(196, 169, 77)  # yellow
+    pdf.set_font(fn, "B", 9)
+    pdf.cell(0, 6, f"Bergbauberechtigung im Umfeld: {len(fields)} Eintrag/Eintraege",
+             new_x="LMARGIN", new_y="NEXT")
+    pdf.set_text_color(50, 50, 50)
+    pdf.set_font(fn, "", 8)
+
+    for f in fields:
+        name = f.get("name") or "(ohne Bezeichnung)"
+        mineral = f.get("mineral") or "n.a."
+        kind = f.get("type") or "n.a."
+        valid_from = f.get("valid_from") or ""
+        valid_to = f.get("valid_to") or ""
+        period = " – ".join(p for p in (valid_from, valid_to) if p) or "Zeitraum unbekannt"
+
+        pdf.set_font(fn, "B", 8)
+        pdf.multi_cell(0, 4.5, name)
+        pdf.set_font(fn, "", 8)
+        pdf.cell(0, 4.5, f"  Rohstoff: {mineral}    Art: {kind}    Zeitraum: {period}",
+                 new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(0.5)
+
+    pdf.ln(2)
+    pdf.set_font(fn, "I", 7)
+    pdf.set_text_color(120, 120, 120)
+    pdf.multi_cell(0, 3.5, (
+        "Eine Bergbauberechtigung in der Naehe der Adresse bedeutet nicht "
+        "automatisch eine konkrete Gefaehrdung. Sie ist ein Hinweis darauf, "
+        "dass im Untergrund Abbau stattgefunden hat oder vorgesehen war "
+        "und ist im Einzelfall durch ein qualifiziertes Bergbau-Fachgutachten "
+        "zu bewerten."
+    ))
+    pdf.ln(2)
 
 
 def _section_header(pdf: FPDF, fn: str, title: str):

@@ -28,6 +28,7 @@ from app.dependencies import get_db
 from app.email_service import send_report_email
 from app.full_report import generate_full_report
 from app.html_report import generate_html_report
+from app.mining_nrw import query_mining_nrw
 from app.models import Ampel, Lead, Report, ReportStatus
 from app.pdf_renderer import html_to_pdf
 from app.rate_limit import limiter
@@ -183,6 +184,10 @@ async def _generate_and_send_lead_report(
         #    Chrome-headless renderer (with a static OSM map on page 1);
         #    the full variant uses FPDF directly and does not embed a
         #    map, so we skip the static-map fetch in that branch.
+        # mining_data carries the NRW Bergbau lookup result (or None if
+        # not queried). Defined here so it stays in scope for the audit
+        # log in step 6 regardless of which branch ran.
+        mining_data: dict | None = None
         if is_teaser:
             map_data_uri = await fetch_static_map(lat, lon)
             html = generate_html_report(
@@ -209,6 +214,21 @@ async def _generate_and_send_lead_report(
                 pdf_bytes = html.encode("utf-8")
                 logger.warning("PDF rendering failed, sending HTML as fallback for %s", email)
         else:
+            # NRW Bergbau: only query the WMS for addresses that
+            # Nominatim resolved into Nordrhein-Westfalen. The PDF section
+            # handles all three states (mining_data is None / error /
+            # in_zone False / in_zone True).
+            if (region or {}).get("state") == "Nordrhein-Westfalen":
+                try:
+                    mining_data = await query_mining_nrw(lat, lon)
+                except Exception:
+                    logger.exception(
+                        "NRW Bergbau lookup failed unexpectedly for (%s, %s); "
+                        "report will render the service-unavailable notice.",
+                        lat, lon,
+                    )
+                    mining_data = {"in_zone": False, "fields": [], "error": "lookup_exception"}
+
             pdf_bytes = generate_full_report(
                 address=display_name,
                 lat=lat,
@@ -220,6 +240,7 @@ async def _generate_and_send_lead_report(
                 geo_score=geo_score,
                 soil_profile=soil_profile,
                 answers=answers or {},
+                mining_data=mining_data,
             )
 
         # 6. Persist a Report row for this lead (C1). The row carries all
@@ -248,6 +269,17 @@ async def _generate_and_send_lead_report(
                     "source": source,
                     "is_teaser": is_teaser,
                     "address_display": display_name,
+                    # Compact audit record of the NRW Bergbau lookup —
+                    # full feature attributes stay out of the audit JSONB.
+                    "mining_nrw": (
+                        {
+                            "in_zone": bool(mining_data.get("in_zone")),
+                            "fields_count": len(mining_data.get("fields") or []),
+                            "error": mining_data.get("error"),
+                        }
+                        if mining_data is not None
+                        else None
+                    ),
                 }
                 async with SessionLocal() as db:
                     ampel_enum = Ampel(ampel) if ampel in {"gruen", "gelb", "rot"} else None
