@@ -24,7 +24,17 @@ Unser Markt-Kontext (aus `CLAUDE.md`, hier nochmal komprimiert):
 | FunderConsult | NL | 7,95 EUR | etabliert, KCAF-Anbindung | Black-Box-Label A–E, keine Rohdaten |
 | Groundsure | UK | 47 GBP+ | Marktführer, große Datenbasis | UK-only |
 | France-ERP | FR | 9,99 EUR | beweist, dass Paid + kostenlos koexistieren | frankophon |
-| **keine** | DE | — | — | Chance für uns |
+| BBSR GIS-ImmoRisk | DE | gratis (staatlich) | Hitze/Erdbeben/Waldbrand/Hagel/Sturm/Starkregen pro Adresse | reine Naturgefahren, keine Bodenbewegung, keine Altlasten |
+| K.A.R.L.® TAXO (Köln.Assekuranz / on-geo) | DE | B2B Enterprise | Klimarisiko + EU-Taxonomie, CMIP6 | B2B-only, modelliert nicht gemessen |
+| on-geo Lora | DE | B2B-Software | 95 % der DE-Banken | Beleihungswert, kein Käufer-PDF |
+| EnviroTrust | DE | B2B | Climate-Risk-Plattform | B2B-only |
+| docestate.com | DE | 30–100 EUR | Altlastenkataster pro Grundstück | landesspezifisch, teuer |
+
+**Korrektur 2026-04-27:** Frühere Versionen dieses Docs hatten „keine | DE
+| — | — | Chance für uns" — das war ein Recherche-blinder Fleck. Volle
+Recherche siehe [`MARKET_REALITY_DE_2026.md`](MARKET_REALITY_DE_2026.md).
+Konsequenz: **Strategie-Entscheidung Avista-Parität vs.
+Soil-Act/InSAR-Pivot ist offen** (siehe §7).
 
 Unser Differenzierungspotenzial gegenüber Groundsure:
 
@@ -259,6 +269,15 @@ das missachtet, öffnet die Haftung nach §18 BBodSchG.
 
 Diese Fragen müssen beantwortet werden, bevor die entsprechende Phase
 startet.
+
+### Vor allem anderen — Strategie
+
+- [ ] **Avista-Parität (Option A)** oder
+      **Soil-Act + InSAR-Pivot (Option B)?** Volle Argumentation in
+      [`MARKET_REALITY_DE_2026.md`](MARKET_REALITY_DE_2026.md) §4–§5.
+      Bis zur Entscheidung: kein neues Risikomodul anfangen, keine
+      neuen Daten-Lizenzen verhandeln. Phase-2-Datenliste unten ist
+      Avista-Parität-Zustand und ggf. zu kürzen.
 
 ### Vor Phase 1
 

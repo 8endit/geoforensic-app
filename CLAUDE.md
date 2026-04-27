@@ -131,12 +131,21 @@ Must be followed for ALL new pages on geoforensic.de:
 - **FunderConsult (NL):** EUR 7.95/address, A-E risk label from FunderMaps database. Already includes InSAR data from SkyGeo for 40% of NL, but the buyer only sees a black-box label, NOT the raw velocity data, time series, or maps. Our report shows what theirs hides.
 - **Groundsure (UK):** Market leader, sold for GBP 170M in 2021. Uses SatSense InSAR data. Reports from GBP 47. Not active in DE/NL.
 - **France-ERP (FR):** EUR 9.99/report alongside free government data (georisques.gouv.fr). Proves the model: free government data + paid commercial report coexist.
-- **Germany:** No competitor exists. Baugrundgutachten cost EUR 849-2500 and require physical boring. We are the desk-based screening alternative.
+- **Germany — NICHT leer.** Frühere Doc-Behauptung "no competitor exists" war ein Recherche-blinder-Fleck. Aktueller Stand (siehe `docs/MARKET_REALITY_DE_2026.md` für Details):
+  - **BBSR GIS-ImmoRisk** — gratis, staatlich, deckt Hitze/Erdbeben/Waldbrand/Hagel/Sturm/Starkregen pro Adresse ab. Killer für ein "wir machen Naturgefahren"-Modul.
+  - **K.A.R.L.® TAXO** (Köln.Assekuranz/ERGO via on-geo) — B2B Klimarisiko + EU-Taxonomie-Compliance, CMIP6-Projektionen.
+  - **on-geo Lora** — B2B Beleihungswert, sitzt in 95 % der DE-Banken.
+  - **EnviroTrust** — B2B Climate-Risk-Plattform.
+  - **docestate.com** — B2C Altlastenkataster pro Grundstück, ~30–100 EUR.
+  - Was niemand kombiniert: **gemessene InSAR-Bodenbewegung mit Zeitreihen + Käufer-PDF + EU-Soil-Directive-Compliance**. Das ist unser einziger echter Moat.
+  - **Pflichtversicherung Elementar** ist im Koalitionsvertrag 2025 + Bundesrats-Vorstoß + Linke-Antrag 16.04.2026 — noch nicht beschlossen. Falls Opt-out-Modell kommt: ~50 Versicherer brauchen adressgenaue Risikodaten → B2B-API-Sog.
+  - **Strategieentscheidung Avista-Parität vs. Soil-Act/InSAR-Pivot ist offen** — bis zur Entscheidung kein neues Risikomodul anfangen.
+  - Baugrundgutachten (EUR 849–2500, mit Bohrung) bleiben das einzige B2C-Pendant ohne Wettbewerb in der "Desk-Screening"-Nische.
 
 ### Pricing (NOT finalized — needs market validation)
 - Current config: `STRIPE_REPORT_PRICE_CENTS=19900` (EUR 199) — likely too high for NL market
 - Target NL: EUR 19-39 per report (between FunderConsult 7.95 and QuickScan 350+)
-- Target DE: EUR 49-99 per report (no competitor, higher willingness to pay)
+- Target DE: EUR 49-99 per report (kein direkter B2C-Desk-Screening-Wettbewerb in der Nische; B2B-Markt aber durch on-geo/K.A.R.L. besetzt)
 - Free preview (ampel + point count, no auth needed) — this is the lead magnet
 - Discussed but NOT implemented: first 100 free, promo codes, tiered pricing
 
