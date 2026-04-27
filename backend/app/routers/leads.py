@@ -1,12 +1,17 @@
-"""Lead capture endpoint — quiz/landing form -> geocode -> teaser report -> email.
+"""Lead capture endpoint — quiz/landing form -> geocode -> report -> email.
 
 Architecture:
     source in TEASER_SOURCES -> short teaser PDF (bodenbericht.de lead magnet)
-    source == "paid"         -> full PDF (geoforensic.de product) — not wired yet
+    source not in TEASER_SOURCES -> full PDF (geoforensic.de product)
 
-The full-report path is reserved for the future paid flow. Until that is
-wired up, all inbound leads receive the teaser and a warning is logged if a
-"paid" source arrives prematurely.
+Both paths share the same data pipeline (geocode, EGMS query, soil profile)
+and persist a Report row. They differ only in the PDF rendering step and
+the wording of the outbound mail (see ``email_service.is_teaser``).
+
+The full-report path is wired but not yet customer-facing — there is no
+checkout UI, no Stripe webhook gate, and no source on the live landing
+that emits anything other than the teaser. Triggering the full report
+today requires posting a non-teaser source directly to ``/api/leads``.
 """
 
 import logging
@@ -21,6 +26,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_settings
 from app.dependencies import get_db
 from app.email_service import send_report_email
+from app.full_report import generate_full_report
 from app.html_report import generate_html_report
 from app.models import Ampel, Lead, Report, ReportStatus
 from app.pdf_renderer import html_to_pdf
@@ -79,19 +85,13 @@ async def _generate_and_send_lead_report(
 
     The ``source`` argument selects which report variant gets rendered and
     which email template is used.  Sources in ``TEASER_SOURCES`` yield the
-    short teaser PDF; anything else is reserved for the paid full-report flow
-    which is not wired yet — those currently fall back to the teaser with a
-    warning in the logs.
+    short teaser PDF; any other source produces the full PDF
+    (`generate_full_report`). Both share the geocode + EGMS + soil
+    pipeline below.
     """
     from app.database import SessionLocal
 
     is_teaser = source in TEASER_SOURCES
-    if not is_teaser:
-        logger.warning(
-            "Lead source %r requested full report, but paid flow is not wired yet — sending teaser as fallback",
-            source,
-        )
-        is_teaser = True
 
     try:
         # 1. Geocode (or use pre-computed result from request handler)
@@ -179,36 +179,50 @@ async def _generate_and_send_lead_report(
             logger.warning("Soil data query failed for (%s, %s), using empty profile", lat, lon)
             soil_profile = {}
 
-        # 5. Fetch static OSM map for page 1 (empty string on failure; the
-        #    report template renders a grey coord-fallback in that case).
-        map_data_uri = await fetch_static_map(lat, lon)
+        # 5. Generate the PDF. Teaser variant uses the HTML template +
+        #    Chrome-headless renderer (with a static OSM map on page 1);
+        #    the full variant uses FPDF directly and does not embed a
+        #    map, so we skip the static-map fetch in that branch.
+        if is_teaser:
+            map_data_uri = await fetch_static_map(lat, lon)
+            html = generate_html_report(
+                address=display_name,
+                lat=lat,
+                lon=lon,
+                ampel=ampel,
+                point_count=len(points),
+                mean_velocity=mean_v,
+                max_velocity=max_v,
+                geo_score=geo_score,
+                soil_profile=soil_profile,
+                answers=answers or {},
+                radius_m=radius_m,
+                map_data_uri=map_data_uri,
+                region=region,
+                timeseries=timeseries,
+                elevated_count=elevated_count,
+                elevated_threshold_mm_yr=ELEVATED_THRESHOLD_MM_YR,
+            )
+            pdf_bytes = html_to_pdf(html)
+            if pdf_bytes is None:
+                # Fallback: send HTML as attachment
+                pdf_bytes = html.encode("utf-8")
+                logger.warning("PDF rendering failed, sending HTML as fallback for %s", email)
+        else:
+            pdf_bytes = generate_full_report(
+                address=display_name,
+                lat=lat,
+                lon=lon,
+                ampel=ampel,
+                point_count=len(points),
+                mean_velocity=mean_v,
+                max_velocity=max_v,
+                geo_score=geo_score,
+                soil_profile=soil_profile,
+                answers=answers or {},
+            )
 
-        # 6. Generate HTML report → render to PDF via Chrome
-        html = generate_html_report(
-            address=display_name,
-            lat=lat,
-            lon=lon,
-            ampel=ampel,
-            point_count=len(points),
-            mean_velocity=mean_v,
-            max_velocity=max_v,
-            geo_score=geo_score,
-            soil_profile=soil_profile,
-            answers=answers or {},
-            radius_m=radius_m,
-            map_data_uri=map_data_uri,
-            region=region,
-            timeseries=timeseries,
-            elevated_count=elevated_count,
-            elevated_threshold_mm_yr=ELEVATED_THRESHOLD_MM_YR,
-        )
-        pdf_bytes = html_to_pdf(html)
-        if pdf_bytes is None:
-            # Fallback: send HTML as attachment
-            pdf_bytes = html.encode("utf-8")
-            logger.warning("PDF rendering failed, sending HTML as fallback for %s", email)
-
-        # 7. Persist a Report row for this lead (C1). The row carries all
+        # 6. Persist a Report row for this lead (C1). The row carries all
         #    structured values the template used — ampel, geo_score,
         #    point_count, elevated_count, mean/max velocity, region, how
         #    many timeseries quarters were available — so the admin can
@@ -269,7 +283,7 @@ async def _generate_and_send_lead_report(
                     lead_id, email,
                 )
 
-        # 8. Send email
+        # 7. Send email
         await send_report_email(
             recipient_email=email,
             report_address=display_name,
