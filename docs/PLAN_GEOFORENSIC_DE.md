@@ -270,14 +270,16 @@ das missachtet, öffnet die Haftung nach §18 BBodSchG.
 Diese Fragen müssen beantwortet werden, bevor die entsprechende Phase
 startet.
 
-### Vor allem anderen — Strategie
+### Strategie — entschieden 2026-04-27
 
-- [ ] **Avista-Parität (Option A)** oder
-      **Soil-Act + InSAR-Pivot (Option B)?** Volle Argumentation in
-      [`MARKET_REALITY_DE_2026.md`](MARKET_REALITY_DE_2026.md) §4–§5.
-      Bis zur Entscheidung: kein neues Risikomodul anfangen, keine
-      neuen Daten-Lizenzen verhandeln. Phase-2-Datenliste unten ist
-      Avista-Parität-Zustand und ggf. zu kürzen.
+- [x] **Option B gewählt:** „Soil-Act + InSAR-Moat + BBSR als
+      Datenquelle für Naturgefahren mit eigener
+      Interpretations-Schicht". Volle Argumentation und Sprint-Plan in
+      [`MARKET_REALITY_DE_2026.md`](MARKET_REALITY_DE_2026.md) §4–§8.
+- Phase-2-Datenliste unten ist **gekürzt** zu interpretieren: Hitze,
+  Hagel, Sturm, Erdbeben, Waldbrand, Starkregen kommen aus BBSR-WMS,
+  nicht aus eigener Entwicklung. Hochwasser, Radon, Bergbau, Altlasten
+  bleiben Eigenentwicklung.
 
 ### Vor Phase 1
 
