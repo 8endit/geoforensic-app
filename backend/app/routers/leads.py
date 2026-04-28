@@ -14,6 +14,7 @@ that emits anything other than the teaser. Triggering the full report
 today requires posting a non-teaser source directly to ``/api/leads``.
 """
 
+import asyncio
 import logging
 import uuid
 from datetime import datetime
@@ -269,7 +270,11 @@ async def _generate_and_send_lead_report(
                     )
                     kostra_data = {"available": False, "slots": {}}
 
-            pdf_bytes = generate_full_report(
+            # FPDF is synchronous and CPU-bound — wrap in to_thread so a
+            # multi-second render does not block the event loop and starve
+            # other inbound /api/leads requests.
+            pdf_bytes = await asyncio.to_thread(
+                generate_full_report,
                 address=display_name,
                 lat=lat,
                 lon=lon,
