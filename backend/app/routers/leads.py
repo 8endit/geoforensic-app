@@ -1,17 +1,17 @@
 """Lead capture endpoint — quiz/landing form -> geocode -> report -> email.
 
 Architecture:
-    source in TEASER_SOURCES -> short teaser PDF (bodenbericht.de lead magnet)
-    source not in TEASER_SOURCES -> full PDF (geoforensic.de product)
+    source in PAID_SOURCES     -> full PDF (geoforensic.de product)
+    everything else (default)  -> short teaser PDF (bodenbericht.de lead magnet)
+
+Routing is deny-by-default: a new landing form that emits an unfamiliar
+source string falls through to the teaser, never to the full report.
+Adding a new paid surface requires explicitly extending PAID_SOURCES
+AFTER payment is confirmed by the upstream flow (Stripe webhook etc.).
 
 Both paths share the same data pipeline (geocode, EGMS query, soil profile)
 and persist a Report row. They differ only in the PDF rendering step and
 the wording of the outbound mail (see ``email_service.is_teaser``).
-
-The full-report path is wired but not yet customer-facing — there is no
-checkout UI, no Stripe webhook gate, and no source on the live landing
-that emits anything other than the teaser. Triggering the full report
-today requires posting a non-teaser source directly to ``/api/leads``.
 """
 
 import asyncio
@@ -42,9 +42,18 @@ from app.static_map import fetch_static_map
 router = APIRouter(prefix="/api/leads", tags=["leads"])
 logger = logging.getLogger(__name__)
 
-# Sources that receive the free teaser PDF (bodenbericht.de lead-magnet flow).
-# Anything not listed here is treated as a paid/full-report request.
-TEASER_SOURCES = {"quiz", "landing", "premium-waitlist"}
+# Lead-Flow-Routing — deny-by-default.
+#
+# The full PDF is the paid product (geoforensic.de). The teaser PDF is the
+# free lead magnet (bodenbericht.de). To make sure no free lead ever
+# accidentally triggers the full report — e.g. because a new form on the
+# landing page sets a source string we forgot to whitelist — the routing
+# is deny-by-default: only sources explicitly listed in PAID_SOURCES get
+# the full report. Everything else falls through to the teaser.
+#
+# When the paid flow is wired up (Stripe checkout etc.), it will set
+# source="paid" (or another value listed here) AFTER payment confirmation.
+PAID_SOURCES = {"paid", "checkout", "stripe"}
 
 
 class LeadCreate(BaseModel):
@@ -88,14 +97,13 @@ async def _generate_and_send_lead_report(
     for backward compatibility.
 
     The ``source`` argument selects which report variant gets rendered and
-    which email template is used.  Sources in ``TEASER_SOURCES`` yield the
-    short teaser PDF; any other source produces the full PDF
-    (`generate_full_report`). Both share the geocode + EGMS + soil
-    pipeline below.
+    which email template is used.  Sources in ``PAID_SOURCES`` yield the
+    full PDF (`generate_full_report`); everything else falls through to the
+    teaser. Both share the geocode + EGMS + soil pipeline below.
     """
     from app.database import SessionLocal
 
-    is_teaser = source in TEASER_SOURCES
+    is_teaser = source not in PAID_SOURCES
 
     try:
         # 1. Geocode (or use pre-computed result from request handler)
