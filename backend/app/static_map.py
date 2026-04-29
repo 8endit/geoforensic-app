@@ -127,7 +127,7 @@ async def fetch_static_map(
     lon: float,
     width: int = 400,
     height: int = 250,
-    zoom: int = 15,
+    zoom: int = 17,
 ) -> str:
     """Return ``data:image/png;base64,...`` or empty string on failure.
 

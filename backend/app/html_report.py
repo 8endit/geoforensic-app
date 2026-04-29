@@ -682,7 +682,7 @@ def generate_html_report(
       <p>{point_count} Satelliten-Messpunkte im Umkreis von {radius_m}&thinsp;m ausgewertet. Diese Punkte erkennen millimetergenaue Bewegungen der Erdoberfläche. Die Ampel basiert auf der mittleren Geschwindigkeit aller Messpunkte; die konkreten mm/a-Werte stehen im Vollbericht.</p>
     </div>
   </div>
-  <p class="ss" style="margin-top:10px; padding-top:8px; border-top:1px solid #eef1f3;"><span style="color:var(--gray); font-size:10px;">Der GeoScore kombiniert mittlere Geschwindigkeit, Streuung und Messpunktdichte im Umkreis.</span></p>
+  <p class="ss" style="margin-top:10px; padding-top:8px; border-top:1px solid #eef1f3;"><span style="color:var(--gray); font-size:10px;">Der GeoScore (0&ndash;100) kombiniert mittlere und maximale Geschwindigkeit, die Streuung der Messwerte und die Messpunktdichte im Umkreis. Falls eine Quartals-Zeitreihe vorliegt, fließt zusätzlich ein Trendfaktor ein. Bei wenigen Messpunkten wird der Score gedeckelt, weil die statistische Aussagekraft niedriger ist.</span></p>
 </div>
 
 <div class="card">

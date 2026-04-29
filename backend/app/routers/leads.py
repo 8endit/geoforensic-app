@@ -73,12 +73,82 @@ class LeadResponse(BaseModel):
         from_attributes = True
 
 
-def _ampel_from_velocity(abs_velocity: float) -> tuple[str, int]:
-    if abs_velocity < 2:
-        return "gruen", 85
-    if abs_velocity <= 5:
-        return "gelb", 60
-    return "rot", 30
+def _ampel_from_velocity(mean_abs_velocity: float) -> str:
+    """Classify the Ampel based on mean absolute velocity (mm/year).
+
+    Threshold rationale: 2 mm/a is the standard yellow boundary used
+    throughout the app. 5 mm/a is the red threshold above which we
+    explicitly recommend a Gutachter. These thresholds drive the
+    Ampel only — the continuous score is computed separately by
+    ``_compute_geo_score`` below.
+    """
+    if mean_abs_velocity < 2:
+        return "gruen"
+    if mean_abs_velocity <= 5:
+        return "gelb"
+    return "rot"
+
+
+def _compute_geo_score(
+    velocities: list[float],
+    timeseries: list,
+) -> int | None:
+    """Continuous 0-100 GeoScore from a list of absolute velocities (mm/a)
+    plus the optional quarterly displacement time-series.
+
+    Components, each subtracted from a base of 100:
+      mean velocity          ×12   main subsidence/uplift signal
+      max velocity            ×4   hot-spot at any single point
+      std deviation           ×6   heterogeneity of the area
+      density floor                sparse data caps the score
+      trend penalty           -5   time series accelerating
+
+    Returns ``None`` when there are no measurements — the Teaser
+    template renders that as "k. A." rather than a misleading number.
+
+    The PDF copy that explains the score MUST stay aligned with what
+    this function actually does. If the formula changes, update the
+    explanatory text in ``html_report.py`` and ``full_report.py``.
+    """
+    n = len(velocities)
+    if n == 0:
+        return None
+
+    mean_v = sum(velocities) / n
+    max_v = max(velocities)
+
+    if n > 1:
+        variance = sum((v - mean_v) ** 2 for v in velocities) / n
+        std_v = variance ** 0.5
+    else:
+        std_v = 0.0
+
+    score = 100.0
+    score -= mean_v * 12
+    score -= max_v * 4
+    score -= std_v * 6
+
+    # Density floor — sparse data is statistically less reliable, so we
+    # don't claim a top score even if the few points we have look fine.
+    if n < 10:
+        score = min(score, 60)
+    elif n < 25:
+        score = min(score, 78)
+
+    # Trend penalty — if the cumulative-displacement time series shows
+    # the second half drifting further from zero than the first half by
+    # more than 0.5 mm, the location is in an active phase. Deduct 5.
+    if timeseries and len(timeseries) >= 4:
+        n_ts = len(timeseries)
+        first = timeseries[: n_ts // 2]
+        second = timeseries[n_ts // 2 :]
+        if first and second:
+            first_mean = sum(v for _, v in first) / len(first)
+            second_mean = sum(v for _, v in second) / len(second)
+            if abs(second_mean) > abs(first_mean) + 0.5:
+                score -= 5
+
+    return int(round(max(0, min(100, score))))
 
 
 async def _generate_and_send_lead_report(
@@ -177,7 +247,8 @@ async def _generate_and_send_lead_report(
             velocities = [abs(float(p["mean_velocity_mm_yr"])) for p in points]
             mean_v = sum(velocities) / len(velocities)
             max_v = max(velocities)
-            ampel, geo_score = _ampel_from_velocity(mean_v)
+            ampel = _ampel_from_velocity(mean_v)
+            geo_score = _compute_geo_score(velocities, timeseries)
             elevated_count = sum(1 for v in velocities if v > ELEVATED_THRESHOLD_MM_YR)
         else:
             mean_v, max_v, ampel, geo_score = 0.0, 0.0, "gruen", None
