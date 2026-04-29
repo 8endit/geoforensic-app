@@ -31,9 +31,13 @@ geoforensic-app/
 │   │   ├── auth.py               # JWT + bcrypt
 │   │   ├── dependencies.py       # get_current_user, get_db
 │   │   ├── html_report.py        # TEASER report (bodenbericht.de)
-│   │   ├── full_report.py        # FULL report (geoforensic.de, FPDF, not wired)
-│   │   ├── pdf_renderer.py       # Chrome-headless HTML -> PDF
+│   │   ├── full_report.py        # FULL report (geoforensic.de, FPDF, wired since 2026-04-27)
+│   │   ├── pdf_renderer.py       # Chrome-headless HTML -> PDF (WeasyPrint fallback)
 │   │   ├── soil_data.py          # SoilGrids + LUCAS point queries
+│   │   ├── flood_data.py         # BfG HWRM Hochwasser WMS (DE)
+│   │   ├── mining_nrw.py         # NRW Bergbauberechtigungen WMS
+│   │   ├── kostra_data.py        # DWD KOSTRA-2020 Starkregen-Raster
+│   │   ├── geocode_cache.py      # Redis-backed Nominatim cache (30d TTL)
 │   │   ├── email_service.py      # Brevo SMTP, HTML+plaintext, is_teaser flag
 │   │   └── routers/
 │   │       ├── auth.py           # register, login, me
@@ -73,7 +77,7 @@ Must be followed for ALL new pages on geoforensic.de:
 - **Inputs:** `bg-transparent border border-border`, focus → `border-primary`
 - **Cards:** `bg-black/40 border border-border`
 
-## Current State (2026-04-19)
+## Current State (2026-04-29)
 
 ### Deployment (live)
 
@@ -98,23 +102,29 @@ Must be followed for ALL new pages on geoforensic.de:
 
 ### Honest gaps (not working / half-working)
 
-- **`full_report.py` is not wired in the lead flow** — `source == "paid"` currently falls back to teaser with a log warning
+- **Vollbericht-Pipeline scharfgeschaltet, aber nicht customer-facing** — `full_report.py` ist seit 27.4. an den Lead-Flow angebunden (`source != TEASER_SOURCES` → Vollbericht). Quiz und Landing emittieren aber weiterhin nur Teaser-Sources. Triggerbar derzeit nur per direktem `POST /api/leads`.
+- **BfG-Hochwasser-Layer-Namen sind Best-Guess** — `flood_data.py` benutzt `HQ_haeufig` / `HQ100` / `HQ_extrem` als Default. Vom VPS aus per GetCapabilities verifizieren, ggf. `BFG_FLOOD_LAYER_*`-Env-Vars setzen.
+- **KOSTRA-Raster fehlen auf dem Server** — `kostra_data.py` rendert „Daten in Vorbereitung" bis die DWD-GeoTIFFs nach `/opt/bodenbericht/rasters/kostra_dwd_2020/` hochgeladen sind. Pull-Script-Stub: `backend/scripts/download_kostra.py`.
 - **Stripe / paid flow** — code exists in `routers/payments.py`, not active on the domain
 - **User accounts** — register/login routes work, but no live surface (bodenbericht is lead-only)
 - **CORINE land-use raster** — file on disk is corrupt (RGB PNG, no CRS). Lookup code exists but is never called. See `docs/DATA_INVENTORY_AUDIT.md`.
 - **HRL imperviousness + AWC water capacity** — rasters are DE-bounds only, NL addresses return NODATA
-- **Map in PDF** — no map snippet, only tables + SVG charts
+- **Map in PDF** — Teaser hat Static-Map auf Seite 1; Cozy designt Vollbericht-Karten separat
 - **NL-language report** — PDF is German only; NL is supposed to be primary market for the paid product
 - **Sentry** — SDK integrated, DSN empty → crashes just die in logs
 - **Better Stack Uptime** — not yet scheduled
 - **SSH password login** — still enabled on the server (key-only hardening is TODO in handbook §2.2)
+- **BBSR / GFZ Lizenz-Klärung offen** — Mail-Vorlagen liegen in `docs/MAIL_BBSR_LIZENZ.md` und `docs/MAIL_GFZ_ERDBEBEN.md`, noch nicht rausgeschickt.
 
 ### Near-term next steps
 
-1. Teaser-design polish (blur-kacheln, CTA hierarchy toward geoforensic.de waitlist)
-2. Flip Sentry DSN on + schedule Better Stack pings
-3. Disable SSH password login once all keys are in place
-4. **Then** start the geoforensic.de paid-flow plan (Groundsure-parity, wire `full_report.py`, Stripe, NL-report) — not started, needs separate design session
+1. **YFxEU → main mergen** und Backend neu bauen (Redis-Service kommt neu hinzu)
+2. BfG-Layer-Namen vom VPS aus per `curl` verifizieren
+3. KOSTRA-Raster nach `/opt/bodenbericht/rasters/kostra_dwd_2020/` hochladen
+4. BBSR + GFZ-Lizenzanfragen rausschicken
+5. Sentry-DSN scharfschalten + Test-Crash
+6. SSH-Passwort-Login abschalten
+7. **Dann** Cozy-Teaser-Design-Pass + paid-flow customer-facing machen (Stripe, Quiz-Source-Routing, NL-Variante)
 
 ## Business Context
 
@@ -225,4 +235,9 @@ See `docs/API.md` for full spec. Key routes live today:
 - `docs/CURSOR_UX_SECURITY_AUDIT.md` — security + UX fixes (prioritized list)
 - `docs/CURSOR_LANDING_POLISH.md`, `CURSOR_LANDING_SPRINT2.md`, `CURSOR_LANDING_PREMIUM_TEASER.md` — landing iterations (shipped)
 - `docs/CURSOR_TEASER_VS_FULL_REPORT.md` — **DONE in-tree**: source-based routing for teaser vs. full report
-- Next big doc to write: `docs/PLAN_GEOFORENSIC_DE.md` — Groundsure-parity paid product for DE market
+- `docs/PLAN_GEOFORENSIC_DE.md` — geoforensic.de paid-flow plan (Phasen, Märkte, Pricing-Thesen)
+- `docs/MARKET_REALITY_DE_2026.md` — DE-Wettbewerbsrecherche (BBSR/K.A.R.L./on-geo/EnviroTrust/docestate), Strategie-Entscheidung Option B
+- `docs/DATA_SOURCES_VERIFIED.md` — Layer-Katalog mit Verifizierungs-Stand (BfG, NRW, KOSTRA, Radon, Erdbeben)
+- `docs/SPRINT_S1_DATA_INGEST.md` — Server-Upload-Patterns + Sprint-Reihenfolge
+- `docs/MAIL_BBSR_LIZENZ.md`, `docs/MAIL_GFZ_ERDBEBEN.md` — Mail-Vorlagen, noch zu versenden
+- `docs/STATUS_2026-04-29.md` — letzter Tagesstand (Konsolidierung von zwei verstreuten Branches)
