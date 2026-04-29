@@ -1,28 +1,33 @@
 #!/usr/bin/env bash
-# Smoke-Test: einen Vollbericht-Lead an die eigene E-Mail triggern.
+# Smoke-Test: triggert einen Vollbericht-Lead und zeigt das Pipeline-
+# Verhalten in den Backend-Logs + dem Report-Eintrag in der DB.
+#
+# Default-Mail ist die RFC-reservierte Test-Domain example.test —
+# das Smoke-Script darf NIE versehentlich an eine echte Inbox senden.
+# Für einen Test-Mail-Versand an die eigene Adresse beim Aufruf die
+# EMAIL-Env-Var setzen (NICHT im Script festschreiben).
 #
 # Nutzung auf dem VPS:
 #     bash backend/scripts/smoke-vollbericht.sh
+#         # → Test-Mail an smoke-test@example.test, geht ins Leere,
+#         #   Logs/DB-Eintrag werden trotzdem geschrieben
 #
-# Was passiert:
-# 1. POST an /api/leads mit source="paid" → Vollbericht-Pfad
-# 2. Adresse: Köln Hohenzollernring (Innenstadt, sollte NICHT in HQ-Zone)
-# 3. E-Mail an benjaminweise41@gmail.com
-# 4. Wartet 60 Sek, zeigt dann Backend-Logs für den Lead
+#     EMAIL=ich@firma.de bash backend/scripts/smoke-vollbericht.sh
+#         # → triggert echten Versand an die angegebene Adresse
+#
+#     EMAIL=ich@firma.de ADDRESS="Köln Rheinauhafen 1" \
+#         bash backend/scripts/smoke-vollbericht.sh
+#         # → andere Adresse für HQ-Zonen-Test direkt am Rhein
 #
 # Erfolgsmarker:
 # - Keine "BfG flood WMS HTTP 500"-Zeilen in den Logs
 # - "Lead report sent" mit teaser=False
-# - Mail kommt an mit Vollbericht (Bergbau / Hochwasser / KOSTRA-Sektionen
-#   mit echten Daten statt "nicht erreichbar")
-#
-# Falls du eine zweite Test-Adresse willst (Hochwasser-Hotspot):
-#     ADDRESS="Köln Rheinauhafen 1" bash backend/scripts/smoke-vollbericht.sh
-# Diese Adresse liegt direkt am Rhein, sollte HQ-Zonen treffen.
+# - Falls echte EMAIL gesetzt: Mail kommt an mit Vollbericht
+#   (Bergbau / Hochwasser / KOSTRA-Sektionen mit echten Daten)
 
 set -euo pipefail
 
-EMAIL="${EMAIL:-benjaminweise41@gmail.com}"
+EMAIL="${EMAIL:-smoke-test@example.test}"
 ADDRESS="${ADDRESS:-Köln Hohenzollernring 1}"
 SOURCE="${SOURCE:-paid}"
 
