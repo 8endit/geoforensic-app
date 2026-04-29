@@ -1,27 +1,125 @@
-"""Static map fetcher for the teaser PDF (fix-list item 10).
+"""Static map for the teaser PDF header.
 
-Fetches a small OSM static map centered on the report address and returns it
-as a base64 data URI so the image is embedded inline in the PDF (Chrome
-Headless renders from a temp file and cannot load external URLs reliably).
+Renders a small OSM-tile map centered on the report address with a red pin
+marker, returned as a base64 data URI so it embeds inline in the HTML that
+becomes the PDF (Chrome Headless cannot reliably load external URLs).
 
-Network failures — rate limit, DNS blip, timeout — return an empty string.
-The caller is expected to render a grey placeholder in that case, so a
-flaky map provider never breaks PDF generation.
+Implementation: fetch a 2x2 tile mosaic from the public OSM tile server,
+stitch with Pillow, draw a centered pin marker. No external static-map
+service involved — the previous community host (staticmap.openstreetmap.de)
+returned "service unavailable" placeholders during peak hours and was
+the visible cause of the "Karte derzeit nicht verfügbar"-fallback in
+the teaser.
+
+OSM tile usage policy compliance:
+- Identifying User-Agent (kontakt@geoforensic.de)
+- Low volume (one map per lead, not high-frequency)
+- Any failure (network, HTTP, timeout) returns empty string and the
+  caller falls back to a grey coord-labelled placeholder.
 """
 
+from __future__ import annotations
+
+import asyncio
 import base64
+import io
 import logging
+import math
 
 import httpx
 
 logger = logging.getLogger(__name__)
 
-# staticmap.openstreetmap.de is the long-running community-hosted static map
-# service (Gravitystorm / Mapnik). Free, no API key, rate-limited per IP.
-# If we outgrow it we swap in a paid MapTiler/Mapbox call here and nothing
-# else changes.
-STATIC_MAP_URL = "https://staticmap.openstreetmap.de/staticmap.php"
-STATIC_MAP_USER_AGENT = "Bodenbericht/1.0 (kontakt@geoforensic.de)"
+TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+USER_AGENT = "Bodenbericht/1.0 (kontakt@geoforensic.de)"
+TILE_SIZE = 256
+
+
+def _deg2tile(lat: float, lon: float, zoom: int) -> tuple[float, float]:
+    """Convert lat/lon to fractional tile coordinates (slippy map math)."""
+    lat_rad = math.radians(lat)
+    n = 2.0**zoom
+    x = (lon + 180.0) / 360.0 * n
+    y = (1.0 - math.log(math.tan(lat_rad) + 1.0 / math.cos(lat_rad)) / math.pi) / 2.0 * n
+    return x, y
+
+
+async def _fetch_tile(client: httpx.AsyncClient, z: int, x: int, y: int) -> bytes | None:
+    """Fetch one OSM tile. Returns PNG bytes or None on failure."""
+    try:
+        resp = await client.get(
+            TILE_URL.format(z=z, x=x, y=y),
+            headers={"User-Agent": USER_AGENT},
+            timeout=4.0,
+        )
+        resp.raise_for_status()
+        if len(resp.content) < 200:
+            return None
+        return resp.content
+    except (httpx.HTTPError, httpx.TimeoutException):
+        return None
+
+
+def _stitch_and_pin(
+    tiles: list[tuple[int, int, bytes]],
+    center_x_frac: float,
+    center_y_frac: float,
+    tile_x_min: int,
+    tile_y_min: int,
+    out_width: int,
+    out_height: int,
+) -> bytes | None:
+    """Stitch tiles with Pillow, crop to centered window, draw pin. Sync."""
+    try:
+        from PIL import Image, ImageDraw
+    except ImportError:
+        logger.warning("Pillow not available — cannot render static map")
+        return None
+
+    # Stitch all tiles into one canvas
+    n_x = max(x for x, _, _ in tiles) - tile_x_min + 1
+    n_y = max(y for _, y, _ in tiles) - tile_y_min + 1
+    canvas = Image.new("RGB", (n_x * TILE_SIZE, n_y * TILE_SIZE), (240, 240, 240))
+    for x, y, png in tiles:
+        try:
+            tile_img = Image.open(io.BytesIO(png)).convert("RGB")
+            canvas.paste(tile_img, ((x - tile_x_min) * TILE_SIZE, (y - tile_y_min) * TILE_SIZE))
+        except Exception:
+            continue
+
+    # Compute pixel coordinates of the address within the stitched canvas
+    px = (center_x_frac - tile_x_min) * TILE_SIZE
+    py = (center_y_frac - tile_y_min) * TILE_SIZE
+
+    # Crop a window of out_width × out_height centered on (px, py)
+    left = int(px - out_width / 2)
+    top = int(py - out_height / 2)
+    # Clamp so we never crop outside the canvas
+    left = max(0, min(left, canvas.width - out_width))
+    top = max(0, min(top, canvas.height - out_height))
+    cropped = canvas.crop((left, top, left + out_width, top + out_height))
+
+    # Pin position relative to crop window
+    pin_x = int(px - left)
+    pin_y = int(py - top)
+
+    draw = ImageDraw.Draw(cropped)
+    # Pin shadow (dark ellipse offset down-right)
+    draw.ellipse(
+        (pin_x - 8, pin_y - 8, pin_x + 8, pin_y + 8),
+        fill=(220, 53, 69),
+        outline=(255, 255, 255),
+        width=2,
+    )
+    # Inner dot
+    draw.ellipse(
+        (pin_x - 3, pin_y - 3, pin_x + 3, pin_y + 3),
+        fill=(255, 255, 255),
+    )
+
+    out = io.BytesIO()
+    cropped.save(out, format="PNG", optimize=True)
+    return out.getvalue()
 
 
 async def fetch_static_map(
@@ -29,64 +127,66 @@ async def fetch_static_map(
     lon: float,
     width: int = 400,
     height: int = 250,
-    zoom: int = 16,
+    zoom: int = 15,
 ) -> str:
     """Return ``data:image/png;base64,...`` or empty string on failure.
 
-    Every outcome is logged at INFO/WARNING so an operator tailing the
-    backend container can tell at a glance whether the external
-    staticmap service is up, rate-limiting, or returning placeholder
-    "service unavailable" PNGs. The empty-string return path is what
-    the report template keys off of for the grey coord-fallback block.
+    Fetches a 2×2 OSM tile mosaic centered on (lat, lon), stitches with
+    Pillow, draws a red pin, returns as base64 data URI for inline PDF
+    embedding. Empty string return triggers the grey coord-fallback in
+    the teaser template.
     """
-    params = {
-        "center": f"{lat},{lon}",
-        "zoom": zoom,
-        "size": f"{width}x{height}",
-        "markers": f"{lat},{lon},red-pushpin",
-    }
+    # Center tile coordinates (fractional)
+    cx, cy = _deg2tile(lat, lon, zoom)
+    tile_x = int(cx)
+    tile_y = int(cy)
+
+    # We need 2×2 tiles to comfortably crop a 400×250 window centered on
+    # the address regardless of where in the center tile the pin sits.
+    # Use 3×3 to give the crop room when the pin is near a tile edge.
+    coords = [(tile_x + dx, tile_y + dy) for dx in (-1, 0, 1) for dy in (-1, 0, 1)]
+
     try:
-        async with httpx.AsyncClient(timeout=5.0) as client:
-            resp = await client.get(
-                STATIC_MAP_URL,
-                params=params,
-                headers={"User-Agent": STATIC_MAP_USER_AGENT},
+        async with httpx.AsyncClient() as client:
+            results = await asyncio.gather(
+                *[_fetch_tile(client, zoom, x, y) for x, y in coords],
+                return_exceptions=False,
             )
-            resp.raise_for_status()
-            content_len = len(resp.content) if resp.content else 0
-            if content_len < 500:
-                # The service answered with 200 but the body is too small to
-                # be a real map (Gravitystorm tends to send a ~200-byte
-                # "service unavailable" PNG at peak times). Log this loud
-                # enough that the operator notices — without this line the
-                # failure was completely silent.
-                logger.warning(
-                    "Static map service returned %d bytes for (%s, %s) "
-                    "status=%s — treating as soft failure, grey fallback "
-                    "will be used in the PDF.",
-                    content_len, lat, lon, resp.status_code,
-                )
-                return ""
-            logger.info(
-                "Static map fetched: %d bytes for (%s, %s)",
-                content_len, lat, lon,
-            )
-            return "data:image/png;base64," + base64.b64encode(resp.content).decode("ascii")
-    except httpx.HTTPStatusError as exc:
-        logger.warning(
-            "Static map HTTP %s for (%s, %s): %s",
-            exc.response.status_code, lat, lon, exc,
-        )
-        return ""
-    except httpx.TimeoutException:
-        logger.warning(
-            "Static map timeout (5s) for (%s, %s) — service too slow or unreachable.",
-            lat, lon,
-        )
-        return ""
     except Exception as exc:
         logger.warning(
-            "Static map fetch failed for (%s, %s): %s: %s",
+            "Static map tile fetch failed for (%s, %s): %s: %s",
             lat, lon, type(exc).__name__, exc,
         )
         return ""
+
+    tiles: list[tuple[int, int, bytes]] = []
+    for (x, y), png in zip(coords, results):
+        if png is not None:
+            tiles.append((x, y, png))
+
+    if not tiles:
+        logger.warning(
+            "All %d static map tiles failed for (%s, %s) — grey fallback in PDF",
+            len(coords), lat, lon,
+        )
+        return ""
+
+    if len(tiles) < len(coords):
+        logger.info(
+            "Static map: %d/%d tiles fetched for (%s, %s)",
+            len(tiles), len(coords), lat, lon,
+        )
+
+    # Stitch + pin happens in a thread because Pillow ops are CPU-bound
+    png = await asyncio.to_thread(
+        _stitch_and_pin,
+        tiles,
+        cx, cy,
+        tile_x - 1, tile_y - 1,
+        width, height,
+    )
+    if png is None:
+        return ""
+
+    logger.info("Static map rendered: %d bytes for (%s, %s)", len(png), lat, lon)
+    return "data:image/png;base64," + base64.b64encode(png).decode("ascii")

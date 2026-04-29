@@ -476,7 +476,12 @@ def generate_html_report(
     background-size:28px 28px;
   }}
   .header > * {{ position:relative; }}
-  .brand-logo {{ height:30px; width:auto; filter:brightness(0) invert(1); opacity:.95; }}
+  .brand-logo {{
+    height:46px; width:auto; opacity:.95;
+    filter:brightness(0) invert(1);
+    image-rendering:-webkit-optimize-contrast;
+    -webkit-backface-visibility:hidden;
+  }}
   .brand-text {{ font-size:18px; font-weight:700; letter-spacing:.5px; }}
   .header-meta {{ font-size:10px; opacity:.85; text-align:right; }}
   .header-meta .nr {{ font-family:ui-monospace,monospace; }}
@@ -575,7 +580,11 @@ def generate_html_report(
     background:repeating-linear-gradient(135deg,
       rgba(30,51,82,.04) 0 8px,
       rgba(30,51,82,.08) 8px 16px);
-    display:flex; align-items:center; justify-content:center;
+    /* Pill sits roughly at the visual center of the blurred area
+       (bottom 60 % of the card) instead of pure card-center, where
+       the teaser-note above shifts the optical balance high. */
+    display:flex; align-items:flex-end; justify-content:center;
+    padding-bottom:22px;
   }}
   .lock-pill {{
     display:inline-flex; align-items:center; gap:6px;
@@ -623,6 +632,14 @@ def generate_html_report(
     text-align:center; padding:18px; color:var(--gray); font-size:10px; margin-top:6px;
   }}
   .footer .brand {{ font-size:13px; font-weight:700; color:var(--accent); margin-bottom:2px; }}
+
+  /* Keep the trailing blocks (Datenquellen, Hinweis, Footer) together so
+     the last page is not split with one card stranded on its own. */
+  .report-tail {{ page-break-inside:avoid; break-inside:avoid; }}
+  .report-tail + .report-tail,
+  .report-tail + .footer {{
+    page-break-before:avoid; break-before:avoid;
+  }}
 
   @media print {{
     body {{ background:white; -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
@@ -820,20 +837,23 @@ def generate_html_report(
   <div class="small">Noch nicht bestellbar. Early-Bird-Platz sichern, Start-Rabatt erhalten.</div>
 </div>
 
-<div class="card">
+<div class="card report-tail">
   <h2 style="font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--gray); border:none; padding:0; margin:0 0 6px;">Datenquellen</h2>
-  <p style="font-size:11px; color:var(--dark); margin:0;">
+  <p style="font-size:11px; color:var(--dark); margin:0 0 6px;">
     Datengrundlage: europäische Satelliten (Copernicus Sentinel-1, EGMS), EU-Bodenprobendatenbank (LUCAS), internationale Bodendatenbank (SoilGrids), OpenStreetMap. Im Vollbericht zusätzlich: Bezirksregierung Arnsberg (NRW Bergbau), Bundesanstalt für Gewässerkunde (HWRM-Hochwasser), Deutscher Wetterdienst (KOSTRA-Starkregen), Landesumweltämter (Altlasten, Radon), GFZ Potsdam (Erdbeben) — Verfügbarkeit je nach Bundesland. Referenzwerte nach Bundes-Bodenschutzverordnung.
+  </p>
+  <p style="font-size:10px; color:var(--gray); margin:0;">
+    Eine vollständige Übersicht inklusive Lizenz-Hinweisen, Stand der Daten und Quellen-URLs finden Sie auf <a href="https://bodenbericht.de/datenquellen.html" style="color:var(--accent);">bodenbericht.de/datenquellen.html</a>.
   </p>
 </div>
 
-<div class="disclaimer">
+<div class="disclaimer report-tail">
   <strong>Hinweis:</strong> Dieser Bodenbericht fasst öffentlich verfügbare Satelliten- und Bodendaten für Ihre Adresse zusammen. Die Auswertung läuft automatisiert. Er ersetzt keine Ortsbesichtigung, keine Laboranalyse und keine fachliche Einzelfallbewertung durch einen zugelassenen Sachverständigen nach §18 BBodSchG. Die Messwerte beruhen auf regionalen Durchschnittswerten, nicht auf Proben vor Ort.
   <br><br>
   <em>Generated using European Union's Copernicus Land Monitoring Service information.</em>
 </div>
 
-<div class="footer">
+<div class="footer report-tail">
   <div class="brand">Bodenbericht</div>
   <div>Standort-Screening · bodenbericht.de</div>
   <div style="margin-top:2px; opacity:.6;">© {now.year} Bodenbericht · Ein Service der {escape(operator_legal_name)}</div>
