@@ -1,66 +1,112 @@
 #!/usr/bin/env bash
 # Verifiziert die echten BfG HWRM-WMS-Layer-Namen vom VPS aus.
 #
-# Hintergrund: backend/app/flood_data.py benutzt Default-Layer-Namen
-# HQ_haeufig / HQ100 / HQ_extrem die Best-Guess aus Sekundärquellen sind.
-# Die Cloud-Sandbox kommt nicht an den ArcGIS-Endpunkt ran (HTTP 403),
-# vom VPS oder aus QGIS funktioniert er. Dieses Script zieht die
-# Capabilities und extrahiert die echten <Name>-Strings.
+# Erste Annahme aus DATA_SOURCES_VERIFIED.md (`/exts/InspireView/service`)
+# liefert HTTP 500 "Extension not found". Stattdessen exploriert dieses
+# Script den ArcGIS-REST-Service-Tree und probiert Standard-WMSServer-
+# Endpunkte, bis wir ein gültiges WMS-Capabilities-XML finden.
 #
 # Nutzung: bash backend/scripts/check-bfg-layers.sh
-#
-# Falls die Default-Namen falsch sind, in /opt/bodenbericht/backend/.env
-# entsprechend setzen:
-#     BFG_FLOOD_LAYER_HAEUFIG=<echter Name>
-#     BFG_FLOOD_LAYER_HQ100=<echter Name>
-#     BFG_FLOOD_LAYER_EXTREM=<echter Name>
-# Danach `docker compose restart backend`.
 
-set -euo pipefail
+set -uo pipefail
 
-URL='https://geoportal.bafg.de/arcgis1/rest/services/INSPIRE/NZ/MapServer/exts/InspireView/service'
-CAP_PARAMS='?service=WMS&request=GetCapabilities&version=1.3.0'
-OUT='/tmp/bfg-capabilities.xml'
+BASE='https://geoportal.bafg.de'
+UA='Mozilla/5.0'
+TMP_DIR='/tmp/bfg-discovery'
+mkdir -p "$TMP_DIR"
 
-echo "=== Schritt 1 — Capabilities ziehen ==="
-http_status=$(curl -sA 'Mozilla/5.0' -o "$OUT" -w '%{http_code}' "${URL}${CAP_PARAMS}")
-echo "HTTP $http_status, $(wc -c < "$OUT") Bytes nach $OUT"
-echo
+fetch() {
+  # fetch <url> <out> -> echo HTTP-Status
+  local url="$1"
+  local out="$2"
+  curl -sA "$UA" -o "$out" -w '%{http_code}' "$url"
+}
 
-if [ "$http_status" != "200" ]; then
-  echo "FEHLER: HTTP $http_status — Endpunkt antwortet nicht mit 200."
-  echo "Erste 500 Zeichen der Antwort:"
-  head -c 500 "$OUT"
-  echo
-  exit 1
+echo "=== Schritt 1 — Service-Verzeichnis (Root) ==="
+ROOT_URL="${BASE}/arcgis1/rest/services?f=json"
+status=$(fetch "$ROOT_URL" "${TMP_DIR}/root.json")
+echo "HTTP $status, $(wc -c < "${TMP_DIR}/root.json") Bytes"
+if [ "$status" = "200" ]; then
+  echo "Folder + Services:"
+  python3 -c "
+import json, sys
+try:
+    d = json.load(open('${TMP_DIR}/root.json'))
+    print('  Folders:', d.get('folders', []))
+    print('  Services:')
+    for s in d.get('services', []):
+        print(f'    - {s.get(\"name\")} ({s.get(\"type\")})')
+except Exception as e:
+    print('  Parse error:', e)
+" 2>/dev/null || cat "${TMP_DIR}/root.json" | head -20
 fi
+echo
 
-if [ "$(wc -c < "$OUT")" -lt 500 ]; then
-  echo "FEHLER: Antwort zu kurz, vermutlich kein gültiges Capabilities-XML."
-  echo "Inhalt:"
-  cat "$OUT"
-  exit 1
+echo "=== Schritt 2 — INSPIRE-Folder ==="
+INSPIRE_URL="${BASE}/arcgis1/rest/services/INSPIRE?f=json"
+status=$(fetch "$INSPIRE_URL" "${TMP_DIR}/inspire.json")
+echo "HTTP $status, $(wc -c < "${TMP_DIR}/inspire.json") Bytes"
+if [ "$status" = "200" ]; then
+  python3 -c "
+import json
+try:
+    d = json.load(open('${TMP_DIR}/inspire.json'))
+    print('  Services im INSPIRE-Folder:')
+    for s in d.get('services', []):
+        print(f'    - {s.get(\"name\")} ({s.get(\"type\")})')
+except Exception as e:
+    print('  Parse error:', e)
+" 2>/dev/null
 fi
-
-echo "=== Schritt 2 — Layer-Namen extrahieren ==="
-echo "Alle <Name>-Tags im Capabilities-XML:"
-echo
-grep -oE '<Name>[^<]+</Name>' "$OUT" | sed 's|<Name>||;s|</Name>||' | nl
 echo
 
-echo "=== Schritt 3 — Defaults gegen gefundene Namen abgleichen ==="
-for default_name in HQ_haeufig HQ100 HQ_extrem; do
-  if grep -qE "<Name>${default_name}</Name>" "$OUT"; then
-    echo "  $default_name             vorhanden im XML"
-  else
-    echo "  $default_name             NICHT gefunden — vermutlich falsch"
+echo "=== Schritt 3 — WMSServer-Endpunkte probieren ==="
+# Mehrere Kandidaten-Pfade durchgehen; wer 200 + >2KB liefert, ist es.
+CANDIDATES=(
+  "${BASE}/arcgis1/services/INSPIRE/NZ/MapServer/WMSServer?service=WMS&request=GetCapabilities"
+  "${BASE}/arcgis1/services/INSPIRE_NZ/MapServer/WMSServer?service=WMS&request=GetCapabilities"
+  "${BASE}/arcgis1/services/HWRM/MapServer/WMSServer?service=WMS&request=GetCapabilities"
+  "${BASE}/arcgis1/services/HWRM_AKTUELL/MapServer/WMSServer?service=WMS&request=GetCapabilities"
+  "${BASE}/arcgis1/rest/services/INSPIRE/NZ/MapServer/WMSServer?service=WMS&request=GetCapabilities"
+)
+
+WINNING_URL=""
+for url in "${CANDIDATES[@]}"; do
+  out="${TMP_DIR}/cap-$(echo "$url" | md5sum | cut -d' ' -f1).xml"
+  status=$(fetch "$url" "$out")
+  size=$(wc -c < "$out")
+  short=$(echo "$url" | sed "s|$BASE||")
+  printf "  HTTP %s  %7d B  %s\n" "$status" "$size" "$short"
+  if [ "$status" = "200" ] && [ "$size" -gt 2000 ]; then
+    if grep -q '<Name>' "$out" 2>/dev/null; then
+      WINNING_URL="$url"
+      WINNING_OUT="$out"
+    fi
   fi
 done
 echo
 
-echo "=== Schritt 4 — Hochwasser-relevante Namen heuristisch suchen ==="
-echo "Layer-Namen die 'HQ' oder 'haeufig' oder 'extrem' enthalten:"
-grep -oE '<Name>[^<]+</Name>' "$OUT" \
-  | sed 's|<Name>||;s|</Name>||' \
-  | grep -iE 'hq|haeufig|haufig|extrem|hochwasser|flood' \
-  || echo "  (keine Treffer — Layer-Namen sind komplett anders)"
+if [ -n "$WINNING_URL" ]; then
+  echo "=== Schritt 4 — Layer-Namen aus dem funktionierenden Endpunkt ==="
+  echo "Endpoint: $WINNING_URL"
+  echo
+  echo "Alle <Name>-Tags:"
+  grep -oE '<Name>[^<]+</Name>' "$WINNING_OUT" \
+    | sed 's|<Name>||;s|</Name>||' | nl
+  echo
+  echo "Hochwasser-relevante Namen (HQ / haeufig / extrem):"
+  grep -oE '<Name>[^<]+</Name>' "$WINNING_OUT" \
+    | sed 's|<Name>||;s|</Name>||' \
+    | grep -iE 'hq|haeufig|haufig|extrem|hochwasser|flood' \
+    || echo "  (keine direkten Treffer — schau die volle Liste oben an)"
+else
+  echo "=== Kein Standard-Endpunkt gefunden ==="
+  echo
+  echo "Mögliche Ursachen:"
+  echo "  - Service-Name weicht von Annahmen ab → Schritt 1+2 prüfen"
+  echo "  - Endpunkt blockt automatisierte Requests"
+  echo "  - BfG hat die WMS-Bereitstellung umstrukturiert"
+  echo
+  echo "Nächster Schritt: Output von Schritt 1 + 2 an Claude, dann"
+  echo "richten wir den Endpunkt manuell ein."
+fi
