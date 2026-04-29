@@ -5,15 +5,18 @@ three zones:
 
     SICHTBAR  — Gesamt-Ampel + GeoScore, Bodenbewegung (Punkt + Ampel),
                 Individuelle Einschaetzung (aus Quiz oder Ampel-Fallback)
-    BLURRED   — Schwermetalle, Bodenqualitaet, Naehrstoffe,
-                InSAR-Detailwerte. Each rendered with realistic values
-                under CSS filter: blur + Lock-Pill. Real data when available,
-                mock fallback otherwise.
+    BLURRED   — Schwermetalle, Bodenqualitaet, Naehrstoffe, InSAR-Detail,
+                Altlasten, Bergbau, Hochwasser, Starkregen, Radon, Erdbeben.
+                Each rendered with placeholder values under CSS filter: blur
+                + Lock-Pill. The placeholders mirror the structure of the
+                full report so the lead sees what categories will be
+                unlocked on upgrade.
     CTA       — Vollbericht-Warteliste (Stripe link replaces this when live)
 
-The mock data shown under blur is exactly what `generate_full_report` will
-deliver unblurred when the user upgrades. Do not promise sections here that
-the full report does not actually render.
+The locked sections must stay in sync with what ``generate_full_report``
+actually renders. When a new section is added there, mirror it here as a
+locked card. When a section is removed, drop the locked card too — the
+teaser must never promise content the full report does not deliver.
 """
 
 import base64
@@ -735,10 +738,84 @@ def generate_html_report(
   {_LOCK_PILL_HTML}
 </div>
 
+<div class="card locked">
+  <h2>Altlasten-Verdachtsflächen</h2>
+  <p class="teaser-note">Im Vollbericht: Abgleich Ihrer Adresse mit dem Altlastenkataster des zuständigen Bundeslandes — alte Tankstellen, Gewerbe-Brachen, Deponien und sonstige Verdachtsflächen im Umkreis. Datenquelle: Landesumweltämter (in Vorbereitung).</p>
+  <div class="locked-content">
+    <div class="stat-grid-3" style="grid-template-columns:repeat(2,1fr);">
+      <div class="stat-cell"><div class="lbl">Verdachtsflächen im Umkreis</div><div class="val">▓▓▓</div><div class="sub">Anzahl</div></div>
+      <div class="stat-cell"><div class="lbl">Nächste Eintragung</div><div class="val">▓▓▓ m</div><div class="sub">Distanz</div></div>
+    </div>
+  </div>
+  {_LOCK_PILL_HTML}
+</div>
+
+<div class="card locked">
+  <h2>Bergbau &amp; Altbergbau</h2>
+  <p class="teaser-note">Im Vollbericht: Prüfung gegen die amtlichen Bergbauberechtigungen — Stein-, Braunkohle, Erz, Salz und sonstige Untertage-Felder. Liegt Ihre Adresse in einem aktiven oder stillgelegten Berechtigungs-Feld? Quelle für NRW: Bezirksregierung Arnsberg (verfügbar). Andere Bundesländer: in Vorbereitung.</p>
+  <div class="locked-content">
+    <div class="stat-grid-3" style="grid-template-columns:repeat(2,1fr);">
+      <div class="stat-cell"><div class="lbl">In Berechtigungs-Feld</div><div class="val">▓▓▓</div><div class="sub">ja / nein</div></div>
+      <div class="stat-cell"><div class="lbl">Bergbau-Art</div><div class="val">▓▓▓</div><div class="sub">Stein/Kohle/Erz</div></div>
+    </div>
+  </div>
+  {_LOCK_PILL_HTML}
+</div>
+
+<div class="card locked">
+  <h2>Hochwassergefahren</h2>
+  <p class="teaser-note">Im Vollbericht: Lage Ihrer Adresse in den drei Hochwasser-Szenarien der EU-Richtlinie (häufiges, hundertjähriges und extremes Hochwasser). Quelle: Bundesanstalt für Gewässerkunde, HWRM-Richtlinie 2. Zyklus.</p>
+  <div class="locked-content">
+    <div class="stat-grid-3">
+      <div class="stat-cell"><div class="lbl">HQ häufig (5–20 Jahre)</div><div class="val">▓▓▓</div></div>
+      <div class="stat-cell"><div class="lbl">HQ100</div><div class="val">▓▓▓</div></div>
+      <div class="stat-cell"><div class="lbl">HQ extrem</div><div class="val">▓▓▓</div></div>
+    </div>
+  </div>
+  {_LOCK_PILL_HTML}
+</div>
+
+<div class="card locked">
+  <h2>Starkregen-Statistik (KOSTRA)</h2>
+  <p class="teaser-note">Im Vollbericht: zu erwartende Niederschlagsmengen für 60-Minuten- und 24-Stunden-Ereignisse in Wiederkehrintervallen 10 und 100 Jahre — relevant für Keller-, Hang- und Garagenwasser-Risiko. Quelle: Deutscher Wetterdienst, KOSTRA-DWD-2020 (in Vorbereitung).</p>
+  <div class="locked-content">
+    <div class="stat-grid-3">
+      <div class="stat-cell"><div class="lbl">60 min, T=100a</div><div class="val">▓▓▓ mm</div></div>
+      <div class="stat-cell"><div class="lbl">24 h, T=100a</div><div class="val">▓▓▓ mm</div></div>
+      <div class="stat-cell"><div class="lbl">24 h, T=10a</div><div class="val">▓▓▓ mm</div></div>
+    </div>
+  </div>
+  {_LOCK_PILL_HTML}
+</div>
+
+<div class="card locked">
+  <h2>Radon-Vorsorgegebiete</h2>
+  <p class="teaser-note">Im Vollbericht: Ist Ihre Adresse vom zuständigen Bundesland als Radon-Vorsorgegebiet ausgewiesen? Wenn ja, gelten erhöhte Anforderungen an Neubauten und gezielte Messpflichten an Arbeitsplätzen nach Strahlenschutzgesetz. Datenquellen: Landesumweltämter (in Vorbereitung).</p>
+  <div class="locked-content">
+    <div class="stat-grid-3" style="grid-template-columns:repeat(2,1fr);">
+      <div class="stat-cell"><div class="lbl">Radon-Vorsorgegebiet</div><div class="val">▓▓▓</div><div class="sub">ja / nein</div></div>
+      <div class="stat-cell"><div class="lbl">Rechtsgrundlage</div><div class="val">▓▓▓</div><div class="sub">Verordnung</div></div>
+    </div>
+  </div>
+  {_LOCK_PILL_HTML}
+</div>
+
+<div class="card locked">
+  <h2>Erdbebenzonen</h2>
+  <p class="teaser-note">Im Vollbericht: Erdbebenzone und Untergrundklasse nach DIN EN 1998-1/NA — relevant für die statischen Anforderungen an Neubauten und Anbauten. Quelle: GFZ Potsdam (in Vorbereitung).</p>
+  <div class="locked-content">
+    <div class="stat-grid-3" style="grid-template-columns:repeat(2,1fr);">
+      <div class="stat-cell"><div class="lbl">Erdbebenzone</div><div class="val">▓▓▓</div><div class="sub">0 bis 3</div></div>
+      <div class="stat-cell"><div class="lbl">Untergrundklasse</div><div class="val">▓▓▓</div><div class="sub">A bis R</div></div>
+    </div>
+  </div>
+  {_LOCK_PILL_HTML}
+</div>
+
 <div class="cta">
   <div class="kicker">Vollbericht</div>
   <h3>Alles sehen, was hier noch verdeckt ist</h3>
-  <p>Schwermetalle, Bodenqualität, Nährstoffe und die detaillierten InSAR-Geschwindigkeitswerte erscheinen ungeschwärzt im Vollbericht — inklusive PDF-Download.</p>
+  <p>Schwermetalle, Bodenqualität, Nährstoffe, InSAR-Detailwerte, Altlasten, Bergbau, Hochwasser, Starkregen, Radon und Erdbebenzonen erscheinen ungeschwärzt im Vollbericht — inklusive PDF-Download.</p>
   <a href="https://bodenbericht.de/#premium">Auf die Warteliste</a>
   <div class="small">Noch nicht bestellbar. Early-Bird-Platz sichern, Start-Rabatt erhalten.</div>
 </div>
@@ -746,7 +823,7 @@ def generate_html_report(
 <div class="card">
   <h2 style="font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--gray); border:none; padding:0; margin:0 0 6px;">Datenquellen</h2>
   <p style="font-size:11px; color:var(--dark); margin:0;">
-    Datengrundlage: europäische Satelliten (Copernicus Sentinel-1), EU-Bodenprobendatenbank (LUCAS), internationale Bodendatenbank (SoilGrids) und OpenStreetMap. Referenzwerte nach Bundes-Bodenschutzverordnung.
+    Datengrundlage: europäische Satelliten (Copernicus Sentinel-1, EGMS), EU-Bodenprobendatenbank (LUCAS), internationale Bodendatenbank (SoilGrids), OpenStreetMap. Im Vollbericht zusätzlich: Bezirksregierung Arnsberg (NRW Bergbau), Bundesanstalt für Gewässerkunde (HWRM-Hochwasser), Deutscher Wetterdienst (KOSTRA-Starkregen), Landesumweltämter (Altlasten, Radon), GFZ Potsdam (Erdbeben) — Verfügbarkeit je nach Bundesland. Referenzwerte nach Bundes-Bodenschutzverordnung.
   </p>
 </div>
 
