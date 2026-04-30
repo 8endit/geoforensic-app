@@ -743,7 +743,7 @@ def generate_html_report(
 
 <div class="card locked">
   <h2>Pestizid-Rückstände (regional)</h2>
-  <p class="teaser-note">Im Vollbericht: Auswertung der LUCAS-Topsoil-Stichprobe 2018 für Ihr NUTS2-Gebiet — 118 Wirkstoffe einschließlich der EU-Verbotsliste (DDT, Aldrin, Atrazin etc.). Konzentrationen sind regionale Mittelwerte, nicht grundstücksspezifisch — Quelle: JRC European Soil Data Centre.</p>
+  <p class="teaser-note">Im Vollbericht: Regionaler Belastungs-Trend für Ihr NUTS2-Gebiet aus der LUCAS-Topsoil-Stichprobe 2018 — 118 Wirkstoffe einschließlich der EU-Verbotsliste (DDT, Aldrin, Atrazin etc.). Quelle: JRC European Soil Data Centre.</p>
   <div class="locked-content">
     <div class="stat-grid-3" style="grid-template-columns:repeat(2,1fr);">
       <div class="stat-cell"><div class="lbl">Wirkstoffe nachgewiesen</div><div class="val">▓▓▓</div><div class="sub">in der Region</div></div>
@@ -769,7 +769,7 @@ def generate_html_report(
 
 <div class="card locked">
   <h2>Altlasten &amp; Bodenkontamination</h2>
-  <p class="teaser-note">Im Vollbericht: Land-Use-Indikator auf 100&thinsp;m-Raster (CORINE 2018) für Industrie-, Bergbau-, Deponie- und Brachflächen im 100–150&thinsp;m-Umfeld. Hinweis: rechtsverbindliche Behörden-Auskünfte sind in DE nach INSPIRE Art 13(1)(f) personenbezogen geschützt — wir vermitteln auf Anfrage die Anfrage beim zuständigen Bauamt.</p>
+  <p class="teaser-note">Im Vollbericht: Land-Use-Indikator aus CORINE 2018 für Industrie-, Bergbau-, Deponie- und Brachflächen im 100–150&thinsp;m-Umfeld. Für die notarrechtliche Altlasten-Auskunft können wir die Anfrage beim zuständigen Bauamt für Sie übernehmen.</p>
   <div class="locked-content">
     <div class="stat-grid-3" style="grid-template-columns:repeat(2,1fr);">
       <div class="stat-cell"><div class="lbl">CORINE-Indikator-Treffer im 200&thinsp;m-Umfeld</div><div class="val">▓▓▓</div><div class="sub">Anzahl</div></div>
