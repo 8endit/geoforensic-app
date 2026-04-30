@@ -23,6 +23,7 @@ import logging
 import math
 from typing import Optional
 
+from app.pesticides_data import query_pesticides
 from app.rfactor_data import get_r_factor
 from app.soil_data import (
     BBODSCHV_MASSNAHME,
@@ -175,6 +176,70 @@ def _estimate_erosion_rusle(
         "ls_factor": round(ls_factor, 2),
         "c_factor": round(c_factor, 3),
         "slope_deg": slope_deg,
+    }
+
+
+# ── Organic contaminants section (mixed remote + not-remote) ──────────────
+
+def _build_organic_contaminants_section(lat: float, lon: float) -> dict:
+    """Pesticides come from LUCAS @ NUTS2 (regional, not point); PFAS/PAK
+    require in-situ sampling and are honestly flagged as ``not_remote``.
+    """
+    pest = query_pesticides(lat, lon, top_k=5)
+
+    pesticides_block: dict
+    if pest.available:
+        # Map status from detection count + legacy-substance presence
+        if pest.flagged_count > 0:
+            status = "alert"
+        elif pest.n_substances_detected >= 10:
+            status = "warn"
+        elif pest.n_substances_detected > 0:
+            status = "ok"
+        else:
+            status = "ok"
+        pesticides_block = {
+            "status": status,
+            "nuts2_code": pest.nuts2_code,
+            "nuts2_name": pest.nuts2_name,
+            "n_detected": pest.n_substances_detected,
+            "flagged_legacy_count": pest.flagged_count,
+            "top_substances": [
+                {
+                    "name": h.name,
+                    "concentration_mg_kg": h.concentration_mg_kg,
+                    "flagged_legacy": h.flagged_legacy,
+                }
+                for h in pest.top_substances
+            ],
+            "source": "LUCAS Topsoil 2018 (JRC ESDAC), aggregiert auf NUTS2",
+            "note": pest.note,
+        }
+    else:
+        pesticides_block = {
+            "status": "na",
+            "nuts2_code": pest.nuts2_code,
+            "n_detected": 0,
+            "source": "LUCAS Topsoil 2018 (JRC ESDAC)",
+            "note": pest.note or "Keine LUCAS-Pestizid-Daten für diese Region",
+        }
+
+    return {
+        "pesticides": pesticides_block,
+        "pfas": {
+            "status": "not_remote",
+            "note": (
+                "PFAS — In-situ-Beprobung nach DIN EN ISO 21675 erforderlich. "
+                "Indikative EU-Liste wird Mitte 2027 veröffentlicht."
+            ),
+        },
+        "pak_pcb": {
+            "status": "not_remote",
+            "note": (
+                "PAK/PCB-Belastung — Beprobung gemäß BBodSchV §8 Anhang 1 "
+                "erforderlich. Wird im Vorsorge-Screening nicht abgebildet."
+            ),
+        },
     }
 
 
@@ -349,14 +414,7 @@ def query_soil_directive(
             "threshold": "< 2.0 dS/m",
             "source": "Regional-Schätzung (kein direkter EC-Messwert)",
         },
-        "organic_contaminants": {
-            "status": "not_remote",
-            "note": (
-                "PFAS, PAK, Pestizide — nur durch standortspezifische "
-                "Beprobung bestimmbar. Indikative EU-Liste wird Mitte 2027 "
-                "veröffentlicht."
-            ),
-        },
+        "organic_contaminants": _build_organic_contaminants_section(lat, lon),
     }
 
     # ── PART C: Monitoring descriptors ─────────────────────────────────
