@@ -18,7 +18,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bodenbericht: Datenquellen und Methodik</title>
-    <meta name="description" content="Transparente &Uuml;bersicht unserer Datenquellen: Copernicus EGMS, LUCAS, SoilGrids, BBodSchV und OpenStreetMap. Was wir damit machen und wo die Grenzen liegen.">
+    <meta name="description" content="Transparente &Uuml;bersicht aller Datenquellen: Copernicus EGMS, LUCAS Topsoil + Pesticides, SoilGrids, CORINE Land Cover, HRL Imperviousness, SRTM-H&ouml;henmodell, BfG Hochwasser, DWD KOSTRA, NRW Bergbau, BBodSchV, EU-Bodenrichtlinie 2025/2360. Was wir damit machen und wo die Grenzen liegen.">
     <link rel="canonical" href="https://bodenbericht.de/datenquellen.html">
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -29,7 +29,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta property="og:site_name" content="Bodenbericht">
     <meta property="og:url" content="https://bodenbericht.de/datenquellen.html">
     <meta property="og:title" content="Datenquellen und Methodik | Bodenbericht">
-    <meta property="og:description" content="Copernicus EGMS, LUCAS, SoilGrids — was hinter unseren Berichten steckt.">
+    <meta property="og:description" content="13 offizielle Datenquellen &mdash; EGMS, LUCAS, SoilGrids, CORINE, HRL, SRTM, BfG, DWD, NRW Bergbau, BBodSchV, EU-Bodenrichtlinie. Was hinter unseren Berichten steckt.">
     <meta property="og:image" content="https://bodenbericht.de/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -186,6 +186,200 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     </div>
                     <a href="https://www.gesetze-im-internet.de/bbodschv_2021/" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
                         gesetze-im-internet.de/bbodschv_2021
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                    </a>
+                </div>
+
+                <!-- Card: LUCAS Pesticides 2018 -->
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-navy-800">LUCAS Pesticides 2018</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">JRC European Soil Data Centre &mdash; 118 Wirkstoffe, NUTS2-aggregiert</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Auswertung der LUCAS-Topsoil-Stichprobe 2018 auf 118 Pflanzenschutzmittel-Wirkstoffe und ihre Metaboliten &mdash; einschlie&szlig;lich der EU-Verbotsliste (DDT, Aldrin, Atrazin, Endosulfan etc.). Daten sind regional aggregiert auf NUTS2-Gebiete (Regierungsbezirke).
+                    </p>
+                    <div class="space-y-2 text-xs text-gray-600 mb-4">
+                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Auswertung der typischen Pestizid-Belastung in Ihrem NUTS2-Gebiet, mit Fokus auf legacy-Substanzen (z.B. DDT-Reste in &auml;lteren Acker-B&ouml;den) und aktuell genutzte Wirkstoffe (Glyphosat, Tebuconazol, Pendimethalin etc.).
+                        </div>
+                        <div><span class="font-semibold text-navy-800">Grenzen:</span> NUTS2-Mittelwerte, kein direkter Messwert f&uuml;r das einzelne Grundst&uuml;ck. F&uuml;r moderne Pestizide gibt es in DE keine direkten Boden-Schwellenwerte; die EU-Trinkwasser-Schwelle 0,1&thinsp;&micro;g/L dient nur als Gr&ouml;&szlig;enordnung.</div>
+                    </div>
+                    <a href="https://esdac.jrc.ec.europa.eu/projects/lucas" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
+                        esdac.jrc.ec.europa.eu/projects/lucas
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                    </a>
+                </div>
+
+                <!-- Card: CORINE Land Cover 2018 -->
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-navy-800">CORINE Land Cover 2018</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Copernicus Land Monitoring Service / EEA &mdash; CLC2018 v2020_20u1, 100&thinsp;m</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Europaweites 100&thinsp;m-Raster mit 44 Landnutzungs-Klassen (Level&nbsp;3): von &bdquo;Durchg&auml;ngig st&auml;dtisch&ldquo; &uuml;ber &bdquo;Industrie&ldquo;, &bdquo;Bergbau&ldquo;, &bdquo;Acker&ldquo;, &bdquo;Wald&ldquo; bis &bdquo;Gew&auml;sser&ldquo;.
+                    </p>
+                    <div class="space-y-2 text-xs text-gray-600 mb-4">
+                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Bestimmung der Landnutzung am Standort, Eingangsgr&ouml;&szlig;e f&uuml;r das RUSLE-Erosionsmodell (C-Faktor je Klasse), und Land-Use-Indikator f&uuml;r Altlasten-Verdacht (Codes 121&ndash;133: Industrie, Bergbau, Deponie, Brachfl&auml;che).
+                        </div>
+                        <div><span class="font-semibold text-navy-800">Grenzen:</span> 100&thinsp;m-Aufl&ouml;sung &mdash; einzelne Geb&auml;ude oder kleine Sonder-Nutzungen unter 1&thinsp;ha werden zur Mehrheits-Klasse generalisiert.</div>
+                    </div>
+                    <a href="https://land.copernicus.eu/en/products/corine-land-cover" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
+                        land.copernicus.eu/products/corine-land-cover
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                    </a>
+                </div>
+
+                <!-- Card: HRL Imperviousness -->
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-navy-800">HRL Imperviousness 20&thinsp;m</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Copernicus Land Monitoring Service &mdash; High Resolution Layer</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Versiegelungsgrad 0&ndash;100&thinsp;% auf einem 20&thinsp;m-Raster. Sentinel-2-basiert, jaehrlich aktualisiert.
+                    </p>
+                    <div class="space-y-2 text-xs text-gray-600 mb-4">
+                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Bestimmung des Versiegelungsgrads in einem 100&thinsp;m-Umkreis &mdash; relevant f&uuml;r Niederschlagswasser-R&uuml;ckhalt, Hitzeinsel-Effekt und EU-Bodenrichtlinie-Descriptor &bdquo;Land Take&ldquo;. Window-Mean &uuml;ber 11&times;11 Pixel vermeidet Dach-/Stra&szlig;en-Artefakte.</div>
+                        <div><span class="font-semibold text-navy-800">Grenzen:</span> Aktuelle Bounds umfassen DE und einen Teil NL. Gartenfl&auml;chen unter Bauland werden nicht von der Versiegelung getrennt.</div>
+                    </div>
+                    <a href="https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
+                        land.copernicus.eu/pan-european/high-resolution-layers/imperviousness
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                    </a>
+                </div>
+
+                <!-- Card: OpenTopoData / SRTM Höhenmodell -->
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-navy-800">SRTM-H&ouml;henmodell (OpenTopoData)</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">NASA Shuttle Radar Topography Mission, 1-arcsec ~30&thinsp;m</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Globales H&ouml;henmodell aus der NASA-Radar-Mission STS-99 (2000). Public Domain. Wir greifen via OpenTopoData darauf zu, mit Open-Elevation als Failover.
+                    </p>
+                    <div class="space-y-2 text-xs text-gray-600 mb-4">
+                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Multi-Scale-Slope-Analyse (50&thinsp;m / 150&thinsp;m / 500&thinsp;m) am Standort &mdash; Hangneigung, Expositionsrichtung, Klassifikation flach / leicht geneigt / Hanglage / Steilhang. Die Slope-Werte fliessen in das RUSLE-Erosionsmodell ein.</div>
+                        <div><span class="font-semibold text-navy-800">Grenzen:</span> 30&thinsp;m horizontale, &asymp;5&thinsp;m vertikale Aufl&ouml;sung. F&uuml;r St&uuml;tzmauern oder pr&auml;zise Bau-Statik nicht ausreichend &mdash; daf&uuml;r ein Vermessungsingenieur.</div>
+                    </div>
+                    <a href="https://www.opentopodata.org/datasets/srtm/" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
+                        opentopodata.org/datasets/srtm
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                    </a>
+                </div>
+
+                <!-- Card: BfG HWRM-RL Hochwasser -->
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12c0 5.385 4.365 9.75 9.75 9.75 5.385 0 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25 2.25 6.615 2.25 12zm12.075-2.625l-3.45 3.45-1.95-1.95" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-navy-800">BfG Hochwassergefahrenkarten</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Bundesanstalt f&uuml;r Gew&auml;sserkunde &mdash; HWRM-RL 2.&nbsp;Zyklus 2016&ndash;2021</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Bundesweite Aggregation der EU-Hochwasserrisiko-Richtlinie: drei Szenarien HQ&nbsp;haeufig (T&nbsp;5&ndash;20&nbsp;a), HQ100 und HQ&nbsp;extrem.
+                    </p>
+                    <div class="space-y-2 text-xs text-gray-600 mb-4">
+                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Pr&uuml;fung, ob Ihre Adresse in einem der drei Hochwasser-Szenarien liegt &mdash; relevant f&uuml;r Versicherbarkeit, Bauauflagen und Werthaltigkeit.</div>
+                        <div><span class="font-semibold text-navy-800">Grenzen:</span> Aggregat-Layer aus L&auml;nder-Meldungen. F&uuml;r feiner aufgel&ouml;ste Kartierung der jeweiligen Bundesl&auml;nder (z.B. ELWAS-WEB NRW, IUEG Bayern) k&ouml;nnen Sie direkt das Landesumweltamt anfragen.</div>
+                    </div>
+                    <a href="https://geoportal.bafg.de/karten/HWRM_Aktuell/" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
+                        geoportal.bafg.de/karten/HWRM_Aktuell
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                    </a>
+                </div>
+
+                <!-- Card: DWD KOSTRA Starkregen -->
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-navy-800">DWD KOSTRA-DWD-2020</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Deutscher Wetterdienst &mdash; Starkniederschlagsh&ouml;hen</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Bundesweites Niederschlagsstatistik-Raster: Niederschlagsh&ouml;hen f&uuml;r Dauerstufen 5&thinsp;min bis 72&thinsp;h und Wiederkehrintervalle 1 bis 100 Jahre.
+                    </p>
+                    <div class="space-y-2 text-xs text-gray-600 mb-4">
+                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Auswertung der zu erwartenden Starkregen-Mengen f&uuml;r Ihre Adresse &mdash; relevant f&uuml;r Keller-, Hang- und Garagenwasser-Risiko, Dachentw&auml;sserung und Versickerungsanlagen.</div>
+                        <div><span class="font-semibold text-navy-800">Grenzen:</span> Statistische Bemessungswerte aus historischer Beobachtung, kein Klimawandel-Projektions-Aufschlag. Kein Ersatz f&uuml;r eine hydrologische Standortbegutachtung.</div>
+                    </div>
+                    <a href="https://opendata.dwd.de/climate_environment/CDC/grids_germany/return_periods/precipitation/KOSTRA/KOSTRA_DWD_2020/" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
+                        opendata.dwd.de/.../KOSTRA_DWD_2020
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                    </a>
+                </div>
+
+                <!-- Card: NRW Bergbau -->
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-navy-800">NRW Bergbauberechtigungen</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Bezirksregierung Arnsberg &mdash; Bergbeh&ouml;rde NRW</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Amtliches WMS der g&uuml;ltigen und erloschenen Bergbauberechtigungen in Nordrhein-Westfalen &mdash; Stein- und Braunkohle, Erz, Salz, Steine/Erden. Open Data seit 2023.
+                    </p>
+                    <div class="space-y-2 text-xs text-gray-600 mb-4">
+                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Pr&uuml;fung, ob Ihre Adresse in einem aktiven oder stillgelegten Bergbau-Berechtigungsfeld liegt &mdash; relevant f&uuml;r Setzungs-Risiken durch ehemaligen oder laufenden Untertage-Abbau.</div>
+                        <div><span class="font-semibold text-navy-800">Grenzen:</span> Nur NRW. F&uuml;r Bayern (StMWi), Niedersachsen (LBEG), Sachsen-Anhalt (LAGB) etc. ist je ein anderes Landesamt zust&auml;ndig &mdash; eine bundesweit einheitliche Open-Data-Quelle existiert nicht.</div>
+                    </div>
+                    <a href="https://www.opengeodata.nrw.de/produkte/geologie/bergbau/bebu/" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
+                        opengeodata.nrw.de/produkte/geologie/bergbau/bebu
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                    </a>
+                </div>
+
+                <!-- Card: EU Soil Monitoring Directive 2025/2360 -->
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200 md:col-span-2">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-navy-800">EU-Bodenrichtlinie 2025/2360</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Soil Monitoring and Resilience Directive &mdash; regulatorischer Rahmen unseres Vollberichts</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Die EU-Bodenrichtlinie (in Kraft seit Dezember 2025, Umsetzungsfrist Dezember 2028) definiert <strong>16 Descriptoren</strong> f&uuml;r den Zustand eines Bodens &mdash; von Erosion und Bodenverdichtung &uuml;ber Salzgehalt und N&auml;hrstoff-Bilanz bis hin zu Schwermetall-Belastung und Versiegelung. Unser Vollbericht wertet alle 16 Descriptoren systematisch aus.
+                    </p>
+                    <div class="space-y-2 text-xs text-gray-600 mb-4">
+                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Vollst&auml;ndige Auswertung der 16 Descriptoren mit konkretem Status (gesund / bedingt / ungesund) pro Adresse. RUSLE-Erosionsmodell (R-Faktor x K-Faktor x LS-Faktor x C-Faktor), Wasserspeicherkapazit&auml;t (WRB), Salinisierung-Indikator, Schwermetall-Klassifikation gegen BBodSchV-Schwellen, P/N-Indikatoren aus LUCAS, Versiegelungsgrad aus HRL Imperviousness, Landnutzung aus CORINE.</div>
+                        <div><span class="font-semibold text-navy-800">Grenzen / Ehrlichkeit:</span> 4 der 16 Descriptoren (Boden-Biodiversit&auml;t, mikrobielle Diversit&auml;t, PFAS, PAK/PCB) erfordern eine In-situ-Beprobung und sind nicht remote bestimmbar &mdash; wir kennzeichnen sie im Bericht entsprechend &bdquo;not_remote&ldquo;. Modell-Sch&auml;tzungen (RUSLE, N-Surplus, EC) tragen explizit ein <em>source</em>-Etikett im Bericht.</div>
+                    </div>
+                    <a href="https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=OJ:L_202502360" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
+                        eur-lex.europa.eu &mdash; Richtlinie (EU) 2025/2360
                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
                     </a>
                 </div>
