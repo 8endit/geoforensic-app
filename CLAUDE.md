@@ -82,7 +82,7 @@ Must be followed for ALL new pages on geoforensic.de:
 - **Inputs:** `bg-transparent border border-border`, focus → `border-primary`
 - **Cards:** `bg-black/40 border border-border`
 
-## Current State (2026-04-29)
+## Current State (2026-04-30)
 
 ### Deployment (live)
 
@@ -96,20 +96,52 @@ Must be followed for ALL new pages on geoforensic.de:
 ### Working in production
 
 - Landing + quiz funnel + lead capture → background geocode + EGMS query + PDF + Brevo mail
-- Teaser PDF via `backend/app/html_report.py` (Chrome-headless rendered)
-- `source`-based routing hook in `leads.py` (teaser vs. future full report)
+- Teaser PDF via `backend/app/html_report.py` (Chrome-headless rendered) — 13 Locked-Cards inkl. Geländeprofil, EU-Bodenrichtlinie, Pestizid-Rückstände
+- `source`-based routing hook in `leads.py` (teaser vs. full report) — country-gated für DE/NL/AT/CH
 - Admin dashboard `landing/admin.html` with leads, stats, CSV export, TEASER/VOLL badge
 - Legal pages (Impressum, Datenschutz, Widerruf, Datenquellen) + Musterbericht
 - Analytics: GTM `GTM-KFG5W96X`, GA4 `G-N9H86S1P8V`, PostHog EU — all DSGVO-gated via Klaro
 - Brevo SMTP + branded HTML mail (inline logo, DKIM via `geoforensic.de`)
 - Waitlist + Early-Bird teaser for future paid product
-- EGMS + SoilGrids + LUCAS integrated; engine hot during dev
+
+### Vollbericht-Pipeline (scharfgeschaltet, 12 Sektionen)
+
+Aktive Datensätze und Module nach Phase A+B (April 2026):
+
+| Modul | Datenquelle | Lizenz |
+|---|---|---|
+| EGMS InSAR (PostGIS) | Copernicus EGMS L3, 7,9 Mio Punkte DE/NL/AT/CH | CC BY 4.0 |
+| `soil_data.py` SoilGrids | ISRIC SoilGrids 250m, 6 Variablen | CC BY 4.0 |
+| `soil_data.py` LUCAS | JRC ESDAC, Schwermetalle + Nährstoffe DE | EU Open Data |
+| `soil_data.py` CORINE 2018 | Copernicus EEA CLC2018 v2020_20u1, DE+NL Clip | Copernicus FFO |
+| `soil_data.py` HRL Imperv. | Copernicus HRL 20m, DE-Bounds | Copernicus FFO |
+| `soil_data.py` WRB Soil | SoilGrids MostProbable 1-29, AWC-Lookup | CC BY 4.0 |
+| `pesticides_data.py` | LUCAS Pesticides 2018 NUTS2 (118 actives) + Eurostat NUTS-2021 | EU Open Data |
+| `slope_data.py` | OpenTopoData (SRTM 1-arcsec) primary + Open-Elevation fallback | Public Domain / MIT |
+| `soil_directive.py` | EU 2025/2360, 16 Descriptoren mit BBodSchV-Schwellen DE / Circulaire bodemsanering NL | gesetzliche Grundlage |
+| `rfactor_data.py` | ESDAC Panagos 2015 (geplant) / lat-linear DE-NL-AT-CH-Fallback | ESDAC ToS |
+| `altlasten_data.py` | NL: PDOK Bodemloket WBB-Lokationen / DE: CORINE-Land-Use-Proxy | CC-BY 4.0 / Copernicus |
+| `flood_data.py` | BfG HWRM-RL 3 Szenarien, vom VPS verifiziert | DL-DE/Zero-2.0 |
+| `mining_nrw.py` | Bezirksregierung Arnsberg WMS (NRW only) | dl-de/by-2.0 |
+| `kostra_data.py` | DWD KOSTRA-DWD-2020 (Raster fehlen noch auf VPS) | GeoNutzV |
+
+Country-Routing in jedem Modul:
+- DE → BBodSchV-Schwellen, LUCAS-Lookup aktiv, lat-linear-DE R-Faktor, CORINE-Proxy für Altlasten
+- NL → Circulaire-bodemsanering-Schwellen, **kein** LUCAS (Country-Gate, nicht 200km-Brandenburg-IDW), NL-Konstante R-Faktor, PDOK-Bodemloket echtes Kataster
+- AT/CH → BBodSchV als konservativer Default, eigene R-Faktor-Konstanten, Altlasten nicht integriert
+
+Vollbericht-Sektionen (12, FPDF-basiert, ~165 KB):
+1 Bodenbewegung · 2 Schwermetalle · 3 Bergbau · 4 Hochwasser · 5 KOSTRA Starkregen · 6 Bodenqualität (SoilGrids) · 7 Nährstoffe · 8 Geländeprofil · 9 EU Soil Directive 16 Descriptoren · 10 Pestizide · 11 Altlasten · 12 Individuelle Einschätzung
+
+Datenquellen-Provenance: `docs/DATA_PROVENANCE.md` ist die einzige verbindliche Wahrheit pro Datenpunkt.
 
 ### Honest gaps (not working / half-working)
 
 - **Vollbericht-Pipeline scharfgeschaltet, aber nicht customer-facing** — `full_report.py` ist seit 27.4. an den Lead-Flow angebunden (`source != TEASER_SOURCES` → Vollbericht). Quiz und Landing emittieren aber weiterhin nur Teaser-Sources. Triggerbar derzeit nur per direktem `POST /api/leads`.
-- **BfG-Hochwasser-Layer-Namen sind Best-Guess** — `flood_data.py` benutzt `HQ_haeufig` / `HQ100` / `HQ_extrem` als Default. Vom VPS aus per GetCapabilities verifizieren, ggf. `BFG_FLOOD_LAYER_*`-Env-Vars setzen.
 - **KOSTRA-Raster fehlen auf dem Server** — `kostra_data.py` rendert „Daten in Vorbereitung" bis die DWD-GeoTIFFs nach `/opt/bodenbericht/rasters/kostra_dwd_2020/` hochgeladen sind. Pull-Script-Stub: `backend/scripts/download_kostra.py`.
+- **ESDAC R-Faktor-Raster fehlt** — `rfactor_data.py` nutzt aktuell die lat-linear-Fallback-Approximation pro Land. Für präzise Werte muss die Anfrage bei ESDAC gestellt + Raster nach `$RASTER_DIR/esdac_rfactor_eu_1km.tif` abgelegt werden.
+- **Open-Elevation flaky** — primärer Slope-Lookup geht über OpenTopoData (1000 req/day cap), Open-Elevation als Fallback antwortet aktuell mit 504. Phase C: lokale SRTM-Tile-Cache.
+- **Altlasten DE = nur CORINE-Proxy** — adress-genaue Altlasten-Daten in DE sind nach INSPIRE Art 13(1)(f) personenbezogen geschützt (LUBW ALTIS / LANUV FIS AlBo). Modul liefert Land-Use-Indikator + bietet Behörden-Vermittlung (`altlasten@geoforensic.de`) als zukünftiges Add-On. Kein Open-Data-Konter zu docestate.com möglich.
 - **Stripe / paid flow** — code exists in `routers/payments.py`, not active on the domain
 - **User accounts** — register/login routes work, but no live surface (bodenbericht is lead-only)
 - **CORINE land-use raster** — file on disk is corrupt (RGB PNG, no CRS). Lookup code exists but is never called. See `docs/DATA_INVENTORY_AUDIT.md`.
