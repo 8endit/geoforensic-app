@@ -54,13 +54,18 @@ geoforensic-app/
 │   ├── impressum.html, datenschutz.html, widerruf.html, datenquellen.html
 │   ├── muster-bericht.html # Sample report preview
 │   └── images/, fonts/, klaro/ (DSGVO consent)
-├── frontend/cozy-frontend/ # Next.js + R3F (geoforensic.de design, NOT live)
 └── docker-compose.yml
 ```
 
 ## Design System (by Cozy) — for geoforensic.de only
 
-This system was designed for the paid product (`geoforensic.de`) and the old
+The Next.js + R3F frontend lives in its **own repo**:
+[github.com/8endit/cozy-frontend](https://github.com/8endit/cozy-frontend),
+checkout local at `C:\dev\cozy-frontend\cozy-frontend\`. It is **not** a
+subdir of this repo. Reason: backend and Cozy-UI deploy at different
+velocities and the design needs its own iteration cycle.
+
+This system was designed for the paid product (`geoforensic.de`) and the
 Next.js frontend. **bodenbericht.de does NOT follow it** — bodenbericht uses
 its own lighter Tailwind setup under `landing/` with a calmer palette.
 
