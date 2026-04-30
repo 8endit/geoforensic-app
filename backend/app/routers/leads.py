@@ -357,14 +357,29 @@ async def _generate_and_send_lead_report(
                     )
                     kostra_data = {"available": False, "slots": {}}
 
-            # 4b (continued). EU Soil Directive descriptors. Defensive: any
-            # failure leaves soil_directive_data=None and the section degrades
-            # to "nicht verfügbar" instead of crashing the whole report.
+            # 4b. Slope analysis — multi-scale Open-Elevation lookup. Result
+            # feeds RUSLE LS-factor (otherwise default 2° flattens hillside
+            # erosion estimates) AND becomes its own "Geländeprofil" section.
+            slope_data: dict | None = None
+            slope_deg_for_directive: float | None = None
+            try:
+                from app.slope_data import fetch_slope
+                slope_data = await fetch_slope(lat, lon, country_code=country_code)
+                if slope_data and slope_data.get("available"):
+                    slope_deg_for_directive = slope_data.get("slope_deg")
+            except Exception:
+                logger.exception(
+                    "Slope analysis failed for (%s, %s); RUSLE will use 2° default",
+                    lat, lon,
+                )
+                slope_data = None
+
+            # 4c. EU Soil Directive descriptors with the real slope value.
             try:
                 from app.soil_directive import query_soil_directive
                 soil_directive_data = await asyncio.to_thread(
                     query_soil_directive,
-                    lat, lon, None, country_code,
+                    lat, lon, slope_deg_for_directive, country_code,
                 )
             except Exception:
                 logger.exception(
@@ -373,7 +388,7 @@ async def _generate_and_send_lead_report(
                 )
                 soil_directive_data = None
 
-            # 4c. Altlasten — country-routed. NL hits PDOK Bodemloket WMS
+            # 4d. Altlasten — country-routed. NL hits PDOK Bodemloket WMS
             # (real cataster); DE returns a CORINE land-use proxy plus a
             # pointer to authority enquiry. Both fail gracefully.
             altlasten_data: dict | None = None
@@ -407,6 +422,7 @@ async def _generate_and_send_lead_report(
                 flood_data=flood_data,
                 soil_directive_data=soil_directive_data,
                 altlasten_data=altlasten_data,
+                slope_data=slope_data,
                 country_code=country_code,
             )
 

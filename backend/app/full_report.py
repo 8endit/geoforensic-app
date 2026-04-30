@@ -90,6 +90,8 @@ def generate_full_report(
     soil_directive_data: dict | None = None,
     # Altlasten (NL: PDOK Bodemloket; DE: CORINE land-use proxy + auth-enquiry hint)
     altlasten_data: dict | None = None,
+    # Slope / Geländeprofil from multi-scale Open-Elevation / OpenTopoData lookup
+    slope_data: dict | None = None,
     # ISO 3166-1 alpha-2 country code from geocoding ("de"/"nl"/"at"/"ch")
     country_code: str = "de",
 ) -> bytes:
@@ -349,6 +351,10 @@ def generate_full_report(
         pdf.cell(0, 6, "Keine Naehrstoffdaten verfuegbar.", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(6)
 
+    # ── Section: Gelaendeprofil (Slope, Aspect) ─────────────────────
+    if slope_data and slope_data.get("available"):
+        _render_slope(pdf, fn, slope_data)
+
     # ── Section: EU-Bodenueberwachungsrichtlinie (16 Descriptoren) ──
     if soil_directive_data and soil_directive_data.get("available"):
         _render_soil_directive(pdf, fn, soil_directive_data)
@@ -365,7 +371,7 @@ def generate_full_report(
 
     # ── Section: Individuelle Einschaetzung ─────────────────────────
     if answers:
-        _section_header(pdf, fn, "11. Ihre individuelle Einschaetzung")
+        _section_header(pdf, fn, "12. Ihre individuelle Einschaetzung")
         pdf.set_font(fn, "", 9)
         pdf.set_text_color(50, 50, 50)
 
@@ -407,6 +413,8 @@ def generate_full_report(
     has_altlasten_proxy = bool(
         altlasten_data and altlasten_data.get("data_kind") == "land-use-indikator"
     )
+    has_slope = bool(slope_data and slope_data.get("available"))
+    slope_src_label = (slope_data or {}).get("source", "")
     is_nl = country_code.lower() == "nl"
     threshold_label = (
         "NL Circulaire bodemsanering 2013, Bijlage 1" if is_nl
@@ -429,6 +437,7 @@ def generate_full_report(
         (False, "Erdbebenzonen DIN EN 1998-1/NA (in Vorbereitung)"),
         (has_altlasten_real, "PDOK Bodemloket WBB-Lokationen (CC-BY 4.0)"),
         (has_altlasten_proxy, "Altlasten-Indikator via CORINE Land Cover (Proxy, kein Kataster)"),
+        (has_slope, f"Gelaendemodell: {slope_src_label}" if has_slope else "Gelaendemodell (Slope/Aspect)"),
     ]
     for active, name in sources:
         pdf.set_text_color(34, 197, 94) if active else pdf.set_text_color(180, 180, 180)
@@ -740,7 +749,7 @@ def _section_kostra(pdf: FPDF, fn: str, kostra_data: dict | None) -> None:
 
 def _render_soil_directive(pdf: FPDF, fn: str, sd: dict) -> None:
     """Render the EU Soil Monitoring Directive 16-descriptor section."""
-    _section_header(pdf, fn, "8. EU-Bodenueberwachungsrichtlinie 2025/2360")
+    _section_header(pdf, fn, "9. EU-Bodenueberwachungsrichtlinie 2025/2360")
 
     determined = sd.get("descriptors_determined", 0)
     total = sd.get("descriptors_total", 16)
@@ -829,7 +838,7 @@ def _render_soil_directive(pdf: FPDF, fn: str, sd: dict) -> None:
 
 def _render_pesticides(pdf: FPDF, fn: str, p: dict) -> None:
     """Render the LUCAS NUTS2 pesticide-residues section."""
-    _section_header(pdf, fn, "9. Pestizid-Rueckstaende (regional, NUTS2)")
+    _section_header(pdf, fn, "10. Pestizid-Rueckstaende (regional, NUTS2)")
 
     nuts2 = p.get("nuts2_code")
     n_det = p.get("n_detected", 0)
@@ -892,6 +901,60 @@ def _render_pesticides(pdf: FPDF, fn: str, p: dict) -> None:
     pdf.ln(3)
 
 
+def _render_slope(pdf: FPDF, fn: str, s: dict) -> None:
+    """Render the Geländeprofil section: elevation, slope, aspect.
+
+    Slope is also fed into the RUSLE LS-factor calculation in the EU
+    Soil Directive section above. Showing it here separately gives the
+    buyer an explicit terrain read for build/extension planning.
+    """
+    _section_header(pdf, fn, "8. Gelaendeprofil")
+
+    cls = s.get("classification", "")
+    slope_deg = s.get("slope_deg", 0)
+    color_map = {
+        "flach": (91, 154, 111),
+        "leicht geneigt": (170, 190, 90),
+        "Hanglage": (196, 169, 77),
+        "Steilhang": (184, 84, 80),
+    }
+    r, g, b = color_map.get(cls, (150, 150, 150))
+    pdf.set_fill_color(r, g, b)
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font(fn, "B", 11)
+    pdf.cell(80, 9, f"  {cls.upper()} ({slope_deg}°)", fill=True, new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(3)
+
+    pdf.set_text_color(50, 50, 50)
+    _kpi_row(pdf, fn, [
+        (f"{s.get('elevation_m', '-')} m", "Höhe NN"),
+        (f"{slope_deg}°", "Hangneigung"),
+        (s.get("aspect_label", "-"), f"Expositionsrichtung ({int(s.get('aspect_deg', 0))}°)"),
+    ])
+    pdf.ln(2)
+
+    pdf.set_font(fn, "", 9)
+    pdf.set_text_color(80, 80, 80)
+    interpretation = {
+        "flach": "Flaches Gelaende — keine besonderen Erosions- oder Hangrutschungs-Risiken aus der Topographie.",
+        "leicht geneigt": "Leicht geneigtes Gelaende — moderate Wasser-Erosionsrisiken bei sandigen oder schluffigen Boeden, aber baulich unkritisch.",
+        "Hanglage": "Hanglage — erhoehtes Risiko fuer Wassererosion, Boden-Setzungen und Hang-Stabilitaet bei Bau-Massnahmen. Die Hangneigung fliesst in das RUSLE-Erosionsmodell der naechsten Sektion ein.",
+        "Steilhang": "Steilhang — signifikante Risiken fuer Erosion, Hangrutsch und Setzungen. Statisches Bodengutachten fuer jede Bau-Massnahme dringend empfohlen.",
+    }.get(cls, "Topographie-Klassifikation auf Basis SRTM-Hoehendaten.")
+    pdf.multi_cell(0, 5, interpretation)
+    pdf.ln(2)
+
+    pdf.set_font(fn, "I", 7)
+    pdf.set_text_color(120, 120, 120)
+    scale = s.get("scale_m", 50)
+    src = s.get("source", "")
+    pdf.multi_cell(0, 3.5, (
+        f"Quelle: {src}. Multi-Scale-Sampling (50/150/500 m), groesste Steigung "
+        f"bei {scale} m gewaehlt. Vertikale Aufloesung ~5-10 m, horizontale ~30 m."
+    ))
+    pdf.ln(3)
+
+
 def _render_altlasten(pdf: FPDF, fn: str, a: dict) -> None:
     """Render the Altlasten / land-use-proxy section.
 
@@ -900,7 +963,7 @@ def _render_altlasten(pdf: FPDF, fn: str, a: dict) -> None:
       - 'land-use-indikator' (DE via CORINE proxy): land-use risk codes
         + pointer to authority enquiry
     """
-    _section_header(pdf, fn, "10. Altlasten / Bodenkontamination")
+    _section_header(pdf, fn, "11. Altlasten / Bodenkontamination")
 
     kind = a.get("data_kind", "")
     risk = a.get("risk", "gruen")

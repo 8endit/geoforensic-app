@@ -250,7 +250,22 @@ Kommt zum Einsatz wenn `country_code == "nl"`. Streefwaarde = niveau ohne nennen
 
 ## 6. Geometrie / Spatial Lookups
 
-### 6.1 NUTS2 Polygone 2021
+### 6.1 Geländemodell — Slope und Aspekt
+
+| Feld | Wert |
+|---|---|
+| **Status** | VERIFIZIERT, live (mit Failover) |
+| Modul | `backend/app/slope_data.py` |
+| **Primärquelle** | OpenTopoData (`https://api.opentopodata.org/v1/srtm30m`) — frei öffentlich, 1 000 req/day, SRTM 1-arcsec (~30 m horizontal) |
+| **Fallback** | Open-Elevation (`https://api.open-elevation.com/api/v1/lookup`) — selbe SRTM-Basis, aktuell flaky (504 beobachtet 2026-04-30) |
+| Methode | Multi-Scale-Sampling: Adresse + 4 cardinal probes auf 50 m / 150 m / 500 m → Steepest-Slope per Skala, beste Skala wird gewählt |
+| Output | elevation_m, slope_deg, aspect_deg, aspect_label (N/NE/E/SE/S/SW/W/NW), classification (flach / leicht geneigt / Hanglage / Steilhang), scale_m |
+| Lizenz | OpenTopoData: ODC-BY 1.0 (für SRTM via NASA, public domain) |
+| Reporting-Pflicht | Source-Label im PDF („OpenTopoData (SRTM 1-arcsec)" vs „Open-Elevation API …") |
+| Verwendung | (a) eigene Sektion „Geländeprofil" im Vollbericht, (b) `slope_deg` fließt in RUSLE-LS-Faktor in `soil_directive.py` ein — vorher Default 2°, was Hanglagen-Erosion massiv unterschätzte |
+| Phase C | NL: AHN WCS (0,5 m LiDAR) ersetzt SRTM. DE: lokale SRTM-Tile-Cache statt Public-API |
+
+### 6.2 NUTS2 Polygone 2021
 
 | Feld | Wert |
 |---|---|
