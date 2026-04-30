@@ -22,6 +22,7 @@ scipy
 pandas
 matplotlib
 openpyxl
+shapely
 Pillow
 sentry-sdk[fastapi]
 redis>=5.0

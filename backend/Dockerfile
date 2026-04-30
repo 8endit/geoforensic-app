@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpangoft2-1.0-0 \
     gdal-bin \
     libgdal-dev \
+    libgeos-dev \
     chromium \
     fonts-liberation \
     fonts-noto-core \
