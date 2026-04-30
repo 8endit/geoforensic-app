@@ -26,9 +26,8 @@ from typing import Optional
 from app.pesticides_data import query_pesticides
 from app.rfactor_data import get_r_factor
 from app.soil_data import (
-    BBODSCHV_MASSNAHME,
-    BBODSCHV_VORSORGE,
     SoilDataLoader,
+    get_thresholds,
 )
 
 logger = logging.getLogger(__name__)
@@ -56,11 +55,11 @@ _CORINE_C_FACTOR = {
 
 # ── Classification helpers ────────────────────────────────────────────────
 
-def _classify_metal(name: str, value: float) -> str:
-    vorsorge = BBODSCHV_VORSORGE.get(name)
-    massnahme = BBODSCHV_MASSNAHME.get(name)
-    if vorsorge and value > vorsorge:
-        if massnahme and value > massnahme:
+def _classify_metal(name: str, value: float, thresholds: dict) -> str:
+    lower = thresholds["lower"].get(name)
+    upper = thresholds["upper"].get(name)
+    if lower and value > lower:
+        if upper and value > upper:
             return "alert"
         return "warn"
     return "ok"
@@ -126,16 +125,17 @@ def _estimate_erosion_rusle(
     silt: float | None,
     slope_deg: float,
     corine_code: int | None,
+    country_code: str = "de",
 ) -> dict:
     """Simplified RUSLE: A = R × K × LS × C × P (t/ha/yr).
 
-    R from ESDAC Panagos-2015 raster (or lat-linear fallback).
+    R from ESDAC Panagos-2015 raster (or country-specific lat-linear fallback).
     K from texture (Wischmeier & Smith).
     LS from slope (simplified McCool).
     C from CORINE land cover.
     P = 1.0 (no conservation assumed).
     """
-    r = get_r_factor(lat, lon)
+    r = get_r_factor(lat, lon, country_code)
     r_factor = r.value
     r_source = r.source
 
@@ -266,6 +266,8 @@ def query_soil_directive(
         Structured dict with parts A, B, C, D and an overall assessment.
     """
     loader = SoilDataLoader.get()
+    cc = country_code.lower()
+    thresholds = get_thresholds(cc)
 
     # ── Raw queries ────────────────────────────────────────────────────
     soc_raw = loader.query_soilgrids(lat, lon, "soc")
@@ -281,9 +283,11 @@ def query_soil_directive(
     corine = loader.query_corine(lat, lon)
     corine_code = corine["code"] if corine else None
 
-    metals = loader.query_metals(lat, lon)
+    # LUCAS — country-gated. NL/AT/CH return {} so we don't show DE values
+    # interpolated from 200 km away.
+    metals = loader.query_metals(lat, lon, country_code=cc)
     lucas_dist_km = loader.query_lucas_distance_km(lat, lon)
-    lucas_nutrients = loader.query_nutrients(lat, lon)
+    lucas_nutrients = loader.query_nutrients(lat, lon, country_code=cc)
 
     awc = loader.query_awc(lat, lon)
     wrb = loader.query_wrb(lat, lon)
@@ -303,15 +307,21 @@ def query_soil_directive(
     # ── PART A: EU-wide criteria ───────────────────────────────────────
 
     erosion_water = _estimate_erosion_rusle(
-        lat, lon, clay, sand, silt, slope_deg, corine_code,
+        lat, lon, clay, sand, silt, slope_deg, corine_code, country_code=cc,
     )
 
-    # Wind erosion: relevant only on sandy soils in flat northern terrain
+    # Wind erosion: relevant only on sandy soils in flat terrain.
+    # The lat>52° rule is calibrated for Norddeutschland; NL is just as flat
+    # and partly sandy (Veluwe, Drenthe), so we apply the same rule there
+    # but adjust the country wording.
     wind_risk = "gering"
     wind_status = "ok"
     if sand is not None and sand > 60 and lat > 52.0 and slope_deg < 3:
-        wind_risk = "erhöht (sandige Böden, Norddeutschland)"
         wind_status = "warn"
+        if cc == "nl":
+            wind_risk = "verhoogd (zandgronden, Noord/Oost-Nederland)"
+        else:
+            wind_risk = "erhöht (sandige Böden, Norddeutschland)"
 
     part_a = {
         "erosion_water": erosion_water,
@@ -344,21 +354,24 @@ def query_soil_directive(
         n_surplus_est = round(n_total / 70, 0)  # rough proxy, kg N/ha/yr
         n_status = "ok" if n_surplus_est < 50 else ("warn" if n_surplus_est < 80 else "alert")
 
-    # Heavy metals
+    # Heavy metals — thresholds chosen by country (DE: BBodSchV, NL: Circulaire)
     metals_classified: list[dict] = []
-    metals_overall_status = "ok"
+    metals_overall_status = "ok" if metals else "na"
     for name in ["Cd", "Pb", "Hg", "As", "Cr", "Cu", "Ni", "Zn"]:
         val = metals.get(name)
         if val is not None:
-            status = _classify_metal(name, val)
+            status = _classify_metal(name, val, thresholds)
             if status == "alert":
                 metals_overall_status = "alert"
             elif status == "warn" and metals_overall_status != "alert":
                 metals_overall_status = "warn"
             metals_classified.append({
                 "name": name, "value": round(float(val), 2), "unit": "mg/kg",
-                "vorsorge": BBODSCHV_VORSORGE.get(name),
-                "massnahme": BBODSCHV_MASSNAHME.get(name),
+                "lower_threshold": thresholds["lower"].get(name),
+                "upper_threshold": thresholds["upper"].get(name),
+                "lower_label": thresholds["lower_label"],
+                "upper_label": thresholds["upper_label"],
+                "source": thresholds["source"],
                 "status": status,
             })
 
@@ -392,7 +405,12 @@ def query_soil_directive(
         },
         "metals": metals_classified,
         "metals_status": metals_overall_status,
-        "lucas_distance_km": lucas_dist_km,
+        "metals_threshold_source": thresholds["source"],
+        "metals_note": (
+            None if metals
+            else "Schwermetalle aus LUCAS-Boden für diese Region nicht standortspezifisch verfügbar."
+        ),
+        "lucas_distance_km": lucas_dist_km if metals else None,
         "bulk_density_g_cm3": round(float(bdod), 2) if bdod is not None else None,
         "bulk_density_status": (
             "ok" if (bdod is not None and bdod < 1.6)

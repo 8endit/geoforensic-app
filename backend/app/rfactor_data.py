@@ -71,12 +71,10 @@ class RFactorLookup:
             logger.warning("Failed to load R-factor raster %s: %s", path, e)
             self._raster = None
 
-    def query(self, lat: float, lon: float) -> RFactorResult:
-        # Try precise raster first
+    def query(self, lat: float, lon: float, country_code: str = "de") -> RFactorResult:
+        # Try precise raster first (works for any EU country once present)
         if self._raster is not None:
             try:
-                # The ESDAC raster is in EPSG:3035; reproject the query point
-                # on the fly via rasterio.warp.transform.
                 from rasterio.warp import transform
                 ds = self._raster
                 xs, ys = transform("EPSG:4326", ds.crs, [lon], [lat])
@@ -95,18 +93,34 @@ class RFactorLookup:
             except Exception as e:  # noqa: BLE001
                 logger.debug("R-factor raster query failed at (%s, %s): %s", lat, lon, e)
 
-        # Fallback: latitude-linear approximation for DE
-        # Norddeutschland (lat ~54°) ~50, Süddeutschland (lat ~47°) ~150
-        # Linear interpolation, clamped to [30, 200]
-        approx = 150.0 - (lat - 47.0) * 14.3
-        approx = max(30.0, min(200.0, approx))
+        # Fallback — country-specific linear approximation
+        cc = country_code.lower()
+        if cc == "de":
+            # Norddt. (lat ~54°) ~50, Südbayern (lat ~47°) ~150, clamp [30, 200]
+            approx = max(30.0, min(200.0, 150.0 - (lat - 47.0) * 14.3))
+            note = "Breitengrad-Näherung DE (mangels ESDAC-Raster)"
+        elif cc == "nl":
+            # NL ist flach und niederschlagsmäßig homogen, typisch 50–80
+            approx = 65.0
+            note = "NL-Konstantnäherung (mangels ESDAC-Raster)"
+        elif cc == "at":
+            # AT mit Alpenanteil, höher als DE-Schnitt — 80 als grober Mittelwert
+            approx = 100.0
+            note = "AT-Konstantnäherung (mangels ESDAC-Raster)"
+        elif cc == "ch":
+            approx = 150.0
+            note = "CH-Konstantnäherung Alpenraum (mangels ESDAC-Raster)"
+        else:
+            approx = 80.0
+            note = f"Generische Näherung für {cc} (mangels ESDAC-Raster)"
+
         return RFactorResult(
             value=round(approx, 1),
             source="lat-linear-approx",
-            note="Breitengrad-Näherung (mangels ESDAC-Raster)",
+            note=note,
         )
 
 
-def get_r_factor(lat: float, lon: float) -> RFactorResult:
+def get_r_factor(lat: float, lon: float, country_code: str = "de") -> RFactorResult:
     """Convenience wrapper. Returns an :class:`RFactorResult`."""
-    return RFactorLookup.get().query(lat, lon)
+    return RFactorLookup.get().query(lat, lon, country_code)

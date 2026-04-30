@@ -36,9 +36,9 @@ RASTER_DIR = os.getenv("RASTER_DIR", "/app/rasters")
 _NODATA = -999.0
 _METAL_COLS = ["Cd", "Pb", "Hg", "As", "Cr", "Cu", "Ni", "Zn"]
 
-# ── BBodSchV thresholds ────────────────────────────────────────────────────
+# ── Heavy-metal soil thresholds — country-specific ─────────────────────────
 
-# BBodSchV §8 Anhang 2 — Vorsorgewerte (Lehm/Schluff, mg/kg)
+# Germany — BBodSchV §8 Anhang 2, Lehm/Schluff (mg/kg)
 BBODSCHV_VORSORGE = {
     "Cd": 1.0, "Pb": 70.0, "Hg": 0.5, "As": 20.0,
     "Cr": 60.0, "Cu": 40.0, "Ni": 50.0, "Zn": 150.0,
@@ -47,6 +47,41 @@ BBODSCHV_MASSNAHME = {
     "Cd": 20.0, "Pb": 400.0, "Hg": 10.0, "As": 50.0,
     "Cr": 200.0, "Cu": 200.0, "Ni": 200.0, "Zn": 600.0,
 }
+
+# Netherlands — Circulaire bodemsanering 2013, Bijlage 1
+# Standaardbodem 25 % lutum, 10 % organische stof (mg/kg).
+# Streefwaarde = niveau zonder noemenswaardige risico's (≈ "Vorsorge")
+# Interventiewaarde = ernstig vervuilingscase, sanering vereist (≈ "Maßnahme")
+NL_STREEFWAARDE = {
+    "Cd": 0.8, "Pb": 85.0, "Hg": 0.3, "As": 29.0,
+    "Cr": 100.0, "Cu": 36.0, "Ni": 35.0, "Zn": 140.0,
+}
+NL_INTERVENTIEWAARDE = {
+    "Cd": 12.0, "Pb": 530.0, "Hg": 36.0, "As": 55.0,
+    "Cr": 380.0, "Cu": 190.0, "Ni": 210.0, "Zn": 720.0,
+}
+
+# Country → (lower threshold, upper threshold, label-of-lower, label-of-upper, source)
+METAL_THRESHOLDS = {
+    "de": {
+        "lower": BBODSCHV_VORSORGE,
+        "upper": BBODSCHV_MASSNAHME,
+        "lower_label": "Vorsorgewert",
+        "upper_label": "Maßnahmenwert",
+        "source": "BBodSchV §8 Anhang 2 (Lehm/Schluff)",
+    },
+    "nl": {
+        "lower": NL_STREEFWAARDE,
+        "upper": NL_INTERVENTIEWAARDE,
+        "lower_label": "Streefwaarde",
+        "upper_label": "Interventiewaarde",
+        "source": "Circulaire bodemsanering 2013, Bijlage 1 (standaardbodem 25 % lutum / 10 % o.s.)",
+    },
+}
+
+# Default for AT/CH or unknown country: BBodSchV as conservative reference
+def get_thresholds(country_code: str) -> dict:
+    return METAL_THRESHOLDS.get(country_code.lower(), METAL_THRESHOLDS["de"])
 
 # ── SoilGrids properties ───────────────────────────────────────────────────
 
@@ -603,13 +638,35 @@ class SoilDataLoader:
             return None
         return WRB_AWC_LOOKUP.get(wrb)
 
-    def query_metals(self, lat: float, lon: float) -> dict:
+    def query_metals(self, lat: float, lon: float, country_code: str = "de",
+                     max_distance_km: float = 50.0) -> dict:
+        """LUCAS heavy-metal IDW lookup.
+
+        Hard country gate: our LUCAS CSV only contains DE points. For NL/AT/CH
+        addresses the nearest DE point is typically >100 km away — returning
+        IDW-interpolated values from there would be misleading. We honor the
+        ``country_code`` and the ``max_distance_km`` cap and return ``{}``
+        with the distance flagged elsewhere.
+        """
         if self._lucas is None:
+            return {}
+        if country_code.lower() != "de":
+            return {}
+        dist_km = self._lucas.query_nearest_distance_km(lat, lon)
+        if dist_km > max_distance_km:
+            logger.debug("LUCAS nearest point %s km > cap %s — skipping metals",
+                         dist_km, max_distance_km)
             return {}
         return self._lucas.query_metals(lat, lon)
 
-    def query_nutrients(self, lat: float, lon: float) -> dict:
+    def query_nutrients(self, lat: float, lon: float, country_code: str = "de",
+                        max_distance_km: float = 50.0) -> dict:
         if self._lucas is None:
+            return {}
+        if country_code.lower() != "de":
+            return {}
+        dist_km = self._lucas.query_nearest_distance_km(lat, lon)
+        if dist_km > max_distance_km:
             return {}
         return self._lucas.query_nutrients(lat, lon)
 
@@ -618,28 +675,32 @@ class SoilDataLoader:
             return -1.0
         return self._lucas.query_nearest_distance_km(lat, lon)
 
-    def query_full_profile(self, lat: float, lon: float) -> dict:
+    def query_full_profile(self, lat: float, lon: float, country_code: str = "de") -> dict:
         """Run all queries and return a complete soil profile."""
         soil = self.query_all_soilgrids(lat, lon)
-        metals = self.query_metals(lat, lon)
-        nutrients = self.query_nutrients(lat, lon)
+        metals = self.query_metals(lat, lon, country_code=country_code)
+        nutrients = self.query_nutrients(lat, lon, country_code=country_code)
         corine = self.query_corine(lat, lon)
         imperv = self.query_imperviousness(lat, lon)
         awc = self.query_awc(lat, lon)
         lucas_dist = self.query_lucas_distance_km(lat, lon)
 
+        thr = get_thresholds(country_code)
         metal_status = {}
         for m, val in metals.items():
-            threshold = BBODSCHV_VORSORGE.get(m)
-            if threshold:
+            lower = thr["lower"].get(m)
+            upper = thr["upper"].get(m, (lower or 0) * 5)
+            if lower:
                 metal_status[m] = {
                     "value": val,
-                    "threshold": threshold,
+                    "lower_threshold": lower,
+                    "upper_threshold": upper,
+                    "lower_label": thr["lower_label"],
+                    "upper_label": thr["upper_label"],
                     "unit": "mg/kg",
-                    "status": (
-                        "ok" if val < threshold
-                        else ("warn" if val < BBODSCHV_MASSNAHME.get(m, threshold * 5) else "critical")
-                    ),
+                    "source": thr["source"],
+                    "status": ("ok" if val < lower
+                               else ("warn" if val < upper else "critical")),
                 }
 
         return {
@@ -651,4 +712,6 @@ class SoilDataLoader:
             "imperviousness_pct": imperv,
             "awc_mm_m": awc,
             "lucas_distance_km": lucas_dist,
+            "country_code": country_code.lower(),
+            "threshold_source": thr["source"],
         }

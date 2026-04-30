@@ -94,15 +94,34 @@ Der Report-PDF zitiert pro Sektion die hier dokumentierte Quelle wörtlich.
 | Threshold-Hinweis | Keine direkten BBodSchV-Bodenschwellenwerte für moderne Pestizide; EU-Trinkwasser 0,1 µg/L als Größenordnungs-Kontext |
 | Legacy-Flagging | DDT/Aldrin/Endrin/Atrazine/Chlorpyrifos etc. werden separat hervorgehoben |
 
-### 2.4 BBodSchV-Schwellenwerte (Vorsorge / Maßnahme)
+### 2.4 Heavy-Metal-Schwellenwerte — DE / NL / Default
 
 | Feld | Wert |
 |---|---|
-| **Status** | VERIFIZIERT (gesetzliche Grundlage, hardcoded) |
-| Quelle | Bundes-Bodenschutz- und Altlastenverordnung §8 Anhang 2 |
-| Substanzen | Cd, Pb, Hg, As, Cr, Cu, Ni, Zn (Lehm/Schluff-Annahme) |
-| Verwendung | Klassifikation der LUCAS-Schwermetallwerte: ok / warn (über Vorsorge) / alert (über Maßnahme) |
-| Modul | `backend/app/soil_data.py:38` |
+| **Status** | VERIFIZIERT (gesetzliche Grundlagen, hardcoded), **country-geroutet** |
+| Substanzen | Cd, Pb, Hg, As, Cr, Cu, Ni, Zn |
+
+**DE — BBodSchV §8 Anhang 2** (Vorsorge / Maßnahme, Lehm/Schluff)
+
+Kommt zum Einsatz wenn `country_code == "de"` (oder als Default für AT/CH/unbekannt — konservativ).
+
+**NL — Circulaire bodemsanering 2013, Bijlage 1** (Streefwaarde / Interventiewaarde, standaardbodem 25 % lutum / 10 % organische stof)
+
+Kommt zum Einsatz wenn `country_code == "nl"`. Streefwaarde = niveau ohne nennenswerte Risiken; Interventiewaarde = ernstige Verunreinigung, Sanierung erforderlich. Quelle: <https://wetten.overheid.nl/BWBR0033592/>.
+
+**Routing-Modul:** `backend/app/soil_data.py:get_thresholds(country_code)`
+
+**Caveat im Report:** Pro Schwelle wird `metals_threshold_source` mitgeliefert und im PDF wörtlich zitiert. NL-Adressen sehen Streefwaarde-Vergleiche, niemals BBodSchV.
+
+### 2.5 LUCAS Country-Gate
+
+| Feld | Wert |
+|---|---|
+| **Status** | VERIFIZIERT, live |
+| Regel | LUCAS-Schwermetalle und LUCAS-Nährstoffe werden **nur** für `country_code == "de"` ausgeliefert. NL/AT/CH bekommen leere Dicts mit explizitem Note „Schwermetalle aus LUCAS-Boden für diese Region nicht standortspezifisch verfügbar." |
+| Begründung | Unsere LUCAS-CSV enthält nur DE-Punkte. Für NL-Adressen liegt der nächste Punkt typischerweise > 200 km entfernt — IDW-Werte aus Brandenburg an Rotterdamer Adressen wären irreführend. |
+| Zusätzliche Schranke | `max_distance_km=50` Cap auch für DE — sichert dass entlegene DE-Standorte (Inseln, Grenzregionen) ehrlich „n/a" zurückbekommen statt aus weiter Ferne interpoliert |
+| Modul | `backend/app/soil_data.py:SoilDataLoader.query_metals/_nutrients` |
 
 ---
 
@@ -263,9 +282,13 @@ muss jeweils den Schätz-Charakter explizit ausweisen.
 | Modul | `backend/app/rfactor_data.py` |
 | **Primärquelle (geplant)** | ESDAC Panagos 2015, 1 km Raster, EPSG:3035 |
 | Pixelpfad F: | `esdac_rfactor_eu_1km.tif` (User-Upload nach ESDAC-Anfrage) |
-| Fallback (live) | Latitude-linear `R = 150 - (lat - 47) × 14,3`, geclamped [30, 200] |
-| Source-Flag im Report | `r_source: "esdac-2015"` oder `r_source: "lat-linear-approx"` |
-| Caveat | Solange ESDAC-Raster fehlt, ist R nur ein grober DE-Anhalt — NL-Adressen bekommen einen DE-kalibrierten Wert |
+| Fallback (live), DE | `R = 150 - (lat - 47) × 14,3`, geclamped [30, 200] |
+| Fallback (live), NL | Konstante 65 (Tiefland-Mittelwert) |
+| Fallback (live), AT | Konstante 100 (Alpenanteil) |
+| Fallback (live), CH | Konstante 150 (Alpenraum) |
+| Andere Länder | Konstante 80 (generisch) |
+| Source-Flag im Report | `r_source: "esdac-2015"` oder `r_source: "lat-linear-approx"` mit Note |
+| Caveat | Solange ESDAC-Raster fehlt, ist der Wert eine Land-spezifische Konstante/Approximation und im Datenstrom als solche markiert |
 
 ### 7.3 N-Surplus (Stickstoff-Indikator)
 
