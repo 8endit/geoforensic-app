@@ -215,7 +215,29 @@ Kommt zum Einsatz wenn `country_code == "nl"`. Streefwaarde = niveau ohne nennen
 | Coverage | NUR NRW |
 | Modul | `backend/app/mining_nrw.py` |
 
-### 5.2 BGR Geologie GUEK200
+### 5.2 Altlasten / Bodenkontamination
+
+| Feld | Wert |
+|---|---|
+| **Status** | VERIFIZIERT, country-routed live |
+| Modul | `backend/app/altlasten_data.py` |
+
+**NL — PDOK Bodemloket WBB-Lokationen** (echtes Kataster)
+- Endpunkt: `https://gis.gdngeoservices.nl/standalone/services/blk_gdn/lks_blk_rd_v1/MapServer/WMSServer`
+- Layer: `WBB_locaties`, INFO_FORMAT: `text/xml`
+- Lizenz: CC-BY 4.0
+- Result-Kennzeichnung im PDF: `data_kind: behoerden-kataster`
+- Hinweis: Legacy-URL `service.pdok.nl/rws/bodemloket/` (404 seit 2023) — neue gdn-Endpoints nach Migration
+
+**DE — CORINE-Land-Use-Proxy** (KEIN Kataster!)
+- Begründung: LUBW ALTIS (BW) und LANUV FIS AlBo (NRW) sind nach INSPIRE Art 13(1)(f) personenbezogen geschützt — kein public WFS für Open-Data-Lookup.
+- Stattdessen: 5-Punkt-Sampling (Adresse + 4 cardinal points ~50 m) gegen `corine_2018_clc_100m_de_nl.tif`. Hits auf den Codes 121/122/123/124/131/132/133 werden als „Kontaminations-Indikator" mit transparenter Begründung pro Code ausgewiesen.
+- Result-Kennzeichnung im PDF: `data_kind: land-use-indikator`
+- PDF zeigt zusätzlich Hinweis-Block: „Rechtsverbindliche Behördenauskunft anfordern → altlasten@geoforensic.de" (Vorbereitung für späteren Behörden-Vermittlungs-Service als Add-On)
+
+**AT/CH — nicht integriert.**
+
+### 5.3 BGR Geologie GUEK200
 
 | Feld | Wert |
 |---|---|

@@ -88,6 +88,8 @@ def generate_full_report(
     flood_data: dict | None = None,
     # EU Soil Monitoring Directive 2025/2360 — 16 descriptors with provenance
     soil_directive_data: dict | None = None,
+    # Altlasten (NL: PDOK Bodemloket; DE: CORINE land-use proxy + auth-enquiry hint)
+    altlasten_data: dict | None = None,
     # ISO 3166-1 alpha-2 country code from geocoding ("de"/"nl"/"at"/"ch")
     country_code: str = "de",
 ) -> bytes:
@@ -357,9 +359,13 @@ def generate_full_report(
         if oc.get("pesticides"):
             _render_pesticides(pdf, fn, oc["pesticides"])
 
+    # ── Section: Altlasten / Bodenkontaminations-Indikator ──────────
+    if altlasten_data and altlasten_data.get("available"):
+        _render_altlasten(pdf, fn, altlasten_data)
+
     # ── Section: Individuelle Einschaetzung ─────────────────────────
     if answers:
-        _section_header(pdf, fn, "10. Ihre individuelle Einschaetzung")
+        _section_header(pdf, fn, "11. Ihre individuelle Einschaetzung")
         pdf.set_font(fn, "", 9)
         pdf.set_text_color(50, 50, 50)
 
@@ -395,6 +401,12 @@ def generate_full_report(
         soil_directive_data
         and soil_directive_data.get("part_d", {}).get("imperviousness_pct") is not None
     )
+    has_altlasten_real = bool(
+        altlasten_data and altlasten_data.get("data_kind") == "behoerden-kataster"
+    )
+    has_altlasten_proxy = bool(
+        altlasten_data and altlasten_data.get("data_kind") == "land-use-indikator"
+    )
     is_nl = country_code.lower() == "nl"
     threshold_label = (
         "NL Circulaire bodemsanering 2013, Bijlage 1" if is_nl
@@ -415,7 +427,8 @@ def generate_full_report(
         (has_kostra, "DWD KOSTRA-DWD-2020 Starkregen (GeoNutzV)"),
         (False, "Radon-Vorsorgegebiete (Landesabhaengig, in Vorbereitung)"),
         (False, "Erdbebenzonen DIN EN 1998-1/NA (in Vorbereitung)"),
-        (False, "Altlastenkataster (in Vorbereitung)"),
+        (has_altlasten_real, "PDOK Bodemloket WBB-Lokationen (CC-BY 4.0)"),
+        (has_altlasten_proxy, "Altlasten-Indikator via CORINE Land Cover (Proxy, kein Kataster)"),
     ]
     for active, name in sources:
         pdf.set_text_color(34, 197, 94) if active else pdf.set_text_color(180, 180, 180)
@@ -876,6 +889,125 @@ def _render_pesticides(pdf: FPDF, fn: str, p: dict) -> None:
         "Boden-Schwellenwerte fuer moderne Pflanzenschutzmittel; die "
         "EU-Trinkwasser-Schwelle 0,1 µg/L dient hier nur als Groessenordnung."
     ))
+    pdf.ln(3)
+
+
+def _render_altlasten(pdf: FPDF, fn: str, a: dict) -> None:
+    """Render the Altlasten / land-use-proxy section.
+
+    Two flavors driven by ``data_kind``:
+      - 'behoerden-kataster' (NL via PDOK): real cataster hits
+      - 'land-use-indikator' (DE via CORINE proxy): land-use risk codes
+        + pointer to authority enquiry
+    """
+    _section_header(pdf, fn, "10. Altlasten / Bodenkontamination")
+
+    kind = a.get("data_kind", "")
+    risk = a.get("risk", "gruen")
+    sites = a.get("sites") or []
+
+    # Risk badge
+    r, g, b = _ampel_color({"gruen": "gruen", "gelb": "gelb", "rot": "rot"}.get(risk, "gruen"))
+    pdf.set_fill_color(r, g, b)
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font(fn, "B", 11)
+    label = {
+        "gruen": "  KEIN BEFUND IM 200 m UMFELD",
+        "gelb": "  HINWEIS-BEFUND IM 200 m UMFELD",
+        "rot": "  AKTIVE KONTAMINATION GEMELDET",
+    }.get(risk, "  KEINE DATEN")
+    pdf.cell(120, 9, label, fill=True, new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(3)
+
+    pdf.set_text_color(80, 80, 80)
+    pdf.set_font(fn, "", 9)
+
+    if kind == "behoerden-kataster":
+        # NL — PDOK Bodemloket
+        pdf.multi_cell(0, 5, (
+            f"Datenquelle: {a.get('source', 'PDOK Bodemloket')}. "
+            "Adress-genaue Wbb-Lokationen aus der nationalen niederlaendischen "
+            "Datenbank fuer Bodensanierungsfaelle."
+        ))
+        pdf.ln(2)
+        if sites:
+            pdf.set_font(fn, "B", 8)
+            pdf.set_fill_color(240, 240, 240)
+            pdf.set_text_color(50, 50, 50)
+            w = [55, 50, 35, 50]
+            pdf.cell(w[0], 6, "Locatie", border=1, fill=True)
+            pdf.cell(w[1], 6, "Type", border=1, fill=True)
+            pdf.cell(w[2], 6, "Status", border=1, fill=True, align="C")
+            pdf.cell(w[3], 6, "Quelle", border=1, fill=True)
+            pdf.ln()
+            pdf.set_font(fn, "", 8)
+            for s in sites[:8]:
+                pdf.set_text_color(50, 50, 50)
+                pdf.cell(w[0], 5, str(s.get("name", ""))[:30], border=1)
+                pdf.cell(w[1], 5, str(s.get("site_type", ""))[:25], border=1)
+                pdf.cell(w[2], 5, str(s.get("status", "")), border=1, align="C")
+                pdf.cell(w[3], 5, str(s.get("source", ""))[:28], border=1)
+                pdf.ln()
+        else:
+            pdf.set_text_color(120, 120, 120)
+            pdf.cell(0, 5, "Keine Wbb-Lokationen im 200 m-Umfeld registriert.", new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(2)
+
+    elif kind == "land-use-indikator":
+        # DE — CORINE proxy + authority enquiry hint
+        pdf.multi_cell(0, 5, (
+            f"Datenquelle: {a.get('source', 'CORINE Land Cover 2018')}. "
+            "Land-Use-Indikator auf 100 m-Raster, 5-Punkt-Sampling im "
+            "100-150 m-Umfeld. KEIN Behoerdenkataster."
+        ))
+        pdf.ln(2)
+        if sites:
+            pdf.set_font(fn, "B", 8)
+            pdf.set_fill_color(240, 240, 240)
+            pdf.set_text_color(50, 50, 50)
+            w = [15, 50, 30, 95]
+            pdf.cell(w[0], 6, "CLC", border=1, fill=True, align="C")
+            pdf.cell(w[1], 6, "Klasse", border=1, fill=True)
+            pdf.cell(w[2], 6, "Distanz (ca.)", border=1, fill=True, align="C")
+            pdf.cell(w[3], 6, "Begruendung", border=1, fill=True)
+            pdf.ln()
+            pdf.set_font(fn, "", 8)
+            for s in sites:
+                pdf.set_text_color(50, 50, 50)
+                pdf.cell(w[0], 5, str(s.get("code", "")), border=1, align="C")
+                pdf.cell(w[1], 5, str(s.get("label", ""))[:28], border=1)
+                pdf.cell(w[2], 5, f"{int(s.get('distance_m', 0))} m", border=1, align="C")
+                pdf.cell(w[3], 5, str(s.get("reason", ""))[:55], border=1)
+                pdf.ln()
+        else:
+            pdf.set_text_color(120, 120, 120)
+            pdf.cell(0, 5, "Im 100-150 m-Umfeld keine kontaminations-korrelierten Land-Use-Klassen.", new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(2)
+
+        # Authority-enquiry hint — only for DE
+        if a.get("offer_authority_request"):
+            pdf.set_fill_color(248, 248, 248)
+            pdf.set_draw_color(220, 220, 220)
+            pdf.rect(10, pdf.get_y(), 190, 18, "FD")
+            pdf.set_xy(13, pdf.get_y() + 2)
+            pdf.set_font(fn, "B", 8)
+            pdf.set_text_color(40, 40, 40)
+            pdf.cell(0, 4, "Rechtsverbindliche Behoerdenauskunft anfordern", new_x="LMARGIN", new_y="NEXT")
+            pdf.set_x(13)
+            pdf.set_font(fn, "", 7)
+            pdf.set_text_color(80, 80, 80)
+            pdf.multi_cell(184, 3.5, (
+                "Adress-genaue Altlasten-Daten in DE sind oeffentlich nicht abrufbar (LUBW ALTIS / "
+                "LANUV FIS AlBo geschuetzt). Wir koennen die Anfrage in Ihrem Auftrag beim "
+                "zustaendigen Bauamt stellen — Kontakt: altlasten@geoforensic.de."
+            ))
+            pdf.ln(3)
+
+    pdf.set_font(fn, "I", 7)
+    pdf.set_text_color(120, 120, 120)
+    note = a.get("note") or ""
+    if note:
+        pdf.multi_cell(0, 3.5, f"Hinweis: {note}")
     pdf.ln(3)
 
 

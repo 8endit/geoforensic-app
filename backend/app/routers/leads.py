@@ -373,6 +373,20 @@ async def _generate_and_send_lead_report(
                 )
                 soil_directive_data = None
 
+            # 4c. Altlasten — country-routed. NL hits PDOK Bodemloket WMS
+            # (real cataster); DE returns a CORINE land-use proxy plus a
+            # pointer to authority enquiry. Both fail gracefully.
+            altlasten_data: dict | None = None
+            try:
+                from app.altlasten_data import fetch_altlasten
+                altlasten_data = await fetch_altlasten(lat, lon, country_code=country_code)
+            except Exception:
+                logger.exception(
+                    "Altlasten lookup failed for (%s, %s); section will be skipped",
+                    lat, lon,
+                )
+                altlasten_data = None
+
             # FPDF is synchronous and CPU-bound — wrap in to_thread so a
             # multi-second render does not block the event loop and starve
             # other inbound /api/leads requests.
@@ -392,6 +406,7 @@ async def _generate_and_send_lead_report(
                 kostra_data=kostra_data,
                 flood_data=flood_data,
                 soil_directive_data=soil_directive_data,
+                altlasten_data=altlasten_data,
                 country_code=country_code,
             )
 
