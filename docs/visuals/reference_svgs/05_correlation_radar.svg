@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="680" height="440" viewBox="0 0 680 440" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>GeoForensic Korrelations-Spinne</title>
+  <desc>Sechs-Achsen-Radar für die wichtigsten Einflussfaktoren auf die Bodenbewegung mit individuellem Risikoprofil.</desc>
+
+  <text x="40" y="35" font-size="14" font-weight="500" fill="#2C2C2A">Was beeinflusst die Bewegung?</text>
+  <text x="40" y="53" font-size="12" fill="#5F5E5A">Sechs Faktoren · 0 = unkritisch · 5 = stark</text>
+
+  <g transform="translate(340, 240)">
+    <!-- Konzentrische Hexagons -->
+    <polygon points="0,-150 130,-75 130,75 0,150 -130,75 -130,-75" fill="none" stroke="#B4B2A9" stroke-width="0.5"/>
+    <polygon points="0,-120 104,-60 104,60 0,120 -104,60 -104,-60" fill="none" stroke="#B4B2A9" stroke-width="0.5"/>
+    <polygon points="0,-90 78,-45 78,45 0,90 -78,45 -78,-45" fill="none" stroke="#B4B2A9" stroke-width="0.5"/>
+    <polygon points="0,-60 52,-30 52,30 0,60 -52,30 -52,-30" fill="none" stroke="#B4B2A9" stroke-width="0.5"/>
+    <polygon points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15" fill="none" stroke="#B4B2A9" stroke-width="0.5"/>
+
+    <!-- Achsen -->
+    <line x1="0" y1="0" x2="0" y2="-150" stroke="#B4B2A9" stroke-width="0.5"/>
+    <line x1="0" y1="0" x2="130" y2="-75" stroke="#B4B2A9" stroke-width="0.5"/>
+    <line x1="0" y1="0" x2="130" y2="75" stroke="#B4B2A9" stroke-width="0.5"/>
+    <line x1="0" y1="0" x2="0" y2="150" stroke="#B4B2A9" stroke-width="0.5"/>
+    <line x1="0" y1="0" x2="-130" y2="75" stroke="#B4B2A9" stroke-width="0.5"/>
+    <line x1="0" y1="0" x2="-130" y2="-75" stroke="#B4B2A9" stroke-width="0.5"/>
+
+    <!-- Risikoprofil-Polygon -->
+    <polygon points="0,-90 91,-53 87,50 0,75 -52,30 -78,-45" fill="#7F77DD" fill-opacity="0.25" stroke="#534AB7" stroke-width="1.5"/>
+
+    <!-- Datenpunkte -->
+    <circle cx="0" cy="-90" r="3.5" fill="#534AB7"/>
+    <circle cx="91" cy="-53" r="3.5" fill="#534AB7"/>
+    <circle cx="87" cy="50" r="3.5" fill="#534AB7"/>
+    <circle cx="0" cy="75" r="3.5" fill="#534AB7"/>
+    <circle cx="-52" cy="30" r="3.5" fill="#534AB7"/>
+    <circle cx="-78" cy="-45" r="3.5" fill="#534AB7"/>
+
+    <!-- Achsenbeschriftungen -->
+    <text x="0" y="-165" text-anchor="middle" font-size="14" font-weight="500" fill="#2C2C2A">Velocity</text>
+    <text x="0" y="-180" text-anchor="middle" font-size="12" fill="#5F5E5A">3.0</text>
+
+    <text x="148" y="-78" text-anchor="start" font-size="14" font-weight="500" fill="#2C2C2A">Niederschlag</text>
+    <text x="148" y="-63" text-anchor="start" font-size="12" fill="#5F5E5A">3.5</text>
+
+    <text x="148" y="82" text-anchor="start" font-size="14" font-weight="500" fill="#2C2C2A">Versiegelung</text>
+    <text x="148" y="97" text-anchor="start" font-size="12" fill="#5F5E5A">3.3</text>
+
+    <text x="0" y="170" text-anchor="middle" font-size="14" font-weight="500" fill="#2C2C2A">Quelltonanteil</text>
+    <text x="0" y="185" text-anchor="middle" font-size="12" fill="#5F5E5A">2.5</text>
+
+    <text x="-148" y="82" text-anchor="end" font-size="14" font-weight="500" fill="#2C2C2A">Hangneigung</text>
+    <text x="-148" y="97" text-anchor="end" font-size="12" fill="#5F5E5A">2.0</text>
+
+    <text x="-148" y="-78" text-anchor="end" font-size="14" font-weight="500" fill="#2C2C2A">Grundwasser</text>
+    <text x="-148" y="-63" text-anchor="end" font-size="12" fill="#5F5E5A">3.0</text>
+  </g>
+
+  <!-- Footer -->
+  <rect x="40" y="395" width="600" height="35" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="55" y="416" font-size="12" fill="#5F5E5A">Stärkster Treiber: Niederschlag · Korrelation r = 0.71 · saisonal-getrieben, nicht strukturell</text>
+</svg>

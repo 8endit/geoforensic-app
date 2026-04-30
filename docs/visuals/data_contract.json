@@ -1,0 +1,350 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GeoForensic Visualisierungs-Daten-Kontrakt",
+  "description": "Datenfelder, die jede der sechs Komponenten erwartet. Backend-Pipeline füllt dieses Schema, Frontend und PDF-Templates konsumieren es.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["report_id", "address", "components"],
+  "properties": {
+    "report_id": {
+      "type": "string",
+      "description": "Eindeutige Bericht-ID, z.B. GF-2026-04-30-A1B2"
+    },
+    "address": {
+      "type": "object",
+      "required": ["full", "lat", "lon"],
+      "properties": {
+        "full": {"type": "string", "example": "Schulstraße 12, 76571 Gaggenau"},
+        "street": {"type": "string"},
+        "postcode": {"type": "string"},
+        "city": {"type": "string"},
+        "lat": {"type": "number", "minimum": -90, "maximum": 90},
+        "lon": {"type": "number", "minimum": -180, "maximum": 180}
+      }
+    },
+    "components": {
+      "type": "object",
+      "properties": {
+
+        "risk_dashboard": {
+          "type": "object",
+          "description": "Komponente 1 — Risiko-Dashboard. Tier 1, immer voll sichtbar.",
+          "required": ["burland_class", "velocity_mm_per_year", "trend", "data_quality", "psi_count_in_radius", "overall_grade"],
+          "properties": {
+            "burland_class": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 6,
+              "description": "Burland-Klassifikation 0=vernachlässigbar bis 6=schwer"
+            },
+            "burland_label": {
+              "type": "string",
+              "enum": ["vernachlässigbar", "sehr leicht", "leicht", "mäßig", "stark", "sehr stark", "schwer"]
+            },
+            "burland_description": {
+              "type": "string",
+              "example": "0–5 mm Setzung über 5 Jahre"
+            },
+            "velocity_mm_per_year": {
+              "type": "number",
+              "description": "Mittel der drei nächsten PSI-Punkte. Negativ = Setzung, positiv = Hebung."
+            },
+            "velocity_basis": {
+              "type": "string",
+              "example": "Mittel der drei nächsten PSI"
+            },
+            "trend": {
+              "type": "string",
+              "enum": ["stabil", "leicht beschleunigend", "beschleunigend", "verlangsamend", "uneindeutig"]
+            },
+            "trend_description": {
+              "type": "string",
+              "example": "leichte saisonale Schwankung"
+            },
+            "data_quality": {
+              "type": "string",
+              "enum": ["niedrig", "mittel", "hoch"]
+            },
+            "data_quality_description": {
+              "type": "string",
+              "example": "Kohärenz 0.84"
+            },
+            "psi_count_in_radius": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "overall_grade": {
+              "type": "string",
+              "enum": ["A", "B", "C", "D", "E"],
+              "description": "A = unauffällig, E = kritisch"
+            },
+            "overall_grade_label": {
+              "type": "string",
+              "example": "unauffällig"
+            },
+            "overall_grade_recommendation": {
+              "type": "string",
+              "example": "Routinebeobachtung"
+            }
+          }
+        },
+
+        "property_context_map": {
+          "type": "object",
+          "description": "Komponente 2 — Karte mit InSAR-Punkten. Tier 1, immer voll sichtbar.",
+          "required": ["radius_meters", "psi_points", "building_footprint"],
+          "properties": {
+            "radius_meters": {
+              "type": "integer",
+              "default": 500,
+              "minimum": 100,
+              "maximum": 2000
+            },
+            "psi_points": {
+              "type": "array",
+              "description": "Liste aller PSI-Punkte im Radius",
+              "items": {
+                "type": "object",
+                "required": ["lat", "lon", "velocity"],
+                "properties": {
+                  "lat": {"type": "number"},
+                  "lon": {"type": "number"},
+                  "velocity": {"type": "number", "description": "mm/Jahr"},
+                  "coherence": {"type": "number", "minimum": 0, "maximum": 1},
+                  "id": {"type": "string"}
+                }
+              }
+            },
+            "building_footprint": {
+              "type": "object",
+              "description": "LoD2-Hausumriss; null wenn nicht verfügbar",
+              "nullable": true,
+              "properties": {
+                "polygon": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {"type": "number"},
+                    "minItems": 2,
+                    "maxItems": 2
+                  },
+                  "description": "Liste von [lon, lat] Paaren"
+                },
+                "centroid": {
+                  "type": "array",
+                  "items": {"type": "number"},
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              }
+            }
+          }
+        },
+
+        "velocity_timeseries": {
+          "type": "object",
+          "description": "Komponente 3 — Zeitreihe mit Niederschlag. Free als Teaser, Premium voll.",
+          "required": ["start_date", "end_date", "psi_series"],
+          "properties": {
+            "start_date": {"type": "string", "format": "date"},
+            "end_date": {"type": "string", "format": "date"},
+            "psi_series": {
+              "type": "array",
+              "description": "PSI-Mittelwert-Zeitreihe",
+              "items": {
+                "type": "object",
+                "required": ["date", "displacement_mm"],
+                "properties": {
+                  "date": {"type": "string", "format": "date"},
+                  "displacement_mm": {"type": "number"}
+                }
+              }
+            },
+            "precipitation_series": {
+              "type": "array",
+              "description": "Monatlicher Niederschlag (DWD); null oder leer wenn nicht verfügbar",
+              "nullable": true,
+              "items": {
+                "type": "object",
+                "required": ["date", "mm"],
+                "properties": {
+                  "date": {"type": "string", "format": "date"},
+                  "mm": {"type": "number", "minimum": 0}
+                }
+              }
+            },
+            "trend_slope_mm_per_year": {
+              "type": "number",
+              "description": "Linearer Trend, automatisch berechnet"
+            },
+            "correlation_coefficient": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "nullable": true,
+              "description": "Pearson-r zwischen Velocity und Niederschlag, null wenn nicht berechenbar"
+            }
+          }
+        },
+
+        "soil_context_stack": {
+          "type": "object",
+          "description": "Komponente 4 — Vertikaler Bodenschnitt. Premium voll, Free als Teaser.",
+          "required": ["depth_m", "layers"],
+          "properties": {
+            "depth_m": {
+              "type": "number",
+              "default": 5,
+              "description": "Gesamttiefe des Schnitts"
+            },
+            "has_building": {
+              "type": "boolean",
+              "description": "Bebauung-Block sichtbar?"
+            },
+            "sealing_percent": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "nullable": true,
+              "description": "Versiegelungsgrad aus Copernicus HRL"
+            },
+            "layers": {
+              "type": "array",
+              "description": "Bodenschichten von oben nach unten",
+              "items": {
+                "type": "object",
+                "required": ["type", "depth_top_m", "depth_bottom_m", "label"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["topsoil", "subsoil", "weathered", "bedrock", "fill"]
+                  },
+                  "depth_top_m": {"type": "number"},
+                  "depth_bottom_m": {"type": "number"},
+                  "label": {"type": "string", "example": "Lehm und Schluff"},
+                  "source": {"type": "string", "example": "BGR BÜK200"},
+                  "soc_percent": {"type": "number", "nullable": true},
+                  "ph": {"type": "number", "nullable": true}
+                }
+              }
+            },
+            "groundwater_depth_m": {
+              "type": "number",
+              "nullable": true,
+              "description": "Negativer Wert, z.B. -2.4 für 2.4m unter Oberkante"
+            }
+          }
+        },
+
+        "correlation_radar": {
+          "type": "object",
+          "description": "Komponente 5 — 6-Achsen-Radar. Premium voll, Free als Teaser.",
+          "required": ["axes", "interpretation"],
+          "properties": {
+            "axes": {
+              "type": "array",
+              "minItems": 6,
+              "maxItems": 6,
+              "description": "Genau sechs Achsen, in dieser Reihenfolge: velocity, precipitation, sealing, swelling_clay, slope, groundwater",
+              "items": {
+                "type": "object",
+                "required": ["name", "label", "value", "unit"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "enum": ["velocity", "precipitation", "sealing", "swelling_clay", "slope", "groundwater"]
+                  },
+                  "label": {"type": "string", "example": "Niederschlag"},
+                  "value": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 5,
+                    "nullable": true,
+                    "description": "Normiert 0-5; null = nicht verfügbar"
+                  },
+                  "raw_value": {
+                    "type": ["number", "string"],
+                    "description": "Originalwert mit Einheit zur Anzeige"
+                  },
+                  "unit": {"type": "string", "example": "mm/Jahr"}
+                }
+              }
+            },
+            "dominant_driver": {
+              "type": "string",
+              "description": "Name der dominanten Achse",
+              "example": "precipitation"
+            },
+            "correlation_coefficient": {
+              "type": "number",
+              "nullable": true
+            },
+            "interpretation": {
+              "type": "string",
+              "example": "Stärkster Treiber: Niederschlag · Korrelation r = 0.71 · saisonal-getrieben, nicht strukturell"
+            }
+          }
+        },
+
+        "neighborhood_histogram": {
+          "type": "object",
+          "description": "Komponente 6 — Velocity-Verteilung im Umfeld. Premium voll, Free als Teaser.",
+          "required": ["bins", "own_velocity", "psi_count"],
+          "properties": {
+            "bins": {
+              "type": "array",
+              "description": "Histogramm-Bins von -5 bis +5 mm/Jahr in 1mm-Schritten",
+              "items": {
+                "type": "object",
+                "required": ["min", "max", "count"],
+                "properties": {
+                  "min": {"type": "number"},
+                  "max": {"type": "number"},
+                  "count": {"type": "integer", "minimum": 0}
+                }
+              }
+            },
+            "own_velocity": {
+              "type": "number",
+              "description": "Velocity des eigenen Grundstücks für Marker-Position"
+            },
+            "psi_count": {
+              "type": "integer",
+              "description": "Anzahl PSI-Punkte im Histogramm"
+            },
+            "percentile": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Wo das eigene Grundstück in der Verteilung steht (0=stabilster, 100=auffälligster)"
+            },
+            "interpretation": {
+              "type": "string",
+              "example": "Im unauffälligen Mittelbereich der Nachbarschaft"
+            }
+          }
+        }
+      }
+    },
+    "tier": {
+      "type": "string",
+      "enum": ["free", "premium"],
+      "description": "Bestimmt, welche Komponenten voll vs als Teaser gerendert werden"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "generated_at": {"type": "string", "format": "date-time"},
+        "data_sources_used": {
+          "type": "array",
+          "items": {"type": "string"},
+          "example": ["EGMS Sentinel-1", "BGR BÜK200", "DWD CDC", "Copernicus HRL Imperviousness"]
+        },
+        "data_sources_missing": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    }
+  }
+}

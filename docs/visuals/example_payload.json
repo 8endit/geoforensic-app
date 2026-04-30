@@ -1,0 +1,161 @@
+{
+  "report_id": "GF-2026-04-30-DEMO",
+  "tier": "premium",
+  "address": {
+    "full": "Schulstraße 12, 76571 Gaggenau",
+    "street": "Schulstraße 12",
+    "postcode": "76571",
+    "city": "Gaggenau",
+    "lat": 48.80123,
+    "lon": 8.32456
+  },
+  "metadata": {
+    "generated_at": "2026-04-30T14:23:11Z",
+    "data_sources_used": [
+      "EGMS Sentinel-1 (2018-2024)",
+      "BGR BÜK200",
+      "DWD CDC Niederschlag (2019-2024)",
+      "Copernicus HRL Imperviousness 2021",
+      "LUCAS Topsoil 2018",
+      "LGRB BW Hydrogeologie",
+      "LoD2 Baden-Württemberg"
+    ],
+    "data_sources_missing": []
+  },
+  "components": {
+    "risk_dashboard": {
+      "burland_class": 2,
+      "burland_label": "leicht",
+      "burland_description": "0–5 mm Setzung über 5 Jahre",
+      "velocity_mm_per_year": -1.4,
+      "velocity_basis": "Mittel der drei nächsten PSI",
+      "trend": "stabil",
+      "trend_description": "leichte saisonale Schwankung",
+      "data_quality": "hoch",
+      "data_quality_description": "Kohärenz 0.84",
+      "psi_count_in_radius": 47,
+      "overall_grade": "A",
+      "overall_grade_label": "unauffällig",
+      "overall_grade_recommendation": "Routinebeobachtung"
+    },
+    "property_context_map": {
+      "radius_meters": 500,
+      "psi_points": [
+        {"lat": 48.80345, "lon": 8.32102, "velocity": -0.3, "coherence": 0.81},
+        {"lat": 48.80298, "lon": 8.32218, "velocity": -1.1, "coherence": 0.87},
+        {"lat": 48.80267, "lon": 8.32401, "velocity": -0.4, "coherence": 0.79},
+        {"lat": 48.80189, "lon": 8.32488, "velocity": -1.6, "coherence": 0.82},
+        {"lat": 48.80145, "lon": 8.32522, "velocity": -1.4, "coherence": 0.84},
+        {"lat": 48.80098, "lon": 8.32567, "velocity": -2.1, "coherence": 0.78},
+        {"lat": 48.80056, "lon": 8.32601, "velocity": -3.4, "coherence": 0.71}
+      ],
+      "building_footprint": {
+        "polygon": [
+          [8.32445, 48.80115],
+          [8.32468, 48.80115],
+          [8.32468, 48.80132],
+          [8.32445, 48.80132]
+        ],
+        "centroid": [8.32456, 48.80123]
+      }
+    },
+    "velocity_timeseries": {
+      "start_date": "2020-01-01",
+      "end_date": "2024-12-31",
+      "psi_series": [
+        {"date": "2020-01-01", "displacement_mm": 0.0},
+        {"date": "2020-07-01", "displacement_mm": -0.4},
+        {"date": "2021-01-01", "displacement_mm": -0.8},
+        {"date": "2021-07-01", "displacement_mm": -1.5},
+        {"date": "2022-01-01", "displacement_mm": -2.1},
+        {"date": "2022-07-01", "displacement_mm": -2.8},
+        {"date": "2023-01-01", "displacement_mm": -3.6},
+        {"date": "2023-07-01", "displacement_mm": -4.3},
+        {"date": "2024-01-01", "displacement_mm": -5.5},
+        {"date": "2024-07-01", "displacement_mm": -6.1}
+      ],
+      "precipitation_series": [
+        {"date": "2020-01-01", "mm": 78},
+        {"date": "2020-07-01", "mm": 45},
+        {"date": "2021-01-01", "mm": 62},
+        {"date": "2021-07-01", "mm": 105},
+        {"date": "2022-01-01", "mm": 38},
+        {"date": "2022-07-01", "mm": 28},
+        {"date": "2023-01-01", "mm": 88},
+        {"date": "2023-07-01", "mm": 71},
+        {"date": "2024-01-01", "mm": 95},
+        {"date": "2024-07-01", "mm": 52}
+      ],
+      "trend_slope_mm_per_year": -1.4,
+      "correlation_coefficient": 0.71
+    },
+    "soil_context_stack": {
+      "depth_m": 5,
+      "has_building": true,
+      "sealing_percent": 67,
+      "layers": [
+        {
+          "type": "topsoil",
+          "depth_top_m": 0,
+          "depth_bottom_m": 0.3,
+          "label": "Mutterboden",
+          "source": "LUCAS Topsoil",
+          "soc_percent": 1.8,
+          "ph": 6.4
+        },
+        {
+          "type": "subsoil",
+          "depth_top_m": 0.3,
+          "depth_bottom_m": 2.4,
+          "label": "Lehm und Schluff",
+          "source": "BGR BÜK200"
+        },
+        {
+          "type": "weathered",
+          "depth_top_m": 2.4,
+          "depth_bottom_m": 4.0,
+          "label": "Verwitterungszone",
+          "source": "LGRB BW"
+        },
+        {
+          "type": "bedrock",
+          "depth_top_m": 4.0,
+          "depth_bottom_m": 5.0,
+          "label": "Buntsandstein",
+          "source": "LGRB BW IGHK50"
+        }
+      ],
+      "groundwater_depth_m": -2.4
+    },
+    "correlation_radar": {
+      "axes": [
+        {"name": "velocity", "label": "Velocity", "value": 3.0, "raw_value": "−1.4 mm/J", "unit": "mm/Jahr"},
+        {"name": "precipitation", "label": "Niederschlag", "value": 3.5, "raw_value": "835 mm/Jahr", "unit": "mm/Jahr"},
+        {"name": "sealing", "label": "Versiegelung", "value": 3.3, "raw_value": "67 %", "unit": "%"},
+        {"name": "swelling_clay", "label": "Quelltonanteil", "value": 2.5, "raw_value": "mittel", "unit": "Index"},
+        {"name": "slope", "label": "Hangneigung", "value": 2.0, "raw_value": "4.2 °", "unit": "°"},
+        {"name": "groundwater", "label": "Grundwasser", "value": 3.0, "raw_value": "−2.4 m", "unit": "m"}
+      ],
+      "dominant_driver": "precipitation",
+      "correlation_coefficient": 0.71,
+      "interpretation": "Stärkster Treiber: Niederschlag · Korrelation r = 0.71 · saisonal-getrieben, nicht strukturell"
+    },
+    "neighborhood_histogram": {
+      "bins": [
+        {"min": -5, "max": -4, "count": 2},
+        {"min": -4, "max": -3, "count": 3},
+        {"min": -3, "max": -2, "count": 5},
+        {"min": -2, "max": -1, "count": 8},
+        {"min": -1, "max": 0, "count": 12},
+        {"min": 0, "max": 1, "count": 9},
+        {"min": 1, "max": 2, "count": 5},
+        {"min": 2, "max": 3, "count": 2},
+        {"min": 3, "max": 4, "count": 1}
+      ],
+      "own_velocity": -1.4,
+      "psi_count": 47,
+      "percentile": 38,
+      "interpretation": "Im unauffälligen Mittelbereich der Nachbarschaft"
+    }
+  }
+}

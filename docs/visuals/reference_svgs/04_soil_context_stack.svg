@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="680" height="420" viewBox="0 0 680 420" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>GeoForensic Bodenkontext-Stapel</title>
+  <desc>Vertikaler Querschnitt durch das Grundstück mit Bebauung, Versiegelung, Bodenschichten und Grundwasserstand.</desc>
+
+  <text x="40" y="35" font-size="14" font-weight="500" fill="#2C2C2A">Bodenprofil unter Ihrem Grundstück</text>
+  <text x="40" y="53" font-size="12" fill="#5F5E5A">Querschnitt von Oberkante bis 5 m Tiefe</text>
+
+  <!-- Bebauung -->
+  <rect x="180" y="80" width="320" height="50" fill="#5F5E5A"/>
+  <polygon points="180,80 340,55 500,80" fill="#888780"/>
+  <rect x="220" y="95" width="20" height="20" fill="#B4B2A9"/>
+  <rect x="260" y="95" width="20" height="20" fill="#B4B2A9"/>
+  <rect x="400" y="95" width="20" height="20" fill="#B4B2A9"/>
+  <rect x="440" y="95" width="20" height="20" fill="#B4B2A9"/>
+
+  <!-- Versiegelung -->
+  <rect x="180" y="130" width="320" height="22" fill="#888780"/>
+
+  <!-- Mutterboden -->
+  <rect x="180" y="152" width="320" height="40" fill="#FAC775"/>
+
+  <!-- Lehm/Schluff -->
+  <rect x="180" y="192" width="320" height="60" fill="#EF9F27"/>
+
+  <!-- Verwitterung -->
+  <rect x="180" y="252" width="320" height="50" fill="#888780"/>
+
+  <!-- Festgestein -->
+  <rect x="180" y="302" width="320" height="60" fill="#444441"/>
+
+  <!-- Grundwasserlinie -->
+  <line x1="180" y1="222" x2="510" y2="222" stroke="#185FA5" stroke-width="2" stroke-dasharray="5 3"/>
+  <text x="515" y="227" font-size="14" font-weight="500" fill="#185FA5">Grundwasser −2.4 m</text>
+
+  <!-- Tiefenachse -->
+  <line x1="170" y1="80" x2="170" y2="362" stroke="#888780" stroke-width="0.5"/>
+  <line x1="165" y1="80" x2="170" y2="80" stroke="#888780" stroke-width="0.5"/>
+  <line x1="165" y1="152" x2="170" y2="152" stroke="#888780" stroke-width="0.5"/>
+  <line x1="165" y1="252" x2="170" y2="252" stroke="#888780" stroke-width="0.5"/>
+  <line x1="165" y1="362" x2="170" y2="362" stroke="#888780" stroke-width="0.5"/>
+  <text x="160" y="84" text-anchor="end" font-size="12" fill="#5F5E5A">0 m</text>
+  <text x="160" y="156" text-anchor="end" font-size="12" fill="#5F5E5A">−1 m</text>
+  <text x="160" y="256" text-anchor="end" font-size="12" fill="#5F5E5A">−3 m</text>
+  <text x="160" y="366" text-anchor="end" font-size="12" fill="#5F5E5A">−5 m</text>
+
+  <!-- Beschriftungen rechts -->
+  <line x1="500" y1="105" x2="555" y2="105" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="560" y="100" font-size="12" font-weight="500" fill="#2C2C2A">Bebauung · LoD2</text>
+  <text x="560" y="115" font-size="12" fill="#5F5E5A">Wohngebäude</text>
+
+  <line x1="500" y1="141" x2="555" y2="141" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="560" y="138" font-size="12" font-weight="500" fill="#2C2C2A">Versiegelung 67 %</text>
+  <text x="560" y="152" font-size="12" fill="#5F5E5A">Copernicus HRL</text>
+
+  <line x1="500" y1="172" x2="555" y2="172" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="560" y="169" font-size="12" font-weight="500" fill="#854F0B">Mutterboden</text>
+  <text x="560" y="183" font-size="12" fill="#854F0B">SOC 1.8 % · LUCAS</text>
+
+  <line x1="500" y1="222" x2="555" y2="222" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="560" y="219" font-size="12" font-weight="500" fill="#412402">Lehm und Schluff</text>
+  <text x="560" y="233" font-size="12" fill="#412402">BGR BÜK200</text>
+
+  <line x1="500" y1="277" x2="555" y2="277" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="560" y="274" font-size="12" font-weight="500" fill="#2C2C2A">Verwitterungszone</text>
+  <text x="560" y="288" font-size="12" fill="#5F5E5A">Übergangsbereich</text>
+
+  <line x1="500" y1="332" x2="555" y2="332" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="560" y="329" font-size="12" font-weight="500" fill="#2C2C2A">Festgestein</text>
+  <text x="560" y="343" font-size="12" fill="#5F5E5A">Buntsandstein</text>
+
+  <!-- Footer-Hinweis -->
+  <text x="40" y="395" font-size="12" fill="#5F5E5A">Quelltonanteil mittel · saisonale Volumenänderung möglich · Setzungs-Korrelation bestätigt</text>
+</svg>

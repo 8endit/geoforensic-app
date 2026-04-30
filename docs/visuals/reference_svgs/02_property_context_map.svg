@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="680" height="480" viewBox="0 0 680 480" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>GeoForensic Grundstück-im-Kontext-Karte</title>
+  <desc>Schemakarte mit 500m-Radius, PSI-Punkten farbcodiert nach Velocity, und Hausumriss in der Mitte.</desc>
+
+  <text x="40" y="35" font-size="14" font-weight="500" fill="#2C2C2A">Ihr Grundstück und seine Umgebung</text>
+  <text x="40" y="53" font-size="12" fill="#5F5E5A">47 PSI-Punkte im 500m-Radius · Farbe = Velocity</text>
+
+  <!-- Kartenfläche -->
+  <rect x="40" y="80" width="600" height="320" rx="8" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/>
+
+  <!-- Hilfsraster -->
+  <line x1="40" y1="160" x2="640" y2="160" stroke="#D3D1C7" stroke-width="0.5"/>
+  <line x1="40" y1="240" x2="640" y2="240" stroke="#D3D1C7" stroke-width="0.5"/>
+  <line x1="40" y1="320" x2="640" y2="320" stroke="#D3D1C7" stroke-width="0.5"/>
+  <line x1="160" y1="80" x2="160" y2="400" stroke="#D3D1C7" stroke-width="0.5"/>
+  <line x1="280" y1="80" x2="280" y2="400" stroke="#D3D1C7" stroke-width="0.5"/>
+  <line x1="400" y1="80" x2="400" y2="400" stroke="#D3D1C7" stroke-width="0.5"/>
+  <line x1="520" y1="80" x2="520" y2="400" stroke="#D3D1C7" stroke-width="0.5"/>
+
+  <!-- Andeutung von Straßen / Geländelinien -->
+  <path d="M 80 320 Q 200 310 340 240 T 600 180" fill="none" stroke="#5DCAA5" stroke-width="0.5" opacity="0.5"/>
+  <path d="M 100 380 Q 250 350 400 290 T 620 240" fill="none" stroke="#5DCAA5" stroke-width="0.5" opacity="0.5"/>
+
+  <!-- 500m-Radius -->
+  <circle cx="340" cy="240" r="120" fill="none" stroke="#185FA5" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/>
+  <text x="340" y="135" text-anchor="middle" font-size="12" fill="#185FA5">500 m Radius</text>
+
+  <!-- PSI-Punkte (farbcodiert) -->
+  <circle cx="100" cy="120" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="160" cy="100" r="4" fill="#5DCAA5" opacity="0.85"/>
+  <circle cx="220" cy="130" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="500" cy="100" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="560" cy="120" r="4" fill="#9FE1CB" opacity="0.85"/>
+  <circle cx="600" cy="140" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="240" cy="170" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="280" cy="200" r="4" fill="#5DCAA5" opacity="0.85"/>
+  <circle cx="320" cy="180" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="380" cy="210" r="4" fill="#5DCAA5" opacity="0.85"/>
+  <circle cx="420" cy="190" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="450" cy="170" r="4" fill="#9FE1CB" opacity="0.85"/>
+  <circle cx="500" cy="180" r="4" fill="#5DCAA5" opacity="0.85"/>
+  <circle cx="240" cy="240" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="265" cy="280" r="4" fill="#5DCAA5" opacity="0.85"/>
+  <circle cx="395" cy="240" r="4" fill="#5DCAA5" opacity="0.85"/>
+  <circle cx="430" cy="270" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="460" cy="240" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="220" cy="320" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="260" cy="350" r="4" fill="#EF9F27" opacity="0.85"/>
+  <circle cx="290" cy="320" r="4" fill="#5DCAA5" opacity="0.85"/>
+  <circle cx="380" cy="340" r="4" fill="#5DCAA5" opacity="0.85"/>
+  <circle cx="430" cy="320" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="470" cy="350" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="160" cy="290" r="4" fill="#EF9F27" opacity="0.85"/>
+  <circle cx="180" cy="350" r="4" fill="#E24B4A" opacity="0.85"/>
+  <circle cx="200" cy="380" r="4" fill="#EF9F27" opacity="0.85"/>
+  <circle cx="80" cy="180" r="4" fill="#5DCAA5" opacity="0.85"/>
+  <circle cx="100" cy="220" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="120" cy="280" r="4" fill="#5DCAA5" opacity="0.85"/>
+  <circle cx="540" cy="270" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="560" cy="310" r="4" fill="#5DCAA5" opacity="0.85"/>
+  <circle cx="580" cy="350" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="600" cy="280" r="4" fill="#9FE1CB" opacity="0.85"/>
+  <circle cx="510" cy="380" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="100" cy="380" r="4" fill="#9FE1CB" opacity="0.85"/>
+  <circle cx="60" cy="310" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="320" cy="380" r="4" fill="#1D9E75" opacity="0.85"/>
+  <circle cx="350" cy="370" r="4" fill="#5DCAA5" opacity="0.85"/>
+
+  <!-- Hausumriss in der Mitte -->
+  <rect x="320" y="222" width="42" height="32" fill="none" stroke="#185FA5" stroke-width="2.5"/>
+  <line x1="320" y1="222" x2="362" y2="254" stroke="#185FA5" stroke-width="0.5"/>
+  <line x1="362" y1="222" x2="320" y2="254" stroke="#185FA5" stroke-width="0.5"/>
+
+  <!-- Beschriftung -->
+  <line x1="362" y1="232" x2="425" y2="220" stroke="#185FA5" stroke-width="0.5" stroke-dasharray="3 2"/>
+  <text x="430" y="225" font-size="14" font-weight="500" fill="#185FA5">Ihr Gebäude</text>
+
+  <!-- Legende -->
+  <g transform="translate(40, 415)">
+    <circle cx="8" cy="10" r="4" fill="#1D9E75"/>
+    <text x="20" y="14" font-size="12" fill="#5F5E5A">stabil</text>
+
+    <circle cx="78" cy="10" r="4" fill="#5DCAA5"/>
+    <text x="90" y="14" font-size="12" fill="#5F5E5A">leicht</text>
+
+    <circle cx="148" cy="10" r="4" fill="#9FE1CB"/>
+    <text x="160" y="14" font-size="12" fill="#5F5E5A">sehr leicht</text>
+
+    <circle cx="248" cy="10" r="4" fill="#EF9F27"/>
+    <text x="260" y="14" font-size="12" fill="#5F5E5A">moderat</text>
+
+    <circle cx="338" cy="10" r="4" fill="#E24B4A"/>
+    <text x="350" y="14" font-size="12" fill="#5F5E5A">auffällig</text>
+
+    <rect x="430" y="6" width="14" height="9" fill="none" stroke="#185FA5" stroke-width="2"/>
+    <text x="450" y="14" font-size="12" fill="#5F5E5A">Ihr Gebäude</text>
+  </g>
+
+  <text x="40" y="455" font-size="12" fill="#5F5E5A">Norden ↑ · Schemaansicht · echte Karte verwendet OpenStreetMap-Tiles</text>
+</svg>
