@@ -254,13 +254,21 @@ async def _generate_and_send_lead_report(
             mean_v, max_v, ampel, geo_score = 0.0, 0.0, "gruen", None
             elevated_count = 0
 
-        # 4. Query soil data (SoilGrids + LUCAS + CORINE)
+        # 4. Query soil data (SoilGrids + LUCAS + CORINE) — country-routed so
+        #    NL addresses do not get DE-LUCAS values interpolated from 200km away
+        #    and DE-thresholds (BBodSchV) do not appear on a Dutch report.
         try:
             soil_loader = SoilDataLoader.get()
-            soil_profile = soil_loader.query_full_profile(lat, lon)
+            soil_profile = soil_loader.query_full_profile(lat, lon, country_code=country_code)
         except Exception:
             logger.warning("Soil data query failed for (%s, %s), using empty profile", lat, lon)
             soil_profile = {}
+
+        # 4b. EU Soil Monitoring Directive (16 descriptors) — only for the full
+        #     report, never for the teaser. Runs synchronously here because we
+        #     need it before generate_full_report; query is < 50 ms (all local
+        #     raster reads + KD-tree LUCAS lookup).
+        soil_directive_data: dict | None = None
 
         # 5. Generate the PDF. Teaser variant uses the HTML template +
         #    Chrome-headless renderer (with a static OSM map on page 1);
@@ -349,6 +357,22 @@ async def _generate_and_send_lead_report(
                     )
                     kostra_data = {"available": False, "slots": {}}
 
+            # 4b (continued). EU Soil Directive descriptors. Defensive: any
+            # failure leaves soil_directive_data=None and the section degrades
+            # to "nicht verfügbar" instead of crashing the whole report.
+            try:
+                from app.soil_directive import query_soil_directive
+                soil_directive_data = await asyncio.to_thread(
+                    query_soil_directive,
+                    lat, lon, None, country_code,
+                )
+            except Exception:
+                logger.exception(
+                    "Soil-directive query failed for (%s, %s); section will be skipped",
+                    lat, lon,
+                )
+                soil_directive_data = None
+
             # FPDF is synchronous and CPU-bound — wrap in to_thread so a
             # multi-second render does not block the event loop and starve
             # other inbound /api/leads requests.
@@ -367,6 +391,8 @@ async def _generate_and_send_lead_report(
                 mining_data=mining_data,
                 kostra_data=kostra_data,
                 flood_data=flood_data,
+                soil_directive_data=soil_directive_data,
+                country_code=country_code,
             )
 
         # 6. Persist a Report row for this lead (C1). The row carries all

@@ -86,6 +86,10 @@ def generate_full_report(
     kostra_data: dict | None = None,
     # BfG Hochwasser-Szenarien HQ_haeufig / HQ100 / HQ_extrem
     flood_data: dict | None = None,
+    # EU Soil Monitoring Directive 2025/2360 — 16 descriptors with provenance
+    soil_directive_data: dict | None = None,
+    # ISO 3166-1 alpha-2 country code from geocoding ("de"/"nl"/"at"/"ch")
+    country_code: str = "de",
 ) -> bytes:
     """Generate a comprehensive Bodenbericht PDF."""
     answers = answers or {}
@@ -343,9 +347,19 @@ def generate_full_report(
         pdf.cell(0, 6, "Keine Naehrstoffdaten verfuegbar.", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(6)
 
+    # ── Section: EU-Bodenueberwachungsrichtlinie (16 Descriptoren) ──
+    if soil_directive_data and soil_directive_data.get("available"):
+        _render_soil_directive(pdf, fn, soil_directive_data)
+
+    # ── Section: Pestizid-Rueckstaende (LUCAS NUTS2) ────────────────
+    if soil_directive_data:
+        oc = soil_directive_data.get("part_b", {}).get("organic_contaminants") or {}
+        if oc.get("pesticides"):
+            _render_pesticides(pdf, fn, oc["pesticides"])
+
     # ── Section: Individuelle Einschaetzung ─────────────────────────
     if answers:
-        _section_header(pdf, fn, "8. Ihre individuelle Einschaetzung")
+        _section_header(pdf, fn, "10. Ihre individuelle Einschaetzung")
         pdf.set_font(fn, "", 9)
         pdf.set_text_color(50, 50, 50)
 
@@ -366,11 +380,36 @@ def generate_full_report(
     has_mining = bool(mining_data and not mining_data.get("error"))
     has_kostra = bool(kostra_data and kostra_data.get("available"))
     has_flood = bool(flood_data and not flood_data.get("error"))
+    has_directive = bool(soil_directive_data and soil_directive_data.get("available"))
+    has_pesticides = bool(
+        soil_directive_data
+        and (soil_directive_data.get("part_b", {})
+             .get("organic_contaminants", {})
+             .get("pesticides", {}).get("n_detected", 0)) > 0
+    )
+    has_corine = bool(
+        soil_directive_data
+        and soil_directive_data.get("part_d", {}).get("corine") is not None
+    )
+    has_imperv = bool(
+        soil_directive_data
+        and soil_directive_data.get("part_d", {}).get("imperviousness_pct") is not None
+    )
+    is_nl = country_code.lower() == "nl"
+    threshold_label = (
+        "NL Circulaire bodemsanering 2013, Bijlage 1" if is_nl
+        else "DE BBodSchV §8 Anhang 2 (Vorsorge/Massnahme)"
+    )
     sources = [
         (has_egms, "Copernicus EGMS L3 Ortho (Sentinel-1, 2019-2022)"),
         (True, "Nominatim / OpenStreetMap (Geocodierung)"),
-        (bool(metals), "LUCAS Topsoil Survey (Schwermetalle, Naehrstoffe)"),
-        (bool(soilgrids.get("phh2o")), "SoilGrids 250m (pH, SOC, Textur, Dichte)"),
+        (bool(metals), "LUCAS Topsoil Survey (Schwermetalle, Naehrstoffe, JRC ESDAC)"),
+        (bool(metals), f"Schwermetall-Schwellen: {threshold_label}"),
+        (bool(soilgrids.get("phh2o")), "SoilGrids 250m (pH, SOC, Textur, Dichte, ISRIC CC BY 4.0)"),
+        (has_directive, "EU-Bodenueberwachungsrichtlinie 2025/2360 (16 Descriptoren)"),
+        (has_pesticides, "LUCAS Topsoil 2018 Pestizid-Rueckstaende (NUTS2-aggregiert, JRC ESDAC)"),
+        (has_corine, "CORINE Land Cover 2018 v2020_20u1 (Copernicus EEA)"),
+        (has_imperv, "HRL Imperviousness 20m (Copernicus Land Monitoring Service)"),
         (has_mining, "Bergbauberechtigungen NRW (Bezirksregierung Arnsberg, dl-de/by-2.0)"),
         (has_flood, "BfG Hochwassergefahrenkarten HWRM-RL (DL-DE/Zero-2.0)"),
         (has_kostra, "DWD KOSTRA-DWD-2020 Starkregen (GeoNutzV)"),
@@ -684,6 +723,169 @@ def _section_kostra(pdf: FPDF, fn: str, kostra_data: dict | None) -> None:
         "und ersetzen keine standortspezifische hydrologische Begutachtung."
     ))
     pdf.ln(2)
+
+
+def _render_soil_directive(pdf: FPDF, fn: str, sd: dict) -> None:
+    """Render the EU Soil Monitoring Directive 16-descriptor section."""
+    _section_header(pdf, fn, "8. EU-Bodenueberwachungsrichtlinie 2025/2360")
+
+    determined = sd.get("descriptors_determined", 0)
+    total = sd.get("descriptors_total", 16)
+    not_remote = sd.get("descriptors_not_remote", 0)
+    overall = sd.get("overall_status", "keine_daten")
+    cc = (sd.get("country_code") or "de").upper()
+
+    pdf.set_font(fn, "", 9)
+    pdf.set_text_color(80, 80, 80)
+    pdf.multi_cell(0, 5, (
+        f"Profil-Coverage Land {cc}: {determined} von {total} Descriptoren remote bestimmt, "
+        f"{not_remote} erfordern In-situ-Beprobung (PFAS, PAK/PCB, Bodenbiodiversitaet, Mikrobiom). "
+        f"Gesamtstatus: {_overall_label(overall)}."
+    ))
+    pdf.ln(3)
+
+    pa = sd.get("part_a", {})
+    pb = sd.get("part_b", {})
+    pd_ = sd.get("part_d", {})
+
+    rows = []
+    er = pa.get("erosion_water") or {}
+    if er:
+        rows.append((
+            "Wassererosion (RUSLE)",
+            f"{er.get('value', '-')} t/ha/Jahr",
+            er.get("status", "na"),
+            f"R={er.get('r_factor', '-')} ({er.get('r_source', '-')})",
+        ))
+    ew = pa.get("erosion_wind") or {}
+    if ew:
+        rows.append(("Winderosion", ew.get("risk", "-"), ew.get("status", "na"), ew.get("note", "")))
+    if pa.get("soc_pct") is not None:
+        rows.append(("Org. Kohlenstoff (SOC)", f"{pa['soc_pct']} %",
+                     pa.get("soc_status", "na"), "SoilGrids 250m"))
+    if pa.get("ph") is not None:
+        rows.append(("pH-Wert", f"{pa['ph']}", pa.get("ph_status", "na"), "SoilGrids 250m"))
+    wr = pb.get("water_retention") or {}
+    if wr.get("awc_mm_m") is not None:
+        rows.append(("Wasserspeicherung (AWC)", f"{wr['awc_mm_m']} mm/m",
+                     wr.get("status", "na"), wr.get("source", "")))
+    sal = pb.get("salinisation") or {}
+    if sal.get("ec_ds_m") is not None:
+        rows.append(("Salinisierung", f"{sal['ec_ds_m']} dS/m",
+                     sal.get("status", "na"), sal.get("source", "Regional-Schaetzung")))
+    if pb.get("bulk_density_g_cm3") is not None:
+        rows.append(("Lagerungsdichte", f"{pb['bulk_density_g_cm3']} g/cm³",
+                     pb.get("bulk_density_status", "na"), "SoilGrids 250m"))
+    if pd_.get("imperviousness_pct") is not None:
+        rows.append(("Bodenversiegelung", f"{pd_['imperviousness_pct']} %",
+                     "warn" if pd_["imperviousness_pct"] > 60 else "ok",
+                     pd_.get("imperviousness_source", "HRL")))
+
+    pdf.set_font(fn, "B", 8)
+    pdf.set_fill_color(240, 240, 240)
+    pdf.set_text_color(50, 50, 50)
+    w = [60, 35, 30, 65]
+    pdf.cell(w[0], 6, "Descriptor", border=1, fill=True)
+    pdf.cell(w[1], 6, "Wert", border=1, fill=True)
+    pdf.cell(w[2], 6, "Status", border=1, fill=True)
+    pdf.cell(w[3], 6, "Quelle", border=1, fill=True)
+    pdf.ln()
+    pdf.set_font(fn, "", 8)
+    for label, value, status, source in rows:
+        sr, sg, sb = _status_color(status)
+        pdf.set_text_color(50, 50, 50)
+        pdf.cell(w[0], 5, label, border=1)
+        pdf.cell(w[1], 5, value, border=1, align="R")
+        pdf.set_text_color(sr, sg, sb)
+        pdf.cell(w[2], 5, status, border=1, align="C")
+        pdf.set_text_color(120, 120, 120)
+        pdf.cell(w[3], 5, source, border=1)
+        pdf.ln()
+    pdf.ln(2)
+
+    pdf.set_font(fn, "I", 7)
+    pdf.set_text_color(120, 120, 120)
+    pdf.multi_cell(0, 3.5, (
+        "Bewertet nach EU-Bodenueberwachungsrichtlinie (EU) 2025/2360. "
+        "Schwellen DE: BBodSchV §8; NL: Circulaire bodemsanering 2013, Bijlage 1. "
+        "Modellschaetzungen (RUSLE-Erosion, Salinisierung, AWC) sind in der "
+        "Quellen-Spalte als solche gekennzeichnet."
+    ))
+    pdf.ln(3)
+
+
+def _render_pesticides(pdf: FPDF, fn: str, p: dict) -> None:
+    """Render the LUCAS NUTS2 pesticide-residues section."""
+    _section_header(pdf, fn, "9. Pestizid-Rueckstaende (regional, NUTS2)")
+
+    nuts2 = p.get("nuts2_code")
+    n_det = p.get("n_detected", 0)
+    flagged = p.get("flagged_legacy_count", 0)
+
+    pdf.set_font(fn, "", 9)
+    pdf.set_text_color(80, 80, 80)
+    if nuts2 and n_det > 0:
+        intro = (
+            f"Im NUTS2-Gebiet {nuts2} ({p.get('nuts2_name', '')}) wurden in der "
+            f"LUCAS-Topsoil-Stichprobe 2018 insgesamt {n_det} Pestizid-Wirkstoffe "
+            f"oberhalb der Bestimmungsgrenze nachgewiesen"
+        )
+        if flagged > 0:
+            intro += f", davon {flagged} Substanzen aus der EU-Verbotsliste (Legacy)"
+        pdf.multi_cell(0, 5, intro + ".")
+    elif nuts2:
+        pdf.multi_cell(0, 5, (
+            f"Im NUTS2-Gebiet {nuts2} ({p.get('nuts2_name', '')}) wurden in der "
+            "LUCAS-Topsoil-Stichprobe 2018 keine Pestizid-Rueckstaende oberhalb der "
+            "Bestimmungsgrenze nachgewiesen."
+        ))
+    else:
+        pdf.multi_cell(0, 5, "Kein LUCAS-Pestizid-Datensatz fuer diese Region verfuegbar.")
+    pdf.ln(2)
+
+    top = p.get("top_substances") or []
+    if top:
+        pdf.set_font(fn, "B", 8)
+        pdf.set_fill_color(240, 240, 240)
+        pdf.set_text_color(50, 50, 50)
+        w = [80, 45, 65]
+        pdf.cell(w[0], 6, "Substanz", border=1, fill=True)
+        pdf.cell(w[1], 6, "Konzentration", border=1, fill=True, align="R")
+        pdf.cell(w[2], 6, "Hinweis", border=1, fill=True)
+        pdf.ln()
+        pdf.set_font(fn, "", 8)
+        for s in top:
+            pdf.set_text_color(50, 50, 50)
+            pdf.cell(w[0], 5, s.get("name", ""), border=1)
+            pdf.cell(w[1], 5, f"{s.get('concentration_mg_kg', 0)} mg/kg", border=1, align="R")
+            note = "EU-Verbotsliste" if s.get("flagged_legacy") else "Aktuell zugelassen"
+            if s.get("flagged_legacy"):
+                pdf.set_text_color(184, 84, 80)
+            else:
+                pdf.set_text_color(120, 120, 120)
+            pdf.cell(w[2], 5, note, border=1)
+            pdf.ln()
+        pdf.ln(2)
+
+    pdf.set_font(fn, "I", 7)
+    pdf.set_text_color(120, 120, 120)
+    pdf.multi_cell(0, 3.5, (
+        "Quelle: LUCAS Topsoil 2018 (JRC ESDAC), aggregiert auf NUTS2. "
+        "Konzentrationen sind regionale Mittelwerte und beziehen sich nicht "
+        "auf das einzelne Grundstueck. BBodSchV definiert keine direkten "
+        "Boden-Schwellenwerte fuer moderne Pflanzenschutzmittel; die "
+        "EU-Trinkwasser-Schwelle 0,1 µg/L dient hier nur als Groessenordnung."
+    ))
+    pdf.ln(3)
+
+
+def _overall_label(s: str) -> str:
+    return {
+        "gesund": "GESUND",
+        "bedingt": "BEDINGT",
+        "ungesund": "UNGESUND",
+        "keine_daten": "KEINE DATEN",
+    }.get(s, s.upper())
 
 
 def _section_header(pdf: FPDF, fn: str, title: str):
