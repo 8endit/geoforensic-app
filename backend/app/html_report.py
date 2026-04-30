@@ -742,6 +742,18 @@ def generate_html_report(
 </div>
 
 <div class="card locked">
+  <h2>Pestizid-Rückstände (regional)</h2>
+  <p class="teaser-note">Im Vollbericht: Auswertung der LUCAS-Topsoil-Stichprobe 2018 für Ihr NUTS2-Gebiet — 118 Wirkstoffe einschließlich der EU-Verbotsliste (DDT, Aldrin, Atrazin etc.). Konzentrationen sind regionale Mittelwerte, nicht grundstücksspezifisch — Quelle: JRC European Soil Data Centre.</p>
+  <div class="locked-content">
+    <div class="stat-grid-3" style="grid-template-columns:repeat(2,1fr);">
+      <div class="stat-cell"><div class="lbl">Wirkstoffe nachgewiesen</div><div class="val">▓▓▓</div><div class="sub">in der Region</div></div>
+      <div class="stat-cell"><div class="lbl">EU-Verbotsliste-Funde</div><div class="val">▓▓▓</div><div class="sub">Legacy-Substanzen</div></div>
+    </div>
+  </div>
+  {_LOCK_PILL_HTML}
+</div>
+
+<div class="card locked">
   <h2>InSAR-Detailwerte der Messpunkte</h2>
   <p class="teaser-note">Im Vollbericht: mittlere und maximale Geschwindigkeit in mm/a, komplette Zeitreihe pro Messpunkt seit 2017 und eine Trendklassifikation (beschleunigend / stabil / abklingend).</p>
   <div class="locked-content">
@@ -756,12 +768,25 @@ def generate_html_report(
 </div>
 
 <div class="card locked">
-  <h2>Altlasten-Verdachtsflächen</h2>
-  <p class="teaser-note">Im Vollbericht: Abgleich Ihrer Adresse mit dem Altlastenkataster des zuständigen Bundeslandes — alte Tankstellen, Gewerbe-Brachen, Deponien und sonstige Verdachtsflächen im Umkreis. Datenquelle: Landesumweltämter (in Vorbereitung).</p>
+  <h2>Altlasten &amp; Bodenkontamination</h2>
+  <p class="teaser-note">Im Vollbericht: Land-Use-Indikator auf 100&thinsp;m-Raster (CORINE 2018) für Industrie-, Bergbau-, Deponie- und Brachflächen im 100–150&thinsp;m-Umfeld. Hinweis: rechtsverbindliche Behörden-Auskünfte sind in DE nach INSPIRE Art 13(1)(f) personenbezogen geschützt — wir vermitteln auf Anfrage die Anfrage beim zuständigen Bauamt.</p>
   <div class="locked-content">
     <div class="stat-grid-3" style="grid-template-columns:repeat(2,1fr);">
-      <div class="stat-cell"><div class="lbl">Verdachtsflächen im Umkreis</div><div class="val">▓▓▓</div><div class="sub">Anzahl</div></div>
-      <div class="stat-cell"><div class="lbl">Nächste Eintragung</div><div class="val">▓▓▓ m</div><div class="sub">Distanz</div></div>
+      <div class="stat-cell"><div class="lbl">CORINE-Indikator-Treffer im 200&thinsp;m-Umfeld</div><div class="val">▓▓▓</div><div class="sub">Anzahl</div></div>
+      <div class="stat-cell"><div class="lbl">Klassifikation</div><div class="val">▓▓▓</div><div class="sub">Industrie / Bergbau / Deponie / …</div></div>
+    </div>
+  </div>
+  {_LOCK_PILL_HTML}
+</div>
+
+<div class="card locked">
+  <h2>Geländeprofil (Hangneigung &amp; Höhe)</h2>
+  <p class="teaser-note">Im Vollbericht: Höhe über NN, Hangneigung in Grad, Expositionsrichtung und Klassifikation (flach / leicht geneigt / Hanglage / Steilhang). Multi-Scale-Analyse über 50&thinsp;m, 150&thinsp;m und 500&thinsp;m, basierend auf SRTM-Höhendaten via OpenTopoData. Wichtig für Wasser-Erosion, Hangstabilität und Bauplanung.</p>
+  <div class="locked-content">
+    <div class="stat-grid-3">
+      <div class="stat-cell"><div class="lbl">Höhe NN</div><div class="val">▓▓▓ m</div></div>
+      <div class="stat-cell"><div class="lbl">Hangneigung</div><div class="val">▓▓▓°</div><div class="sub">Klassifikation</div></div>
+      <div class="stat-cell"><div class="lbl">Exposition</div><div class="val">▓▓▓</div><div class="sub">N / NE / E / …</div></div>
     </div>
   </div>
   {_LOCK_PILL_HTML}
@@ -829,10 +854,23 @@ def generate_html_report(
   {_LOCK_PILL_HTML}
 </div>
 
+<div class="card locked">
+  <h2>EU-Bodenüberwachungsrichtlinie 2025/2360 — alle 16 Descriptoren</h2>
+  <p class="teaser-note">Im Vollbericht: vollständige Auswertung gegen die 16 Descriptoren der EU-Bodenüberwachungsrichtlinie (2025/2360, Umsetzungsfrist Dezember 2028) — Wassererosion (RUSLE-Modell), Wind-Erosion, organischer Kohlenstoff, pH, Schwermetalle nach BBodSchV, Phosphor- und Stickstoff-Indikatoren, Lagerungsdichte, Bodenart, Wasserspeicherkapazität, Salinisierung, Versiegelungsgrad, Landnutzung. Ein Gesamtstatus „gesund / bedingt / ungesund" als Schnell-Übersicht. Die Tiefe, die niemand sonst pro Adresse liefert.</p>
+  <div class="locked-content">
+    <div class="stat-grid-3">
+      <div class="stat-cell"><div class="lbl">Descriptoren bestimmt</div><div class="val">▓▓ / 16</div></div>
+      <div class="stat-cell"><div class="lbl">Gesamtstatus</div><div class="val">▓▓▓</div><div class="sub">gesund / bedingt / ungesund</div></div>
+      <div class="stat-cell"><div class="lbl">Erosionsmodell</div><div class="val">▓▓▓ t/ha/J</div><div class="sub">RUSLE</div></div>
+    </div>
+  </div>
+  {_LOCK_PILL_HTML}
+</div>
+
 <div class="cta">
   <div class="kicker">Vollbericht</div>
   <h3>Alles sehen, was hier noch verdeckt ist</h3>
-  <p>Schwermetalle, Bodenqualität, Nährstoffe, InSAR-Detailwerte, Altlasten, Bergbau, Hochwasser, Starkregen, Radon und Erdbebenzonen erscheinen ungeschwärzt im Vollbericht — inklusive PDF-Download.</p>
+  <p>Schwermetalle, Bodenqualität, Nährstoffe, Pestizid-Rückstände, InSAR-Detailwerte, Geländeprofil, Bergbau, Altlasten-Indikator, Hochwasser, Starkregen, Radon, Erdbebenzonen plus die vollständige Auswertung der 16 Descriptoren der EU-Bodenüberwachungsrichtlinie 2025/2360 erscheinen ungeschwärzt im Vollbericht — inklusive PDF-Download.</p>
   <a href="https://bodenbericht.de/#premium">Auf die Warteliste</a>
   <div class="small">Noch nicht bestellbar. Early-Bird-Platz sichern, Start-Rabatt erhalten.</div>
 </div>
