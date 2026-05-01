@@ -1054,6 +1054,59 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </section>
 
     <!-- ============================================ -->
+    <!-- LIVE-CHECK (Browser-Preview, B.1)            -->
+    <!-- Hook auf POST /api/reports/preview — gibt    -->
+    <!-- ampel + point_count + address_resolved       -->
+    <!-- zurueck. Rate-Limit 100/h pro IP.            -->
+    <!-- ============================================ -->
+    <section id="live-check" class="py-16 md:py-20 bg-white border-b border-gray-100">
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10">
+          <div class="inline-flex items-center gap-2 bg-brand-50 text-brand-700 text-xs font-bold tracking-wide uppercase px-3 py-1.5 rounded-full mb-4 border border-brand-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></span>
+            Sofort-Check
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 leading-tight tracking-tight">
+            In 30 Sekunden &mdash; ohne E-Mail.
+          </h2>
+          <p class="mt-4 text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Adresse eingeben, sofort die Bodenbewegungs-Ampel sehen.
+            Funktioniert f&uuml;r DE, NL, AT, CH.
+          </p>
+        </div>
+
+        <form id="live-check-form" class="bg-white border-2 border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm" onsubmit="handleLiveCheck(event)">
+          <label for="live-check-address" class="block text-sm font-semibold text-navy-800 mb-2">Adresse</label>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input type="text" id="live-check-address" required minlength="5" maxlength="500"
+                   placeholder="z.B. Bismarckstraße 10, 10625 Berlin"
+                   class="flex-1 px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-brand-400 transition text-base">
+            <button type="submit" id="live-check-btn"
+                    class="inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-900 text-white font-bold text-base px-6 py-3 rounded-lg transition-all shadow-md active:scale-[0.98]">
+              <span id="live-check-btn-label">Ampel anzeigen</span>
+              <svg id="live-check-btn-spinner" class="hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </button>
+          </div>
+          <p class="text-xs text-gray-500 mt-3">
+            Quelle: Copernicus EGMS (EU-Satellitendaten), 500m-Radius. Keine E-Mail notwendig.
+          </p>
+        </form>
+
+        <!-- Result card (gefuellt per JS) -->
+        <div id="live-check-result" class="hidden mt-6"></div>
+
+        <!-- Error box -->
+        <div id="live-check-error" class="hidden mt-6 bg-red-50 border-2 border-red-200 rounded-2xl p-5 text-center">
+          <p class="text-red-800 text-sm font-medium">Fehler beim Laden.</p>
+          <p class="text-red-700 text-xs mt-1" id="live-check-error-msg"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
     <!-- FINAL CTA + FAQ                              -->
     <!-- ============================================ -->
     <section id="cta" class="py-16 md:py-24 bg-white">
@@ -1504,6 +1557,182 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 btn.textContent = 'Kostenlosen Bericht anfordern';
                 alert('Fehler: ' + err.message + '\nBitte prüfen Sie die Adresse und versuchen Sie es erneut.');
             }
+        }
+
+        // Live-Check (Browser-Preview, B.1) — POST /api/reports/preview
+        // Rate-Limit 100/h pro IP. 429 → freundlicher Hinweis, kein Crash.
+        const AMPEL_META = {
+          gruen: {
+            border: 'border-brand-300',
+            bg: 'bg-brand-50',
+            dot: 'bg-brand-500',
+            text: 'text-brand-700',
+            label: 'Unauffällig',
+            range: 'unter 2 mm/Jahr',
+            meaning: 'Mittlere Bodenbewegung im 500m-Radius unterhalb der Schwelle, ab der wir auffällige Veränderungen erwarten. In den Daten findet sich kein Hinweis, der eine Setzung oder Hebung an Ihrer Adresse signalisiert.',
+          },
+          gelb: {
+            border: 'border-amber-300',
+            bg: 'bg-amber-50',
+            dot: 'bg-amber-500',
+            text: 'text-amber-800',
+            label: 'Auffällig',
+            range: '2 bis 5 mm/Jahr',
+            meaning: 'Mittlere Bodenbewegung im auffälligen Bereich. Beobachten ist sinnvoll. Ob die Bewegung Ihr konkretes Gebäude betrifft, lässt sich nur durch Vor-Ort-Begutachtung klären.',
+          },
+          rot: {
+            border: 'border-red-300',
+            bg: 'bg-red-50',
+            dot: 'bg-red-500',
+            text: 'text-red-700',
+            label: 'Signifikant',
+            range: 'über 5 mm/Jahr',
+            meaning: 'Mittlere Bodenbewegung im signifikanten Bereich. Vor einem Hauskauf ist eine Vor-Ort-Begutachtung durch einen zugelassenen Sachverständigen angezeigt.',
+          },
+        };
+
+        function escapeHtml(s) {
+          return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        function renderLiveCheckResult(data) {
+          const meta = AMPEL_META[data.ampel] || AMPEL_META.gruen;
+          const result = document.getElementById('live-check-result');
+          result.innerHTML = `
+            <div class="border-2 ${meta.border} ${meta.bg} rounded-2xl p-6 md:p-8">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0">
+                  <div class="w-12 h-12 rounded-full ${meta.dot} shadow-md flex items-center justify-center">
+                    <span class="w-3 h-3 rounded-full bg-white"></span>
+                  </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs uppercase tracking-wide font-bold ${meta.text}">Ampel</p>
+                  <h3 class="text-2xl md:text-3xl font-extrabold text-navy-800 mt-1">${meta.label}</h3>
+                  <p class="text-sm text-gray-500 mt-1">Mittlere Bodenbewegung ${meta.range} im 500m-Radius.</p>
+                </div>
+              </div>
+
+              <div class="grid sm:grid-cols-2 gap-3 mt-6">
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                  <p class="text-[11px] uppercase tracking-wide font-semibold text-gray-500">Adresse</p>
+                  <p class="text-sm font-medium text-navy-800 mt-1 break-words">${escapeHtml(data.address_resolved)}</p>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                  <p class="text-[11px] uppercase tracking-wide font-semibold text-gray-500">EGMS-Messpunkte</p>
+                  <p class="text-sm font-medium text-navy-800 mt-1">${data.point_count} Punkte im 500m-Radius</p>
+                </div>
+              </div>
+
+              <p class="text-sm text-gray-700 leading-relaxed mt-5">${meta.meaning}</p>
+
+              <!-- Ein-Klick-Konversion: Email-only, Adresse ist schon bekannt -->
+              <form id="live-check-convert-form" class="mt-6 pt-6 border-t border-gray-200" onsubmit="handleLiveCheckConvert(event)" data-address="${escapeHtml(data.address_resolved)}">
+                <label for="live-check-email" class="block text-sm font-semibold text-navy-800 mb-2">Vollständigen Bericht für diese Adresse per E-Mail</label>
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <input type="email" id="live-check-email" required placeholder="Ihre E-Mail-Adresse"
+                         class="flex-1 px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-brand-400 transition text-base">
+                  <button type="submit" id="live-check-convert-btn"
+                          onclick="(window.dataLayer||[]).push({event:'cta_live_check_convert'})"
+                          class="inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold text-base px-6 py-3 rounded-lg transition-all shadow-md active:scale-[0.98]">
+                    <span id="live-check-convert-label">Bericht anfordern</span>
+                  </button>
+                </div>
+                <p class="text-xs text-gray-500 mt-3">
+                  Mit Klick stimmen Sie der Verarbeitung Ihrer Daten gemäß
+                  <a href="/datenschutz.html" class="underline hover:text-gray-700">Datenschutzerklärung</a> zu.
+                </p>
+              </form>
+
+              <div id="live-check-convert-success" class="hidden mt-6 pt-6 border-t border-gray-200 text-center">
+                <div class="w-12 h-12 rounded-full bg-brand-500 flex items-center justify-center mx-auto mb-3">
+                  <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <p class="text-navy-800 font-semibold">Bericht wird erstellt!</p>
+                <p class="text-gray-600 text-sm mt-1">Prüfen Sie Ihre E-Mail in wenigen Minuten.</p>
+              </div>
+            </div>
+          `;
+          result.classList.remove('hidden');
+          // Smooth scroll, damit das Resultat sichtbar wird auch wenn Form oben war
+          result.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        }
+
+        async function handleLiveCheck(e) {
+          e.preventDefault();
+          const addr = document.getElementById('live-check-address').value.trim();
+          const btn = document.getElementById('live-check-btn');
+          const lbl = document.getElementById('live-check-btn-label');
+          const spinner = document.getElementById('live-check-btn-spinner');
+          const result = document.getElementById('live-check-result');
+          const errBox = document.getElementById('live-check-error');
+          const errMsg = document.getElementById('live-check-error-msg');
+
+          btn.disabled = true;
+          spinner.classList.remove('hidden');
+          lbl.textContent = 'Wird geprüft...';
+          result.classList.add('hidden');
+          errBox.classList.add('hidden');
+
+          try {
+            const res = await fetch('/api/reports/preview', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({address: addr})
+            });
+            if (res.status === 429) {
+              throw new Error('Zu viele Anfragen — bitte in ein paar Minuten erneut versuchen.');
+            }
+            if (!res.ok) {
+              const data = await res.json().catch(() => ({}));
+              throw new Error(data.detail || 'Adresse konnte nicht ausgewertet werden.');
+            }
+            const data = await res.json();
+            renderLiveCheckResult(data);
+            (window.dataLayer||[]).push({event: 'live_check_complete', ampel: data.ampel, point_count: data.point_count});
+          } catch (err) {
+            errMsg.textContent = err.message;
+            errBox.classList.remove('hidden');
+          } finally {
+            btn.disabled = false;
+            spinner.classList.add('hidden');
+            lbl.textContent = 'Ampel anzeigen';
+          }
+        }
+
+        async function handleLiveCheckConvert(e) {
+          e.preventDefault();
+          const form = document.getElementById('live-check-convert-form');
+          const address = form.dataset.address;
+          const email = document.getElementById('live-check-email').value.trim();
+          const btn = document.getElementById('live-check-convert-btn');
+          const lbl = document.getElementById('live-check-convert-label');
+
+          btn.disabled = true;
+          lbl.textContent = 'Wird gesendet...';
+
+          try {
+            const res = await fetch('/api/leads', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                email,
+                address,
+                answers: {nutzung: 'live-check', source_page: 'landing_live_check'},
+                source: 'live-check'
+              })
+            });
+            if (!res.ok) {
+              const data = await res.json().catch(() => ({}));
+              throw new Error(data.detail || 'Senden fehlgeschlagen');
+            }
+            form.classList.add('hidden');
+            document.getElementById('live-check-convert-success').classList.remove('hidden');
+          } catch (err) {
+            btn.disabled = false;
+            lbl.textContent = 'Bericht anfordern';
+            alert('Fehler: ' + err.message);
+          }
         }
 
         // Pilot-Vollbericht-Anfrage — emittiert source="pilot-vollbericht",

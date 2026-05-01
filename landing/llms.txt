@@ -1,0 +1,48 @@
+# Bodenbericht
+
+> Automatisiertes Bodenrisiko-Screening für Immobilienkäufer in DE/NL/AT/CH.
+> Ampel-Klassifikation für Bodenbewegungen (Setzung/Hebung), Altlasten-Hinweise,
+> Schwermetalle, Bodenqualität und 16 Descriptoren der EU-Bodenrichtlinie
+> 2025/2360 — auf Basis offizieller EU-Satellitendaten (Copernicus EGMS) und
+> nationaler Bundesdatensätze.
+
+Bodenbericht ist ein Service der Tepnosholding GmbH, betrieben über die
+Geoforensic GmbH. Aktuell kostenloser Pilot-Bericht (Teaser-PDF). Der
+ausführliche Vollbericht (12 Sektionen, 6 Visualisierungen) ist Teil der
+Pilot-Phase auf Anfrage verfügbar; ein bezahlter Premium-Bericht ist für
+Q3/2026 geplant.
+
+Datenquellen sind ausschließlich öffentlich, mit dokumentierten Lizenzen.
+Kein Sachverständigengutachten — der Bericht liefert eine fundierte
+Ersteinschätzung auf Basis von Fern­erkundungs- und Bodendaten und ersetzt
+keine Vor-Ort-Begutachtung.
+
+## Hauptseiten
+
+- [Startseite](https://bodenbericht.de/): Hero, How-it-works, Live-Check ohne E-Mail, FAQ, Pilot-Vollbericht-Anfrage
+- [Quiz / 60-Sekunden-Risikocheck](https://bodenbericht.de/quiz.html): mehrstufiger Funnel zur Adressabfrage
+- [Muster-Bericht](https://bodenbericht.de/muster-bericht.html): Beispiel-Bericht für Berlin-Charlottenburg (Bismarckstr. 10)
+- [Datenquellen](https://bodenbericht.de/datenquellen.html): Vollständige Liste der ~13 Datenquellen mit Lizenzen, Aktualität, Auflösung und Abdeckung
+
+## Datenquellen (Auswahl)
+
+- [Copernicus EGMS](https://egms.land.copernicus.eu/): EU Ground Motion Service, InSAR-basierte Bodenbewegungs-Messpunkte 2019–2023, Lizenz CC BY 4.0
+- [SoilGrids 250m](https://soilgrids.org/): ISRIC globaler Bodendatensatz, 6 Bodenvariablen, Lizenz CC BY 4.0
+- [LUCAS Topsoil](https://esdac.jrc.ec.europa.eu/projects/lucas): JRC ESDAC, Bodenproben mit Schwermetallen + 118 Pestiziden, EU Open Data
+- [BfG HWRM-RL](https://www.bafg.de/): Hochwasser-Gefahrenkarten DE, drei Szenarien, dl-de/zero-2.0
+- [DWD KOSTRA-2020](https://www.dwd.de/kostra): Starkregen-Statistik DE, GeoNutzV
+- [BGR GÜK250](https://www.bgr.bund.de/): Geologische Übersichtskarte 1:250.000, dl-de/by-2.0
+- EU-Bodenrichtlinie 2025/2360 (Soil Monitoring Law): regulatorische Grundlage für 16 Bodenzustands-Descriptoren
+
+## Was Bodenbericht NICHT ist
+
+- Kein Sachverständigengutachten — keine Bohrungen, keine Vor-Ort-Begehung, keine Probenahmen
+- Kein Ersatz für die Standortauskunft der unteren Bodenschutzbehörde
+- Keine Rechts- oder Investitionsberatung
+- Keine adress-genauen Altlasten in DE — diese sind nach INSPIRE Art 13(1)(f) personenbezogen geschützt; wir liefern Land-Use-Indikator + Pointer auf zuständige Behörde
+
+## Kontakt
+
+- E-Mail: team@geoforensic.de
+- Impressum: https://bodenbericht.de/impressum.html
+- Datenschutz: https://bodenbericht.de/datenschutz.html

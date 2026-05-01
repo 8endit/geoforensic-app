@@ -4,3 +4,6 @@ Disallow: /admin.html
 Disallow: /api/
 
 Sitemap: https://bodenbericht.de/sitemap.xml
+
+# Curated index for LLM/AI crawlers — https://llmstxt.org/
+# https://bodenbericht.de/llms.txt
