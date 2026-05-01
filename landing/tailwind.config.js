@@ -5,6 +5,7 @@ module.exports = {
     './muster-bericht.html',
     './datenquellen.html',
     './admin.html',
+    './fuer-immobilienkaeufer.html',
   ],
   theme: {
     extend: {
