@@ -13,6 +13,10 @@ httpx
 geoalchemy2
 weasyprint
 fpdf2
+# V.4-Refactor (2026-04-27): full_report.py rendert HTML via jinja2,
+# danach Chrome-headless → PDF (pdf_renderer.py). Ohne jinja2 crasht der
+# Backend-Container beim Import.
+jinja2
 aiosmtplib
 google-auth
 PyJWT[crypto]
