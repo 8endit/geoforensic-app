@@ -23,7 +23,22 @@ npx -y -p lighthouse@latest lighthouse http://localhost:8001/ \
 
 ## Baseline 2026-05-01 — Ende Phase A
 
-Gemessen gegen den lokalen Preview (kein VPS-Round-trip).
+### Live (`https://bodenbericht.de/`, post-deploy)
+
+Maßgebliche Baseline gegen Phase B vergleichen.
+
+| Kategorie | Desktop | Mobile |
+|---|---|---|
+| Performance | 99 | 97 |
+| Accessibility | 92 | 87 |
+| Best Practices | 100 | 100 |
+| SEO | **100** | **100** |
+
+Mobile-LCP 2,4 s liegt bereits im Web-Vitals-„Good"-Bereich (<2,5 s).
+
+### Lokal (Preview, zum Vergleich)
+
+Lokaler Lauf war pessimistischer (kein Brotli, kein HTTP/2, dev-mode-Overhead):
 
 | Kategorie | Desktop | Mobile |
 |---|---|---|
@@ -32,15 +47,14 @@ Gemessen gegen den lokalen Preview (kein VPS-Round-trip).
 | Best Practices | 100 | 100 |
 | SEO | **100** | **100** |
 
-### Core Web Vitals (Mobile, Throttle 4G/Slow CPU)
+### Core Web Vitals — Live Mobile (Throttle 4G/Slow CPU)
 
 | Metrik | Wert | Bewertung |
 |---|---|---|
-| LCP (Largest Contentful Paint) | 4,5 s | needs improvement (>2,5 s) |
-| FCP (First Contentful Paint) | 2,3 s | needs improvement |
+| LCP (Largest Contentful Paint) | 2,4 s | gut (<2,5 s) |
+| FCP (First Contentful Paint) | 1,7 s | gut |
 | CLS (Cumulative Layout Shift) | 0,005 | gut (<0,1) |
 | TBT (Total Blocking Time) | 0 ms | gut |
-| Speed Index | 2,3 s | gut |
 
 ### Bekannte A11y-Lücken (Mobile)
 
