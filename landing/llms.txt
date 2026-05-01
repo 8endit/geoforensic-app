@@ -24,6 +24,25 @@ keine Vor-Ort-Begutachtung.
 - [Muster-Bericht](https://bodenbericht.de/muster-bericht.html): Beispiel-Bericht für Berlin-Charlottenburg (Bismarckstr. 10)
 - [Datenquellen](https://bodenbericht.de/datenquellen.html): Vollständige Liste der ~13 Datenquellen mit Lizenzen, Aktualität, Auflösung und Abdeckung
 
+## Audience-Sub-Landings
+
+- [Für Immobilienkäufer](https://bodenbericht.de/fuer-immobilienkaeufer.html): Bodenrisiko-Check vor dem Notartermin, Ablauf, Vergleich mit Standortauskunft und Baugrundgutachten
+- [Für Gartenbesitzer](https://bodenbericht.de/fuer-gartenbesitzer.html): Schwermetalle und Pestizide im Hausgarten, Kinderspielflächen, sicherer Gemüseanbau
+- [Für Bauträger](https://bodenbericht.de/fuer-bautraeger.html): Vorprüfung von Grundstücken, Aushub-Klassifikation nach LAGA-Z-Werten, Baurisiken
+- [Für Landwirte](https://bodenbericht.de/fuer-landwirte.html): GAP-Konditionalität, GLÖZ-5-Erosionsschutz, Cross-Compliance, Pestizid-Rückstandsdaten
+
+## Wissen / Glossar
+
+- [Wissen-Übersicht](https://bodenbericht.de/wissen/): Glossar mit den acht zentralen Begriffen rund um Bodenrisiken, -recht und -daten
+- [Altlast](https://bodenbericht.de/wissen/altlast.html): BBodSchG §2 Definition, Verdachtsfläche vs. echte Altlast, Käuferhaftung, Sanierungs-Spannen
+- [Setzung und Hebung](https://bodenbericht.de/wissen/setzung-vs-hebung.html): Vertikale Bodenbewegung, EGMS-Geschwindigkeitsklassen, Risikogebiete in Deutschland
+- [EU-Bodenrichtlinie 2025/2360](https://bodenbericht.de/wissen/eu-bodenrichtlinie.html): Erste verbindliche EU-Bodenmonitoring-Verordnung, 16 Descriptoren, Umsetzungsfrist Dezember 2028
+- [Schwermetalle im Boden](https://bodenbericht.de/wissen/schwermetalle-im-boden.html): Cadmium, Blei, Arsen, Quecksilber, Kupfer, Nickel, Zink — Quellen, BBodSchV-Schwellen, Sanierung
+- [InSAR und EGMS](https://bodenbericht.de/wissen/insar-egms.html): Radarinterferometrie mit Sentinel-1, Datendichte, Grenzen der Mess-Methode
+- [Hochwasser-Risikoklassen](https://bodenbericht.de/wissen/hochwasser-risikoklasse.html): HQ_häufig, HQ_100, HQ_extrem nach EU-HWRM-Richtlinie, ZÜRS-Geo, Pflichtversicherungs-Lage
+- [BBodSchV](https://bodenbericht.de/wissen/bbodschv.html): Bundes-Bodenschutz- und Altlastenverordnung, drei Wirkungspfade, Schwellen-Tabellen
+- [RUSLE-Erosionsmodell](https://bodenbericht.de/wissen/erosion-rusle.html): Die fünf Faktoren R · K · LS · C · P, GAP-Konditionalität GLÖZ 5
+
 ## Datenquellen (Auswahl)
 
 - [Copernicus EGMS](https://egms.land.copernicus.eu/): EU Ground Motion Service, InSAR-basierte Bodenbewegungs-Messpunkte 2019–2023, Lizenz CC BY 4.0

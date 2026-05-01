@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+
+<script defer src="/klaro/klaro-config.js"></script>
+<script defer src="/klaro/klaro.js"></script>
+
+<script type="text/plain" data-type="application/javascript" data-name="google-tag-manager">
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-KFG5W96X');
+</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RUSLE-Erosionsmodell — R · K · LS · C · P erklärt | Bodenbericht</title>
+    <meta name="description" content="RUSLE ist das Standardmodell für Boden-Erosion durch Wasser. Fünf Faktoren — R, K, LS, C, P — beschreiben Niederschlag, Erodibilität, Hang, Bedeckung, Schutz.">
+    <link rel="canonical" href="https://bodenbericht.de/wissen/erosion-rusle.html">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/favicon.svg">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Bodenbericht">
+    <meta property="og:url" content="https://bodenbericht.de/wissen/erosion-rusle.html">
+    <meta property="og:title" content="RUSLE-Erosionsmodell — R · K · LS · C · P | Bodenbericht">
+    <meta property="og:description" content="Fünf Faktoren der Wasser-Erosion erklärt: Niederschlag, Erodibilität, Hang, Bedeckung, Schutz.">
+    <meta property="og:image" content="https://bodenbericht.de/og-image.png">
+    <meta property="og:locale" content="de_DE">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="RUSLE-Erosionsmodell | Bodenbericht">
+    <meta name="twitter:description" content="R · K · LS · C · P — die fünf Faktoren der Wasser-Erosion.">
+    <meta name="twitter:image" content="https://bodenbericht.de/og-image.png">
+    <link rel="stylesheet" href="/tailwind.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Bodenbericht", "item": "https://bodenbericht.de/"},
+            {"@type": "ListItem", "position": 2, "name": "Wissen", "item": "https://bodenbericht.de/wissen/"},
+            {"@type": "ListItem", "position": 3, "name": "RUSLE-Erosionsmodell", "item": "https://bodenbericht.de/wissen/erosion-rusle.html"}
+          ]
+        },
+        {
+          "@type": "DefinedTerm",
+          "@id": "https://bodenbericht.de/wissen/erosion-rusle.html#term",
+          "name": "RUSLE — Revised Universal Soil Loss Equation",
+          "description": "Die Revised Universal Soil Loss Equation (RUSLE) ist seit 1997 das international anerkannte empirische Modell zur Schätzung des langfristigen Bodenabtrags durch Wasser-Erosion. Sie multipliziert fünf Faktoren — R, K, LS, C, P — und liefert das Ergebnis in Tonnen pro Hektar pro Jahr.",
+          "inDefinedTermSet": "https://bodenbericht.de/wissen/",
+          "url": "https://bodenbericht.de/wissen/erosion-rusle.html"
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://bodenbericht.de/wissen/erosion-rusle.html#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Ab welcher t/ha/a wird Erosion problematisch?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Die natürliche Bodenneubildung in Mitteleuropa liegt bei etwa 1 bis 2 Tonnen pro Hektar und Jahr. Wer mehr abtragen lässt, baut Boden ab. Die EU-Soil-Strategy nennt 2 t/ha/a als Toleranzgrenze für nachhaltige Landnutzung. Werte zwischen 5 und 10 t/ha/a gelten als deutlich erhöht, über 10 t/ha/a als kritisch — typisch für Hanglagen mit Sommermonokulturen ohne Bedeckung. Die GLÖZ-5-Konditionalität der GAP setzt seit 2023 darauf, dass Mitgliedstaaten diese kritischen Lagen identifizieren und Schutzmaßnahmen einfordern."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Wie wirkt Bodenbedeckung quantitativ?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Der C-Faktor in RUSLE liegt zwischen 0 (vollständig bedeckter Boden, etwa Daueregrünland) und 1 (komplett kahl, schwarzbrache Fläche). Eine Untersaat oder Zwischenfrucht im Winter senkt den C-Faktor auf typisch 0,2 bis 0,4 — also eine Erosionsminderung um 60 bis 80 Prozent gegenüber dem brachen Acker. Mulchsaat reduziert den Wert weiter auf 0,1 bis 0,2. Wer auf erosionsgefährdetem Hang ohne Bedeckung anbaut, akzeptiert den maximalen C-Eintrag in die RUSLE-Formel."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Reicht RUSLE für die GLÖZ-5-Argumentation?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ja. RUSLE ist von der EU als Standardmodell für GLÖZ 5 (Mindestbodenbedeckung in erosionsgefährdeten Zeiten) und für die EU-Soil-Strategy anerkannt. ESDAC liefert die R-, K- und LS-Faktoren als europaweite Raster, auf denen die nationalen Behörden ihre Erosionskulissen aufbauen. In Deutschland verwendet das Statistische Bundesamt RUSLE-basierte Daten für seine Erosionsindikatoren. Wer eine adress-genaue RUSLE-Abschätzung für seinen Schlag hat, kann sie in Cross-Compliance-Diskussionen oder bei einer landwirtschaftlichen Fachberatung vorlegen."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <style>
+        html { scroll-behavior: smooth; }
+        .hero-gradient { background: linear-gradient(135deg, #0c1d3a 0%, #122b52 40%, #1a3a6b 100%); }
+    </style>
+</head>
+<body class="font-sans text-gray-800 antialiased">
+
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 md:h-18">
+                <a href="/index.html" class="flex items-center gap-2" aria-label="Bodenbericht Startseite">
+                    <img src="/images/logo-horizontal.png" alt="Bodenbericht – digitale Bodenbewertung und Analyse" class="h-10 md:h-12 w-auto" width="640" height="214" loading="eager" decoding="async">
+                </a>
+                <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+                    <a href="/index.html#so-funktionierts" class="hover:text-navy-700 transition">So funktioniert's</a>
+                    <a href="/index.html#leistungen" class="hover:text-navy-700 transition">Leistungen</a>
+                    <a href="/datenquellen.html" class="hover:text-navy-700 transition">Datenquellen</a>
+                    <a href="/index.html#faq" class="hover:text-navy-700 transition">FAQ</a>
+                </nav>
+                <a href="/index.html#cta" class="hidden sm:inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition shadow-md shadow-brand-600/20">
+                    Bericht anfordern
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero-gradient pt-28 pb-16 md:pt-32 md:pb-20 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-5">
+            <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)"/></svg>
+        </div>
+        <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="text-xs text-white/60 mb-6" aria-label="Breadcrumb">
+                <a href="/" class="hover:text-white transition">Bodenbericht</a>
+                <span class="mx-2">›</span>
+                <a href="/wissen/" class="hover:text-white transition">Wissen</a>
+                <span class="mx-2">›</span>
+                <span class="text-white/80">RUSLE-Erosionsmodell</span>
+            </nav>
+            <p class="text-brand-300 font-semibold text-xs tracking-wide uppercase mb-3">Glossar / Wissen</p>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tight">
+                RUSLE — die Erosionsformel
+            </h1>
+            <p class="mt-6 text-lg md:text-xl text-gray-300 leading-relaxed">
+                Die Revised Universal Soil Loss Equation (RUSLE) ist seit 1997 das international anerkannte empirische Modell zur Schätzung des langfristigen Bodenabtrags durch Wasser-Erosion. Sie multipliziert fünf dimensionslose oder physikalische Faktoren — R für Niederschlagserosivität, K für Bodenerodibilität, LS für Hangneigung × Hanglänge, C für Bodenbedeckung, P für Erosions-Schutzmaßnahmen — und liefert das Ergebnis in Tonnen pro Hektar pro Jahr.
+            </p>
+        </div>
+    </section>
+
+    <section class="py-12 md:py-16 bg-white">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight mt-2">1. Die fünf Faktoren im Detail</h2>
+            <p class="text-gray-700 leading-relaxed mt-4">
+                RUSLE verbindet fünf Faktoren multiplikativ: <strong>A = R · K · LS · C · P</strong>. Jeder Faktor beschreibt einen unabhängigen Aspekt der Erosions-Anfälligkeit und kann zwischen 0 und einem maximalen Wert variieren. Eine Verzehnfachung eines einzelnen Faktors verzehnfacht den Gesamtwert — die Formel ist gegenüber Extremwerten sensitiv.
+            </p>
+            <ul class="text-gray-700 leading-relaxed mt-4 space-y-2 list-disc pl-6">
+                <li><strong>R (MJ·mm/ha·h·a)</strong> — Niederschlagserosivität: misst, wie viel Energie der jährliche Niederschlag auf den Boden überträgt. In Mitteleuropa typisch 50 bis 150, in Mittelmeerregionen 200 bis 600.</li>
+                <li><strong>K (t·h/MJ·mm)</strong> — Bodenerodibilität: wie leicht sich der Boden vom Wasser abtragen lässt. Sande und Tone sind robust (K ≈ 0,02–0,15), Schluffböden besonders erosionsanfällig (K ≈ 0,3–0,5).</li>
+                <li><strong>LS (dimensionslos)</strong> — Hangneigung × Hanglänge: ein steiler langer Hang erzeugt schnellere und konzentriertere Abflüsse. LS = 0,1 für ebenes Land, LS &gt; 5 für Steilhänge.</li>
+                <li><strong>C (dimensionslos, 0–1)</strong> — Bodenbedeckung: 0 für dauerhaft begrünt, 1 für komplett kahler Boden. Wald 0,001, Daueregrünland 0,01, Mulchsaat 0,1, Hackfrucht ohne Bedeckung 0,7.</li>
+                <li><strong>P (dimensionslos, 0–1)</strong> — Schutzmaßnahmen: 0,1 für Konturpflug auf Terrassen, 1 für Hangabwärts-Pflug. Häufig wird P = 1 angenommen, wenn keine spezielle Maßnahme nachweisbar ist.</li>
+            </ul>
+
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight mt-10">2. R-Faktor in Deutschland</h2>
+            <p class="text-gray-700 leading-relaxed mt-4">
+                Der präziseste verfügbare R-Faktor-Datensatz für Europa ist <strong>ESDAC Panagos 2015</strong> — ein 1-km-Raster, das aus über 1.500 Niederschlags-Stationen interpoliert wurde. Er ist beim Joint Research Centre der EU-Kommission auf Antrag erhältlich. Für Adressen, an denen das Raster (noch) nicht hinterlegt ist, verwenden wir eine vereinfachte <strong>lat-lineare Approximation</strong> pro Land — in Deutschland beispielsweise R = 80 + (51 - lat) · 5, also höhere Werte im südlichen Voralpenland, niedrigere in Norddeutschland. Die Approximation hat einen typischen Fehler von 20–30 Prozent und ist als „erste Einordnung" gekennzeichnet.
+            </p>
+
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight mt-10">3. Wie LUCAS und SoilGrids in K einfließen</h2>
+            <p class="text-gray-700 leading-relaxed mt-4">
+                Der K-Faktor lässt sich aus drei Bodeneigenschaften berechnen: Korngrößenverteilung (Sand/Schluff/Ton-Anteil), organischer Kohlenstoffgehalt (SOC) und Bodenstruktur. Wir lesen die ersten beiden Größen aus <strong>SoilGrids 250m</strong> für die Adress-Koordinate aus, ergänzen für deutsche Adressen mit <strong>LUCAS-Topsoil-Werten</strong>, wenn ein Messpunkt im 50-km-Umkreis liegt, und setzen die Bodenstruktur-Klasse als Default 2 (gut aggregiert). Aus diesen Inputs ergibt sich der K-Faktor nach der Wischmeier-Formel — die K-Werte für deutsche Adressen liegen typisch zwischen 0,15 und 0,40.
+            </p>
+
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight mt-10">4. GLÖZ-5-Bezug</h2>
+            <p class="text-gray-700 leading-relaxed mt-4">
+                Seit der GAP-Reform 2023 ist <strong>GLÖZ 5 (Guter Landwirtschaftlicher und Ökologischer Zustand)</strong> verbindlich für alle EU-Direktzahlungs-Empfänger. Der Standard verlangt eine Mindestbodenbedeckung in erosionsgefährdeten Zeiten (Spätsommer bis Frühjahr) — die Anwendung erfolgt zonenweise nach den Erosionskulissen, die die Länder festgelegt haben. Diese Kulissen basieren auf RUSLE-Berechnungen mit kritischen Schwellen meist um 5–10 t/ha/a. Wer auf erosionsgefährdeter Fläche bewirtschaftet, muss Untersaat, Zwischenfrucht oder Mulchsaat nachweisen — sonst drohen Kürzungen der Direktzahlungen.
+            </p>
+
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight mt-10">5. Was wir liefern</h2>
+            <p class="text-gray-700 leading-relaxed mt-4">
+                Im Bodenbericht liefern wir für jede Adresse <strong>R, K und LS</strong> als adress-genaue Werte: R aus ESDAC oder lat-linearer Approximation, K aus SoilGrids/LUCAS-Kombination, LS aus dem digitalen Höhenmodell SRTM 30 m im 500-m-Radius. Die Faktoren <strong>C und P</strong> setzen wir als <strong>Annahmen</strong>, weil sie von der konkreten Bewirtschaftung abhängen und ohne Vor-Ort-Besichtigung nicht bestimmbar sind. Default-Annahmen sind: C = 0,3 (mittlere Bedeckung, typisch für Wechselfruchtfolge) und P = 1 (keine Schutzmaßnahmen). Das Ergebnis ist eine konservative Erosions-Abschätzung — Landwirte mit Mulchsaat oder Konturpflug erreichen real deutlich niedrigere Werte.
+            </p>
+
+            <aside class="bg-gray-50 border border-gray-200 rounded-2xl p-6 my-12">
+                <p class="text-xs uppercase tracking-wide font-bold text-brand-700 mb-3">Verwandte Begriffe und Kontexte</p>
+                <div class="flex flex-wrap gap-2">
+                    <a href="/wissen/eu-bodenrichtlinie.html" class="inline-block px-3 py-1.5 rounded-full bg-white border border-gray-200 text-xs font-medium text-gray-700 hover:bg-brand-50 hover:border-brand-200 hover:text-brand-700 transition">EU-Bodenrichtlinie</a>
+                    <a href="/fuer-landwirte.html" class="inline-block px-3 py-1.5 rounded-full bg-white border border-gray-200 text-xs font-medium text-gray-700 hover:bg-brand-50 hover:border-brand-200 hover:text-brand-700 transition">GAP / Landwirte</a>
+                    <a href="/fuer-bautraeger.html" class="inline-block px-3 py-1.5 rounded-full bg-white border border-gray-200 text-xs font-medium text-gray-700 hover:bg-brand-50 hover:border-brand-200 hover:text-brand-700 transition">Erosionsschutz Bauantrag</a>
+                    <a href="/datenquellen.html" class="inline-block px-3 py-1.5 rounded-full bg-white border border-gray-200 text-xs font-medium text-gray-700 hover:bg-brand-50 hover:border-brand-200 hover:text-brand-700 transition">Datenquellen ESDAC</a>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <section class="py-12 md:py-16 bg-gray-50 border-y border-gray-100">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Häufige Fragen</p>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight mb-8">Was Landwirte und Bauträger am häufigsten fragen.</h2>
+            <div class="space-y-3">
+                <details class="border border-gray-200 rounded-xl overflow-hidden group bg-white">
+                    <summary class="cursor-pointer w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition list-none">
+                        <span class="font-semibold text-navy-800 text-sm md:text-base pr-4">Ab welcher t/ha/a wird Erosion problematisch?</span>
+                        <svg class="w-5 h-5 text-gray-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                    </summary>
+                    <div class="px-6 pb-5">
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            Die natürliche Bodenneubildung in Mitteleuropa liegt bei etwa 1 bis 2 Tonnen pro Hektar und Jahr. Wer mehr abtragen lässt, baut Boden ab. Die EU-Soil-Strategy nennt 2 t/ha/a als Toleranzgrenze für nachhaltige Landnutzung. Werte zwischen 5 und 10 t/ha/a gelten als deutlich erhöht, über 10 t/ha/a als kritisch — typisch für Hanglagen mit Sommermonokulturen ohne Bedeckung. Die GLÖZ-5-Konditionalität der GAP setzt seit 2023 darauf, dass Mitgliedstaaten diese kritischen Lagen identifizieren und Schutzmaßnahmen einfordern.
+                        </p>
+                    </div>
+                </details>
+                <details class="border border-gray-200 rounded-xl overflow-hidden group bg-white">
+                    <summary class="cursor-pointer w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition list-none">
+                        <span class="font-semibold text-navy-800 text-sm md:text-base pr-4">Wie wirkt Bodenbedeckung quantitativ?</span>
+                        <svg class="w-5 h-5 text-gray-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                    </summary>
+                    <div class="px-6 pb-5">
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            Der C-Faktor in RUSLE liegt zwischen 0 (vollständig bedeckter Boden, etwa Daueregrünland) und 1 (komplett kahl, schwarzbrache Fläche). Eine Untersaat oder Zwischenfrucht im Winter senkt den C-Faktor auf typisch 0,2 bis 0,4 — also eine Erosionsminderung um 60 bis 80 Prozent gegenüber dem brachen Acker. Mulchsaat reduziert den Wert weiter auf 0,1 bis 0,2. Wer auf erosionsgefährdetem Hang ohne Bedeckung anbaut, akzeptiert den maximalen C-Eintrag in die RUSLE-Formel.
+                        </p>
+                    </div>
+                </details>
+                <details class="border border-gray-200 rounded-xl overflow-hidden group bg-white">
+                    <summary class="cursor-pointer w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition list-none">
+                        <span class="font-semibold text-navy-800 text-sm md:text-base pr-4">Reicht RUSLE für die GLÖZ-5-Argumentation?</span>
+                        <svg class="w-5 h-5 text-gray-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                    </summary>
+                    <div class="px-6 pb-5">
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            Ja. RUSLE ist von der EU als Standardmodell für GLÖZ 5 (Mindestbodenbedeckung in erosionsgefährdeten Zeiten) und für die EU-Soil-Strategy anerkannt. ESDAC liefert die R-, K- und LS-Faktoren als europaweite Raster, auf denen die nationalen Behörden ihre Erosionskulissen aufbauen. In Deutschland verwendet das Statistische Bundesamt RUSLE-basierte Daten für seine Erosionsindikatoren. Wer eine adress-genaue RUSLE-Abschätzung für seinen Schlag hat, kann sie in Cross-Compliance-Diskussionen oder bei einer landwirtschaftlichen Fachberatung vorlegen.
+                        </p>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12 bg-white border-t border-gray-100">
+        <div class="max-w-2xl mx-auto px-4 text-center">
+            <p class="text-gray-600">Haben Sie eine konkrete Adresse, für die diese Faktoren relevant sind?</p>
+            <a href="/index.html#cta" class="mt-5 inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-6 py-3 rounded-lg transition shadow-md shadow-brand-600/20">
+                Bericht für Ihre Adresse anfordern
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+            </a>
+        </div>
+    </section>
+
+    <footer class="bg-navy-900 text-gray-400 py-12 md:py-16 border-t border-navy-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8 mb-10">
+                <div class="md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                        </div>
+                        <span class="text-lg font-bold text-white tracking-tight">Boden<span class="text-brand-400">bericht</span></span>
+                    </div>
+                    <p class="text-sm leading-relaxed max-w-sm">
+                        Wissenschaftlich fundierte Bodenanalysen für Privatpersonen, Landwirte und Immobilienkäufer. Sicherheit für Ihren Boden. Einfach, schnell und zuverlässig.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Service</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/datenquellen.html" class="hover:text-white transition">Datenquellen</a></li>
+                        <li><a href="/wissen/" class="hover:text-white transition">Wissen</a></li>
+                        <li><a href="/quiz.html" class="hover:text-white transition">Risikocheck-Quiz</a></li>
+                        <li><a href="/muster-bericht.html" class="hover:text-white transition">Muster-Bericht</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Rechtliches</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/impressum.html" class="hover:text-white transition">Impressum</a></li>
+                        <li><a href="/datenschutz.html" class="hover:text-white transition">Datenschutz</a></li>
+                        <li><a href="#" onclick="if(window.klaro){klaro.show();}return false;" class="hover:text-white transition">Datenschutz-Einstellungen</a></li>
+                        <li><a href="/widerruf.html" class="hover:text-white transition">Widerrufsbelehrung</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-xs">© 2026 Bodenbericht. Alle Rechte vorbehalten.</p>
+                <div class="flex items-center gap-4 text-xs">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+                        SSL-verschlüsselt
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                        DSGVO-konform
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

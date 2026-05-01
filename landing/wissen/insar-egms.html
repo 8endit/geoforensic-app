@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+
+<script defer src="/klaro/klaro-config.js"></script>
+<script defer src="/klaro/klaro.js"></script>
+
+<script type="text/plain" data-type="application/javascript" data-name="google-tag-manager">
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-KFG5W96X');
+</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InSAR und EGMS — Bodenbewegung per Satellit messen | Bodenbericht</title>
+    <meta name="description" content="InSAR ist die Radarinterferometrie, EGMS der EU-Service. Wie Sentinel-1 Millimeter-genaue Bodenbewegung misst — für jede Adresse in Europa.">
+    <link rel="canonical" href="https://bodenbericht.de/wissen/insar-egms.html">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/favicon.svg">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Bodenbericht">
+    <meta property="og:url" content="https://bodenbericht.de/wissen/insar-egms.html">
+    <meta property="og:title" content="InSAR und EGMS — Bodenbewegung per Satellit | Bodenbericht">
+    <meta property="og:description" content="Wie Sentinel-1 Millimeter-genaue Bodenbewegung misst — Mess-Methode, Datendichte, Grenzen.">
+    <meta property="og:image" content="https://bodenbericht.de/og-image.png">
+    <meta property="og:locale" content="de_DE">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="InSAR und EGMS | Bodenbericht">
+    <meta name="twitter:description" content="Radarinterferometrie für Millimeter-genaue Bodenbewegung — kompakt erklärt.">
+    <meta name="twitter:image" content="https://bodenbericht.de/og-image.png">
+    <link rel="stylesheet" href="/tailwind.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Bodenbericht", "item": "https://bodenbericht.de/"},
+            {"@type": "ListItem", "position": 2, "name": "Wissen", "item": "https://bodenbericht.de/wissen/"},
+            {"@type": "ListItem", "position": 3, "name": "InSAR und EGMS", "item": "https://bodenbericht.de/wissen/insar-egms.html"}
+          ]
+        },
+        {
+          "@type": "DefinedTerm",
+          "@id": "https://bodenbericht.de/wissen/insar-egms.html#term",
+          "name": "InSAR und EGMS",
+          "description": "InSAR ist eine satellitengestützte Messtechnik, die Bewegungen der Bodenoberfläche durch Vergleich aufeinanderfolgender Radar-Aufnahmen ermittelt. EGMS ist der EU-Dienst, der InSAR auf Sentinel-1 anwendet und seit 2022 für jeden Punkt der EU eine Zeitreihe der Bodenbewegung mit Millimeter-Genauigkeit liefert.",
+          "inDefinedTermSet": "https://bodenbericht.de/wissen/",
+          "url": "https://bodenbericht.de/wissen/insar-egms.html"
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://bodenbericht.de/wissen/insar-egms.html#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Wie oft werden die EGMS-Daten aktualisiert?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "EGMS wird von der EU-Umweltagentur EEA und dem Joint Research Centre jährlich aktualisiert. Die Datenebene L3 (Ortho-projiziert) wird typischerweise zwischen März und Mai jedes Jahres mit Daten bis Ende des Vorjahres veröffentlicht. Wir nutzen die jeweils aktuellste Veröffentlichung — Stand 2026 ist das EGMS L3 mit Zeitreihe 2018–2023 in 100-Meter-Auflösung."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Funktioniert das auch in den Niederlanden?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ja. EGMS deckt das gesamte EU-Territorium ab und ist für die Niederlande sogar besonders dicht — flach, urban, kaum Wald, viele bebaute Flächen mit guten Radar-Reflektoren. Typische Punktdichte in NL-Wohnsiedlungen sind 80–120 Messpunkte pro 500-m-Radius, also höher als der DE-Durchschnitt. Komplementär gibt es in NL die kommerzielle Quelle bodemdalingskaart.nl von SkyGeo, die wir aus Lizenzgründen nicht direkt verwenden."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Wie genau ist die Messung am Einzelgebäude?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Die räumliche Auflösung von EGMS L3 beträgt 100 m — eine direkte Zuordnung zu einem einzelnen Gebäude ist damit nicht möglich. Wir mitteln über alle Messpunkte im 500-m-Radius einer Adresse und liefern Mittelwert, Maximum, Streuung und Trend-Klassifikation. Bei auffälligen Werten ist eine punktgenaue Vermessung durch ein Geotechnik-Büro mit Inklinometer-Bohrungen oder GPS-Referenzpunkten der nächste Schritt — typische Kosten 5.000 bis 15.000 Euro je Gebäude."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <style>
+        html { scroll-behavior: smooth; }
+        .hero-gradient { background: linear-gradient(135deg, #0c1d3a 0%, #122b52 40%, #1a3a6b 100%); }
+    </style>
+</head>
+<body class="font-sans text-gray-800 antialiased">
+
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 md:h-18">
+                <a href="/index.html" class="flex items-center gap-2" aria-label="Bodenbericht Startseite">
+                    <img src="/images/logo-horizontal.png" alt="Bodenbericht – digitale Bodenbewertung und Analyse" class="h-10 md:h-12 w-auto" width="640" height="214" loading="eager" decoding="async">
+                </a>
+                <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+                    <a href="/index.html#so-funktionierts" class="hover:text-navy-700 transition">So funktioniert's</a>
+                    <a href="/index.html#leistungen" class="hover:text-navy-700 transition">Leistungen</a>
+                    <a href="/datenquellen.html" class="hover:text-navy-700 transition">Datenquellen</a>
+                    <a href="/index.html#faq" class="hover:text-navy-700 transition">FAQ</a>
+                </nav>
+                <a href="/index.html#cta" class="hidden sm:inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition shadow-md shadow-brand-600/20">
+                    Bericht anfordern
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero-gradient pt-28 pb-16 md:pt-32 md:pb-20 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-5">
+            <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)"/></svg>
+        </div>
+        <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="text-xs text-white/60 mb-6" aria-label="Breadcrumb">
+                <a href="/" class="hover:text-white transition">Bodenbericht</a>
+                <span class="mx-2">›</span>
+                <a href="/wissen/" class="hover:text-white transition">Wissen</a>
+                <span class="mx-2">›</span>
+                <span class="text-white/80">InSAR und EGMS</span>
+            </nav>
+            <p class="text-brand-300 font-semibold text-xs tracking-wide uppercase mb-3">Glossar / Wissen</p>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tight">
+                InSAR und EGMS
+            </h1>
+            <p class="mt-6 text-lg md:text-xl text-gray-300 leading-relaxed">
+                InSAR (Interferometric Synthetic Aperture Radar) ist eine satellitengestützte Messtechnik, die Bewegungen der Bodenoberfläche durch Vergleich aufeinanderfolgender Radar-Aufnahmen ermittelt. Der EU-Dienst EGMS (European Ground Motion Service) wendet InSAR auf das Sentinel-1-Satellitenpaar an und liefert seit 2022 für jeden Punkt der EU eine Zeitreihe der Bodenbewegung mit Millimeter-Genauigkeit und 6–12-Tage-Wiederholung.
+            </p>
+        </div>
+    </section>
+
+    <section class="py-12 md:py-16 bg-white">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight mt-2">1. Wie Radar-Interferometrie funktioniert</h2>
+            <p class="text-gray-700 leading-relaxed mt-4">
+                Ein Radar-Satellit sendet Mikrowellen-Pulse zur Erdoberfläche und empfängt die reflektierten Echos. Aus jedem Echo lässt sich die Phase der Welle (relative Position innerhalb eines Schwingungszyklus) ablesen. Wenn derselbe Boden-Punkt aus dem gleichen Orbit zweimal beobachtet wird — etwa mit zwölf Tagen Abstand —, entstehen zwei Phasenmessungen. Hat sich die Erdoberfläche zwischen den Aufnahmen bewegt, ändert sich die zurückgelegte Strecke, und die Phasen-Differenz ist proportional zur Bewegung.
+            </p>
+            <p class="text-gray-700 leading-relaxed mt-3">
+                Sentinel-1 arbeitet im <strong>C-Band</strong> mit einer Wellenlänge von etwa 5,6 cm. Eine Phasendifferenz von 360 Grad entspricht einer halben Wellenlänge — etwa 2,8 cm Bewegung in Sicht-Linie des Satelliten. Über die gesamte 12-Tage-Wiederholungs-Statistik mit hunderten Aufnahmen pro Jahr erreicht EGMS eine theoretische Auflösung von <strong>unter 1 mm pro Jahr</strong> für stabile Reflektor-Punkte (Hausdächer, Brücken, Straßen).
+            </p>
+
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight mt-10">2. Sentinel-1</h2>
+            <p class="text-gray-700 leading-relaxed mt-4">
+                <strong>Sentinel-1</strong> ist ein Satellitenpaar des EU-Erdbeobachtungsprogramms Copernicus, betrieben von der Europäischen Weltraumagentur ESA. Sentinel-1A wurde im April 2014, Sentinel-1B im April 2016 gestartet — letzterer fiel im Dezember 2021 mit einem Stromversorgungs-Defekt aus. Sentinel-1C wurde im Dezember 2024 als Ersatz gestartet und wieder in den Aktiv-Betrieb gebracht. Beide Satelliten fliegen in einer polaren Sonnen-synchronen Umlaufbahn in 693 km Höhe und scannen die Erde alle 12 Tage komplett.
+            </p>
+
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight mt-10">3. EGMS L1, L2, L3</h2>
+            <p class="text-gray-700 leading-relaxed mt-4">
+                Der European Ground Motion Service liefert drei Datenebenen, die aufeinander aufbauen:
+            </p>
+            <ul class="text-gray-700 leading-relaxed mt-3 space-y-2 list-disc pl-6">
+                <li><strong>EGMS L1 (Basic)</strong>: Roh-Bewegungsdaten aus jeder einzelnen Sentinel-1-Aufnahmegeometrie (ascending und descending Pass), in Sicht-Linie des Satelliten.</li>
+                <li><strong>EGMS L2 (Calibrated)</strong>: kalibriert gegen GNSS-Referenzpunkte auf dem Boden, korrigiert um atmosphärische Effekte.</li>
+                <li><strong>EGMS L3 (Ortho)</strong>: in vertikale und horizontale Bewegungs-Komponenten zerlegt, auf 100-m-Raster regrid'et. Dies ist die für unseren Bericht relevante Ebene.</li>
+            </ul>
+            <p class="text-gray-700 leading-relaxed mt-3">
+                Alle drei Ebenen sind <strong>kostenlos</strong> über das EGMS-Portal nutzbar und unter Creative-Commons-Attribution (CC BY 4.0) lizenziert — kommerzielle Verwendung mit Quellenangabe ist erlaubt.
+            </p>
+
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight mt-10">4. Datendichte</h2>
+            <p class="text-gray-700 leading-relaxed mt-4">
+                Die Punktdichte hängt stark von der Bebauung ab. Im urbanen Umfeld einer deutschen oder niederländischen Mittelstadt liefern wir typisch <strong>50 bis 80 EGMS-Messpunkte pro 500-m-Radius</strong> einer Adresse. Reine Wohnsiedlungen mit Einfamilienhäusern erreichen bis zu 100 Punkte. Ländliche Lagen mit überwiegend Acker- und Wiesenflächen kommen oft nur auf 5 bis 20 Punkte; Wälder noch weniger. Wasserflächen, frisch gepflügte Felder und Schneeflächen liefern keine Punkte — Vegetation streut das Radarsignal, Wasser spiegelt es weg.
+            </p>
+
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight mt-10">5. Was es kann — und was nicht</h2>
+            <p class="text-gray-700 leading-relaxed mt-4">
+                Stärken sind die <strong>flächendeckende Verfügbarkeit</strong> für ganz Europa, die <strong>regelmäßige Wiederholung</strong> alle 6 bis 12 Tage und die <strong>Millimeter-Genauigkeit</strong> für mehrjährige Trends. Schwächen liegen in den genannten Reflektivitäts-Bedingungen — kein Wald, kein Wasser, keine offenen Felder. Außerdem misst InSAR konstruktionsbedingt keine Bewegung exakt senkrecht zur Flugrichtung des Satelliten: in Nord-Süd-Richtung ist die Empfindlichkeit deutlich reduziert. Für vertikale Bewegung — die für Setzung und Hebung dominante Komponente — ist EGMS hingegen exzellent aufgestellt.
+            </p>
+
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight mt-10">6. Vergleich mit Inklinometer und GNSS</h2>
+            <p class="text-gray-700 leading-relaxed mt-4">
+                <strong>Inklinometer-Bohrungen</strong> messen die Schiefstellung im Bauwerk selbst — typische Anwendung beim Beweissicherungs-Verfahren in der Geotechnik. Sie sind punktgenau, aber teuer (5.000–15.000 Euro pro Bohrung) und zeigen nur den Bauwerks-, nicht den Boden-Trend. <strong>GNSS-Referenzpunkte</strong> (vermessungs-technische Pfeiler mit GPS-Empfänger) liefern Sub-Millimeter-Genauigkeit auf einem fixen Punkt, sind aber stationär und teuer im Aufbau. EGMS ergänzt beides: flächendeckende Übersicht für Screening, anschließend gezielter Einsatz von Inklinometer oder GNSS, wenn Auffälligkeiten zu klären sind.
+            </p>
+
+            <aside class="bg-gray-50 border border-gray-200 rounded-2xl p-6 my-12">
+                <p class="text-xs uppercase tracking-wide font-bold text-brand-700 mb-3">Verwandte Begriffe und Kontexte</p>
+                <div class="flex flex-wrap gap-2">
+                    <a href="/wissen/setzung-vs-hebung.html" class="inline-block px-3 py-1.5 rounded-full bg-white border border-gray-200 text-xs font-medium text-gray-700 hover:bg-brand-50 hover:border-brand-200 hover:text-brand-700 transition">Setzung vs. Hebung</a>
+                    <a href="/datenquellen.html" class="inline-block px-3 py-1.5 rounded-full bg-white border border-gray-200 text-xs font-medium text-gray-700 hover:bg-brand-50 hover:border-brand-200 hover:text-brand-700 transition">Datenquellen (EGMS-Eintrag)</a>
+                    <a href="/fuer-immobilienkaeufer.html" class="inline-block px-3 py-1.5 rounded-full bg-white border border-gray-200 text-xs font-medium text-gray-700 hover:bg-brand-50 hover:border-brand-200 hover:text-brand-700 transition">Käufer-Anwendung</a>
+                    <a href="/fuer-bautraeger.html" class="inline-block px-3 py-1.5 rounded-full bg-white border border-gray-200 text-xs font-medium text-gray-700 hover:bg-brand-50 hover:border-brand-200 hover:text-brand-700 transition">Bauträger-Anwendung</a>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <section class="py-12 md:py-16 bg-gray-50 border-y border-gray-100">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Häufige Fragen</p>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight mb-8">Was Käufer und Eigentümer am häufigsten fragen.</h2>
+            <div class="space-y-3">
+                <details class="border border-gray-200 rounded-xl overflow-hidden group bg-white">
+                    <summary class="cursor-pointer w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition list-none">
+                        <span class="font-semibold text-navy-800 text-sm md:text-base pr-4">Wie oft werden die EGMS-Daten aktualisiert?</span>
+                        <svg class="w-5 h-5 text-gray-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                    </summary>
+                    <div class="px-6 pb-5">
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            EGMS wird von der EU-Umweltagentur EEA und dem Joint Research Centre jährlich aktualisiert. Die Datenebene L3 (Ortho-projiziert) wird typischerweise zwischen März und Mai jedes Jahres mit Daten bis Ende des Vorjahres veröffentlicht. Wir nutzen die jeweils aktuellste Veröffentlichung — Stand 2026 ist das EGMS L3 mit Zeitreihe 2018–2023 in 100-Meter-Auflösung.
+                        </p>
+                    </div>
+                </details>
+                <details class="border border-gray-200 rounded-xl overflow-hidden group bg-white">
+                    <summary class="cursor-pointer w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition list-none">
+                        <span class="font-semibold text-navy-800 text-sm md:text-base pr-4">Funktioniert das auch in den Niederlanden?</span>
+                        <svg class="w-5 h-5 text-gray-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                    </summary>
+                    <div class="px-6 pb-5">
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            Ja. EGMS deckt das gesamte EU-Territorium ab und ist für die Niederlande sogar besonders dicht — flach, urban, kaum Wald, viele bebaute Flächen mit guten Radar-Reflektoren. Typische Punktdichte in NL-Wohnsiedlungen sind 80–120 Messpunkte pro 500-m-Radius, also höher als der DE-Durchschnitt. Komplementär gibt es in NL die kommerzielle Quelle bodemdalingskaart.nl von SkyGeo, die wir aus Lizenzgründen nicht direkt verwenden.
+                        </p>
+                    </div>
+                </details>
+                <details class="border border-gray-200 rounded-xl overflow-hidden group bg-white">
+                    <summary class="cursor-pointer w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition list-none">
+                        <span class="font-semibold text-navy-800 text-sm md:text-base pr-4">Wie genau ist die Messung am Einzelgebäude?</span>
+                        <svg class="w-5 h-5 text-gray-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                    </summary>
+                    <div class="px-6 pb-5">
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            Die räumliche Auflösung von EGMS L3 beträgt 100 m — eine direkte Zuordnung zu einem einzelnen Gebäude ist damit nicht möglich. Wir mitteln über alle Messpunkte im 500-m-Radius einer Adresse und liefern Mittelwert, Maximum, Streuung und Trend-Klassifikation. Bei auffälligen Werten ist eine punktgenaue Vermessung durch ein Geotechnik-Büro mit Inklinometer-Bohrungen oder GPS-Referenzpunkten der nächste Schritt — typische Kosten 5.000 bis 15.000 Euro je Gebäude.
+                        </p>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12 bg-white border-t border-gray-100">
+        <div class="max-w-2xl mx-auto px-4 text-center">
+            <p class="text-gray-600">Haben Sie eine konkrete Adresse, für die diese Faktoren relevant sind?</p>
+            <a href="/index.html#cta" class="mt-5 inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-6 py-3 rounded-lg transition shadow-md shadow-brand-600/20">
+                Bericht für Ihre Adresse anfordern
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+            </a>
+        </div>
+    </section>
+
+    <footer class="bg-navy-900 text-gray-400 py-12 md:py-16 border-t border-navy-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8 mb-10">
+                <div class="md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                        </div>
+                        <span class="text-lg font-bold text-white tracking-tight">Boden<span class="text-brand-400">bericht</span></span>
+                    </div>
+                    <p class="text-sm leading-relaxed max-w-sm">
+                        Wissenschaftlich fundierte Bodenanalysen für Privatpersonen, Landwirte und Immobilienkäufer. Sicherheit für Ihren Boden. Einfach, schnell und zuverlässig.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Service</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/datenquellen.html" class="hover:text-white transition">Datenquellen</a></li>
+                        <li><a href="/wissen/" class="hover:text-white transition">Wissen</a></li>
+                        <li><a href="/quiz.html" class="hover:text-white transition">Risikocheck-Quiz</a></li>
+                        <li><a href="/muster-bericht.html" class="hover:text-white transition">Muster-Bericht</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Rechtliches</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/impressum.html" class="hover:text-white transition">Impressum</a></li>
+                        <li><a href="/datenschutz.html" class="hover:text-white transition">Datenschutz</a></li>
+                        <li><a href="#" onclick="if(window.klaro){klaro.show();}return false;" class="hover:text-white transition">Datenschutz-Einstellungen</a></li>
+                        <li><a href="/widerruf.html" class="hover:text-white transition">Widerrufsbelehrung</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-xs">© 2026 Bodenbericht. Alle Rechte vorbehalten.</p>
+                <div class="flex items-center gap-4 text-xs">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+                        SSL-verschlüsselt
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                        DSGVO-konform
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

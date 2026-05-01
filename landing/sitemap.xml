@@ -41,6 +41,51 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://bodenbericht.de/wissen/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://bodenbericht.de/wissen/altlast.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://bodenbericht.de/wissen/setzung-vs-hebung.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://bodenbericht.de/wissen/eu-bodenrichtlinie.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://bodenbericht.de/wissen/schwermetalle-im-boden.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://bodenbericht.de/wissen/insar-egms.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://bodenbericht.de/wissen/hochwasser-risikoklasse.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://bodenbericht.de/wissen/bbodschv.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://bodenbericht.de/wissen/erosion-rusle.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://bodenbericht.de/impressum.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>

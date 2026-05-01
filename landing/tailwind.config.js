@@ -9,6 +9,15 @@ module.exports = {
     './fuer-gartenbesitzer.html',
     './fuer-bautraeger.html',
     './fuer-landwirte.html',
+    './wissen/index.html',
+    './wissen/altlast.html',
+    './wissen/setzung-vs-hebung.html',
+    './wissen/eu-bodenrichtlinie.html',
+    './wissen/schwermetalle-im-boden.html',
+    './wissen/insar-egms.html',
+    './wissen/hochwasser-risikoklasse.html',
+    './wissen/bbodschv.html',
+    './wissen/erosion-rusle.html',
   ],
   theme: {
     extend: {
