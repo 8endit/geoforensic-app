@@ -136,6 +136,48 @@ Diese Mini-Phase schließt die Daten-Lücken die für Tier-1-Visuals nötig sind
 - Output: Payload exakt wie in `example_payload.json`
 - Akzeptanz: Schema-Validierung gegen `data_contract.json` (mit jsonschema package)
 
+### V.0.6 — Provenance-Felder pro Pipeline-Output (Honesty-Layer)
+
+Hintergrund: Wir machen kein ML-Downscaling, keine Daten-Fusion, keine eigene Kalibrierung. Was wir liefern ist solides Engineering über offizielle EU-Raster (IDW, Window-Mean, Multi-Scale, Country-Routing). Statt das zu verbergen oder zu übertreiben, soll jeder Datenpunkt ein **Provenance-Feld** mitführen, sodass die Visuals-Templates ehrlich-präzise Statements rendern können statt nackte Werte.
+
+**Konkret:** Jedes Modul produziert zusätzlich ein `data_provenance` dict pro Output-Wert mit:
+- `source` — Datenquelle als String (z.B. `"ESDAC Panagos 2015"`, `"SoilGrids 250m"`, `"OpenTopoData SRTM"`)
+- `resolution_m` — räumliche Auflösung der Quelle in Metern (z.B. `1000`, `250`, `30`)
+- `sample_count` — Anzahl Datenpunkte die in den Wert eingingen (z.B. PSI-Punkte, LUCAS-Probepunkte, CORINE-Pixel im 100 m-Window)
+- `method` — Aggregations-Methode (z.B. `"IDW über 3 Nachbarn"`, `"Window-Mean 100 m"`, `"Multi-Scale steepest 50/150/500 m"`, `"Single-Pixel"`)
+- Optional: `nearest_distance_m`, `regional_scope` (z.B. `"NUTS2 DE12"`)
+
+**Output-Format-Beispiel:**
+
+```json
+{
+  "value": 502,
+  "unit": "MJ·mm/(ha·h·yr)",
+  "data_provenance": {
+    "source": "ESDAC Panagos 2015",
+    "resolution_m": 1000,
+    "sample_count": 1,
+    "method": "Single-Pixel"
+  }
+}
+```
+
+**Wo das eingebaut wird:**
+- `rfactor_data.py:RFactorResult` bekommt `data_provenance` field
+- `slope_data.py:fetch_slope` Output erweitert um `data_provenance`
+- `soil_data.py:SoilDataLoader.query_full_profile` — pro Wert ein Provenance-Block
+- `pesticides_data.py:PesticidesResult` bekommt `data_provenance` mit `regional_scope: "NUTS2 ..."`
+- `soil_directive.py` propagiert Provenance der eingehenden Module mit
+
+**Visuals-Template-Verwendung:** Templates können dann statt `502 MJ·mm/(ha·h·yr)` etwas rendern wie `502 MJ·mm/(ha·h·yr) — ESDAC 1 km`. Oder als Tooltip: „Quelle: ESDAC Panagos 2015. Auflösung: 1 km. Methode: Pixel-Lookup."
+
+**Akzeptanz:**
+- Smoke-Test: `query_soil_directive(48.78, 9.18, "de")` enthält pro Datenwert ein `data_provenance`-Dict
+- DATA_PROVENANCE.md §10 ergänzt um Format-Spezifikation der Provenance-Felder
+- KEIN Modul behauptet falsche Methodik — `method: "Pearson r EGMS x DWD"` nur wenn V.0.2 wirklich gerechnet, sonst nicht setzen
+
+**Wichtig:** Dieser Step macht uns NICHT genauer als die Rohdaten. Er macht uns **transparenter** — Käufer kann jeden Wert gegen die offizielle EU-Quelle nachprüfen. Das ist eine Vertrauens-Position gegen K.A.R.L./on-geo (Black-Box-ML) und gegen docestate (Behörden-Vermittler ohne Daten-Auflösung).
+
 ---
 
 ## 4. Visuals-Sprint Phasen
@@ -239,20 +281,22 @@ V.0.2 Pearson     ─┤── parallel ──┐
 V.0.3 geology     ─┤              │
 V.0.4 footprint   ─┘              │
                                   ↓
-V.0.5 Payload-Builder ──→ V.1 Foundation ──→ V.2 Tier-1
-                                                  │
-                                              V.3 Tier-2
-                                                  │
-                                              V.4 Vollbericht-FPDF
-                                                  │
-                                              V.5 Frontend-React
-                                                  │
-                                              V.6 Frontpage-Demo
-                                                  │
-                                              V.7 Docs
+V.0.5 Payload-Builder ──→ V.0.6 Provenance-Felder ──→ V.1 Foundation ──→ V.2 Tier-1
+                                                                              │
+                                                                          V.3 Tier-2
+                                                                              │
+                                                                          V.4 Vollbericht-FPDF
+                                                                              │
+                                                                          V.5 Frontend-React
+                                                                              │
+                                                                          V.6 Frontpage-Demo
+                                                                              │
+                                                                          V.7 Docs
 ```
 
-**Critical path:** V.0.1–V.0.5 müssen vor V.1. V.5 + V.6 sind das Cozy-Frontend, können parallel zu V.4 laufen.
+**Critical path:** V.0.1–V.0.6 müssen vor V.1. V.5 + V.6 sind das Cozy-Frontend, können parallel zu V.4 laufen.
+
+V.0.6 ist explizit **nach** V.0.5 — es nutzt die im Builder aggregierten Pipeline-Outputs als Anker und reichert sie an. V.0.6 könnte technisch parallel zu V.0.1–V.0.4 laufen (jedes neue Modul liefert direkt Provenance mit), aber die Konsolidierung der bestehenden Module geht sauberer wenn der Builder schon steht.
 
 ---
 
