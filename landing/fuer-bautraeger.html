@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+
+<!-- Klaro consent manager (self-hosted, DSGVO-konform) -->
+<script defer src="/klaro/klaro-config.js"></script>
+<script defer src="/klaro/klaro.js"></script>
+
+<!-- Google Tag Manager (laedt erst nach Einwilligung via Klaro) -->
+<script type="text/plain" data-type="application/javascript" data-name="google-tag-manager">
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-KFG5W96X');
+</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bodenrisiko-Screening für Bauträger | Bodenbericht</title>
+    <meta name="description" content="Setzungs-, Altlasten- und Versiegelungsdaten für Akquise-Targets — als Risiko-Filter vor der Notarverhandlung. Auf Basis offizieller EU-Satellitendaten.">
+    <link rel="canonical" href="https://bodenbericht.de/fuer-bautraeger.html">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/favicon.svg">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Bodenbericht">
+    <meta property="og:url" content="https://bodenbericht.de/fuer-bautraeger.html">
+    <meta property="og:title" content="Bodenrisiko-Screening für Bauträger | Bodenbericht">
+    <meta property="og:description" content="Setzungs-, Altlasten- und Versiegelungsdaten für Akquise-Targets vor der Notarverhandlung.">
+    <meta property="og:image" content="https://bodenbericht.de/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="de_DE">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Bodenrisiko-Screening für Bauträger | Bodenbericht">
+    <meta name="twitter:description" content="Setzungs-, Altlasten- und Versiegelungsdaten für Akquise-Targets vor der Notarverhandlung.">
+    <meta name="twitter:image" content="https://bodenbericht.de/og-image.png">
+    <link rel="stylesheet" href="/tailwind.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Bodenbericht", "item": "https://bodenbericht.de/"},
+            {"@type": "ListItem", "position": 2, "name": "Für Bauträger", "item": "https://bodenbericht.de/fuer-bautraeger.html"}
+          ]
+        },
+        {
+          "@type": "Service",
+          "@id": "https://bodenbericht.de/fuer-bautraeger.html#service",
+          "name": "Bodenrisiko-Screening für Bauträger und Projektentwickler",
+          "serviceType": "Pre-Akquise-Bodenrisiko-Screening",
+          "provider": {"@type": "Organization", "name": "Bodenbericht", "url": "https://bodenbericht.de/"},
+          "audience": {
+            "@type": "BusinessAudience",
+            "audienceType": "Bauträger, Projektentwickler, Bestandsverwerter"
+          },
+          "description": "Adress-genaues Screening von Setzungsrisiko, Altlasten-Indikatoren, Versiegelungsgrad, Hochwasser-Lage und geologischer Vorklassifikation für Akquise-Targets. Auf Basis von Copernicus EGMS, LUCAS Topsoil, BfG HWRM, BGR GÜK250 und HRL Imperviousness.",
+          "areaServed": [
+            {"@type": "Country", "name": "Deutschland"},
+            {"@type": "Country", "name": "Niederlande"},
+            {"@type": "Country", "name": "Österreich"},
+            {"@type": "Country", "name": "Schweiz"}
+          ],
+          "offers": {
+            "@type": "Offer", "price": "0", "priceCurrency": "EUR",
+            "availability": "https://schema.org/InStock",
+            "description": "Kostenlos in der Pilotphase, B2B-Pricing in Vorbereitung"
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://bodenbericht.de/fuer-bautraeger.html#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Wie schnell können wir Akquise-Targets im Batch durchchecken?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Aktuell ist die Pilotphase auf Einzelabfragen ausgelegt — eine Adresse, ein PDF, in wenigen Minuten. Eine Batch-API für 50 bis 500 Targets pro Akquise-Welle ist auf der Roadmap und wird zusammen mit dem B2B-Pricing-Modell freigeschaltet. Bauträger, die heute schon mit zwei- bis dreistelligen Adress-Listen arbeiten möchten, können sich für die Beta-API vormerken — Kontakt: team@geoforensic.de."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Wie ergänzt der Bodenbericht das eigene Geotechnik-Team oder ein Baugrundgutachten?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Der Bodenbericht ist die Pre-Akquise-Stufe: er filtert offensichtlich problematische Targets aus, bevor Sie Geotechnik-Honorare und Gutachter-Aufwand investieren. Bei einer grünen Setzungs-Ampel und unauffälligem Altlasten-Indikator gehen Sie in die Tiefenprüfung; bei rot fragen Sie den Verkäufer schon im LOI nach Bodengutachten oder lassen das Target ganz fallen. Das Baugrundgutachten bleibt für die finale Gründungsplanung unverzichtbar — wir reduzieren die Anzahl der Targets, für die Sie es überhaupt beauftragen."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Wie zuverlässig sind die EGMS-Setzungsdaten gegenüber einer eigenen Inklinometer-Messung?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Copernicus EGMS misst die Bodenoberfläche per Sentinel-1-Radar mit Wiederholungsraten von 6 bis 12 Tagen und Millimeter-Genauigkeit pro Messpunkt. Die Datendichte liegt im urbanen Umfeld typisch bei 50 bis 80 Punkten pro 500-Meter-Radius. Inklinometer am Bauwerk messen die Bauwerksbewegung punktgenau — sie sind für die finale statische Begutachtung unverzichtbar, aber überflüssig in der Akquise-Phase, wo Sie zwischen Targets entscheiden."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "DSGVO bei der Massenabfrage von Akquise-Targets?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Adressdaten sind nach DSGVO Art. 4 Nr. 1 personenbezogen, sobald sie einer natürlichen Person zugeordnet werden können. Eine Akquise-Liste mit Adressen ohne weitere Personenmerkmale ist im B2B-Kontext datenschutzkonform verarbeitbar, solange der Zweck — Bonitäts- oder Risikoprüfung im Vorfeld einer Geschäftsanbahnung — dokumentiert ist. Bei Listen mit Eigentümernamen brauchen Sie eine Rechtsgrundlage nach Art. 6, in der Regel Art. 6 Abs. 1 lit. f berechtigtes Interesse mit dokumentierter Interessenabwägung."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Wann steht das B2B-Pricing-Modell?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Aktuell befinden wir uns in der Pilotphase mit Einzelberichten kostenlos. Das B2B-Pricing wird voraussichtlich Q3/2026 mit Staffelung nach Volumen veröffentlicht. Pilotnutzer aus dem Bauträger-Segment, die heute Feedback geben, erhalten dauerhaft Konditionen unterhalb des regulären Tarifs. Vormerkung über die Pilot-Vorab-Anfrage auf der Startseite."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <style>
+        html { scroll-behavior: smooth; }
+        .hero-gradient { background: linear-gradient(135deg, #0c1d3a 0%, #122b52 40%, #1a3a6b 100%); }
+    </style>
+</head>
+<body class="font-sans text-gray-800 antialiased">
+
+    <!-- HEADER -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 md:h-18">
+                <a href="/index.html" class="flex items-center gap-2" aria-label="Bodenbericht Startseite">
+                    <img src="/images/logo-horizontal.png" alt="Bodenbericht – digitale Bodenbewertung und Analyse" class="h-10 md:h-12 w-auto" width="640" height="214" loading="eager" decoding="async">
+                </a>
+                <nav class="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-gray-600">
+                    <a href="/index.html#so-funktionierts" class="hover:text-navy-700 transition">So funktioniert's</a>
+                    <a href="/fuer-immobilienkaeufer.html" class="hover:text-navy-700 transition">Für Käufer</a>
+                    <a href="/index.html#leistungen" class="hover:text-navy-700 transition">Leistungen</a>
+                    <a href="/datenquellen.html" class="hover:text-navy-700 transition">Datenquellen</a>
+                    <a href="/index.html#faq" class="hover:text-navy-700 transition">FAQ</a>
+                </nav>
+                <a href="#cta" class="hidden sm:inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition shadow-md shadow-brand-600/20">
+                    Bericht anfordern
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero-gradient pt-28 pb-16 md:pt-36 md:pb-20 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-5">
+            <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)"/></svg>
+        </div>
+        <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <nav class="text-xs text-white/60 mb-6" aria-label="Breadcrumb">
+                <a href="/" class="hover:text-white transition">Bodenbericht</a>
+                <span class="mx-2">›</span>
+                <span class="text-white/80">Für Bauträger</span>
+            </nav>
+
+            <div class="inline-flex flex-wrap items-center justify-center gap-2 mb-6">
+                <a href="/fuer-immobilienkaeufer.html" class="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-white/70 hover:text-white transition">Käufer</a>
+                <a href="/fuer-gartenbesitzer.html" class="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-white/70 hover:text-white transition">Gartenbesitzer</a>
+                <span class="px-3 py-1.5 rounded-full bg-brand-500/20 border border-brand-400/40 text-xs font-bold text-brand-300">Bauträger</span>
+                <a href="/fuer-landwirte.html" class="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-white/70 hover:text-white transition">Landwirte</a>
+            </div>
+
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tight">
+                Was die Due Diligence
+                <span class="block mt-2 bg-gradient-to-r from-brand-300 to-brand-400 bg-clip-text text-transparent">
+                    vor dem Grundstückskauf nicht erfasst.
+                </span>
+            </h1>
+            <p class="mt-6 text-lg md:text-xl text-gray-300 leading-relaxed max-w-2xl mx-auto">
+                Setzungs-, Altlasten- und Versiegelungsdaten für Ihre Akquise-Targets — als objektiver Risiko-Filter vor der Notarverhandlung. Bevor Sie Geotechnik-Honorare und Gutachter-Aufwand in Targets investieren, die später am Aushubgutachten scheitern.
+            </p>
+            <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a href="#cta" class="inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold text-base px-7 py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/30 active:scale-[0.98]">
+                    Akquise-Target prüfen
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- DREI KOSTENRISIKEN -->
+    <section id="risiken" class="py-16 md:py-24 bg-white">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 md:mb-16">
+                <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Drei Kostenfresser, die im Pre-LOI auftauchen sollten</p>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 tracking-tight">
+                    Wo Akquise-Projekte still kippen.
+                </h2>
+                <p class="mt-4 text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                    Ein Bauträger-Projekt scheitert selten am Markt — häufiger an Risiken, die im Boden liegen und in Standard-Maklerexposés nicht stehen. Die folgenden drei sind in der Datengrundlage vor dem Kauf erkennbar.
+                </p>
+            </div>
+
+            <div class="bg-gradient-to-br from-amber-50 to-white border border-amber-200/60 rounded-2xl p-6 md:p-8 mb-6">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-amber-700" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 18h18M3 14h18M3 22h18M3 10l9-7 9 7"/></svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-xs uppercase tracking-wide font-bold text-amber-700">Risiko 1</p>
+                        <h3 class="text-xl md:text-2xl font-bold text-navy-800 mt-1">Aushub-Entsorgung bei Altlasten</h3>
+                        <p class="text-gray-700 leading-relaxed mt-3">
+                            Die Mantelverordnung 2023 (BGBl. I Nr. 213) hat die Verwertung von mineralischem Bauabfall neu geregelt. Belasteter Boden wird nach LAGA-Z-Werten klassifiziert — und ab Klasse Z2 explodiert die Entsorgung. <strong class="font-semibold text-navy-800">Reine Bauschutt-Entsorgung kostet 8 bis 25 Euro pro Tonne, gefährlicher Aushub erreicht 250 bis 500 Euro pro Tonne.</strong> Bei einem Aushub von 5.000 Tonnen für eine Tiefgarage entscheidet die Boden-Klassifikation über sechsstellige Differenzen im Projektbudget.
+                        </p>
+                        <p class="text-sm text-gray-600 mt-3">
+                            Der Bodenbericht liefert LUCAS-Topsoil-Schwermetallwerte und CORINE-basierte Vornutzungs-Indikatoren als Frühwarnung — bevor das Aushubgutachten überhaupt beauftragt wird.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-red-50 to-white border border-red-200/60 rounded-2xl p-6 md:p-8 mb-6">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-700" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.008v.008H12v-.008z"/></svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-xs uppercase tracking-wide font-bold text-red-700">Risiko 2</p>
+                        <h3 class="text-xl md:text-2xl font-bold text-navy-800 mt-1">Setzungsrisiko für die Gründungsplanung</h3>
+                        <p class="text-gray-700 leading-relaxed mt-3">
+                            Bewegt sich der Untergrund mit 2 Millimetern oder mehr pro Jahr, ist Flachgründung in vielen Fällen nicht mehr wirtschaftlich. Tiefgründung über Bohrpfähle oder Plattengründung verteuert das Projekt typischerweise um 8 bis 15 Prozent der Bauwerks­kosten. <strong class="font-semibold text-navy-800">Copernicus EGMS misst die Bodenoberfläche flächendeckend mit Sentinel-1-Radar, alle 6 bis 12 Tage</strong> — die Daten zeigen, ob der Untergrund unter Ihrem Akquise-Target in Bewegung ist, bevor Sie das Geotechnik-Honorar investieren.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-blue-50 to-white border border-blue-200/60 rounded-2xl p-6 md:p-8">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-700" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-xs uppercase tracking-wide font-bold text-blue-700">Risiko 3</p>
+                        <h3 class="text-xl md:text-2xl font-bold text-navy-800 mt-1">Bauantrag-Auflagen aus Hochwasser und Versiegelung</h3>
+                        <p class="text-gray-700 leading-relaxed mt-3">
+                            Liegt das Target in einer HQ_100-Hochwasser-Zone der BfG-HWRM-Karten, fordern viele Bauämter zusätzliche Auflagen — angehobene Erdgeschoss-OK, dichte Kellerwannen, Rückstauschutz. In Gebieten mit hoher Versiegelungsdichte (über 70 Prozent HRL Imperviousness) wird zunehmend Versiegelungs-Ausgleich nach Landesnaturschutzgesetz verlangt. <strong class="font-semibold text-navy-800">Beide Auflagen bewegen sich typischerweise zwischen 50.000 und 250.000 Euro pro Projekt</strong> — und beide sind im Voraus aus offenen Datensätzen erkennbar.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WAS IM BERICHT STEHT -->
+    <section class="py-16 md:py-20 bg-gradient-to-b from-gray-50 to-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10 md:mb-14">
+                <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Inhalt</p>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 tracking-tight">
+                    Was im Akquise-Briefing pro Adresse steht.
+                </h2>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4">
+                <div class="bg-white border border-gray-200 rounded-xl p-5">
+                    <h3 class="font-bold text-navy-800 text-sm mb-2">Setzungs-Trend (EGMS)</h3>
+                    <p class="text-sm text-gray-600 leading-relaxed">Mittlere und maximale Bodenbewegung im 500-m-Radius. Frühwarnung für Tiefgründungs-Notwendigkeit.</p>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-xl p-5">
+                    <h3 class="font-bold text-navy-800 text-sm mb-2">Altlasten-Indikatoren</h3>
+                    <p class="text-sm text-gray-600 leading-relaxed">LUCAS-Schwermetalle, CORINE-Vornutzung, Verweis auf untere Bodenschutzbehörde — als Frühwarnung für die Aushub-Klassifikation.</p>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-xl p-5">
+                    <h3 class="font-bold text-navy-800 text-sm mb-2">Hochwasser-Lage (BfG)</h3>
+                    <p class="text-sm text-gray-600 leading-relaxed">HQ_häufig, HQ_100, HQ_extrem — bauamtsrelevant für Auflagen-Prognose.</p>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-xl p-5">
+                    <h3 class="font-bold text-navy-800 text-sm mb-2">Versiegelungsgrad (HRL)</h3>
+                    <p class="text-sm text-gray-600 leading-relaxed">Copernicus High-Resolution Layer Imperviousness in 20-m-Auflösung — Indikator für Versiegelungs-Ausgleichspflicht.</p>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-xl p-5">
+                    <h3 class="font-bold text-navy-800 text-sm mb-2">Geologische Vorklassifikation</h3>
+                    <p class="text-sm text-gray-600 leading-relaxed">BGR GÜK250 für die regionale Untergrund-Charakteristik. In Nordrhein-Westfalen Verschnitt mit den Bergbauberechtigungen.</p>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-xl p-5">
+                    <h3 class="font-bold text-navy-800 text-sm mb-2">EU-Bodenrichtlinie 2025/2360</h3>
+                    <p class="text-sm text-gray-600 leading-relaxed">Alle 16 Descriptoren — relevant für Compliance-Anforderungen großer Investoren mit ESG-Reporting-Pflicht.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="py-16 md:py-20 bg-white">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10 md:mb-12">
+                <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Häufige Fragen aus Akquise-Teams</p>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 tracking-tight">
+                    Was Bauträger zu uns fragen.
+                </h2>
+            </div>
+            <div class="space-y-3">
+                <details class="faq-item border border-gray-200 rounded-xl overflow-hidden group">
+                    <summary class="cursor-pointer w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition list-none">
+                        <span class="font-semibold text-navy-800 text-sm md:text-base pr-4">Wie schnell können wir Akquise-Targets im Batch durchchecken?</span>
+                        <svg class="faq-chevron w-5 h-5 text-gray-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                    </summary>
+                    <div class="px-6 pb-5">
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            Aktuell ist die Pilotphase auf Einzelabfragen ausgelegt — eine Adresse, ein PDF, in wenigen Minuten. Eine Batch-API für 50 bis 500 Targets pro Akquise-Welle ist auf der Roadmap und wird zusammen mit dem B2B-Pricing-Modell freigeschaltet. Bauträger, die heute schon mit zwei- bis dreistelligen Adress-Listen arbeiten möchten, können sich für die Beta-API vormerken — Kontakt: team@geoforensic.de.
+                        </p>
+                    </div>
+                </details>
+                <details class="faq-item border border-gray-200 rounded-xl overflow-hidden group">
+                    <summary class="cursor-pointer w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition list-none">
+                        <span class="font-semibold text-navy-800 text-sm md:text-base pr-4">Wie ergänzt der Bodenbericht das eigene Geotechnik-Team oder ein Baugrundgutachten?</span>
+                        <svg class="faq-chevron w-5 h-5 text-gray-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                    </summary>
+                    <div class="px-6 pb-5">
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            Der Bodenbericht ist die Pre-Akquise-Stufe: er filtert offensichtlich problematische Targets aus, bevor Sie Geotechnik-Honorare und Gutachter-Aufwand investieren. Bei einer grünen Setzungs-Ampel und unauffälligem Altlasten-Indikator gehen Sie in die Tiefenprüfung; bei rot fragen Sie den Verkäufer schon im LOI nach Bodengutachten oder lassen das Target ganz fallen. Das Baugrundgutachten bleibt für die finale Gründungsplanung unverzichtbar — wir reduzieren die Anzahl der Targets, für die Sie es überhaupt beauftragen.
+                        </p>
+                    </div>
+                </details>
+                <details class="faq-item border border-gray-200 rounded-xl overflow-hidden group">
+                    <summary class="cursor-pointer w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition list-none">
+                        <span class="font-semibold text-navy-800 text-sm md:text-base pr-4">Wie zuverlässig sind die EGMS-Setzungsdaten gegenüber einer eigenen Inklinometer-Messung?</span>
+                        <svg class="faq-chevron w-5 h-5 text-gray-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                    </summary>
+                    <div class="px-6 pb-5">
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            Copernicus EGMS misst die Bodenoberfläche per Sentinel-1-Radar mit Wiederholungsraten von 6 bis 12 Tagen und Millimeter-Genauigkeit pro Messpunkt. Die Datendichte liegt im urbanen Umfeld typisch bei 50 bis 80 Punkten pro 500-Meter-Radius. Inklinometer am Bauwerk messen die Bauwerksbewegung punktgenau — sie sind für die finale statische Begutachtung unverzichtbar, aber überflüssig in der Akquise-Phase, wo Sie zwischen Targets entscheiden.
+                        </p>
+                    </div>
+                </details>
+                <details class="faq-item border border-gray-200 rounded-xl overflow-hidden group">
+                    <summary class="cursor-pointer w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition list-none">
+                        <span class="font-semibold text-navy-800 text-sm md:text-base pr-4">DSGVO bei der Massenabfrage von Akquise-Targets?</span>
+                        <svg class="faq-chevron w-5 h-5 text-gray-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                    </summary>
+                    <div class="px-6 pb-5">
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            Adressdaten sind nach DSGVO Art. 4 Nr. 1 personenbezogen, sobald sie einer natürlichen Person zugeordnet werden können. Eine Akquise-Liste mit Adressen ohne weitere Personenmerkmale ist im B2B-Kontext datenschutzkonform verarbeitbar, solange der Zweck — Bonitäts- oder Risikoprüfung im Vorfeld einer Geschäftsanbahnung — dokumentiert ist. Bei Listen mit Eigentümernamen brauchen Sie eine Rechtsgrundlage nach Art. 6, in der Regel Art. 6 Abs. 1 lit. f berechtigtes Interesse mit dokumentierter Interessenabwägung.
+                        </p>
+                    </div>
+                </details>
+                <details class="faq-item border border-gray-200 rounded-xl overflow-hidden group">
+                    <summary class="cursor-pointer w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition list-none">
+                        <span class="font-semibold text-navy-800 text-sm md:text-base pr-4">Wann steht das B2B-Pricing-Modell?</span>
+                        <svg class="faq-chevron w-5 h-5 text-gray-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                    </summary>
+                    <div class="px-6 pb-5">
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            Aktuell befinden wir uns in der Pilotphase mit Einzelberichten kostenlos. Das B2B-Pricing wird voraussichtlich Q3/2026 mit Staffelung nach Volumen veröffentlicht. Pilotnutzer aus dem Bauträger-Segment, die heute Feedback geben, erhalten dauerhaft Konditionen unterhalb des regulären Tarifs. Vormerkung über die Pilot-Vorab-Anfrage auf der Startseite.
+                        </p>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="cta" class="py-16 md:py-24 bg-navy-900 text-white relative overflow-hidden">
+        <div class="absolute inset-0 opacity-5">
+            <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="cta-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#cta-grid)"/></svg>
+        </div>
+        <div class="relative max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl md:text-4xl font-extrabold leading-tight tracking-tight">
+                Akquise-Target prüfen, bevor das Geotechnik-Honorar fließt.
+            </h2>
+            <p class="mt-4 text-gray-300 text-base md:text-lg max-w-xl mx-auto leading-relaxed">
+                Geben Sie Adresse und E-Mail ein. Bericht als PDF in wenigen Minuten. Für Batch-Anfragen melden Sie sich danach unter team@geoforensic.de.
+            </p>
+
+            <form id="bautraeger-lead-form" class="mt-8 max-w-md mx-auto space-y-3" onsubmit="handleBautraegerLead(event)">
+                <input type="text" id="bautraeger-street" required placeholder="Straße + Hausnummer"
+                    class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                <input type="text" id="bautraeger-city" required placeholder="PLZ + Ort"
+                    class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                <input type="email" id="bautraeger-email" required placeholder="Geschäftliche E-Mail"
+                    class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                <button type="submit" id="bautraeger-submit-btn"
+                    onclick="(window.dataLayer||[]).push({event:'cta_bautraeger_landing'})"
+                    class="w-full inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold text-lg px-10 py-4 rounded-xl transition-all shadow-lg shadow-brand-500/30 active:scale-[0.98]">
+                    Kostenloses Briefing anfordern
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                </button>
+            </form>
+            <p class="mt-4 text-white/60 text-xs leading-relaxed max-w-md mx-auto">
+                Mit Klick stimmen Sie der Verarbeitung Ihrer Daten gemäß
+                <a href="/datenschutz.html" class="underline hover:text-white">Datenschutzerklärung</a> zu.
+            </p>
+
+            <div id="bautraeger-success" class="hidden mt-8">
+                <div class="w-14 h-14 rounded-full bg-brand-500/20 flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-7 h-7 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <p class="text-white font-semibold text-lg">Briefing wird erstellt!</p>
+                <p class="text-gray-300 text-sm mt-1">Prüfen Sie Ihre E-Mail in wenigen Minuten.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-navy-900 text-gray-400 py-12 md:py-16 border-t border-navy-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8 mb-10">
+                <div class="md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                        </div>
+                        <span class="text-lg font-bold text-white tracking-tight">Boden<span class="text-brand-400">bericht</span></span>
+                    </div>
+                    <p class="text-sm leading-relaxed max-w-sm">
+                        Wissenschaftlich fundierte Bodenanalysen für Privatpersonen, Landwirte und Immobilienkäufer. Sicherheit für Ihren Boden.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Für wen</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/fuer-immobilienkaeufer.html" class="hover:text-white transition">Für Käufer</a></li>
+                        <li><a href="/fuer-gartenbesitzer.html" class="hover:text-white transition">Für Gartenbesitzer</a></li>
+                        <li><a href="/fuer-bautraeger.html" class="hover:text-white transition">Für Bauträger</a></li>
+                        <li><a href="/fuer-landwirte.html" class="hover:text-white transition">Für Landwirte</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Rechtliches</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/impressum.html" class="hover:text-white transition">Impressum</a></li>
+                        <li><a href="/datenschutz.html" class="hover:text-white transition">Datenschutz</a></li>
+                        <li><a href="#" onclick="if(window.klaro){klaro.show();}return false;" class="hover:text-white transition">Datenschutz-Einstellungen</a></li>
+                        <li><a href="/widerruf.html" class="hover:text-white transition">Widerrufsbelehrung</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-xs">© 2026 Bodenbericht. Alle Rechte vorbehalten.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        async function handleBautraegerLead(e) {
+            e.preventDefault();
+            const street = document.getElementById('bautraeger-street').value;
+            const city = document.getElementById('bautraeger-city').value;
+            const email = document.getElementById('bautraeger-email').value;
+            const btn = document.getElementById('bautraeger-submit-btn');
+
+            btn.disabled = true;
+            btn.textContent = 'Wird gesendet...';
+
+            try {
+                const res = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email,
+                        address: street.trim() + ', ' + city.trim(),
+                        answers: {
+                            nutzung: 'bautraeger',
+                            source_page: 'fuer-bautraeger',
+                            utm_content: 'bautraeger'
+                        },
+                        source: 'landing_bautraeger'
+                    })
+                });
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    throw new Error(data.detail || 'Senden fehlgeschlagen');
+                }
+                document.getElementById('bautraeger-lead-form').classList.add('hidden');
+                document.getElementById('bautraeger-success').classList.remove('hidden');
+            } catch (err) {
+                btn.disabled = false;
+                btn.textContent = 'Kostenloses Briefing anfordern';
+                alert('Fehler: ' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

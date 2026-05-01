@@ -6,6 +6,9 @@ module.exports = {
     './datenquellen.html',
     './admin.html',
     './fuer-immobilienkaeufer.html',
+    './fuer-gartenbesitzer.html',
+    './fuer-bautraeger.html',
+    './fuer-landwirte.html',
   ],
   theme: {
     extend: {
