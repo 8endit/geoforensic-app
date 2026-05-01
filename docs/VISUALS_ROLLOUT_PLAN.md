@@ -81,7 +81,32 @@ Tokens werden in `geoforensic-app/shared/visual_tokens.json` definiert — von b
 
 **Alternative:** Tokens als npm-package `@geoforensic/visual-tokens` veröffentlichen — overkill für jetzt, aber merken wenn das Repo wächst.
 
-### 2.3 Daten-Pipeline
+### 2.3 Layout-Strategie — zwei eigene Reports, gemeinsame Bausteine
+
+Free und Premium sind zwei **unterschiedliche Use-Cases**, also zwei eigene Layouts. Aber sie teilen Datenkontrakt, Visual-Tokens und die 6 SVG-Komponenten. Das ist nicht Doppelarbeit — es ist Funktion-Trennung.
+
+| Aspekt | Free / Teaser (`html_report.py`) | Premium / Vollbericht (`full_report.py`) |
+|---|---|---|
+| Zieldomain | bodenbericht.de | geoforensic.de (geplant) |
+| Käufer-Stand | noch nicht konvertiert, Lead-Magnet | bezahlt 19–199 EUR, Käufer-Dokument |
+| Funktion | Marketing-Funnel, Conversion treiben | Tiefe + Provenance, Nachprüfbarkeit |
+| Render-Pfad | Chrome-Headless HTML→PDF | FPDF mit cairosvg-Bridge für SVGs |
+| Design-System | bodenbericht-Tailwind (lighter, freundlich) | Cozy-Designsystem (Schwarz/Grün, professionell) |
+| Locked-Cards | ja, 13 Stück mit Lock-Pille + Schloss-Icon | nicht vorhanden, alles voll |
+| Cover-Page | „Bodenbericht — Kostenlose Kurzfassung", Ampel/GeoScore dominant | „GeoForensic Vollbericht", schwarz-grün, Adresse + Bericht-Nr. + QR |
+| Section-Header | hellgrün, Lock-Cards, „IM VOLLBERICHT ENTHALTEN"-Strap | dunkler Akzent, 4 thematische Blöcke (Risiken / Untergrund / Bodenchemie / Bewertung) |
+| Footer | „Auf die Warteliste"-CTA + Stripe-Link | Provenance-Block + Datenquellen + Disclaimer |
+| Branding | bodenbericht.de Logo | GeoForensic Logo (Cozy-Design) |
+
+**Was beide teilen:**
+- `shared/visual_tokens.json` (Farben, Schwellen, Typografie-Skala) — identisch
+- 6 Visualisierungs-SVG-Templates (Risiko-Dashboard, Karte, Velocity, Bodenstapel, Radar, Histogramm) — identisch, nur im Free mit `feGaussianBlur`-Wrapper für Tier-2
+- Datenkontrakt (`example_payload.json`-Schema) — identisch
+- Frontend-Komponenten in `cozy-frontend` Repo nutzen exakt selbe SVG-Struktur
+
+**Konsequenz für die Umsetzung:** SVG-Templates werden in Phase V.2/V.3 einmal gebaut und in beiden Reports verwendet. Layout-Polish ist getrennt — V.4.5 für Premium-Cover/Header/Footer (Cozy-Stil), V.4.6 für Free-Polish (bodenbericht-Tailwind).
+
+### 2.4 Daten-Pipeline
 
 Der Daten-Kontrakt (`data_contract.json`) erwartet Felder, die unsere Pipeline aktuell **nicht** erzeugt. Die müssen im Vorlauf nachgerüstet werden:
 
@@ -236,6 +261,61 @@ Hintergrund: Wir machen kein ML-Downscaling, keine Daten-Fusion, keine eigene Ka
 - PNG-Auflösung scharf bei 200% Zoom
 - PDF-Größe < 1 MB pro Bericht (Komprimierung via `pdf.image(quality=85)`)
 
+### Phase V.4.5 — Premium-Vollbericht Layout-Polish (Cozy-Stil)
+
+Hintergrund: Aktueller `full_report.py` rendert eine Tabellen-Wand ohne visuelle Hierarchie. „Abgrundtief hässlich" laut User-Feedback 2026-05-01. Das ist die FPDF-Limitierung — nicht die Inhalte sind das Problem, sondern Cover-Page, Section-Header, Typografie, Footer.
+
+**Was sich ändert:**
+- **Cover-Page:** Schwarze Hintergrund-Fläche (Cozy-Designsystem), GeoForensic-Logo, Adresse als Hero-Text, Bericht-Nr. + Erstelldatum + QR-Code zur Provenance-URL. Aktuell nur eine simple Header-Zeile.
+- **Thematische 4-Block-Strukturierung** statt 12 Sektionen in willkürlicher Reihenfolge:
+  - Block 1: Bodenrisiken aus Satellit/Wetter (EGMS, Hochwasser, KOSTRA)
+  - Block 2: Untergrund & Topographie (Geländeprofil, Bergbau, Altlasten)
+  - Block 3: Bodenchemie (Bodenqualität, Schwermetalle, Nährstoffe, Pestizide)
+  - Block 4: Gesamt-Bewertung (EU Soil Directive, Individuelle Einschätzung)
+  Jeder Block bekommt eine Trenn-Seite mit Block-Headline + Kurz-Status.
+- **Section-Header-Refactor:** dunkler Akzent-Streifen, gleiche Typografie-Hierarchie wie Cozy-Designsystem (Sentient/Geist Mono, uppercase auf Block-Header), Farbakzente nur auf Ampel-Werte.
+- **Typografie-Hierarchie:** klare Trennung Heading-1 (Block) / Heading-2 (Sektion) / Heading-3 (Sub-Sektion) / Body / Footnote. Aktuell sind alle Section-Header gleich groß.
+- **Footer-Design:** Provenance-Block (welche Datenquellen + Auflösung) + Datenquellen-Liste + Disclaimer auf eigener Seite am Ende, nicht versteckt zwischen Sektionen.
+- **Page-Footer:** dezent unten auf jeder Seite, „GeoForensic Vollbericht / Bericht-Nr. xxx / Seite x von y". Aktuell ohne Seiten-Footer.
+
+**Outputs:**
+- `full_report.py` Refactor mit den 4 Block-Trenn-Seiten
+- Neue Helper-Funktion `_block_separator(pdf, fn, block_num, title, kurz_status)` für Block-Header
+- Cover-Page als eigene Methode `_render_cover_page()` mit Cozy-Look
+- QR-Code via `segno` package für Provenance-URL
+- Page-Footer-Hook in FPDF `header()/footer()` Methoden
+
+**Akzeptanz:**
+- Vollbericht hat sichtbare 4-Block-Struktur, Käufer kann thematisch navigieren
+- Cover-Page wirkt professionell — kein Tabellen-Crash, sondern Magazin-Niveau
+- Typografie-Hierarchie ist konsistent (z.B. alle Block-Header sind gleich gestaltet, alle Sektion-Header sind ein Stufe darunter)
+- PDF-Größe bleibt unter 2 MB inkl. der 6 Visuals
+
+**Wichtig:** Spec §3 (visuelles Vokabular) ist weiterhin bindend. Cozy-Design-System gilt für Premium, nicht für Free.
+
+### Phase V.4.6 — Free-Bericht Layout-Polish (bodenbericht-Tailwind)
+
+Hintergrund: Free-Bericht ist aktuell solide, aber Lock-Pille + Section-Trenner können konsistenter werden. Sub-Polish, kein Refactor.
+
+**Was sich ändert:**
+- **Lock-Pille:** einheitliches Design über alle 13 Locked-Cards, Hover-State im HTML (vor PDF-Render via Chrome-Headless)
+- **Section-Trenner:** klarer „IM VOLLBERICHT ENTHALTEN"-Strap zwischen Free-Sektionen und Locked-Cards
+- **CTA-Polish:** der „Auf die Warteliste"-Block am Ende auf Cozy-ähnliches Premium-Visual zeigen (kleine Vorschau der 6 Visualisierungen)
+- **Trust-Bar:** Datenquellen-Logos als kleine Badges am Anfang sichtbar (EGMS / SoilGrids / LUCAS / etc.)
+- **Footer-Branding:** bodenbericht.de Logo + DSGVO-Note konsistent
+
+**Outputs:**
+- `html_report.py` Polish-Pass über bestehende Tailwind-Klassen
+- Tailwind-Build wenn neue Klassen verwendet werden (siehe Phase B.3 Lessons-Learned: `tailwind-input.css` + npx tailwindcss)
+- Smoke-Test gegen aktuellen Free-Bericht (5 Seiten) — neue Version sollte gleiche Seitenzahl behalten oder weniger
+
+**Akzeptanz:**
+- Free-Bericht wirkt freundlich/leicht/Käufer-fokussiert, klar als Lead-Magnet erkennbar
+- Visuelle Konsistenz zur bodenbericht.de Landing-Page (gleiche Tailwind-Klassen, gleiche Typografie)
+- Conversion-Hebel deutlich sichtbar: was kostet Premium, was bekommt der Käufer mehr
+
+**Wichtig:** Free-Bericht bleibt Tailwind-basiert, NICHT Cozy. Beide Reports haben dadurch eigene visuelle Identität.
+
 ### Phase V.5 — Frontend-Komponenten (Cozy-Frontend Repo)
 
 **Outputs in `github.com/8endit/cozy-frontend`:**
@@ -285,7 +365,11 @@ V.0.5 Payload-Builder ──→ V.0.6 Provenance-Felder ──→ V.1 Foundation
                                                                               │
                                                                           V.3 Tier-2
                                                                               │
-                                                                          V.4 Vollbericht-FPDF
+                                                                          V.4 Vollbericht-FPDF (PNG-Bridge)
+                                                                              │
+                                                                          V.4.5 Premium-Layout-Polish (Cozy-Stil)
+                                                                              │
+                                                                          V.4.6 Free-Layout-Polish (Tailwind)
                                                                               │
                                                                           V.5 Frontend-React
                                                                               │
@@ -294,7 +378,9 @@ V.0.5 Payload-Builder ──→ V.0.6 Provenance-Felder ──→ V.1 Foundation
                                                                           V.7 Docs
 ```
 
-**Critical path:** V.0.1–V.0.6 müssen vor V.1. V.5 + V.6 sind das Cozy-Frontend, können parallel zu V.4 laufen.
+**Critical path:** V.0.1–V.0.6 müssen vor V.1. V.5 + V.6 sind das Cozy-Frontend, können parallel zu V.4.5/V.4.6 laufen.
+
+V.4.5 (Premium-Polish) und V.4.6 (Free-Polish) sind **unabhängig** voneinander — können parallel umgesetzt werden, nutzen aber beide die in V.4 fertige cairosvg-Bridge bzw. die in V.2/V.3 fertigen SVG-Templates.
 
 V.0.6 ist explizit **nach** V.0.5 — es nutzt die im Builder aggregierten Pipeline-Outputs als Anker und reichert sie an. V.0.6 könnte technisch parallel zu V.0.1–V.0.4 laufen (jedes neue Modul liefert direkt Provenance mit), aber die Konsolidierung der bestehenden Module geht sauberer wenn der Builder schon steht.
 
