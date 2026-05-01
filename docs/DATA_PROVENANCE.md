@@ -317,8 +317,8 @@ muss jeweils den Schätz-Charakter explizit ausweisen.
 | Feld | Wert |
 |---|---|
 | Modul | `backend/app/rfactor_data.py` |
-| **Primärquelle (geplant)** | ESDAC Panagos 2015, 1 km Raster, EPSG:3035 |
-| Pixelpfad F: | `esdac_rfactor_eu_1km.tif` (User-Upload nach ESDAC-Anfrage) |
+| **Primärquelle (live seit 2026-05-01)** | ESDAC Panagos 2015, 1 km Raster, EPSG:3035 — `Rf_gp1.tif` aus dem ESDAC-Download `R_factorEU.zip` |
+| Pixelpfad F: | `esdac_rfactor_eu_1km.tif` (449 MB) |
 | Fallback (live), DE | `R = 150 - (lat - 47) × 14,3`, geclamped [30, 200] |
 | Fallback (live), NL | Konstante 65 (Tiefland-Mittelwert) |
 | Fallback (live), AT | Konstante 100 (Alpenanteil) |
