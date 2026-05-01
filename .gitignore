@@ -37,3 +37,7 @@ landing/tailwindcss.exe
 # Output of scripts/regenerate-report.sh — PDFs copied out of the backend
 # container for admin inspection. Lead-identifying, never commit.
 regenerated-reports/
+
+
+# Lighthouse raw audits — large, regenerate on demand (see docs/seo-baselines/README.md)
+docs/seo-baselines/lighthouse-*.json

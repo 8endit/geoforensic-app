@@ -17,8 +17,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bodenrisiken prüfen vor dem Hauskauf – Bodenbericht</title>
-    <meta name="description" content="Altlasten, Setzungen und Bodenqualität für Ihre Wunsch-Immobilie prüfen — in wenigen Minuten, auf Basis offizieller EU-Satellitendaten. Rechtzeitig vor dem Notartermin.">
+    <!-- Title 51 chars, primäres Keyword "Bodenrisiken" am Anfang -->
+    <title>Bodenrisiken prüfen vor dem Hauskauf | Bodenbericht</title>
+    <!-- Meta-Description 151 chars, primäres Keyword am Anfang -->
+    <meta name="description" content="Bodenrisiken-Check vor dem Hauskauf: Altlasten, Setzungen und Bodenqualität in Minuten prüfen — auf Basis offizieller EU-Satellitendaten.">
     <link rel="canonical" href="https://bodenbericht.de/">
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -35,10 +37,129 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="de_DE">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Bodenbericht: Sicherheit für Ihren Boden">
-    <meta name="twitter:description" content="Kostenloser Bodenbericht für jeden Standort in Deutschland.">
+    <meta name="twitter:title" content="Bodenrisiken prüfen vor dem Hauskauf | Bodenbericht">
+    <meta name="twitter:description" content="Altlasten, Setzungen und Bodenqualität für Ihre Wunsch-Immobilie — in Minuten, auf Basis offizieller EU-Daten.">
     <meta name="twitter:image" content="https://bodenbericht.de/og-image.png">
     <link rel="stylesheet" href="/tailwind.css">
+
+    <!-- ========================================================== -->
+    <!-- Structured Data: Organization + Service + FAQPage (A.3-A.4) -->
+    <!-- WICHTIG: Bei Änderungen am sichtbaren FAQ-HTML MUSS das       -->
+    <!-- FAQPage-Schema unten 1:1 mitgezogen werden, sonst Risiko     -->
+    <!-- Manual Action wegen Schema/Content-Mismatch.                 -->
+    <!-- ========================================================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://bodenbericht.de/#organization",
+          "name": "Bodenbericht",
+          "alternateName": "bodenbericht.de",
+          "url": "https://bodenbericht.de/",
+          "logo": "https://bodenbericht.de/images/logo-horizontal.png",
+          "description": "Automatisiertes Bodenrisiko-Screening für Immobilienkäufer auf Basis offizieller EU-Satellitendaten (Copernicus EGMS) und nationaler Bodendatensätze.",
+          "parentOrganization": {
+            "@type": "Organization",
+            "name": "Tepnosholding GmbH"
+          },
+          "areaServed": [
+            {"@type": "Country", "name": "Deutschland"},
+            {"@type": "Country", "name": "Niederlande"},
+            {"@type": "Country", "name": "Österreich"},
+            {"@type": "Country", "name": "Schweiz"}
+          ],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer support",
+            "email": "team@geoforensic.de",
+            "availableLanguage": ["de", "nl", "en"]
+          }
+        },
+        {
+          "@type": "Service",
+          "@id": "https://bodenbericht.de/#service",
+          "name": "Bodenrisiko-Screening für Immobilienkäufer",
+          "serviceType": "Bodenrisiko-Screening",
+          "provider": {"@id": "https://bodenbericht.de/#organization"},
+          "areaServed": [
+            {"@type": "Country", "name": "Deutschland"},
+            {"@type": "Country", "name": "Niederlande"},
+            {"@type": "Country", "name": "Österreich"},
+            {"@type": "Country", "name": "Schweiz"}
+          ],
+          "audience": {
+            "@type": "Audience",
+            "audienceType": "Immobilienkäufer, Eigentümer, Bauträger"
+          },
+          "description": "Automatisiertes Screening von Altlasten-Hinweisen, Bodenbewegungen (Setzung/Hebung), Schwermetallen und Bodenqualität für eine konkrete Adresse — auf Basis von Copernicus EGMS, SoilGrids, LUCAS Topsoil und nationalen Bundesdaten.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR",
+            "availability": "https://schema.org/InStock",
+            "description": "Kostenloser Bodenbericht in der Pilotphase"
+          },
+          "termsOfService": "https://bodenbericht.de/datenschutz.html"
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://bodenbericht.de/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Wie genau ist der Bodenbericht?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Unser Bericht basiert auf offiziellen EU-Satellitendaten (Copernicus EGMS, CORINE Land Cover, HRL Imperviousness), der LUCAS-Bodenproben-Datenbank (Schwermetalle, Nährstoffe, 118 Pestizide), SoilGrids-Rasterdaten und Bundes-/Länderdaten (BfG Hochwasser, NRW Bergbau, DWD KOSTRA). Alle Quellen sind öffentlich und wissenschaftlich dokumentiert — eine vollständige Liste mit Lizenzen finden Sie auf der Datenquellen-Seite."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Wie lange dauert es, bis ich meinen Bericht erhalte?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ihren Bodenbericht erhalten Sie in der Regel innerhalb weniger Minuten als PDF per E-Mail. Absender ist bericht@geoforensic.de. Falls die Mail nach 10 Minuten nicht im Posteingang ist, werfen Sie bitte einen Blick in den Spam-Ordner — bei Erstkontakt stufen manche Anbieter sie zunächst dort ein. Um zukünftige Nachrichten zuverlässig zu erhalten, markieren Sie die E-Mail dort einmal als „Kein Spam“."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Was kostet ein Bodenbericht?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Der Bodenbericht ist aktuell kostenlos als Teil unserer Pilotphase verfügbar. Keine versteckten Kosten."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Ist der Bericht rechtlich verwertbar?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Der Bericht dient als fundierte Ersteinschätzung und Orientierungshilfe auf Basis öffentlicher Daten. Er ersetzt keine Vor-Ort-Begutachtung durch einen zugelassenen Sachverständigen."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Was passiert, wenn mein Boden kontaminiert ist?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Der Bericht enthält konkrete nächste Schritte. Zum Beispiel eine Empfehlung zur Vor-Ort-Probenahme oder einen Hinweis auf die zuständige Behörde. Das ist in der Regel das Umweltamt Ihres Landkreises oder Ihrer kreisfreien Stadt (die sogenannte „untere Bodenschutzbehörde“ nach §11 BBodSchG). Er ersetzt keine fachliche Einzelfallbewertung durch einen zugelassenen Sachverständigen."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Gibt es eine kostenpflichtige Premium-Version?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Der kostenlose Bodenbericht ist Teil unserer Pilotphase. Eine erweiterte Premium-Version mit Altlasten-Verdachtsflächen, Hochwasser-Zonen, Radon-Daten und weiteren Schichten ist in Entwicklung. Wer sich in unsere Warteliste einträgt, wird informiert, sobald der Premium-Bericht verfügbar ist."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
     <style>
         html { scroll-behavior: smooth; }
         .hero-gradient {
@@ -155,13 +276,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     in wenigen Minuten, auf Basis offizieller EU-Daten.
                 </h2>
 
-                <!-- Sub-headline -->
-                <p class="mt-6 text-base sm:text-lg text-gray-300 leading-relaxed">
-                    Automatisiertes Screening für Ihre Wunsch-Immobilie — <strong class="text-white font-medium">Setzungen</strong>,
-                    <strong class="text-white font-medium">Altlasten-Hinweise</strong> und <strong class="text-white font-medium">Bodenqualität</strong> auf Basis offizieller EU-Daten.
-                    Ergebnisse in wenigen Minuten, rechtzeitig vor dem Notartermin.
-                </p>
-
                 <!-- Hero Inline Lead Form -->
                 <form id="hero-lead-form" class="mt-10 max-w-md mx-auto lg:mx-0 space-y-3" onsubmit="handleHeroLead(event)">
                     <input type="text" id="hero-street" required placeholder="Straße + Hausnummer"
@@ -191,17 +305,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     <p class="text-gray-300 text-sm mt-1">Prüfen Sie Ihre E-Mail in wenigen Minuten.</p>
                 </div>
 
-                <!-- Secondary CTA: Quiz -->
-                <div class="mt-6 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                <!-- Secondary path: Quiz (visuell klar untergeordnet) -->
+                <div class="mt-5 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 text-xs text-white/60">
                     <a href="/quiz.html"
                        onclick="(window.dataLayer||[]).push({event:'cta_quiz'})"
-                       class="inline-flex items-center justify-center gap-2 text-gray-300 hover:text-white text-sm font-medium transition underline-offset-4 hover:underline">
-                        <svg class="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        Oder: 60-Sekunden-Risikocheck
+                       class="inline-flex items-center gap-1.5 text-white/60 hover:text-white transition underline-offset-4 hover:underline">
+                        Lieber Schritt für Schritt? 60-Sekunden-Risikocheck
                     </a>
-                    <span class="hidden sm:inline text-gray-600">·</span>
-                    <a href="#so-funktionierts" class="inline-flex items-center gap-1.5 text-gray-400 hover:text-white text-sm font-medium transition">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" /></svg>
+                    <span class="hidden sm:inline text-white/60">·</span>
+                    <a href="#so-funktionierts" class="inline-flex items-center gap-1.5 text-white/60 hover:text-white transition">
                         So funktioniert's
                     </a>
                 </div>
@@ -1083,6 +1195,63 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </section>
 
     <!-- ============================================ -->
+    <!-- PILOT-VOLLBERICHT (Premium-Vorab-Anfrage)    -->
+    <!-- A.8 Source-Routing — emittiert source="pilot-vollbericht",   -->
+    <!-- das ist die einzige nicht-bezahlte Source in PAID_SOURCES    -->
+    <!-- in backend/app/routers/leads.py. Pilot-Nutzer erhalten den   -->
+    <!-- Vollbericht statt Teaser-PDF.                                -->
+    <!-- ============================================ -->
+    <section id="pilot" class="py-16 md:py-20 bg-gradient-to-b from-gray-50 to-white border-b border-gray-100">
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center gap-2 bg-brand-50 text-brand-700 text-xs font-bold tracking-wide uppercase px-3 py-1.5 rounded-full mb-4 border border-brand-200/60">
+            <span class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></span>
+            Pilot-Phase &mdash; nur jetzt
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 leading-tight tracking-tight">
+            Vollbericht statt Teaser &mdash; gegen ehrliches Feedback.
+          </h2>
+          <p class="mt-4 text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Wir suchen 50 Pilot-Nutzer, die unseren neuen <strong class="text-navy-800">Vollbericht</strong>
+            (alle 12 Sektionen, 16 Descriptoren, 6 Visuals) kostenlos erhalten und
+            uns 10 Minuten R&uuml;ckmeldung geben. Begrenzt auf die Pilot-Phase.
+          </p>
+        </div>
+
+        <form id="pilot-vollbericht-form" class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm space-y-3" onsubmit="handlePilotLead(event)">
+          <div class="grid sm:grid-cols-2 gap-3">
+            <input type="text" id="pilot-street" required placeholder="Straße + Hausnummer"
+                   class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-brand-400 transition text-base">
+            <input type="text" id="pilot-city" required placeholder="PLZ + Ort"
+                   class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-brand-400 transition text-base">
+          </div>
+          <input type="email" id="pilot-email" required placeholder="Ihre E-Mail-Adresse"
+                 class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-brand-400 transition text-base">
+          <button type="submit" id="pilot-submit-btn"
+                  onclick="(window.dataLayer||[]).push({event:'cta_pilot_vollbericht'})"
+                  class="w-full inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-900 text-white font-bold text-base px-8 py-3.5 rounded-lg transition-all shadow-md active:scale-[0.98]">
+            Vollbericht als Pilot-Nutzer anfordern
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+          </button>
+          <p class="text-xs text-gray-500 text-center leading-relaxed">
+            Mit Klick stimmen Sie der Verarbeitung Ihrer Daten gem&auml;&szlig;
+            <a href="/datenschutz.html" class="underline hover:text-gray-700">Datenschutzerkl&auml;rung</a> zu.
+            Wir melden uns nach dem Bericht einmal mit drei Feedback-Fragen &mdash;
+            danach kein weiterer Kontakt ohne Ihren Wunsch.
+          </p>
+        </form>
+
+        <div id="pilot-success" class="hidden mt-8 text-center bg-brand-50 border border-brand-200 rounded-2xl p-6">
+          <div class="w-12 h-12 rounded-full bg-brand-500 flex items-center justify-center mx-auto mb-3">
+            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <p class="text-navy-800 font-semibold">Vollbericht wird erstellt!</p>
+          <p class="text-gray-600 text-sm mt-1">Pr&uuml;fen Sie Ihre E-Mail in wenigen Minuten. Absender: <span class="font-mono">bericht@geoforensic.de</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
     <!-- PREMIUM TEASER                               -->
     <!-- ============================================ -->
     <section id="premium" class="py-16 md:py-24 bg-navy-900 text-white relative overflow-hidden">
@@ -1333,6 +1502,43 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             } catch (err) {
                 btn.disabled = false;
                 btn.textContent = 'Kostenlosen Bericht anfordern';
+                alert('Fehler: ' + err.message + '\nBitte prüfen Sie die Adresse und versuchen Sie es erneut.');
+            }
+        }
+
+        // Pilot-Vollbericht-Anfrage — emittiert source="pilot-vollbericht",
+        // welcher in backend PAID_SOURCES enthalten ist und damit den
+        // Vollbericht statt des Teasers ausliefert.
+        async function handlePilotLead(e) {
+            e.preventDefault();
+            const street = document.getElementById('pilot-street').value;
+            const city = document.getElementById('pilot-city').value;
+            const email = document.getElementById('pilot-email').value;
+            const btn = document.getElementById('pilot-submit-btn');
+
+            btn.disabled = true;
+            btn.textContent = 'Wird gesendet...';
+
+            try {
+                const res = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email,
+                        address: street.trim() + ', ' + city.trim(),
+                        answers: { nutzung: 'pilot', source_page: 'landing_pilot' },
+                        source: 'pilot-vollbericht'
+                    })
+                });
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    throw new Error(data.detail || 'Senden fehlgeschlagen');
+                }
+                document.getElementById('pilot-vollbericht-form').classList.add('hidden');
+                document.getElementById('pilot-success').classList.remove('hidden');
+            } catch (err) {
+                btn.disabled = false;
+                btn.textContent = 'Vollbericht als Pilot-Nutzer anfordern';
                 alert('Fehler: ' + err.message + '\nBitte prüfen Sie die Adresse und versuchen Sie es erneut.');
             }
         }

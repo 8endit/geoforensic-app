@@ -53,7 +53,12 @@ logger = logging.getLogger(__name__)
 #
 # When the paid flow is wired up (Stripe checkout etc.), it will set
 # source="paid" (or another value listed here) AFTER payment confirmation.
-PAID_SOURCES = {"paid", "checkout", "stripe"}
+#
+# "pilot-vollbericht" is a temporary pilot-phase exception: a dedicated
+# landing form ("Premium-Vorab-Anfrage") emits this source so pilot
+# users get the full Vollbericht for free while we collect feedback. It
+# will be removed from this set the day the Stripe paywall goes live.
+PAID_SOURCES = {"paid", "checkout", "stripe", "pilot-vollbericht"}
 
 
 class LeadCreate(BaseModel):
