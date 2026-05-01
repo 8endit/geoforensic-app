@@ -1,0 +1,59 @@
+{#-
+  Sektion 12 (Block 4) — Individuelle Einschätzung.
+  Bringt Korrelations-Spinne + Nachbarschafts-Histogramm + freitextliche
+  Synthese über das Profil.
+
+  Erwartet:
+    payload         - build_payload() Output
+    radar_svg       - rendered correlation_radar.svg.jinja2
+    hist_svg        - rendered neighborhood_histogram.svg.jinja2
+-#}
+<section class="section">
+  <h2>12 · Individuelle Einschätzung</h2>
+  <p>
+    Welche Faktoren treiben die gemessene Bewegung — und wo steht die
+    Adresse im Vergleich zur Nachbarschaft? Die Korrelations-Spinne
+    normiert die sechs wichtigsten Einflussgrößen auf eine 0–5-Skala;
+    das Histogramm vergleicht die Velocity der Adresse mit allen
+    PSI-Punkten im 500 m-Radius.
+  </p>
+
+  <div class="visual">{{ radar_svg|safe }}</div>
+  <div class="visual">{{ hist_svg|safe }}</div>
+
+  {%- set rd = payload.components.risk_dashboard %}
+  {%- set radar = payload.components.correlation_radar %}
+  {%- set hist = payload.components.neighborhood_histogram %}
+
+  <h3>Synthese</h3>
+  <p>
+    Die Adresse fällt mit Burland-Klasse {{ rd.burland_class }}
+    (<span class="pill {{ rd.burland_label }}">{{ rd.burland_label }}</span>) und
+    Gesamtnote <strong>{{ rd.overall_grade }}</strong> in das Spektrum
+    <em>{{ rd.overall_grade_label }}</em>. Empfohlenes Vorgehen:
+    <strong>{{ rd.overall_grade_recommendation }}</strong>.
+  </p>
+  <p>
+    Stärkster Treiber im Achsen-Profil: <strong>{{ radar.dominant_driver|capitalize }}</strong>.
+    {{ radar.interpretation }}
+  </p>
+  <p>
+    In der Nachbarschaft (500 m) liegt die Adresse bei
+    <strong>Perzentil {{ hist.percentile if hist.percentile is not none else '—' }}</strong>
+    der absoluten Velocity-Verteilung —
+    {% if (hist.percentile or 0) <= 25 %}
+    im stabilen Drittel der Umgebung.
+    {% elif (hist.percentile or 0) <= 75 %}
+    im typischen Mittelfeld der Umgebung.
+    {% else %}
+    im auffälligeren Randbereich der Umgebung.
+    {% endif %}
+  </p>
+
+  <p class="small">
+    Diese Einschätzung ist eine <strong>Bodenscreening-Auskunft</strong>, kein
+    Gutachten. Sie ersetzt weder eine fachgutachterliche In-situ-Erkundung
+    (z.B. Baugrundgutachten nach DIN 4020) noch die Auskunft des zuständigen
+    Landesumweltamtes.
+  </p>
+</section>

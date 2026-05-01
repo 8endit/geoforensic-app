@@ -1,0 +1,44 @@
+/* Auto-generated from shared/visual_tokens.json by
+ * backend/scripts/generate_tokens_css.py — DO NOT EDIT BY HAND.
+ * Re-run the generator after changing the JSON.
+ */
+
+:root {
+  --ampel-stabil: #1D9E75;
+  --ampel-leicht: #5DCAA5;
+  --ampel-moderat: #EF9F27;
+  --ampel-auffaellig: #E24B4A;
+  --ampel-erheblich: #A32D2D;
+  --ampel-kritisch: #7A1F1F;
+  --ampel-edge: #9FE1CB;
+  --accent-own-property: #185FA5;
+  --accent-trend: #A32D2D;
+  --accent-psi-motion: #534AB7;
+  --structural-bebauung: #5F5E5A;
+  --structural-versiegelung: #888780;
+  --structural-topsoil: #FAC775;
+  --structural-subsoil: #EF9F27;
+  --structural-weathered: #888780;
+  --structural-bedrock: #444441;
+  --structural-groundwater: #185FA5;
+  --structural-precipitation: #B5D4F4;
+  --font-sans: -apple-system, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  --font-display: 'Sentient', -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  --fs-burland-class-number: 64px;
+  --fs-component-title: 22px;
+  --fs-component-title-compact: 18px;
+  --fs-label: 14px;
+  --fs-axis-label: 12px;
+  --fs-footnote: 10px;
+  --viewbox-width: 680px;
+  --padding: 20px;
+  --premium-bg: #000000;
+  --premium-fg: #FFFFFF;
+  --premium-accent: #22C55E;
+  --premium-border: #424242;
+  --free-bg: #FFFFFF;
+  --free-accent: #22C55E;
+  --teaser-blur: blur(8px);
+  --teaser-opacity: 0.6;
+}

@@ -33,13 +33,13 @@
           "properties": {
             "burland_class": {
               "type": "integer",
-              "minimum": 0,
+              "minimum": 1,
               "maximum": 6,
-              "description": "Burland-Klassifikation 0=vernachlässigbar bis 6=schwer"
+              "description": "Burland-Klassifikation 1=stabil bis 6=kritisch (siehe SPEC_VISUALS.md §3 Ampelsystem)"
             },
             "burland_label": {
               "type": "string",
-              "enum": ["vernachlässigbar", "sehr leicht", "leicht", "mäßig", "stark", "sehr stark", "schwer"]
+              "enum": ["stabil", "leicht", "moderat", "auffällig", "erheblich", "kritisch"]
             },
             "burland_description": {
               "type": "string",
@@ -63,7 +63,7 @@
             },
             "data_quality": {
               "type": "string",
-              "enum": ["niedrig", "mittel", "hoch"]
+              "enum": ["niedrig", "begrenzt", "mittel", "hoch"]
             },
             "data_quality_description": {
               "type": "string",

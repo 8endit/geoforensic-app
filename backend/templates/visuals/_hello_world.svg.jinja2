@@ -1,0 +1,31 @@
+{#-
+  Smoke-test template for V.1.2 visual_renderer.
+
+  Exercises:
+   - data context  ({{ data.message }})
+   - tokens access ({{ tokens.ampel.leicht.color }})
+   - ampel() helper
+   - fmt_signed() helper
+-#}
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 {{ tokens.layout.viewbox_width_px }} 120"
+     width="100%" height="120">
+  <rect x="0" y="0"
+        width="{{ tokens.layout.viewbox_width_px }}" height="120"
+        fill="{{ ampel(data.velocity).color }}"
+        opacity="0.15"/>
+  <text x="20" y="40"
+        font-family="{{ tokens.typography.font_family_display }}"
+        font-size="{{ tokens.typography.scale_px.component_title }}"
+        fill="{{ ampel(data.velocity).color }}">
+    {{ data.message }}
+  </text>
+  <text x="20" y="70"
+        font-family="{{ tokens.typography.font_family_mono }}"
+        font-size="{{ tokens.typography.scale_px.label }}"
+        fill="{{ tokens.report_design.premium.foreground if data.dark else tokens.structural.bedrock.color }}">
+    Velocity: {{ fmt_signed(data.velocity) }} mm/Jahr
+    · Burland-Klasse {{ ampel(data.velocity).burland_class }}
+    · Label: {{ ampel(data.velocity).label }}
+  </text>
+</svg>

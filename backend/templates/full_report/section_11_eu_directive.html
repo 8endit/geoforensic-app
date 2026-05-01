@@ -1,0 +1,58 @@
+{#-
+  Sektion 11 (Block 4) — EU Soil Monitoring Directive 2025/2360.
+  16-Descriptor-Bewertung mit Provenance pro Wert.
+-#}
+<section class="section">
+  <p class="eyebrow">Block 04 · Gesamt-Bewertung</p>
+  <h2>11 · EU Soil Monitoring Directive — 16 Descriptoren</h2>
+  <h4>Rechtsgrundlage: EU 2025/2360 · Umsetzung Mitgliedstaaten bis ~Dez 2028</h4>
+
+  {% if soil_directive_data %}
+  {%- set sd = soil_directive_data %}
+  <p>
+    Die EU-Bodenrichtlinie (verabschiedet 2025) verlangt eine flächendeckende
+    Bodenüberwachung über 16 Descriptoren in vier Teilen (A: EU-weite Kriterien,
+    B: regionale Anpassung, C: chemische Belastung, D: Biodiversität).
+    Stand am Standort:
+  </p>
+
+  {%- set parts = [('A', 'EU-Kriterien', sd.get('part_a', {})),
+                   ('B', 'Regionale Anpassung', sd.get('part_b', {})),
+                   ('C', 'Chemische Belastung', sd.get('part_c', {})),
+                   ('D', 'Biodiversität', sd.get('part_d', {}))] %}
+  {% for letter, title, part in parts %}
+  {% if part %}
+  <h3>Teil {{ letter }} — {{ title }}</h3>
+  <table class="data-table">
+    <thead>
+      <tr><th>Descriptor</th><th>Wert</th><th>Status</th><th>Quelle</th></tr>
+    </thead>
+    <tbody>
+      {% for key, item in part.items() %}
+      {% if item is mapping %}
+      <tr>
+        <td>{{ item.get('label', key) }}</td>
+        <td class="num">{{ item.get('value', '—') }}{% if item.get('unit') %} {{ item.unit }}{% endif %}</td>
+        <td><span class="pill {{ item.get('status', 'muted') }}">{{ item.get('status_label', item.get('status', '—')) }}</span></td>
+        <td class="small">{{ item.get('source', '—') }}</td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+  {% endfor %}
+
+  {% if sd.get('overall') %}
+  <h3>Gesamteinordnung nach EU 2025/2360</h3>
+  <p>
+    {{ sd.overall.get('summary', '') }}
+  </p>
+  {% endif %}
+  {% else %}
+  <div class="placeholder">
+    EU-Bodenrichtlinie-Auswertung derzeit nicht verfügbar — Pipeline scharfgeschaltet,
+    aber Eingangs-Daten (SoilGrids/LUCAS/CORINE) für diese Adresse unvollständig.
+  </div>
+  {% endif %}
+</section>

@@ -157,27 +157,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <span class="inline-block ml-1">&rarr;</span>
       </button>
 
-      <!-- Trust Bar -->
-      <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-8 text-sm text-brand-700/50">
-        <span class="flex items-center gap-1.5">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-          </svg>
-          100% Datenschutz
+      <!-- Trust Bar — gleiche Datenquellen wie auf der Landing, in der
+           Quiz-Brand-Palette. -->
+      <p class="text-center text-[10px] font-bold tracking-widest text-brand-700/40 uppercase mt-8 mb-3">
+        Datenquellen
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs text-brand-700/60">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-50 border border-brand-100 font-semibold">
+          <span class="w-1.5 h-1.5 rounded-full bg-accent-500"></span>
+          Copernicus EGMS
         </span>
-        <span class="flex items-center gap-1.5">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-          </svg>
-          Auf EU-Datenquellen basierend
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-50 border border-brand-100 font-semibold">
+          <span class="w-1.5 h-1.5 rounded-full bg-accent-500"></span>
+          SoilGrids 250 m
         </span>
-        <span class="flex items-center gap-1.5">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-          </svg>
-          Kostenlos in der Pilotphase
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-50 border border-brand-100 font-semibold">
+          <span class="w-1.5 h-1.5 rounded-full bg-accent-500"></span>
+          LUCAS Topsoil
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-50 border border-brand-100 font-semibold">
+          <span class="w-1.5 h-1.5 rounded-full bg-accent-500"></span>
+          BGR GÜK250
         </span>
       </div>
+      <p class="text-center text-xs text-brand-700/40 mt-4">
+        DSGVO-konform · Verarbeitung in Deutschland · Kostenlos in der Pilotphase
+      </p>
     </div>
   </div>
 
@@ -262,8 +267,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <span class="inline-block w-3 h-3 rounded-full bg-amber-400"></span>
           <span class="text-sm font-semibold text-brand-800">Mittleres bis erhöhtes Risiko erkannt</span>
         </div>
-        <p class="text-sm text-brand-700/70 leading-relaxed">
+        <p class="text-sm text-brand-700/70 leading-relaxed mb-3">
           Wir haben potenziell relevante Daten für Ihr Profil gefunden. Lassen Sie sich Ihren detaillierten Bodenbericht mit Handlungsempfehlungen zusenden.
+        </p>
+        <p class="text-xs text-brand-700/60 leading-relaxed border-t border-brand-100 pt-3">
+          <span class="font-semibold">Ihr Bericht enthält:</span>
+          Burland-Bewegungsklasse · Karte mit InSAR-Streupunkten · 5-Jahres-Velocity-Zeitreihe · Nachbarschaftsvergleich.
         </p>
       </div>
 

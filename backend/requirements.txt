@@ -26,4 +26,13 @@ shapely
 Pillow
 sentry-sdk[fastapi]
 redis>=5.0
+# Visuals-Sprint (V.4): QR-Code generation for the Vollbericht cover page.
+segno>=1.6
+# Visuals-Sprint (V.1): build-time tool (scripts/subset_fonts.py) that
+# subsets the inline woff2 fonts shipped in backend/static/fonts/. Runtime
+# never imports it; pinned for reproducible dev builds.
+fonttools>=4.50
+# Visuals-Sprint (V.0.5) acceptance: payload schema validation against
+# docs/visuals/data_contract.json. Test-only dependency.
+jsonschema>=4.0
 

@@ -239,10 +239,54 @@ _EINSCHAETZUNG_FALLBACK = {
 }
 
 _LOCK_PILL_HTML = """<div class="lock-overlay"><span class="lock-pill">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-  </svg>Im Vollbericht enthalten</span></div>"""
+  </svg>Vollbericht freischalten</span></div>"""
+
+# Trust-bar: text-only badges for all data sources we use across both
+# Free and Premium reports. Order roughly mirrors the report flow.
+_TRUST_BAR_HTML = """<div class="trust-bar">
+  <span class="label">Datenquellen</span>
+  <span class="badge"><span class="dot-mini"></span>Copernicus EGMS</span>
+  <span class="badge"><span class="dot-mini"></span>SoilGrids 250 m</span>
+  <span class="badge"><span class="dot-mini"></span>LUCAS Topsoil</span>
+  <span class="badge"><span class="dot-mini"></span>BGR GÜK250</span>
+  <span class="badge"><span class="dot-mini"></span>DWD KOSTRA</span>
+  <span class="badge"><span class="dot-mini"></span>BfG HWRM</span>
+  <span class="badge"><span class="dot-mini"></span>OpenStreetMap</span>
+  <span class="badge"><span class="dot-mini"></span>EU 2025/2360</span>
+</div>"""
+
+# CTA visual-preview strip: 6 tiny SVG icons hinting at the visualisations
+# the buyer gets in the Vollbericht. Keeps the CTA visually grounded and
+# consistent with the V.2/V.3 visuals language.
+_CTA_VISUALS_HTML = """<div class="cta-visuals">
+  <div class="vtile">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 14h18"/><path d="M9 8h.01M15 8h.01M9 14v6M15 14v6"/></svg>
+    <div class="vlbl">Dashboard</div>
+  </div>
+  <div class="vtile">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="6" stroke-dasharray="2 2"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>
+    <div class="vlbl">Karte</div>
+  </div>
+  <div class="vtile">
+    <svg viewBox="0 0 24 24"><path d="M3 17l4-3 5 2 4-5 5 4"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+    <div class="vlbl">Zeitreihe</div>
+  </div>
+  <div class="vtile">
+    <svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="3"/><rect x="6" y="7" width="12" height="3"/><rect x="6" y="11" width="12" height="6"/><path d="M3 18h18"/></svg>
+    <div class="vlbl">Boden­profil</div>
+  </div>
+  <div class="vtile">
+    <svg viewBox="0 0 24 24"><polygon points="12,3 21,8 21,16 12,21 3,16 3,8"/><polygon points="12,8 17,11 17,15 12,18 7,15 7,11" fill="currentColor" fill-opacity=".3"/></svg>
+    <div class="vlbl">Korrelation</div>
+  </div>
+  <div class="vtile">
+    <svg viewBox="0 0 24 24"><rect x="3" y="14" width="2.5" height="6"/><rect x="6" y="11" width="2.5" height="9"/><rect x="9" y="6" width="2.5" height="14"/><rect x="12" y="9" width="2.5" height="11"/><rect x="15" y="13" width="2.5" height="7"/><rect x="18" y="16" width="2.5" height="4"/></svg>
+    <div class="vlbl">Histogramm</div>
+  </div>
+</div>"""
 
 
 def _texture_name(clay: float, sand: float, silt: float) -> str:
@@ -528,6 +572,61 @@ def generate_html_report(
   .section-label::before, .section-label::after {{
     content:""; flex:1; height:1px; background:var(--border);
   }}
+  /* "Im Vollbericht enthalten" gets a stronger accent so it reads as a
+     conversion-trigger rather than a neutral divider. */
+  .section-label.locked-strap {{
+    color:var(--accent); margin-top:22px;
+  }}
+  .section-label.locked-strap::before,
+  .section-label.locked-strap::after {{
+    background:linear-gradient(to right, transparent, var(--accent) 40%, var(--accent) 60%, transparent);
+    height:1.5px;
+  }}
+
+  /* Trust-Bar: data-source badges shown directly under the address row */
+  .trust-bar {{
+    display:flex; flex-wrap:wrap; gap:6px 8px;
+    margin:0 4px 14px;
+    padding:10px 12px; border-radius:6px;
+    background:#f8fafc; border:1px solid var(--border);
+  }}
+  .trust-bar .label {{
+    font-size:9px; font-weight:700; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--gray);
+    margin-right:4px; align-self:center;
+  }}
+  .trust-bar .badge {{
+    display:inline-flex; align-items:center; gap:4px;
+    padding:3px 8px; border-radius:999px;
+    background:white; border:1px solid var(--border);
+    font-size:9.5px; font-weight:600; color:var(--accent);
+    letter-spacing:.02em;
+  }}
+  .trust-bar .badge .dot-mini {{
+    width:5px; height:5px; border-radius:50%;
+    background:var(--green); flex:0 0 auto;
+  }}
+
+  /* CTA visual preview strip — six small icon-tiles teasing the
+     visualisations the buyer unlocks in the Vollbericht. */
+  .cta-visuals {{
+    display:grid; grid-template-columns:repeat(6, 1fr); gap:6px;
+    margin:0 0 14px;
+  }}
+  .cta-visuals .vtile {{
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:6px; padding:8px 4px 6px;
+    text-align:center; line-height:1.2;
+  }}
+  .cta-visuals .vtile svg {{
+    display:block; margin:0 auto 3px; width:24px; height:24px;
+    stroke:rgba(255,255,255,.92); fill:none; stroke-width:1.6;
+  }}
+  .cta-visuals .vtile .vlbl {{
+    font-size:8px; font-weight:600; color:rgba(255,255,255,.85);
+    text-transform:uppercase; letter-spacing:.04em;
+  }}
 
   .card {{
     background:white; border:1px solid var(--border); border-radius:8px;
@@ -588,12 +687,13 @@ def generate_html_report(
   }}
   .lock-pill {{
     display:inline-flex; align-items:center; gap:6px;
-    background:rgba(255,255,255,.96); border:1px solid #cbd5e1;
-    border-radius:999px; padding:5px 12px;
-    font-size:10px; font-weight:600; color:var(--accent);
-    box-shadow:0 4px 10px -4px rgba(12,29,58,.25); letter-spacing:.02em;
+    background:rgba(255,255,255,.96); border:1px solid var(--accent);
+    border-radius:999px; padding:6px 14px;
+    font-size:10px; font-weight:700; color:var(--accent);
+    box-shadow:0 6px 14px -6px rgba(12,29,58,.30); letter-spacing:.04em;
+    text-transform:uppercase;
   }}
-  .lock-pill svg {{ width:11px; height:11px; }}
+  .lock-pill svg {{ width:12px; height:12px; }}
 
   .metal-grid {{ display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }}
   .metal-cell {{ background:#f8fafc; border-radius:5px; padding:8px 4px; text-align:center; }}
@@ -668,6 +768,8 @@ def generate_html_report(
   {map_html}
 </div>
 
+{_TRUST_BAR_HTML}
+
 <div class="section-label">Sichtbar im kostenlosen Bericht</div>
 
 <div class="card">
@@ -705,7 +807,7 @@ def generate_html_report(
   <div class="ss">{einschaetzung_html}</div>
 </div>
 
-<div class="section-label">Im Vollbericht enthalten</div>
+<div class="section-label locked-strap">Im Vollbericht enthalten</div>
 
 <div class="card locked">
   <h2>Schwermetalle &amp; Schadstoffe</h2>
@@ -870,7 +972,8 @@ def generate_html_report(
 <div class="cta">
   <div class="kicker">Vollbericht</div>
   <h3>Alles sehen, was hier noch verdeckt ist</h3>
-  <p>Schwermetalle, Bodenqualität, Nährstoffe, Pestizid-Rückstände, InSAR-Detailwerte, Geländeprofil, Bergbau, Altlasten-Indikator, Hochwasser, Starkregen, Radon, Erdbebenzonen plus die vollständige Auswertung der 16 Descriptoren der EU-Bodenüberwachungsrichtlinie 2025/2360 erscheinen ungeschwärzt im Vollbericht — inklusive PDF-Download.</p>
+  {_CTA_VISUALS_HTML}
+  <p>Sechs interaktive Visualisierungen — Risiko-Dashboard, Karte mit InSAR-Punkten, Velocity-Zeitreihe, Bodenprofil-Querschnitt, Korrelations-Spinne und Nachbarschafts-Histogramm — plus alle exakten Messwerte für Schwermetalle, Bodenqualität, Nährstoffe, Pestizid-Rückstände, Geländeprofil, Bergbau, Altlasten, Hochwasser, Starkregen und die 16 Descriptoren der EU-Bodenüberwachungsrichtlinie 2025/2360. Inklusive PDF-Download.</p>
   <a href="https://bodenbericht.de/#premium">Auf die Warteliste</a>
   <div class="small">Noch nicht bestellbar. Early-Bird-Platz sichern, Start-Rabatt erhalten.</div>
 </div>

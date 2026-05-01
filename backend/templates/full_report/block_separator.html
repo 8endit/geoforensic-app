@@ -1,0 +1,25 @@
+{#-
+  block_separator.html — Trenn-Seite zwischen den 4 thematischen Blöcken.
+
+  Erwartet:
+    block_num    - 1..4
+    block_title  - "Bodenrisiken aus Satellit & Wetter"
+    block_desc   - kurze Erläuterung des Blocks
+    pills        - Liste [{label, ampel}], optional, Status-Übersicht
+-#}
+<section class="block-sep">
+  <div class="num">Block {{ '%02d' % block_num }} · {{ pills|length if pills else 0 }} Sektion{{ 'en' if (pills|length if pills else 0) != 1 else '' }}</div>
+  <h2>{{ block_title }}</h2>
+  <div>
+    {% if block_desc %}
+    <p class="desc">{{ block_desc }}</p>
+    {% endif %}
+    {% if pills %}
+    <div class="status-row">
+      {% for pill in pills %}
+      <span class="status-pill" data-ampel="{{ pill.ampel or 'none' }}">{{ pill.label }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>

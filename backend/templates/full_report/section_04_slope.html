@@ -1,0 +1,39 @@
+{#-
+  Sektion 4 (Block 2) — Geländeprofil aus Multi-Scale Slope Analyse.
+-#}
+<section class="section">
+  <p class="eyebrow">Block 02 · Untergrund &amp; Topographie</p>
+  <h2>4 · Geländeprofil</h2>
+  <h4>Datenquelle: OpenTopoData (SRTM 1-arcsec) · Multi-Scale</h4>
+
+  {% if slope_data and slope_data.get('available') %}
+  <div class="kpi-strip">
+    <div class="kpi">
+      <div class="v">{{ '%.1f' % slope_data.slope_deg }}°</div>
+      <div class="l">Hangneigung</div>
+    </div>
+    <div class="kpi">
+      <div class="v">{{ '%.0f' % slope_data.elevation_m }} m</div>
+      <div class="l">Höhe ü. NHN</div>
+    </div>
+    <div class="kpi">
+      <div class="v">{{ slope_data.aspect_label }}</div>
+      <div class="l">Exposition</div>
+    </div>
+    <div class="kpi">
+      <div class="v">{{ slope_data.classification }}</div>
+      <div class="l">Klasse</div>
+    </div>
+  </div>
+  <p class="small">
+    Die Steigung wurde an drei Skalen (50 m, 150 m, 500 m) gemessen; angezeigt ist die
+    steilste der drei (Skala {{ slope_data.scale_m }} m). Werte über 5° markieren erhöhtes
+    Erosionsrisiko bei Starkregen, über 15° werden Hangrutschungs-Indikatoren relevant.
+  </p>
+  {% else %}
+  <div class="placeholder">
+    Geländeprofil derzeit nicht abrufbar — OpenTopoData hat eine Tageskontigent-Grenze und
+    Open-Elevation-Fallback ist instabil. Wiederholung im nächsten Bericht-Lauf.
+  </div>
+  {% endif %}
+</section>

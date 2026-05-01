@@ -1,0 +1,68 @@
+{#-
+  Teaser-Wrapper für Tier-2-Visuals im Free-Bericht.
+  Spec:  SPEC_VISUALS.md §5
+  Daten: das gewrappte Inner-SVG als String + Dimensions + CTA-Text
+
+  Erwartet:
+    inner_svg     - kompletter <svg>…</svg> String der gewrappten Komponente.
+                    Wird via |safe als nested SVG inline eingebettet (kein
+                    foreignObject, kein WeasyPrint-Risiko).
+    inner_width   - 680
+    inner_height  - Höhe der gewrappten Komponente
+    cta_text      - z.B. "Premium-Inhalt — Bericht freischalten"
+    cta_url       - optional
+
+  Effekt:
+    1. Inner-SVG wird in <g filter="url(#teaser-blur)"> mit feGaussianBlur eingebettet
+    2. Halbtransparenter Lock-Layer drüber
+    3. Schloss-Icon + CTA-Text zentriert
+-#}
+{%- set blur = tokens.tier_blur.svg_blur_stddev -%}
+{%- set lock_color = tokens.tier_blur.lock_overlay_color -%}
+{%- set lock_alpha = tokens.tier_blur.lock_overlay_opacity -%}
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="{{ inner_width }}" height="{{ inner_height }}"
+     viewBox="0 0 {{ inner_width }} {{ inner_height }}"
+     font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <filter id="teaser-blur" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur stdDeviation="{{ blur }}"/>
+    </filter>
+  </defs>
+
+  {# Geblurrtes Inner-SVG (nested) #}
+  <g filter="url(#teaser-blur)" opacity="0.55">
+    {{ inner_svg|safe }}
+  </g>
+
+  {# Halbtransparenter Lock-Layer #}
+  <rect x="0" y="0" width="{{ inner_width }}" height="{{ inner_height }}"
+        fill="{{ lock_color }}" fill-opacity="{{ lock_alpha }}"/>
+
+  {# Schloss-Icon + CTA #}
+  {%- set cx = inner_width // 2 -%}
+  {%- set cy = inner_height // 2 -%}
+  <g transform="translate({{ cx }}, {{ cy - 30 }})">
+    {# Schloss-Bügel #}
+    <path d="M -14 -6 V -16 a 14 14 0 0 1 28 0 V -6"
+          fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+    {# Schloss-Body #}
+    <rect x="-18" y="-8" width="36" height="28" rx="4" fill="#FFFFFF"/>
+    <circle cx="0" cy="4" r="3" fill="{{ lock_color }}"/>
+    <line x1="0" y1="4" x2="0" y2="12" stroke="{{ lock_color }}" stroke-width="2.5"/>
+  </g>
+  <text x="{{ cx }}" y="{{ cy + 24 }}" text-anchor="middle"
+        font-size="14" font-weight="500" fill="#FFFFFF">
+    {{ cta_text or "Premium-Inhalt" }}
+  </text>
+  <text x="{{ cx }}" y="{{ cy + 44 }}" text-anchor="middle"
+        font-size="12" fill="#FFFFFF" opacity="0.9">
+    Bericht freischalten für vollen Einblick
+  </text>
+  {% if cta_url %}
+  <text x="{{ cx }}" y="{{ cy + 64 }}" text-anchor="middle"
+        font-size="11" fill="#FFFFFF" opacity="0.75">
+    {{ cta_url }}
+  </text>
+  {% endif %}
+</svg>

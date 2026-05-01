@@ -1,0 +1,52 @@
+{#-
+  data_sources.html — letzte Seite des Vollberichts.
+  Provenance pro Modul + Lizenz-Klartext + Disclaimer.
+
+  Erwartet:
+    payload  - build_payload() Output (für report_id, generated_at)
+    sources  - Liste [{name, license, url, resolution_m, method, note}]
+-#}
+<section class="section page-break">
+  <p class="eyebrow">Provenance</p>
+  <h2>Datenquellen &amp; Lizenzen</h2>
+  <p>
+    Jeder Wert in diesem Bericht ist einer offiziellen Quelle zugeordnet.
+    Die folgende Übersicht listet die genutzten Datensätze, ihre Auflösung
+    und die Aggregations-Methode pro Modul. Aktualisierungen pro Quelle
+    siehe <span class="kbd">docs/DATA_PROVENANCE.md</span>.
+  </p>
+
+  <dl class="prov-list">
+    {% for s in sources %}
+    <dt>{{ s.name }}</dt>
+    <dd>
+      Lizenz: {{ s.license }}
+      {%- if s.get('resolution_m') %} · Auflösung {{ s.resolution_m }} m{% endif -%}
+      {%- if s.get('method') %} · Methode: {{ s.method }}{% endif %}
+      {% if s.get('url') %}<br><span class="url">{{ s.url }}</span>{% endif %}
+      {% if s.get('note') %}<br><span class="small">{{ s.note }}</span>{% endif %}
+    </dd>
+    {% endfor %}
+  </dl>
+
+  <h3>Was dieser Bericht ist — und was nicht</h3>
+  <div class="disclaimer">
+    <p>
+      Dieser Bericht ist eine <strong>automatisierte Standortauskunft / Bodenscreening</strong>
+      auf Basis offener europäischer und deutscher Geodatenquellen. Er ersetzt
+      <strong>kein Bau­grundgutachten nach DIN 4020 / EC 7</strong>, keine in-situ-Beprobung
+      und keine fachgutachterliche Einschätzung eines vereidigten Sachverständigen.
+    </p>
+    <p>
+      Werte in diesem Bericht sind Raster-Mittel oder regionale Aggregate (NUTS2),
+      keine adressgenauen Probenahmen. Für Bauplanung, Versicherungs-Streit oder
+      Streit­fälle ist eine zusätzliche In-situ-Erkundung erforderlich.
+    </p>
+    <p class="small">
+      © GeoForensic / Tepnosholding GmbH · Bericht-Nr. {{ payload.report_id }} ·
+      Erstellt {{ payload.metadata.generated_at }} · Daten-Stand der Quellen siehe oben.
+      <br>Hosting &amp; Verarbeitung: Contabo Deutschland · DSGVO-konforme
+      Verarbeitung gemäß Datenschutzerklärung auf bodenbericht.de.
+    </p>
+  </div>
+</section>

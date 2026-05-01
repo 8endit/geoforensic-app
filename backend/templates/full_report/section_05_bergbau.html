@@ -1,0 +1,65 @@
+{#-
+  Sektion 5 (Block 2) — Bergbau / Altbergbau.
+  Aktuell nur NRW (Bezirksregierung Arnsberg WMS).
+-#}
+<section class="section">
+  <h2>5 · Bergbau und Altbergbau</h2>
+  <h4>Datenquelle: Bezirksregierung Arnsberg WMS · Bergbauberechtigungen NRW</h4>
+
+  {% if mining_data and mining_data.get('available') %}
+  <p>
+    NRW ist das einzige Bundesland mit einem öffentlich abrufbaren WMS für
+    Bergbauberechtigungen. Außerhalb NRW ist eine adressgenaue Auskunft
+    nur über das jeweilige Landesbergamt möglich.
+  </p>
+
+  {%- set hits = mining_data.get('hits', []) %}
+  {% if hits %}
+  <div class="kpi-strip">
+    <div class="kpi">
+      <div class="v">{{ hits|length }}</div>
+      <div class="l">Bergrechtl. Treffer</div>
+    </div>
+    <div class="kpi">
+      <div class="v">{{ '%.0f' % mining_data.get('search_radius_m', 500) }} m</div>
+      <div class="l">Suchradius</div>
+    </div>
+    <div class="kpi">
+      <div class="v">{{ mining_data.get('nearest_distance_m', '—') }} m</div>
+      <div class="l">nächster Treffer</div>
+    </div>
+    <div class="kpi">
+      <div class="v"><span class="pill auffaellig">prüfen</span></div>
+      <div class="l">Empfehlung</div>
+    </div>
+  </div>
+  <table class="data-table">
+    <thead>
+      <tr><th>Berechtigung</th><th>Status</th><th>Distanz</th></tr>
+    </thead>
+    <tbody>
+      {% for h in hits[:8] %}
+      <tr>
+        <td>{{ h.get('name', '—') }}</td>
+        <td>{{ h.get('status', '—') }}</td>
+        <td class="num">{{ h.get('distance_m', '—') }} m</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>
+    Keine Bergbauberechtigungen im Suchradius. Damit besteht für diese
+    Adresse <strong>kein adressgenaues Senkungsrisiko aus Tagesbergbau</strong>;
+    historische Stollen unterhalb des kartografierten Bestands können
+    nicht ausgeschlossen werden.
+  </p>
+  {% endif %}
+  {% else %}
+  <div class="placeholder">
+    Bergbau-Daten nur für NRW abrufbar. Außerhalb NRW: Auskunft beim
+    zuständigen Landesbergamt (Bayern: LfU München, BW: Regierungspräsidium
+    Freiburg, Saarland: Oberbergamt Saarbrücken) erforderlich.
+  </div>
+  {% endif %}
+</section>

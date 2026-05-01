@@ -1,0 +1,125 @@
+{#-
+  Komponente 4 — Bodenkontext-Stapel.
+  Quelle: docs/visuals/reference_svgs/04_soil_context_stack.svg
+  Spec:   SPEC_VISUALS.md §4.4
+  Daten:  data_contract.json :: components.soil_context_stack
+
+  Erwartet als Render-Kontext:
+    stack - dict aus chart_helpers.build_soil_stack_render_context()
+    data  - die rohe Komponente
+-#}
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="680" height="420" viewBox="0 0 680 420"
+     font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>GeoForensic Bodenkontext-Stapel</title>
+  <desc>Vertikaler Querschnitt durch das Grundstück bis {{ stack.depth_m|int }} m Tiefe.</desc>
+
+  <text x="40" y="32" font-size="14" font-weight="500" fill="#2C2C2A">Bodenprofil bis {{ stack.depth_m|int }}&#160;m</text>
+  <text x="40" y="50" font-size="11" fill="#5F5E5A">Querschnitt von Oberkante bis Festgestein</text>
+
+  {% if not stack.available %}
+  <rect x="180" y="80" width="320" height="282" rx="8"
+        fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+  <text x="340" y="220" text-anchor="middle" font-size="14" fill="#5F5E5A">Bodendaten in Vorbereitung</text>
+  {% else %}
+  {# Bebauung — schlichter Rect mit Fenster-Andeutung. Dach bewusst
+     weggelassen, weil es bei kleinem stack_y_top über den Canvas
+     ragt und die Header-Texte überdeckt. #}
+  {% if stack.has_building %}
+  <rect x="{{ stack.stack_x }}" y="{{ stack.building_y }}"
+        width="{{ stack.stack_width }}" height="{{ stack.building_height }}"
+        fill="{{ stack.colors.bebauung }}"/>
+  <rect x="{{ stack.stack_x + 40 }}" y="{{ stack.building_y + 15 }}"
+        width="20" height="20" fill="#B4B2A9"/>
+  <rect x="{{ stack.stack_x + 80 }}" y="{{ stack.building_y + 15 }}"
+        width="20" height="20" fill="#B4B2A9"/>
+  <rect x="{{ stack.stack_x + 220 }}" y="{{ stack.building_y + 15 }}"
+        width="20" height="20" fill="#B4B2A9"/>
+  <rect x="{{ stack.stack_x + 260 }}" y="{{ stack.building_y + 15 }}"
+        width="20" height="20" fill="#B4B2A9"/>
+  {% endif %}
+
+  {# Versiegelung (zwischen Bebauung und Bodenoberfläche) #}
+  {% if stack.sealing_height > 0 %}
+  <rect x="{{ stack.stack_x }}" y="{{ stack.sealing_y }}"
+        width="{{ stack.stack_width }}" height="{{ stack.sealing_height }}"
+        fill="{{ stack.colors.versiegelung }}"/>
+  {% endif %}
+
+  {# Bodenschichten #}
+  {% for layer in stack.layers %}
+  <rect x="{{ stack.stack_x }}" y="{{ '%.1f' % layer.y }}"
+        width="{{ stack.stack_width }}" height="{{ '%.1f' % layer.h }}"
+        fill="{{ layer.color }}"/>
+  {% endfor %}
+
+  {# Grundwasserlinie — nur wenn Wert da #}
+  {% if stack.groundwater_y is not none %}
+  <line x1="{{ stack.stack_x }}" y1="{{ '%.1f' % stack.groundwater_y }}"
+        x2="{{ stack.stack_x + stack.stack_width + 10 }}" y2="{{ '%.1f' % stack.groundwater_y }}"
+        stroke="{{ stack.colors.groundwater }}" stroke-width="2" stroke-dasharray="5 3"/>
+  <text x="{{ stack.stack_x + stack.stack_width + 15 }}"
+        y="{{ '%.1f' % (stack.groundwater_y + 4) }}"
+        font-size="14" font-weight="500" fill="{{ stack.colors.groundwater }}">
+    Grundwasser {{ fmt_signed(stack.groundwater_depth_m, 1) }} m
+  </text>
+  {% endif %}
+
+  {# Tiefenachse #}
+  <line x1="{{ stack.stack_x - 10 }}" y1="{{ stack.stack_y_top }}"
+        x2="{{ stack.stack_x - 10 }}" y2="{{ stack.stack_y_top + stack.stack_height }}"
+        stroke="#888780" stroke-width="0.5"/>
+  {% for tick in stack.depth_ticks %}
+  <line x1="{{ stack.stack_x - 15 }}" y1="{{ '%.1f' % tick.y }}"
+        x2="{{ stack.stack_x - 10 }}" y2="{{ '%.1f' % tick.y }}"
+        stroke="#888780" stroke-width="0.5"/>
+  <text x="{{ stack.stack_x - 20 }}" y="{{ '%.1f' % (tick.y + 4) }}"
+        text-anchor="end" font-size="12" fill="#5F5E5A">{{ tick.label }}</text>
+  {% endfor %}
+
+  {# Beschriftungen rechts. Layout-Regel: jede Beschriftung beansprucht
+     vertikal 14 px (Label) + 0 px (sub-source ggf. inline). Bebauung
+     und Versiegelung kollidieren oft, daher Source-Hinweis kurz und
+     in Klammer angehängt statt 2-zeilig. #}
+  {% if stack.has_building %}
+  {%- set lab_y = stack.building_y + stack.building_height // 2 + 4 %}
+  <line x1="{{ stack.stack_x + stack.stack_width }}" y1="{{ lab_y - 4 }}"
+        x2="{{ stack.stack_x + stack.stack_width + 55 }}" y2="{{ lab_y - 4 }}"
+        stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="{{ stack.stack_x + stack.stack_width + 60 }}" y="{{ lab_y }}"
+        font-size="12" font-weight="500" fill="#2C2C2A">Bebauung</text>
+  {% endif %}
+  {% if stack.sealing_height > 0 %}
+  {%- set lab_y = stack.sealing_y + stack.sealing_height // 2 + 4 %}
+  <line x1="{{ stack.stack_x + stack.stack_width }}" y1="{{ lab_y - 4 }}"
+        x2="{{ stack.stack_x + stack.stack_width + 55 }}" y2="{{ lab_y - 4 }}"
+        stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="{{ stack.stack_x + stack.stack_width + 60 }}" y="{{ lab_y }}"
+        font-size="12" font-weight="500" fill="#2C2C2A">Versiegelung {{ stack.sealing_pct|int }} %</text>
+  {% endif %}
+  {% for layer in stack.layers %}
+  <line x1="{{ stack.stack_x + stack.stack_width }}" y1="{{ '%.1f' % layer.y_mid }}"
+        x2="{{ stack.stack_x + stack.stack_width + 55 }}" y2="{{ '%.1f' % layer.y_mid }}"
+        stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="{{ stack.stack_x + stack.stack_width + 60 }}"
+        y="{{ '%.1f' % (layer.y_mid - 2) }}"
+        font-size="12" font-weight="500" fill="#2C2C2A">{{ layer.label }}</text>
+  {%- if layer.source %}
+  {#- Source on a single short line: drop everything after an em-dash
+      so „BGR GÜK250 — Holozän" wird zu „BGR GÜK250" (Stratigraphie steht
+      bereits im Label oben). #}
+  {%- set src_short = (layer.source.split('—')[0] | trim) if '—' in layer.source else layer.source %}
+  <text x="{{ stack.stack_x + stack.stack_width + 60 }}"
+        y="{{ '%.1f' % (layer.y_mid + 12) }}"
+        font-size="11" fill="#5F5E5A">{{ src_short }}</text>
+  {%- endif %}
+  {% endfor %}
+
+  {# Footer-Hinweis bei fehlendem Grundwasser #}
+  {% if stack.groundwater_y is none %}
+  <text x="40" y="395" font-size="12" fill="#5F5E5A">
+    Grundwasserstand nicht verfügbar — Bodenstruktur weiterhin auswertbar.
+  </text>
+  {% endif %}
+  {% endif %}
+</svg>

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="680" height="260" viewBox="0 0 680 260"
+     font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>GeoForensic Risiko-Dashboard</title>
+  <desc>Burland-Klasse 2 (leicht),
+        Gesamtbewertung B.</desc>
+
+  <rect x="20" y="20" width="180" height="220" rx="12"
+        fill="#5DCAA5" fill-opacity="0.12"
+        stroke="#5DCAA5" stroke-width="0.75"/>
+  <text x="110" y="48" text-anchor="middle" font-size="11" font-weight="600"
+        fill="#5F5E5A" letter-spacing="0.04em">BURLAND-KLASSE</text>
+  <text x="110" y="135" text-anchor="middle" font-size="64" font-weight="500"
+        fill="#5DCAA5">2</text>
+  <text x="110" y="170" text-anchor="middle" font-size="14" font-weight="500"
+        fill="#5DCAA5">leicht</text>  <text x="110" y="200" text-anchor="middle" font-size="11"
+        fill="#5F5E5A">±0,5–±1,5 mm/Jahr</text>
+
+  <rect x="215" y="20" width="220" height="50" rx="8"
+        fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+  <text x="228" y="40" font-size="12" fill="#5F5E5A">Velocity</text>
+  <text x="422" y="50" text-anchor="end" font-size="14" font-weight="500"
+        fill="#2C2C2A">-0.5 mm/Jahr</text>
+  <text x="228" y="60" font-size="11"
+        fill="#5F5E5A">Mittel der drei nächsten PSI</text>
+
+  <rect x="215" y="80" width="220" height="50" rx="8"
+        fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+  <text x="228" y="100" font-size="12" fill="#5F5E5A">Trend</text>
+  <text x="422" y="110" text-anchor="end" font-size="14" font-weight="500"
+        fill="#2C2C2A">stabil</text>
+  <text x="228" y="120" font-size="11"
+        fill="#5F5E5A">leichte saisonale Schwankung</text>
+
+  <rect x="215" y="140" width="220" height="50" rx="8"
+        fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+  <text x="228" y="160" font-size="12" fill="#5F5E5A">Datenqualität</text>
+  <text x="422" y="170" text-anchor="end" font-size="14" font-weight="500"
+        fill="#2C2C2A">hoch</text>
+  <text x="228" y="180" font-size="11"
+        fill="#5F5E5A">32 PSI · Kohärenz 0.86</text>
+
+  <rect x="215" y="200" width="220" height="40" rx="8"
+        fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+  <text x="228" y="218" font-size="12" fill="#5F5E5A">PSI-Punkte im 500 m-Radius</text>
+  <text x="422" y="230" text-anchor="end" font-size="14" font-weight="500"
+        fill="#2C2C2A">32</text>
+
+  <rect x="450" y="20" width="210" height="220" rx="12"
+        fill="#5DCAA5" fill-opacity="0.10"
+        stroke="#5DCAA5" stroke-width="0.75"/>
+  <text x="555" y="48" text-anchor="middle" font-size="11" font-weight="600"
+        fill="#5F5E5A" letter-spacing="0.04em">GESAMTBEWERTUNG</text>
+  <circle cx="555" cy="130" r="52" fill="#5DCAA5"/>
+  <text x="555" y="146" text-anchor="middle" font-size="52" font-weight="500"
+        fill="#FFFFFF">B</text>
+  <text x="555" y="205" text-anchor="middle" font-size="14" font-weight="500"
+        fill="#5DCAA5">leichte Schwankung</text>
+  <text x="555" y="223" text-anchor="middle" font-size="11"
+        fill="#5F5E5A">Routinebeobachtung</text>
+</svg>

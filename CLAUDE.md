@@ -30,8 +30,16 @@ geoforensic-app/
 │   │   ├── schemas.py            # Pydantic request/response
 │   │   ├── auth.py               # JWT + bcrypt
 │   │   ├── dependencies.py       # get_current_user, get_db
-│   │   ├── html_report.py        # TEASER report (bodenbericht.de)
-│   │   ├── full_report.py        # FULL report (geoforensic.de, FPDF, wired since 2026-04-27)
+│   │   ├── html_report.py        # TEASER report (bodenbericht.de) - polished V.4.6
+│   │   ├── full_report.py        # FULL report (geoforensic.de) - HTML→Chrome since V.4 (2026-05)
+│   │   ├── visual_payload.py     # Aggregator → data_contract.json (V.0.5)
+│   │   ├── visual_renderer.py    # Jinja-SVG renderer for the 6 visuals (V.1)
+│   │   ├── basemap.py            # CartoDB Positron tile composite (V.2.3)
+│   │   ├── chart_helpers.py      # Render-context builders for 4 Tier-2 charts (V.3)
+│   │   ├── burland_classifier.py # Burland 1995 1-6 + A-E grade (V.0.1)
+│   │   ├── correlations.py       # Pearson r EGMS x precipitation (V.0.2)
+│   │   ├── geology.py            # BGR GÜK250 ArcGIS REST (V.0.3)
+│   │   ├── building_footprint.py # OSM Overpass building lookup (V.0.4)
 │   │   ├── pdf_renderer.py       # Chrome-headless HTML -> PDF (WeasyPrint fallback)
 │   │   ├── soil_data.py          # SoilGrids + LUCAS point queries
 │   │   ├── flood_data.py         # BfG HWRM Hochwasser WMS (DE)
@@ -96,7 +104,9 @@ Must be followed for ALL new pages on geoforensic.de:
 ### Working in production
 
 - Landing + quiz funnel + lead capture → background geocode + EGMS query + PDF + Brevo mail
-- Teaser PDF via `backend/app/html_report.py` (Chrome-headless rendered) — 13 Locked-Cards inkl. Geländeprofil, EU-Bodenrichtlinie, Pestizid-Rückstände
+- Teaser PDF via `backend/app/html_report.py` (Chrome-headless rendered) — 13 Locked-Cards + Trust-Bar mit 8 Datenquellen + Lock-Pille „Vollbericht freischalten" + CTA mit 6-Tile Mini-Vorschau (V.4.6 polish)
+- Vollbericht PDF via `backend/app/full_report.py` (Chrome-headless HTML→PDF, V.4 refactor) — Cover + 4 thematische Blöcke + 12 Sektionen mit allen 6 Visuals als inline SVG + Provenance/Datenquellen-Seite mit QR. Sentient + Geist Mono inline embedded. ~440 KB pro Bericht.
+- Landing-Page narrativ um die 6 Visuals herum redesigned (V.4.7): Hero mit Risiko-Dashboard rechts, Problem-Sektion mit alternierenden Image-Text-Rows, How-It-Works mit Berlin-Karte, Benefits mit Korrelations-Spinne, Premium-Teaser mit 6-Tile-Mini-Grid
 - `source`-based routing hook in `leads.py` (teaser vs. full report) — country-gated für DE/NL/AT/CH
 - Admin dashboard `landing/admin.html` with leads, stats, CSV export, TEASER/VOLL badge
 - Legal pages (Impressum, Datenschutz, Widerruf, Datenquellen) + Musterbericht

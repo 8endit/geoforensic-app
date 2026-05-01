@@ -1,0 +1,56 @@
+{#-
+  Sektion 2 (Block 1) — Hochwasser-Szenarien (BfG HWRM).
+
+  Erwartet:
+    flood_data   - {available, scenarios: {hq_haeufig, hq_100, hq_extrem}}
+                   oder None wenn nicht verfügbar
+-#}
+<section class="section">
+  <h2>2 · Hochwasser-Szenarien</h2>
+  <h4>Datenquelle: BfG Hochwasserrisikomanagement-Richtlinie (HWRM-RL)</h4>
+
+  {% if flood_data and flood_data.get('available') %}
+  <p>
+    Das Bundesanstalt-für-Gewässerkunde-WMS liefert für drei gesetzlich definierte Szenarien
+    Auskunft über die Überflutungswahrscheinlichkeit. Werte basieren auf bundesländerübergreifenden
+    Hochwassergefahrenkarten und werden alle 6 Jahre aktualisiert.
+  </p>
+
+  {%- set sc = flood_data.get('scenarios', {}) %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Szenario</th>
+        <th>Wiederkehrwahrscheinlichkeit</th>
+        <th>Status am Standort</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr {{ 'class="warn"' if sc.get('hq_haeufig', {}).get('affected') else '' }}>
+        <td>HQ häufig</td>
+        <td class="num">~ alle 10–20 Jahre</td>
+        <td>{% if sc.get('hq_haeufig', {}).get('affected') %}<span class="pill auffaellig">betroffen</span>{% else %}<span class="pill stabil">nicht betroffen</span>{% endif %}</td>
+      </tr>
+      <tr {{ 'class="warn"' if sc.get('hq_100', {}).get('affected') else '' }}>
+        <td>HQ 100</td>
+        <td class="num">alle 100 Jahre</td>
+        <td>{% if sc.get('hq_100', {}).get('affected') %}<span class="pill auffaellig">betroffen</span>{% else %}<span class="pill stabil">nicht betroffen</span>{% endif %}</td>
+      </tr>
+      <tr {{ 'class="alert"' if sc.get('hq_extrem', {}).get('affected') else '' }}>
+        <td>HQ extrem</td>
+        <td class="num">> alle 200 Jahre</td>
+        <td>{% if sc.get('hq_extrem', {}).get('affected') %}<span class="pill kritisch">betroffen</span>{% else %}<span class="pill stabil">nicht betroffen</span>{% endif %}</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="small">
+    Eine Betroffenheit im HQ-100-Szenario verteuert in der Regel die Elementarschadenversicherung
+    spürbar; HQ-extrem ist seit 2024 in vielen Tarifen vom Standardumfang ausgenommen.
+  </p>
+  {% else %}
+  <div class="placeholder">
+    Hochwasserdaten am Standort nicht verfügbar. Wenn Ihre Adresse außerhalb Deutschlands liegt,
+    sind BfG-Daten nicht anwendbar; eine entsprechende NL/AT/CH-Datenquelle ist auf der Roadmap.
+  </div>
+  {% endif %}
+</section>

@@ -1,0 +1,41 @@
+{#-
+  cover.html — Magazin-Cover des Premium-Vollberichts.
+  Cozy-Designsystem: schwarzer Vollbleed, Sentient Display, grüner Akzent.
+
+  Erwartet:
+    payload      - build_payload() Output
+    qr_svg       - SVG-String des QR-Codes (segno.QRCode().svg_inline())
+    issued_at    - Datum-String "01.05.2026"
+-#}
+<section class="cover">
+  <div class="brand">
+    <span class="logo">GeoForensic</span>
+    <span>Vollbericht · Standortauskunft</span>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow">Bodenrisiko-Auskunft</div>
+    <h1>Bewegung, Boden und<br>Untergrund unter<br>Ihrer Adresse.</h1>
+    <div class="address">{{ payload.address.full }}</div>
+    <div class="coords">
+      {{ '%.5f' % payload.address.lat }}, {{ '%.5f' % payload.address.lon }}
+    </div>
+  </div>
+
+  <div class="meta">
+    <div class="meta-block">
+      <div><span class="label">Bericht-Nr.</span> <span class="value">{{ payload.report_id }}</span></div>
+      <div><span class="label">Erstellt</span>   <span class="value">{{ issued_at }}</span></div>
+      <div><span class="label">Datenquellen</span> <span class="value">EGMS · BGR · DWD · Copernicus · LUCAS</span></div>
+      {% if payload.tier == 'premium' %}
+      <div><span class="label">Tier</span> <span class="value" style="color:var(--premium-accent);">Premium</span></div>
+      {% endif %}
+    </div>
+    <div>
+      {% if qr_svg %}
+      <div class="qr">{{ qr_svg|safe }}</div>
+      <div class="qr-label">Provenance</div>
+      {% endif %}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,58 @@
+{#-
+  Sektion 9 (Block 3) — Nährstoffe (LUCAS Topsoil — N, P, K, CaCO3).
+-#}
+<section class="section">
+  <h2>9 · Nährstoffversorgung</h2>
+  <h4>Datenquelle: JRC ESDAC LUCAS Topsoil 2018</h4>
+
+  {% if soil_profile and soil_profile.get('nutrients') %}
+  {%- set n = soil_profile.get('nutrients', {}) %}
+  <p>
+    Hintergrund-Versorgung des Oberbodens am Standort. Relevant
+    für Garten- und Landschaftsplanung; nicht relevant für Statik.
+  </p>
+  <table class="data-table">
+    <thead>
+      <tr><th>Parameter</th><th>Wert</th><th>Einheit</th><th>Einordnung</th></tr>
+    </thead>
+    <tbody>
+      {% if n.get('n') is not none %}
+      <tr>
+        <td>Stickstoff (Gesamt-N)</td>
+        <td class="num">{{ '%.2f' % n.n }}</td>
+        <td>g/kg</td>
+        <td><span class="pill {{ 'stabil' if n.n > 1.5 else 'moderat' }}">{{ 'gut versorgt' if n.n > 1.5 else 'arm' }}</span></td>
+      </tr>
+      {% endif %}
+      {% if n.get('p') is not none %}
+      <tr>
+        <td>Phosphor (P-Olsen)</td>
+        <td class="num">{{ '%.0f' % n.p }}</td>
+        <td>mg/kg</td>
+        <td><span class="pill {{ 'stabil' if n.p > 20 else 'moderat' }}">{{ 'ausreichend' if n.p > 20 else 'unterversorgt' }}</span></td>
+      </tr>
+      {% endif %}
+      {% if n.get('k') is not none %}
+      <tr>
+        <td>Kalium (K)</td>
+        <td class="num">{{ '%.0f' % n.k }}</td>
+        <td>mg/kg</td>
+        <td><span class="pill {{ 'stabil' if n.k > 100 else 'moderat' }}">{{ 'ausreichend' if n.k > 100 else 'unterversorgt' }}</span></td>
+      </tr>
+      {% endif %}
+      {% if n.get('caco3') is not none %}
+      <tr>
+        <td>Kalkgehalt (CaCO₃)</td>
+        <td class="num">{{ '%.1f' % n.caco3 }}</td>
+        <td>%</td>
+        <td><span class="pill muted">{{ 'kalkreich' if n.caco3 > 5 else 'kalkarm' }}</span></td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="placeholder">
+    LUCAS-Nährstoffdaten am Standort nicht verfügbar.
+  </div>
+  {% endif %}
+</section>

@@ -1,0 +1,387 @@
+/* full_report.css — print stylesheet for the GeoForensic Vollbericht.
+ *
+ * Loaded via <link rel="stylesheet"> from full_report/base.html.
+ * Renders through Chrome-Headless (primary) or WeasyPrint (fallback).
+ *
+ * Design: Cozy system — pure black cover, white body pages with
+ * dark-grey type and green accents. Sentient (display) + Geist Mono
+ * (UI/data) embedded as @font-face from data: URIs (built by
+ * scripts/subset_fonts.py + injected at render time).
+ *
+ * The actual font @font-face blocks are emitted by the renderer (so
+ * the data: URIs stay out of the static CSS) — see render_full_report
+ * in app/full_report.py.
+ */
+
+/* ════════════════════════════════════════════════════════════════════
+ * Tokens are imported from tokens.css (auto-generated).
+ * ════════════════════════════════════════════════════════════════════ */
+@import url("./tokens.css");
+
+/* ════════════════════════════════════════════════════════════════════
+ * Page setup — DIN A4 with consistent margins. The cover page is
+ * a full-bleed black surface, so it overrides margins to zero.
+ * ════════════════════════════════════════════════════════════════════ */
+@page {
+  size: A4;
+  margin: 18mm 14mm 22mm 14mm;
+  @bottom-center {
+    content: "GeoForensic Vollbericht  ·  Bericht-Nr. " var(--report-id, "—") "  ·  Seite " counter(page) " / " counter(pages);
+    font-family: var(--font-mono, "Geist Mono"), monospace;
+    font-size: 8.5pt;
+    color: #6F6E68;
+    padding-top: 6mm;
+    border-top: 0.25pt solid #D3D1C7;
+  }
+}
+
+@page :first {
+  margin: 0;
+  @bottom-center { content: none; }
+}
+
+/* The "cover" page name is applied via `page: cover` on the cover
+ * section — gives it its own no-footer @page rule. */
+@page cover {
+  size: A4;
+  margin: 0;
+  @bottom-center { content: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+ * Reset + base typography
+ * ════════════════════════════════════════════════════════════════════ */
+* {
+  box-sizing: border-box;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-mono, "Geist Mono"), -apple-system, "Segoe UI", monospace;
+  font-size: 9.5pt;
+  line-height: 1.5;
+  color: #1B1B19;
+  background: #FFFFFF;
+}
+
+/* Display font for headings — Sentient extralight is the Cozy hero face. */
+h1, h2, h3, .display { font-family: var(--font-display, "Sentient"), "Segoe UI", sans-serif; }
+
+/* Hierarchical scale */
+h1 { font-size: 28pt; font-weight: 200; line-height: 1.15; margin: 0 0 6pt; }
+h2 { font-size: 18pt; font-weight: 200; line-height: 1.2; margin: 24pt 0 8pt; color: #0E0E0D; }
+h3 { font-size: 12pt; font-weight: 400; line-height: 1.3; margin: 14pt 0 4pt; color: #0E0E0D; letter-spacing: 0.01em; }
+h4 { font-size: 9.5pt; font-weight: 500; line-height: 1.3; margin: 8pt 0 2pt; color: #5F5E5A; text-transform: uppercase; letter-spacing: 0.06em; }
+
+p  { margin: 0 0 6pt; }
+p.lead { font-size: 11pt; color: #2C2C2A; margin-bottom: 10pt; }
+small, .small { font-size: 8pt; color: #6F6E68; }
+
+a { color: var(--premium-accent, #22C55E); text-decoration: none; }
+
+/* Mono utilities */
+.mono { font-family: var(--font-mono, "Geist Mono"), monospace; }
+.kbd  { font-family: var(--font-mono, "Geist Mono"), monospace; font-size: 8.5pt; padding: 1pt 4pt; border: 0.25pt solid #D3D1C7; border-radius: 3pt; background: #FAF9F4; }
+
+/* ════════════════════════════════════════════════════════════════════
+ * COVER PAGE — full-bleed black surface, large display type, QR
+ * ════════════════════════════════════════════════════════════════════ */
+.cover {
+  page: cover;
+  break-after: page;
+  width: 210mm;
+  height: 297mm;
+  margin: 0;
+  padding: 22mm 18mm 22mm 18mm;
+  background: #000000;
+  color: #FFFFFF;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  position: relative;
+}
+
+.cover .brand {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-size: 9pt;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.78;
+}
+.cover .brand .logo {
+  font-family: var(--font-display, "Sentient"), sans-serif;
+  font-size: 14pt;
+  font-weight: 200;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  opacity: 1;
+}
+
+.cover .hero {
+  align-self: center;
+  max-width: 145mm;
+}
+.cover .hero .eyebrow {
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-size: 8.5pt;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--premium-accent, #22C55E);
+  margin-bottom: 6pt;
+}
+.cover .hero h1 {
+  font-size: 42pt;
+  line-height: 1.05;
+  font-weight: 200;
+  margin: 0 0 16pt;
+  color: #FFFFFF;
+}
+.cover .hero .address {
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-size: 13pt;
+  line-height: 1.45;
+  font-weight: 400;
+  color: #E0DFD8;
+  white-space: pre-line;
+}
+.cover .hero .coords {
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-size: 9pt;
+  color: #8A8983;
+  margin-top: 10pt;
+}
+
+.cover .meta {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 12pt;
+}
+.cover .meta .meta-block {
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-size: 8.5pt;
+  letter-spacing: 0.04em;
+  color: #B5B4AE;
+  line-height: 1.7;
+}
+.cover .meta .meta-block .label { color: #6F6E68; text-transform: uppercase; letter-spacing: 0.14em; font-size: 7pt; }
+.cover .meta .meta-block .value { color: #FFFFFF; }
+.cover .meta .qr {
+  background: #FFFFFF;
+  padding: 5pt;
+  border-radius: 4pt;
+}
+.cover .meta .qr svg { display: block; width: 26mm; height: 26mm; }
+.cover .meta .qr-label { color: #6F6E68; font-size: 7pt; text-align: center; margin-top: 4pt; letter-spacing: 0.12em; text-transform: uppercase; }
+
+/* Cover accent corner — small green polygon clip mark in bottom-left */
+.cover::after {
+  content: "";
+  position: absolute;
+  left: 18mm;
+  bottom: 22mm;
+  width: 8mm;
+  height: 0.6mm;
+  background: var(--premium-accent, #22C55E);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+ * BLOCK SEPARATORS — full-page between thematic blocks
+ * ════════════════════════════════════════════════════════════════════ */
+.block-sep {
+  break-before: page;
+  break-after: page;
+  height: 257mm;        /* A4 minus top+bottom margins */
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 30mm 0;
+}
+.block-sep .num {
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-size: 9pt;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--premium-accent, #22C55E);
+}
+.block-sep h2 {
+  font-size: 36pt;
+  font-weight: 200;
+  line-height: 1.05;
+  color: #000000;
+  margin: 12pt 0 18pt;
+  max-width: 130mm;
+}
+.block-sep .desc { color: #5F5E5A; max-width: 120mm; font-size: 11pt; line-height: 1.55; }
+.block-sep .status-row {
+  display: flex;
+  gap: 14pt;
+  margin-top: 20pt;
+}
+.block-sep .status-pill {
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-size: 8.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4pt 10pt 4pt 14pt;
+  border: 0.5pt solid #424242;
+  border-radius: 999pt;
+  position: relative;
+}
+.block-sep .status-pill::before {
+  content: "";
+  position: absolute;
+  left: 6pt; top: 50%;
+  width: 5pt; height: 5pt;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  background: var(--ampel-stabil);
+}
+.block-sep .status-pill[data-ampel="leicht"]::before     { background: var(--ampel-leicht); }
+.block-sep .status-pill[data-ampel="moderat"]::before    { background: var(--ampel-moderat); }
+.block-sep .status-pill[data-ampel="auffaellig"]::before { background: var(--ampel-auffaellig); }
+.block-sep .status-pill[data-ampel="erheblich"]::before  { background: var(--ampel-erheblich); }
+.block-sep .status-pill[data-ampel="kritisch"]::before   { background: var(--ampel-kritisch); }
+.block-sep .status-pill[data-ampel="none"]::before       { background: #B4B2A9; }
+
+/* ════════════════════════════════════════════════════════════════════
+ * SECTION pages — body content
+ * ════════════════════════════════════════════════════════════════════ */
+.section {
+  /* Section content flows; let CSS decide page breaks. Avoid orphans. */
+  break-inside: avoid;
+}
+.section + .section { margin-top: 14pt; }
+.section .visual { margin: 8pt 0 12pt; }
+.section .visual svg { display: block; width: 100%; height: auto; }
+
+.eyebrow {
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-size: 8pt;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--premium-accent, #22C55E);
+  margin: 0 0 4pt;
+}
+
+/* KPI strip used by sections with a few headline numbers */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8pt;
+  margin: 6pt 0 10pt;
+}
+.kpi-strip .kpi {
+  border: 0.5pt solid #D3D1C7;
+  padding: 8pt 10pt 10pt;
+  border-radius: 3pt;
+}
+.kpi-strip .kpi .v {
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-size: 14pt;
+  font-weight: 500;
+  color: #0E0E0D;
+}
+.kpi-strip .kpi .l {
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-size: 7.5pt;
+  color: #6F6E68;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 2pt;
+}
+
+/* Data tables (used in §Schwermetalle, §Pestizide etc.) */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
+  margin: 6pt 0 10pt;
+}
+.data-table th, .data-table td {
+  text-align: left;
+  padding: 4pt 8pt;
+  border-bottom: 0.25pt solid #E5E3DA;
+}
+.data-table th {
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-size: 7.5pt;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6F6E68;
+}
+.data-table td.num {
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  text-align: right;
+}
+.data-table tr.warn td  { color: #A32D2D; }
+.data-table tr.alert td { color: #A32D2D; font-weight: 500; }
+
+/* Status pills inline with text */
+.pill {
+  display: inline-block;
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-size: 7.5pt;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 1.5pt 7pt;
+  border-radius: 999pt;
+  border: 0.5pt solid currentColor;
+  vertical-align: 0.06em;
+}
+.pill.stabil      { color: var(--ampel-stabil); }
+.pill.leicht      { color: var(--ampel-leicht); }
+.pill.moderat     { color: var(--ampel-moderat); }
+.pill.auffaellig  { color: var(--ampel-auffaellig); }
+.pill.erheblich   { color: var(--ampel-erheblich); }
+.pill.kritisch    { color: var(--ampel-kritisch); }
+.pill.muted       { color: #6F6E68; }
+
+/* "Daten in Vorbereitung" empty-state panel */
+.placeholder {
+  background: #FAF9F4;
+  border: 0.5pt dashed #B4B2A9;
+  padding: 14pt;
+  border-radius: 4pt;
+  font-size: 9pt;
+  color: #6F6E68;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+ * Provenance / data sources page
+ * ════════════════════════════════════════════════════════════════════ */
+.prov-list {
+  font-size: 8.5pt;
+  line-height: 1.6;
+}
+.prov-list dt {
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-weight: 500;
+  color: #0E0E0D;
+  margin-top: 8pt;
+}
+.prov-list dd { margin: 2pt 0 0 0; color: #5F5E5A; }
+.prov-list dd .url { color: #6F6E68; word-break: break-all; }
+
+.disclaimer {
+  background: #FAF9F4;
+  border-left: 1.5pt solid var(--premium-accent, #22C55E);
+  padding: 10pt 14pt;
+  font-size: 8.5pt;
+  color: #2C2C2A;
+  margin-top: 14pt;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+ * Print-only utilities
+ * ════════════════════════════════════════════════════════════════════ */
+.no-break { break-inside: avoid; }
+.page-break { break-before: page; }

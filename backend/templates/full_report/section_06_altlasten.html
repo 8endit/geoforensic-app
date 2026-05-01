@@ -1,0 +1,80 @@
+{#-
+  Sektion 6 (Block 2) — Altlasten / Bodenkontaminations-Indikator.
+  DE: CORINE-Land-Use-Proxy + Behörden-Verweis.
+  NL: PDOK Bodemloket WBB-Lokationen (echtes Kataster).
+-#}
+<section class="section">
+  <h2>6 · Altlasten</h2>
+  <h4>
+    {% if altlasten_data and altlasten_data.get('source') == 'pdok-bodemloket' %}
+    Datenquelle: PDOK Bodemloket WBB-Lokationen
+    {% else %}
+    Datenquelle: Copernicus CORINE Land Cover 2018 (DE-Proxy)
+    {% endif %}
+  </h4>
+
+  {% if altlasten_data and altlasten_data.get('available') %}
+    {% if altlasten_data.get('source') == 'pdok-bodemloket' %}
+    {# Niederlande — echtes Kataster #}
+    <p>
+      Das niederländische PDOK Bodemloket meldet WBB-Lokationen
+      (Wet bodembescherming-Erfassung) im 500 m-Radius:
+    </p>
+    <div class="kpi-strip">
+      <div class="kpi">
+        <div class="v">{{ altlasten_data.get('hit_count', 0) }}</div>
+        <div class="l">Treffer im Radius</div>
+      </div>
+      <div class="kpi">
+        <div class="v">{{ altlasten_data.get('nearest_distance_m', '—') }} m</div>
+        <div class="l">Nächster Treffer</div>
+      </div>
+      <div class="kpi">
+        <div class="v">{{ altlasten_data.get('worst_status', '—') }}</div>
+        <div class="l">Höchste Stufe</div>
+      </div>
+      <div class="kpi">
+        <div class="v"><span class="pill {{ 'auffaellig' if altlasten_data.get('hit_count', 0) > 0 else 'stabil' }}">{{ 'prüfen' if altlasten_data.get('hit_count', 0) > 0 else 'unauffällig' }}</span></div>
+        <div class="l">Empfehlung</div>
+      </div>
+    </div>
+    {% else %}
+    {# Deutschland — Land-Use-Proxy #}
+    <p>
+      Für deutsche Adressen sind individuelle Altlasten-Datensätze nach
+      <span class="kbd">INSPIRE Art. 13(1)(f)</span> personenbezogen und
+      werden von den Landesumweltämtern (LUBW ALTIS, LANUV FIS AlBo) nur
+      auf förmliche Anfrage herausgegeben. Wir liefern stattdessen einen
+      Land-Use-Indikator aus Copernicus CORINE als Vorab-Hinweis:
+    </p>
+    {%- set use = altlasten_data.get('land_use', {}) %}
+    <div class="kpi-strip">
+      <div class="kpi">
+        <div class="v">{{ use.get('clc_label', '—') }}</div>
+        <div class="l">CORINE-Klasse</div>
+      </div>
+      <div class="kpi">
+        <div class="v">{{ use.get('clc_code', '—') }}</div>
+        <div class="l">CLC-Code</div>
+      </div>
+      <div class="kpi">
+        <div class="v">{{ '%.0f' % (use.get('industry_share_pct', 0) or 0) }}%</div>
+        <div class="l">Industrieflächen 500 m</div>
+      </div>
+      <div class="kpi">
+        <div class="v"><span class="pill {{ 'auffaellig' if (use.get('industry_share_pct', 0) or 0) > 5 else 'stabil' }}">{{ 'prüfen' if (use.get('industry_share_pct', 0) or 0) > 5 else 'unverdächtig' }}</span></div>
+        <div class="l">Indikator</div>
+      </div>
+    </div>
+    <p class="small">
+      Auskunft beim zuständigen Landesumweltamt anfordern (BW: LUBW
+      Karlsruhe, NRW: LANUV Recklinghausen). Bei abgeschlossenen
+      Bodenuntersuchungen ist die Mitteilung auf §11 BBodSchV beschränkt.
+    </p>
+    {% endif %}
+  {% else %}
+  <div class="placeholder">
+    Altlasten-Indikator derzeit nicht verfügbar.
+  </div>
+  {% endif %}
+</section>

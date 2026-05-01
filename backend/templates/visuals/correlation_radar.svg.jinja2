@@ -1,0 +1,71 @@
+{#-
+  Komponente 5 — Korrelations-Spinne.
+  Quelle: docs/visuals/reference_svgs/05_correlation_radar.svg
+  Spec:   SPEC_VISUALS.md §4.5
+  Daten:  data_contract.json :: components.correlation_radar
+
+  Erwartet als Render-Kontext:
+    radar - dict aus chart_helpers.build_radar_render_context()
+    data  - die rohe Komponente
+-#}
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="680" height="440" viewBox="0 0 680 440"
+     font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>GeoForensic Korrelations-Spinne</title>
+  <desc>Sechs-Achsen-Radar
+    {%- if radar.dominant_driver %} · stärkster Treiber: {{ radar.dominant_driver }}{% endif -%}
+  </desc>
+
+  <text x="40" y="35" font-size="14" font-weight="500" fill="#2C2C2A">Was beeinflusst die Bewegung?</text>
+  <text x="40" y="53" font-size="12" fill="#5F5E5A">Sechs Faktoren · 0 = unkritisch · 5 = stark</text>
+
+  <g>
+    {# Konzentrische Hexagons (1-5 Skala) #}
+    {% for ring in radar.rings %}
+    <polygon points="{{ ring }}" fill="none" stroke="#B4B2A9" stroke-width="0.5"/>
+    {% endfor %}
+
+    {# Achsen-Linien vom Zentrum #}
+    {% for axis in radar.axes %}
+    <line x1="{{ radar.cx }}" y1="{{ radar.cy }}"
+          x2="{{ '%.1f' % axis.axis_end[0] }}" y2="{{ '%.1f' % axis.axis_end[1] }}"
+          stroke="#B4B2A9" stroke-width="0.5"/>
+    {% endfor %}
+
+    {# Risikoprofil-Polygon #}
+    {% if radar.polygon %}
+    <polygon points="{{ radar.polygon }}"
+             fill="{{ tokens.accent.psi_motion.color }}" fill-opacity="0.25"
+             stroke="{{ tokens.accent.psi_motion.color }}" stroke-width="1.5"/>
+    {% endif %}
+
+    {# Datenpunkte #}
+    {% for dot in radar.polygon_dots %}
+    <circle cx="{{ '%.1f' % dot.cx }}" cy="{{ '%.1f' % dot.cy }}" r="3.5"
+            fill="{{ tokens.accent.psi_motion.color }}"/>
+    {% endfor %}
+
+    {# Achsenbeschriftungen #}
+    {% for axis in radar.axes %}
+    {%- set is_dominant = axis.name == radar.dominant_driver %}
+    <text x="{{ '%.1f' % axis.label_x }}" y="{{ '%.1f' % axis.label_y }}"
+          text-anchor="{{ axis.anchor }}" font-size="14" font-weight="500"
+          fill="{% if is_dominant %}{{ tokens.accent.psi_motion.color }}{% else %}#2C2C2A{% endif %}">
+      {{ axis.label }}
+    </text>
+    <text x="{{ '%.1f' % axis.label_x }}" y="{{ '%.1f' % axis.value_y }}"
+          text-anchor="{{ axis.anchor }}" font-size="12" fill="#5F5E5A">
+      {%- if axis.value is not none -%}
+        {{ '%.1f' % axis.value }}
+      {%- else -%}
+        n/a
+      {%- endif -%}
+    </text>
+    {% endfor %}
+  </g>
+
+  {# Footer mit Interpretation #}
+  <rect x="40" y="395" width="600" height="35" rx="6"
+        fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="55" y="416" font-size="12" fill="#5F5E5A">{{ radar.interpretation or 'Interpretation in Vorbereitung' }}</text>
+</svg>

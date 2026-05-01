@@ -1,0 +1,140 @@
+{#-
+  Komponente 2 — Grundstück-im-Kontext-Karte.
+  Quelle: docs/visuals/reference_svgs/02_property_context_map.svg
+  Spec:   SPEC_VISUALS.md §4.2
+  Daten:  data_contract.json :: components.property_context_map
+
+  Erwartet als Render-Kontext (NICHT die rohe Komponente):
+    map  - dict aus basemap.build_map_render_context()
+           - map_x, map_y, map_width, map_height
+           - image_data_uri (optional → Fallback grau)
+           - psi_dots [{cx, cy, color, velocity, coherence}]
+           - building_polygon_path (optional)
+           - building_centroid_xy (optional)
+           - address_xy
+           - radius_px
+           - attribution
+    data - die rohe Komponente (für PSI-Anzahl, etc.)
+
+  Layout (680 × 480 ViewBox):
+    Kartenfläche x=40, y=80, 600×320
+    Legende y=415, Attribution y=455
+-#}
+{%- set sparse = data.psi_points|length < 10 -%}
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="680" height="480" viewBox="0 0 680 480"
+     font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>GeoForensic Grundstück-im-Kontext-Karte</title>
+  <desc>{{ data.psi_points|length }} PSI-Punkte im {{ map.radius_m }} m-Radius
+        um das Grundstück.</desc>
+
+  {# Header #}
+  <text x="40" y="35" font-size="14" font-weight="500" fill="#2C2C2A">
+    Ihr Grundstück und seine Umgebung
+  </text>
+  <text x="40" y="53" font-size="12" fill="#5F5E5A">
+    {{ data.psi_points|length }} PSI-Punkte im {{ map.radius_m }} m-Radius · Farbe = Velocity
+  </text>
+
+  {# Kartenfläche: Basemap-Bild oder Fallback-Grau #}
+  <defs>
+    <clipPath id="map-clip">
+      <rect x="{{ map.map_x }}" y="{{ map.map_y }}"
+            width="{{ map.map_width }}" height="{{ map.map_height }}" rx="8"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#map-clip)">
+    {% if map.image_data_uri %}
+    <image x="{{ map.map_x }}" y="{{ map.map_y }}"
+           width="{{ map.map_width }}" height="{{ map.map_height }}"
+           href="{{ map.image_data_uri }}" preserveAspectRatio="xMidYMid slice"/>
+    {% else %}
+    <rect x="{{ map.map_x }}" y="{{ map.map_y }}"
+          width="{{ map.map_width }}" height="{{ map.map_height }}"
+          fill="#F1EFE8"/>
+    {% endif %}
+
+    {# Radius-Kreis (gestrichelt blau) #}
+    <circle cx="{{ '%.1f' % map.address_xy[0] }}" cy="{{ '%.1f' % map.address_xy[1] }}"
+            r="{{ '%.1f' % map.radius_px }}"
+            fill="none" stroke="#185FA5" stroke-width="1"
+            stroke-dasharray="4 3" opacity="0.65"/>
+
+    {# PSI-Punkte (ampel-codiert) #}
+    {% for d in map.psi_dots %}
+    <circle cx="{{ '%.1f' % d.cx }}" cy="{{ '%.1f' % d.cy }}"
+            r="4" fill="{{ d.color }}" opacity="0.85"/>
+    {% endfor %}
+
+    {# Hausumriss oder Fallback-Marker #}
+    {% if map.building_polygon_path %}
+    <path d="{{ map.building_polygon_path }}"
+          fill="none" stroke="#185FA5" stroke-width="2.5"/>
+    {%- if map.building_centroid_xy %}
+    {%- set bcx, bcy = map.building_centroid_xy %}
+    <line x1="{{ '%.1f' % (bcx - 8) }}" y1="{{ '%.1f' % (bcy - 6) }}"
+          x2="{{ '%.1f' % (bcx + 8) }}" y2="{{ '%.1f' % (bcy + 6) }}"
+          stroke="#185FA5" stroke-width="0.5"/>
+    <line x1="{{ '%.1f' % (bcx + 8) }}" y1="{{ '%.1f' % (bcy - 6) }}"
+          x2="{{ '%.1f' % (bcx - 8) }}" y2="{{ '%.1f' % (bcy + 6) }}"
+          stroke="#185FA5" stroke-width="0.5"/>
+    {%- endif %}
+    {% else %}
+    {# Fallback: Adress-Marker als Kreis-Ring #}
+    <circle cx="{{ '%.1f' % map.address_xy[0] }}" cy="{{ '%.1f' % map.address_xy[1] }}"
+            r="9" fill="#FFFFFF" stroke="#185FA5" stroke-width="2.5"/>
+    <circle cx="{{ '%.1f' % map.address_xy[0] }}" cy="{{ '%.1f' % map.address_xy[1] }}"
+            r="3" fill="#185FA5"/>
+    {% endif %}
+  </g>
+
+  {# Radius-Beschriftung (außerhalb des Clip) #}
+  <text x="{{ '%.1f' % map.address_xy[0] }}"
+        y="{{ '%.1f' % (map.address_xy[1] - map.radius_px - 6) }}"
+        text-anchor="middle" font-size="12" fill="#185FA5">
+    {{ map.radius_m }} m Radius
+  </text>
+
+  {# Sparse-Data-Hinweis (Spec §4.2 acceptance) #}
+  {% if sparse %}
+  <g transform="translate({{ map.map_x + 8 }},{{ map.map_y + 8 }})">
+    <rect x="0" y="0" width="120" height="22" rx="3"
+          fill="#FFFFFF" fill-opacity="0.9" stroke="#A32D2D" stroke-width="0.5"/>
+    <text x="60" y="14" text-anchor="middle" font-size="11"
+          fill="#A32D2D" font-weight="500">Sparse Data ({{ data.psi_points|length }} PSI)</text>
+  </g>
+  {% endif %}
+
+  {# Legende #}
+  <g transform="translate(40, 415)">
+    <circle cx="8" cy="10" r="4" fill="{{ tokens.ampel.stabil.color }}"/>
+    <text x="20" y="14" font-size="12" fill="#5F5E5A">stabil</text>
+
+    <circle cx="78" cy="10" r="4" fill="{{ tokens.ampel.leicht.color }}"/>
+    <text x="90" y="14" font-size="12" fill="#5F5E5A">leicht</text>
+
+    <circle cx="148" cy="10" r="4" fill="{{ tokens.ampel_edge.color }}"/>
+    <text x="160" y="14" font-size="12" fill="#5F5E5A">sehr leicht</text>
+
+    <circle cx="248" cy="10" r="4" fill="{{ tokens.ampel.moderat.color }}"/>
+    <text x="260" y="14" font-size="12" fill="#5F5E5A">moderat</text>
+
+    <circle cx="338" cy="10" r="4" fill="{{ tokens.ampel.auffaellig.color }}"/>
+    <text x="350" y="14" font-size="12" fill="#5F5E5A">auffällig</text>
+
+    <circle cx="430" cy="10" r="4" fill="{{ tokens.ampel.kritisch.color }}"/>
+    <text x="442" y="14" font-size="12" fill="#5F5E5A">kritisch</text>
+
+    <rect x="510" y="6" width="14" height="9" fill="none"
+          stroke="#185FA5" stroke-width="2"/>
+    <text x="530" y="14" font-size="12" fill="#5F5E5A">Ihr Gebäude</text>
+  </g>
+
+  {# Norden-Pfeil + Attribution #}
+  <text x="40" y="455" font-size="11" fill="#5F5E5A">
+    Norden ↑
+    {%- if map.attribution %} · {{ map.attribution }}{% endif %}
+    {%- if map.zoom %} · z={{ map.zoom }}{% endif %}
+  </text>
+</svg>

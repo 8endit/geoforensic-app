@@ -1,0 +1,37 @@
+{#-
+  Sektion 1 (Block 1) — Bodenbewegung. Kombiniert Risiko-Dashboard +
+  Karte + Velocity-Zeitreihe in einem Block (Tier-1 voll, Velocity
+  Tier-1 in Premium voll).
+
+  Erwartet:
+    payload      - build_payload() Output
+    rd_svg       - rendered risk_dashboard.svg.jinja2
+    map_svg      - rendered property_context_map.svg.jinja2
+    ts_svg       - rendered velocity_timeseries.svg.jinja2 (or wrapped
+                   teaser if Free; here we expect full)
+-#}
+<section class="section">
+  <p class="eyebrow">Block 01 · Bodenrisiken aus Satellit & Wetter</p>
+  <h2>1 · Bodenbewegung (InSAR-Satellitendaten)</h2>
+  <p>
+    Die European Ground Motion Service-Punkte ({{ payload.components.risk_dashboard.psi_count_in_radius }} Streupunkte
+    im {{ payload.components.property_context_map.radius_meters }} m-Radius) zeigen für Ihre Adresse
+    {% set rd = payload.components.risk_dashboard %}
+    Burland-Klasse {{ rd.burland_class }} <span class="pill {{ rd.burland_label }}">{{ rd.burland_label }}</span>.
+    Mittlere Geschwindigkeit der drei nächsten Streuer:
+    <span class="mono">{{ '%+.1f' % rd.velocity_mm_per_year }} mm/Jahr</span>.
+  </p>
+
+  <div class="visual">{{ rd_svg|safe }}</div>
+  <div class="visual">{{ map_svg|safe }}</div>
+
+  <h3>Bewegungsverlauf 2020 – 2024</h3>
+  <p class="small">
+    Trendlinie aus linearer Regression über die quartalsmittel der nächsten Streuer.
+    {% if payload.components.velocity_timeseries.correlation_coefficient is not none %}
+      Niederschlag–Bewegung Pearson r = {{ '%.2f' % payload.components.velocity_timeseries.correlation_coefficient }}
+      — {% if payload.components.velocity_timeseries.correlation_coefficient|abs < 0.3 %}kein nachweisbarer Zusammenhang{% elif payload.components.velocity_timeseries.correlation_coefficient > 0 %}saisonal-getrieben{% else %}gegenläufig{% endif %}.
+    {% endif %}
+  </p>
+  <div class="visual">{{ ts_svg|safe }}</div>
+</section>

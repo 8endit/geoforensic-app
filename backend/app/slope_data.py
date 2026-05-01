@@ -165,4 +165,16 @@ async def fetch_slope(lat: float, lon: float, country_code: str = "de") -> dict:
         "classification": _classify(best_slope),
         "scale_m": int(best_scale),
         "source": source_label,
+        # V.0.6 honesty-layer (additive). Documents the multi-scale
+        # neighbour-probe method so the visuals can show "30 m, 90 m,
+        # 300 m steepest" instead of just a slope number.
+        "data_provenance": {
+            "source": source_label,
+            "resolution_m": int(best_scale),
+            "sample_count": 1 + 4 * len(_PROBE_OFFSETS_M),
+            "method": (
+                f"Multi-Scale-Steepest aus 4-Punkt-Probes "
+                f"(Skalen {sorted(int(d) for d in _PROBE_OFFSETS_M)} m)"
+            ),
+        },
     }

@@ -1,0 +1,25 @@
+{#-
+  base.html — outer wrapper for the GeoForensic Vollbericht (V.4 HTML pipeline).
+
+  Receives:
+    payload         the visual_payload.build_payload() output
+    fonts_css       <style> block with @font-face data: URIs (built in
+                    full_report.py from the subset woff2 files)
+    body_blocks     pre-rendered HTML blocks: cover, blocks, sections,
+                    data_sources. Each block is its own <section> with
+                    its own page-break rules.
+-#}
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>GeoForensic Vollbericht · {{ payload.report_id }}</title>
+  <link rel="stylesheet" href="{{ tokens_css_url }}">
+  <link rel="stylesheet" href="{{ full_report_css_url }}">
+  <style>{{ fonts_css|safe }}</style>
+  <style>:root { --report-id: "{{ payload.report_id }}"; }</style>
+</head>
+<body>
+  {{ body_blocks|safe }}
+</body>
+</html>

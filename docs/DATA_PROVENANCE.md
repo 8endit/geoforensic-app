@@ -400,3 +400,90 @@ Bevor ein neuer Layer in einen Report eingebaut wird, **muss** er:
 Modell-Schätzungen sind erlaubt, müssen aber **immer** als solche im
 Report-Text und im Datenstrom (`r_source`, `*_source`-Felder) auftauchen.
 Niemals einen Schätzwert ohne Schätz-Etikett rausgeben.
+
+---
+
+## 10. `data_provenance` — additives Honesty-Layer-Feld (V.0.6, Mai 2026)
+
+Jedes Pipeline-Output-Modul ergänzt — **additiv**, keine bestehenden
+Felder verändert — ein `data_provenance`-Dict pro relevantem Wert.
+Die Visuals-Templates können daraus ehrliche Quell-Annotationen rendern
+statt nackte Zahlen ("502 MJ·mm/(ha·h·yr) — ESDAC 1 km" statt "502").
+
+### 10.1 Format
+
+```json
+{
+  "data_provenance": {
+    "source": "ESDAC Panagos 2015",
+    "resolution_m": 1000,
+    "sample_count": 1,
+    "method": "Single-Pixel-Lookup im 1 km-Raster",
+    "nearest_distance_m": null,
+    "regional_scope": null
+  }
+}
+```
+
+| Feld | Pflicht | Typ | Beispiel | Beschreibung |
+|---|---|---|---|---|
+| `source` | ja | string | `"SoilGrids 250m"` | Datenquelle als Klartext-String. |
+| `resolution_m` | ja | int \| null | `250` | Räumliche Auflösung in Metern. `null` wenn nicht-räumlich (z.B. Konstantnäherung). |
+| `sample_count` | ja | int | `1`, `9`, `47` | Anzahl Datenpunkte, die in den Wert eingingen. `0` bei Konstantnäherung ohne echten Datenpunkt. |
+| `method` | ja | string | `"IDW über 3 Nachbarn"`, `"Window-Mean 100 m"`, `"Multi-Scale-Steepest"` | Aggregations-/Lookup-Methode. |
+| `nearest_distance_m` | optional | int \| null | `87` | Distanz zum nächsten echten Datenpunkt (z.B. LUCAS-Punkt) in Metern. |
+| `regional_scope` | optional | string \| null | `"NUTS2 DE12"`, `"DE"` | Wenn der Wert nicht punktgenau, sondern auf Region aggregiert ist. |
+
+### 10.2 Disziplin
+
+- `method` darf **nur** beschreiben, was wirklich berechnet wurde. Kein
+  `"Pearson r EGMS x DWD"` wenn die Pearson-Berechnung nicht stattgefunden
+  hat. Kein `"IDW"` wenn nur ein Pixel-Lookup passiert ist.
+- Wenn ein Wert komplett fehlt (z.B. NL-Adresse für DE-only Modul):
+  `data_provenance` entfällt — Feld wird nicht gesetzt. Die Tatsache
+  des Fehlens ist im `available: false`-Flag dokumentiert.
+- Die Visuals-Templates müssen `data_provenance` als optional behandeln —
+  ältere Module ohne den Block bleiben funktional.
+
+### 10.3 Rollout-Stand 2026-05-01 (V.0.6)
+
+| Modul | Stand |
+|---|---|
+| `geology.py` | ✓ produziert `data_provenance` ab Tag 1 |
+| `building_footprint.py` | ✓ produziert `data_provenance` ab Tag 1 |
+| `rfactor_data.py` | ✓ ergänzt 2026-05-01 |
+| `slope_data.py` | ✓ ergänzt 2026-05-01 |
+| `soil_data.py` (SoilGrids/LUCAS/CORINE/HRL/WRB) | offen — Sub-Sprint, nicht critical-path für V.1 |
+| `pesticides_data.py` | offen — Sub-Sprint |
+| `soil_directive.py` | offen — propagiert die Provenance der Sub-Module mit, sobald diese sie liefern |
+| `kostra_data.py` | offen |
+| `flood_data.py` | offen |
+| `altlasten_data.py` | offen |
+| `mining_nrw.py` | offen |
+
+Folge-Tickets: pro Modul ein additives PR. Kein Modul muss "alle auf
+einmal" durchziehen — die Visuals rendern auch mit teilweiser
+Abdeckung, sie zeigen für Module ohne `data_provenance` den nackten
+Wert ohne Quell-Annotation.
+
+---
+
+## 11. Visuals-Sprint-Module (Mai 2026)
+
+V.0.1 bis V.0.6 + V.2/V.3 fügten neue Datenquellen ein, die explizit
+für die sechs Visualisierungen entworfen wurden:
+
+| Modul | Datenquelle | Status | Lizenz |
+|---|---|---|---|
+| `burland_classifier.py` | Burland 1995 (Settlement classification) | VERIFIZIERT | Pure Python, keine externe Lizenz |
+| `correlations.py` | Pearson-Korrelation, eigene Berechnung über EGMS+DWD | VERIFIZIERT | n/a |
+| `geology.py` | BGR GÜK250 ArcGIS REST identify | VERIFIZIERT | BGR Service-Lizenz |
+| `building_footprint.py` | OpenStreetMap Overpass API | VERIFIZIERT | ODbL |
+| `visual_payload.py` | Aggregator (kein eigener Datensatz) | VERIFIZIERT | n/a |
+| `basemap.py` | CartoDB Positron (light_all) | VERIFIZIERT | CC BY 3.0 — Attribution: „© OpenStreetMap contributors © CARTO" |
+
+Pflicht-Attribution für alle Reports und Landing-Embeds, die ein
+Karten-Visual zeigen: **„© OpenStreetMap contributors © CARTO"** im
+Footer der Karte (V.2.4-Template setzt das automatisch ab `basemap`-
+Result mit `attribution`-Feld).
+

@@ -1,0 +1,158 @@
+{
+  "$schema_version": "1.0.0",
+  "$source_of_truth": "docs/visuals/SPEC_VISUALS.md §3",
+  "$generated_files": [
+    "backend/static/css/tokens.css (Backend, via scripts/generate_tokens_css.py)",
+    "cozy-frontend/lib/visual-tokens.ts (Frontend, manual sync)"
+  ],
+
+  "ampel": {
+    "stabil": {
+      "label": "stabil",
+      "range_mm_per_year": [0, 0.5],
+      "burland_class": 1,
+      "color": "#1D9E75",
+      "color_role": "c-teal-600"
+    },
+    "leicht": {
+      "label": "leicht",
+      "range_mm_per_year": [0.5, 1.5],
+      "burland_class": 2,
+      "color": "#5DCAA5",
+      "color_role": "c-teal-400"
+    },
+    "moderat": {
+      "label": "moderat",
+      "range_mm_per_year": [1.5, 3.0],
+      "burland_class": 3,
+      "color": "#EF9F27",
+      "color_role": "c-amber-400"
+    },
+    "auffaellig": {
+      "label": "auffällig",
+      "range_mm_per_year": [3.0, 5.0],
+      "burland_class": 4,
+      "color": "#E24B4A",
+      "color_role": "c-red-500"
+    },
+    "erheblich": {
+      "label": "erheblich",
+      "range_mm_per_year": [5.0, 10.0],
+      "burland_class": 5,
+      "color": "#A32D2D",
+      "color_role": "c-red-700"
+    },
+    "kritisch": {
+      "label": "kritisch",
+      "range_mm_per_year": [10.0, 9999.0],
+      "burland_class": 6,
+      "color": "#7A1F1F",
+      "color_role": "c-red-900"
+    }
+  },
+
+  "ampel_edge": {
+    "label": "sehr leicht",
+    "color": "#9FE1CB",
+    "color_role": "c-teal-200",
+    "note": "Übergangs-Schattierung am Rand zwischen stabil und leicht; nicht eigene Klasse."
+  },
+
+  "accent": {
+    "own_property": {
+      "color": "#185FA5",
+      "label": "Ihr Grundstück",
+      "rule": "Niemals für andere semantische Zwecke verwenden."
+    },
+    "trend_line": {
+      "color": "#A32D2D",
+      "stroke_dasharray": "4,3"
+    },
+    "psi_motion": {
+      "color": "#534AB7",
+      "label": "PSI-Bewegung"
+    }
+  },
+
+  "structural": {
+    "bebauung":     {"color": "#5F5E5A", "label": "Bebauung"},
+    "versiegelung": {"color": "#888780", "label": "Versiegelung"},
+    "topsoil":      {"color": "#FAC775", "label": "Mutterboden / SOC"},
+    "subsoil":      {"color": "#EF9F27", "label": "Lehm/Schluff"},
+    "weathered":    {"color": "#888780", "label": "Verwitterung"},
+    "bedrock":      {"color": "#444441", "label": "Festgestein"},
+    "groundwater":  {"color": "#185FA5", "label": "Grundwasser", "stroke_dasharray": "4,3"},
+    "precipitation":{"color": "#B5D4F4", "label": "Niederschlag"}
+  },
+
+  "typography": {
+    "font_family_sans": "-apple-system, 'Segoe UI', 'Helvetica Neue', sans-serif",
+    "font_family_display": "'Sentient', -apple-system, 'Segoe UI', sans-serif",
+    "font_family_mono": "'Geist Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace",
+    "scale_px": {
+      "burland_class_number": 64,
+      "component_title": 22,
+      "component_title_compact": 18,
+      "label": 14,
+      "axis_label": 12,
+      "footnote": 10
+    },
+    "weight": {
+      "label": 500,
+      "axis_label": 400,
+      "title": 400
+    },
+    "case_rule": "Sentence case durchgängig — kein ALL CAPS in Dashboard/Karten."
+  },
+
+  "layout": {
+    "viewbox_width_px": 680,
+    "padding_px": 20,
+    "min_psi_separation_px": 8,
+    "component_heights_px": {
+      "risk_dashboard": 260,
+      "property_context_map": 480,
+      "velocity_timeseries": 320,
+      "soil_context_stack": 420,
+      "correlation_radar": 440,
+      "neighborhood_histogram": 280
+    }
+  },
+
+  "report_design": {
+    "free": {
+      "domain": "bodenbericht.de",
+      "design_system": "Tailwind (eigenes leichtes Setup)",
+      "background": "#FFFFFF",
+      "accent": "#22C55E",
+      "tone": "freundlich, leicht, Lead-Magnet"
+    },
+    "premium": {
+      "domain": "geoforensic.de",
+      "design_system": "Cozy",
+      "background": "#000000",
+      "foreground": "#FFFFFF",
+      "accent": "#22C55E",
+      "border": "#424242",
+      "tone": "schwarz-grün, professionell, Käufer-Dokument"
+    }
+  },
+
+  "tier_blur": {
+    "free_teaser_filter": "blur(8px)",
+    "free_teaser_opacity": 0.6,
+    "svg_blur_stddev": 4,
+    "lock_overlay_opacity": 0.55,
+    "lock_overlay_color": "#000000"
+  },
+
+  "thresholds": {
+    "psi_count": {
+      "niedrig_max": 2,
+      "begrenzt_max": 9,
+      "mittel_max": 29
+    },
+    "burland_classification_mm_per_year": [0.5, 1.5, 3.0, 5.0, 10.0],
+    "data_quality_labels": ["niedrig", "begrenzt", "mittel", "hoch"]
+  }
+}

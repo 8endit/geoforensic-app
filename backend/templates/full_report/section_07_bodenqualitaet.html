@@ -1,0 +1,78 @@
+{#-
+  Sektion 7 (Block 3) — Bodenqualität & Stapel-Visual.
+  Bringt SoilGrids-Profilwerte + die V.3 soil_context_stack-Visualisierung.
+
+  Erwartet:
+    payload      - build_payload() Output
+    soil_profile - dict mit soilgrids/lucas/etc. (alter Pipeline-Output)
+    soil_stack_svg - rendered soil_context_stack.svg.jinja2
+-#}
+<section class="section">
+  <p class="eyebrow">Block 03 · Bodenchemie</p>
+  <h2>7 · Bodenqualität (Aufbau und Eigenschaften)</h2>
+  <h4>Datenquelle: ISRIC SoilGrids 250 m · BGR GÜK250 · LUCAS Topsoil</h4>
+
+  <p>
+    Der Querschnitt zeigt die Schichtfolge unter dem Grundstück bis 5 m Tiefe.
+    SoilGrids liefert Topsoil/Subsoil-Eigenschaften (SOC, pH, Korngrößen) im
+    250 m-Raster; BGR GÜK250 die stratigrafische Einordnung des Festgesteins.
+  </p>
+  <div class="visual">{{ soil_stack_svg|safe }}</div>
+
+  {%- set sg = soil_profile.get('soilgrids', {}) if soil_profile else {} %}
+  {% if sg %}
+  <h3>Profil-Eigenschaften (Topsoil 0–30 cm)</h3>
+  <table class="data-table">
+    <thead>
+      <tr><th>Parameter</th><th>Wert</th><th>Einheit</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% if sg.get('soc') is not none %}
+      <tr>
+        <td>Organischer Kohlenstoff (SOC)</td>
+        <td class="num">{{ '%.2f' % (sg.soc / 10.0) }}</td>
+        <td>%</td>
+        <td><span class="pill {{ 'stabil' if (sg.soc / 10.0) > 1.5 else 'moderat' }}">{{ 'humos' if (sg.soc / 10.0) > 1.5 else 'arm' }}</span></td>
+      </tr>
+      {% endif %}
+      {% if sg.get('phh2o') is not none %}
+      <tr>
+        <td>pH-Wert (H₂O)</td>
+        <td class="num">{{ '%.1f' % (sg.phh2o / 10.0) }}</td>
+        <td>—</td>
+        <td><span class="pill stabil">{% if (sg.phh2o / 10.0) < 5.5 %}sauer{% elif (sg.phh2o / 10.0) > 7.5 %}alkalisch{% else %}neutral{% endif %}</span></td>
+      </tr>
+      {% endif %}
+      {% if sg.get('clay') is not none %}
+      <tr>
+        <td>Tonanteil</td>
+        <td class="num">{{ '%.0f' % sg.clay }}</td>
+        <td>g/kg</td>
+        <td><span class="pill {{ 'moderat' if sg.clay > 350 else 'stabil' }}">{{ 'lehmig' if sg.clay > 250 else 'sandig' }}</span></td>
+      </tr>
+      {% endif %}
+      {% if sg.get('sand') is not none %}
+      <tr>
+        <td>Sandanteil</td>
+        <td class="num">{{ '%.0f' % sg.sand }}</td>
+        <td>g/kg</td>
+        <td><span class="pill muted">—</span></td>
+      </tr>
+      {% endif %}
+      {% if sg.get('bdod') is not none %}
+      <tr>
+        <td>Lagerungsdichte</td>
+        <td class="num">{{ '%.2f' % (sg.bdod / 100.0) }}</td>
+        <td>g/cm³</td>
+        <td><span class="pill {{ 'auffaellig' if (sg.bdod / 100.0) > 1.6 else 'stabil' }}">{{ 'verdichtet' if (sg.bdod / 100.0) > 1.6 else 'normal' }}</span></td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+  <p class="small">
+    Werte sind 250-m-Raster-Mittel — repräsentativ für die Lage, nicht identisch
+    mit einer Probe-Bohrung am Hauseingang. Für Bauplanungen bleibt die
+    DIN 4020/EC 7-konforme In-situ-Erkundung erforderlich.
+  </p>
+  {% endif %}
+</section>

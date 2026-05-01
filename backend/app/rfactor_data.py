@@ -37,6 +37,10 @@ class RFactorResult:
     value: float                # MJ·mm/(ha·h·yr)
     source: str                 # "esdac-2015" or "lat-linear-approx"
     note: Optional[str] = None  # human-readable provenance for the PDF
+    # V.0.6 honesty-layer — added 2026-05-01. Additive: callers that
+    # ignore this field continue to work unchanged. See
+    # docs/DATA_PROVENANCE.md §10 for the format spec.
+    data_provenance: Optional[dict] = None
 
 
 class RFactorLookup:
@@ -89,6 +93,12 @@ class RFactorLookup:
                                 value=round(v, 1),
                                 source="esdac-2015",
                                 note="ESDAC Rainfall Erosivity (Panagos 2015), 1 km",
+                                data_provenance={
+                                    "source": "ESDAC Panagos 2015",
+                                    "resolution_m": 1000,
+                                    "sample_count": 1,
+                                    "method": "Single-Pixel-Lookup im 1 km-Raster",
+                                },
                             )
             except Exception as e:  # noqa: BLE001
                 logger.debug("R-factor raster query failed at (%s, %s): %s", lat, lon, e)
@@ -118,6 +128,13 @@ class RFactorLookup:
             value=round(approx, 1),
             source="lat-linear-approx",
             note=note,
+            data_provenance={
+                "source": "Breitengrad-Näherung (kein ESDAC-Raster vorhanden)",
+                "resolution_m": None,
+                "sample_count": 0,
+                "method": "Country-spezifische lineare Näherung",
+                "regional_scope": cc.upper(),
+            },
         )
 
 

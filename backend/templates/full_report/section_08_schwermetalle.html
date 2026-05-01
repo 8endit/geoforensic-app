@@ -1,0 +1,66 @@
+{#-
+  Sektion 8 (Block 3) — Schwermetalle (LUCAS Topsoil + BBodSchV-Vergleich).
+-#}
+<section class="section">
+  <h2>8 · Schwermetalle</h2>
+  <h4>Datenquelle: JRC ESDAC LUCAS Topsoil 2018 · Vergleich BBodSchV-Vorsorgewerte</h4>
+
+  {% if soil_profile and soil_profile.get('metals') %}
+  {%- set metals = soil_profile.get('metals', {}) %}
+  {%- set status = soil_profile.get('metal_status', {}) %}
+  {%- set lucas_dist = soil_profile.get('lucas_distance_km', -1) %}
+  <p>
+    Werte stammen aus dem nächstgelegenen LUCAS-Probenahmepunkt
+    {% if lucas_dist > 0 %}({{ '%.1f' % lucas_dist }} km Distanz){% endif %}
+    und werden gegen die BBodSchV-Vorsorgewerte (Anhang 2 Nr. 4) verglichen.
+  </p>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Wert</th>
+        <th>Einheit</th>
+        <th>Vorsorge­wert</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {%- set rows = [
+        ('cd', 'Cadmium',  '0.4–1.5', 'mg/kg'),
+        ('pb', 'Blei',     '40–100',  'mg/kg'),
+        ('hg', 'Quecksilber','0.1–1', 'mg/kg'),
+        ('as', 'Arsen',    '20',      'mg/kg'),
+        ('cu', 'Kupfer',   '20–40',   'mg/kg'),
+        ('zn', 'Zink',     '60–150',  'mg/kg'),
+        ('cr', 'Chrom',    '30–100',  'mg/kg'),
+        ('ni', 'Nickel',   '15–70',   'mg/kg')
+      ] %}
+      {% for key, label, threshold, unit in rows %}
+      {% if metals.get(key) is not none %}
+      {%- set st = status.get(key, 'stabil') %}
+      <tr {{ ('class="warn"' if st == 'auffaellig' else 'class="alert"' if st == 'kritisch' else '')|safe }}>
+        <td>{{ label }}</td>
+        <td class="num">{{ '%.1f' % metals[key] }}</td>
+        <td>{{ unit }}</td>
+        <td class="num">{{ threshold }}</td>
+        <td><span class="pill {{ st }}">{{ st }}</span></td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="small">
+    BBodSchV-Vorsorgewerte sind nicht gleich Sanierungsschwellen. Eine Überschreitung
+    löst eine vertiefende Untersuchungspflicht aus, kein Nutzungsverbot.
+    Bei Werten <span class="pill kritisch">kritisch</span> empfehlen wir eine
+    boden­fachgutachterliche In-situ-Beprobung gemäß §11 BBodSchV.
+  </p>
+  {% else %}
+  <div class="placeholder">
+    Schwermetall-Daten am Standort nicht verfügbar — LUCAS-Punkte sind in den
+    Niederlanden bewusst nicht aktiviert (Country-Gate, Vermeidung von 200 km-IDW
+    aus DE-Daten). Für NL-Adressen gilt die Circulaire bodemsanering.
+  </div>
+  {% endif %}
+</section>
