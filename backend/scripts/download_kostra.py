@@ -152,7 +152,11 @@ def convert_asc_to_tif(asc_dir: Path) -> list[Path]:
             try:
                 with rasterio.open(asc) as src:
                     profile = src.profile.copy()
-                    profile.update(driver="GTiff", compress="deflate", tiled=True)
+                    # No tiled=True: KOSTRA grids are small (~ 800×900 px) and
+                    # the AAIGrid dimensions aren't multiples of 16, which
+                    # rasterio requires for tiled GeoTIFF block writes.
+                    # Striped output is fine for point-sample lookups.
+                    profile.update(driver="GTiff", compress="deflate")
                     if not src.crs:
                         logger.warning("no CRS detected for %s — output GeoTIFF will be unreferenced", asc)
                     with rasterio.open(tif, "w", **profile) as dst:
