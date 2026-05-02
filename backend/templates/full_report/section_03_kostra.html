@@ -2,47 +2,74 @@
   Sektion 3 (Block 1) — DWD KOSTRA Starkregen-Statistik.
 
   Erwartet:
-    kostra_data - {available, statistics: {duration_min, return_period, intensity_mm_h}, ...}
-                  oder None
+    kostra_data - {available, attribution, slots: {<slot_name>: {label, unit,
+                  duration_min, return_period_a, value, buyer_text}, ...}}
+                  oder None / {available: false}
+
+  Gruppiert die slots nach duration_min (60min vs 1440min/24h) und
+  rendert pro Gruppe eine Zeile mit den Wiederkehrintervallen
+  T=1a / T=10a / T=100a als KPI-Cells.
 -#}
 <section class="section">
   <h2>3 · Starkregen-Statistik</h2>
-  <h4>Datenquelle: DWD KOSTRA-DWD-2020</h4>
+  <h4>Datenquelle: {{ (kostra_data or {}).get('attribution', 'DWD KOSTRA-DWD-2020') }}</h4>
 
   {% if kostra_data and kostra_data.get('available') %}
+  {%- set slots = kostra_data.get('slots', {}) %}
+  {%- set populated = slots.values() | selectattr('value', 'ne', None) | list %}
+
   <p>
-    Der Deutsche Wetterdienst stellt mit KOSTRA flächendeckende
-    Bemessungsregenhöhen bereit. Werte am Standort sind 30-Jahre-Mittel
-    aus dem Beobachtungszeitraum 1991–2020 (Klimaprojektion KOSTRA-DWD-2020).
+    Der Deutsche Wetterdienst stellt mit KOSTRA flächendeckende Bemessungs-
+    Niederschlagshöhen bereit. Werte am Standort sind 30-Jahre-Mittel aus
+    dem Beobachtungszeitraum 1991–2020 (KOSTRA-DWD-2020). Die Tabelle zeigt
+    pro Dauerstufe drei Wiederkehrintervalle - alltäglich (1 Jahr), häufig
+    (10 Jahre) und Jahrhundert-Ereignis (100 Jahre).
   </p>
 
-  {%- set s = kostra_data.get('statistics', {}) %}
+  {%- set duration_groups = [
+      ('60min', 60, 'Kurzzeit-Starkregen (60 min)'),
+      ('24h', 1440, '24-h-Niederschlag')
+  ] %}
+  {% for group_key, group_dur, group_label in duration_groups %}
+  {%- set group_slots = slots.values() | selectattr('duration_min', 'equalto', group_dur) | list %}
+  {% if group_slots %}
+  <h3>{{ group_label }}</h3>
   <div class="kpi-strip">
+    {% for slot in group_slots | sort(attribute='return_period_a') %}
     <div class="kpi">
-      <div class="v">{{ '%.1f' % s.get('intensity_60min_T100', 0) }} mm</div>
-      <div class="l">60 min · T = 100 a</div>
+      <div class="v">
+        {%- if slot.get('value') is not none %}
+          {{ '%.1f' % slot.value }} {{ slot.unit }}
+        {%- else %}
+          —
+        {%- endif %}
+      </div>
+      <div class="l">T = {{ slot.return_period_a }} a</div>
+      <div class="small muted">{{ slot.buyer_text }}</div>
     </div>
-    <div class="kpi">
-      <div class="v">{{ '%.1f' % s.get('intensity_15min_T100', 0) }} mm</div>
-      <div class="l">15 min · T = 100 a</div>
-    </div>
-    <div class="kpi">
-      <div class="v">{{ '%.1f' % s.get('intensity_60min_T20', 0) }} mm</div>
-      <div class="l">60 min · T = 20 a</div>
-    </div>
-    <div class="kpi">
-      <div class="v">{{ kostra_data.get('region', '—') }}</div>
-      <div class="l">Klimaregion</div>
-    </div>
+    {% endfor %}
   </div>
+  {% endif %}
+  {% endfor %}
 
+  {% if populated %}
   <p class="small">
     Lese-Hilfe: „60 min · T = 100 a" bedeutet — statistisch alle 100 Jahre
-    fallen in einer Stunde mindestens diese Niederschlagsmenge. Werte
-    über 35 mm/60 min werden vom DWD als „extremes Starkregenereignis"
+    fallen in einer Stunde mindestens diese Niederschlagsmenge. Werte über
+    35 mm/60 min werden vom DWD als „extremes Starkregenereignis"
     klassifiziert und sind für die Auslegung der Grundstücksentwässerung
     relevant.
   </p>
+  {% endif %}
+
+  {%- set missing = slots.values() | rejectattr('value', 'ne', None) | list %}
+  {% if missing %}
+  <p class="small muted">
+    Hinweis: {{ missing | length }} von {{ slots | length }} Slot(s) sind
+    am Standort ohne Wert — entweder NODATA in der KOSTRA-Klimaregion oder
+    der zugehörige Raster ist auf dem Server noch nicht eingespielt.
+  </p>
+  {% endif %}
   {% else %}
   <div class="placeholder">
     KOSTRA-Daten derzeit nicht verfügbar — die DWD-GeoTIFFs liegen am

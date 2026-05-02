@@ -45,23 +45,55 @@ KOSTRA_SUBDIR = "kostra_dwd_2020"
 ATTRIBUTION = "Deutscher Wetterdienst, KOSTRA-DWD-2020 (DOI 10.5676/DWD/KOSTRA-DWD-2020)"
 
 KOSTRA_SLOTS: dict[str, dict[str, str]] = {
+    # 60min Starkregen (Sommergewitter-Spektrum)
+    "d60min_t1a": {
+        "glob_default": "*D60*T1a*.tif",
+        "label": "60-min Starkregen (T=1a)",
+        "unit": "mm",
+        "duration_min": 60,
+        "return_period_a": 1,
+        "buyer_text": "Fast jährliches Sommer-Ereignis - Bemessung Standard-Entwässerung",
+    },
+    "d60min_t10a": {
+        "glob_default": "*D60*T10a*.tif",
+        "label": "60-min Starkregen (T=10a)",
+        "unit": "mm",
+        "duration_min": 60,
+        "return_period_a": 10,
+        "buyer_text": "Sommergewitter, alle 10 Jahre - Hangentwässerung sollte das schaffen",
+    },
     "d60min_t100a": {
-        "glob_default": "*D60*T100*.tif",
+        "glob_default": "*D60*T100a*.tif",
         "label": "60-min Starkregen (T=100a)",
         "unit": "mm",
-        "buyer_text": "Kurzzeit-Starkregen, relevant fuer Keller/Hangentwaesserung",
+        "duration_min": 60,
+        "return_period_a": 100,
+        "buyer_text": "Jahrhundert-Sommerregen - relevant für Keller, Garten-Mulden",
     },
-    "d24h_t100a": {
-        "glob_default": "*D1440*T100*.tif",
-        "label": "24-h Niederschlag (T=100a)",
+    # 24h-Niederschlag (Tagesregen-Spektrum)
+    "d24h_t1a": {
+        "glob_default": "*D1440*T1a*.tif",
+        "label": "24-h Niederschlag (T=1a)",
         "unit": "mm",
-        "buyer_text": "Jahrhundert-Tageshochwasser-Niederschlag",
+        "duration_min": 1440,
+        "return_period_a": 1,
+        "buyer_text": "Üblicher kräftiger Tagesregen - jährlich zu erwarten",
     },
     "d24h_t10a": {
-        "glob_default": "*D1440*T10*.tif",
+        "glob_default": "*D1440*T10a*.tif",
         "label": "24-h Niederschlag (T=10a)",
         "unit": "mm",
-        "buyer_text": "Vergleichsmass — relativ haeufiges 24-h-Ereignis",
+        "duration_min": 1440,
+        "return_period_a": 10,
+        "buyer_text": "Vergleichsmaß - relativ häufiges 24-h-Ereignis",
+    },
+    "d24h_t100a": {
+        "glob_default": "*D1440*T100a*.tif",
+        "label": "24-h Niederschlag (T=100a)",
+        "unit": "mm",
+        "duration_min": 1440,
+        "return_period_a": 100,
+        "buyer_text": "Jahrhundert-Tageshochwasser - maßgebend für Bauplanung",
     },
 }
 
@@ -153,6 +185,8 @@ class KostraLoader:
                 "label": meta["label"],
                 "unit": meta["unit"],
                 "buyer_text": meta["buyer_text"],
+                "duration_min": meta.get("duration_min"),
+                "return_period_a": meta.get("return_period_a"),
                 "value": None,
             }
             lookup = self.slots.get(slot_name)
