@@ -8,6 +8,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
@@ -130,5 +131,17 @@ if LANDING_DIR.is_dir():
     async def admin_dashboard():
         return FileResponse(LANDING_DIR / "admin.html")
 
-    app.mount("/", StaticFiles(directory=str(LANDING_DIR), html=True), name="landing")
+    # StaticFiles(html=True) returns Starlette's default JSON 404 for unknown
+    # paths — ugly and breaks branding. Subclass to serve landing/404.html
+    # with 404 status. /api/* never reaches here (separate routers above).
+    class _LandingStaticFiles(StaticFiles):
+        async def get_response(self, path, scope):
+            try:
+                return await super().get_response(path, scope)
+            except StarletteHTTPException as exc:
+                if exc.status_code == 404:
+                    return FileResponse(LANDING_DIR / "404.html", status_code=404)
+                raise
+
+    app.mount("/", _LandingStaticFiles(directory=str(LANDING_DIR), html=True), name="landing")
 
