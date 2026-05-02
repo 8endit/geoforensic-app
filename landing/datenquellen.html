@@ -385,6 +385,49 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     </a>
                 </div>
 
+                <!-- Card: Bonus-Indikatoren über die EU-Pflicht hinaus -->
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200 md:col-span-2">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-navy-800">5 Bonus-Indikatoren über die EU-Pflicht hinaus</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Über das EU-Anhang-I-Minimum hinaus - buchbar als optionale Zusatzmodule</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-4">
+                        Anhang I der EU-Richtlinie ist ein politisch ausgehandelter Mindeststandard. Mehrere für die Praxis relevante Indikatoren stehen <em>nicht</em> im finalen Text. Wir liefern sie weiterhin, weil sie für deutsche Käufer, Bauträger und Landwirte konkreten Mehrwert haben - klar als „über EU-Pflicht hinaus" markiert.
+                    </p>
+                    <div class="grid md:grid-cols-2 gap-4 text-xs">
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <div class="font-semibold text-navy-800 mb-1">Wind-Erosion separat (RWEQ)</div>
+                            <div class="text-gray-600 mb-2">Eigenständige Wind-Erosions-Bewertung neben RUSLE. Relevant für Norddeutschland, Veluwe, Drenthe.</div>
+                            <div class="text-gray-500"><span class="font-medium">Quelle:</span> RWEQ-Approximation aus SoilGrids (Sand-Anteil) + SRTM (Hangneigung)</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <div class="font-semibold text-navy-800 mb-1">PAK und PCB Altlast-Screening</div>
+                            <div class="text-gray-600 mb-2">BBodSchV §8 Anhang 1 Schwellwerte für PAK Σ16 und PCB - Standard bei Vornutzungs-Verdacht (Schmiede, Tankstelle, Trafostation).</div>
+                            <div class="text-gray-500"><span class="font-medium">Quelle:</span> BBodSchV-Schwellen + Vornutzungs-Indikatoren aus CORINE/OSM, Bewertung als <code>not_remote</code> bei Verdacht</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <div class="font-semibold text-navy-800 mb-1">Mikrobielle Aktivität</div>
+                            <div class="text-gray-600 mb-2">Boden-Atmungsrate und mikrobielle Biomasse als Vitalitäts-Indikator zusätzlich zur DNA-Biodiversität (EU-Pflichtteil C).</div>
+                            <div class="text-gray-500"><span class="font-medium">Quelle:</span> LUCAS Soil Biology (wo verfügbar), sonst <code>not_remote</code> mit Verweis auf In-situ-Inkubation</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <div class="font-semibold text-navy-800 mb-1">Bodenstruktur und Aggregat-Stabilität</div>
+                            <div class="text-gray-600 mb-2">Aggregat-Stabilitäts-Index aus Ton-Anteil und SOC. Vorlauf für Erosions- und Versickerungs-Analysen.</div>
+                            <div class="text-gray-500"><span class="font-medium">Quelle:</span> SoilGrids 250m (clay, soc) + vereinfachter Aggregat-Index. Goldstandard bleibt DIN ISO 10930 (Nasssiebung)</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border border-gray-200 md:col-span-2">
+                            <div class="font-semibold text-navy-800 mb-1">Hydromorphologie und Drainage-Klasse</div>
+                            <div class="text-gray-600 mb-2">Wasserhaltungs-Eigenschaften aus WRB-Bodenklasse + Hangneigung. Relevant für Hochwasser-Vorlauf und Wurzeltiefe.</div>
+                            <div class="text-gray-500"><span class="font-medium">Quelle:</span> WRB Soil Classification (SoilGrids) + SRTM Hangneigung</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Card 5: Nominatim -->
                 <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200 md:col-span-2">
                     <div class="flex items-start gap-4 mb-4">

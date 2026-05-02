@@ -414,6 +414,57 @@ def generate_html_report(
     nutrients = soil_profile.get("nutrients", {})
     lucas_dist = soil_profile.get("lucas_distance_km", -1)
 
+    # ── Sneak-Peek-Status fuer die Locked-EU-Card ─────────────────────
+    # Wir berechnen Status (ok/warn/alert) fuer 3 Annex-Items aus den
+    # Daten, die der Teaser ohnehin schon hat. Der Wert bleibt verdeckt
+    # (▓▓▓ statt der Zahl), aber die Ampel-Pille ist sichtbar — gibt dem
+    # Leser einen Vorgeschmack auf die Tiefe des Vollberichts ohne ihn
+    # vorzeitig zu offenbaren.
+    def _classify_soc_status(soc_gkg: float | None) -> str:
+        if soc_gkg is None:
+            return "muted"
+        if soc_gkg >= 15:
+            return "ok"
+        if soc_gkg >= 10:
+            return "warn"
+        return "alert"
+
+    def _classify_ph_status(ph_val: float | None) -> str:
+        if ph_val is None:
+            return "muted"
+        if 5.0 <= ph_val <= 7.5:
+            return "ok"
+        if 4.5 <= ph_val <= 8.0:
+            return "warn"
+        return "alert"
+
+    def _aggregate_metal_status(status_dict: dict) -> str:
+        if not status_dict:
+            return "muted"
+        values = [s for s in status_dict.values() if s in ("ok", "warn", "alert")]
+        if not values:
+            return "muted"
+        if "alert" in values:
+            return "alert"
+        if "warn" in values:
+            return "warn"
+        return "ok"
+
+    sneak_soc_status = _classify_soc_status(soilgrids.get("soc"))
+    sneak_ph_status = _classify_ph_status(soilgrids.get("phh2o"))
+    sneak_metal_status = _aggregate_metal_status(metal_status)
+
+    _SNEAK_PILL_LABEL = {
+        "ok": "im Rahmen",
+        "warn": "auffällig",
+        "alert": "über Schwelle",
+        "muted": "—",
+    }
+
+    def _sneak_pill(status: str) -> str:
+        label = _SNEAK_PILL_LABEL.get(status, "—")
+        return f'<span class="pill {status}">{label}</span>'
+
     # Overall score
     score = geo_score if geo_score is not None else 50
     score_label = "Gut" if score >= 70 else "Beobachten" if score >= 40 else "Kritisch"
@@ -707,6 +758,42 @@ def generate_html_report(
   .stat-cell .sub {{ font-size:9px; color:var(--gray); margin-top:1px; }}
   .stat-cell.warn .val {{ color:#8a7a2e; }}
 
+  /* Sneak-Peek-Block: Status-Pills fuer Annex-Items, Wert verdeckt */
+  .sneak-peek {{
+    background:#fdfdfa; border:1px solid #e3e8da; border-radius:8px;
+    padding:12px 14px; margin:0 0 12px;
+  }}
+  .sneak-peek-label {{
+    font-size:10px; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--accent); font-weight:700; margin-bottom:8px;
+  }}
+  .sneak-peek-grid {{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:8px;
+  }}
+  .sneak-peek-cell {{
+    background:white; border:1px solid #eaedef; border-radius:6px;
+    padding:8px 10px; display:flex; flex-direction:column; gap:6px; align-items:flex-start;
+  }}
+  .sneak-peek-name {{
+    font-size:10px; color:var(--dark); font-weight:600; line-height:1.3;
+  }}
+  .sneak-peek-tag {{
+    display:inline-block; font-size:8px; font-weight:600; color:var(--gray);
+    background:#f1f5f1; padding:1px 5px; border-radius:3px; margin-left:4px;
+    text-transform:uppercase; letter-spacing:.04em;
+  }}
+  .sneak-peek-note {{
+    font-size:9px; color:var(--gray); font-style:italic; line-height:1.4;
+  }}
+  .pill {{
+    display:inline-block; padding:2px 8px; border-radius:10px;
+    font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.04em;
+  }}
+  .pill.ok {{ background:#dcfce7; color:#166534; }}
+  .pill.warn {{ background:#fef3c7; color:#92400e; }}
+  .pill.alert {{ background:#fee2e2; color:#991b1b; }}
+  .pill.muted {{ background:#f1f5f9; color:#64748b; }}
+
   /* CTA */
   .cta {{
     background:linear-gradient(135deg, var(--accent-deep), var(--accent));
@@ -959,6 +1046,26 @@ def generate_html_report(
 <div class="card locked">
   <h2>EU-Bodenmonitoring-Richtlinie 2025/2360 — alle 13 Descriptoren plus 5 ergänzende Indikatoren</h2>
   <p class="teaser-note">Im Vollbericht: vollständige Auswertung gegen die 13 Bodendescriptoren der EU-Bodenmonitoring-Richtlinie (Directive (EU) 2025/2360, in Kraft seit 16.12.2025, nationale Umsetzung bis Dezember 2028) in den Anhang-Teilen A (EU-weite Schwellwerte), B (Mitgliedstaat-Schwellwerte) und C (beobachtende Descriptoren) — Salinisierung, organischer Kohlenstoff, Lagerungsdichte, Phosphor und Stickstoff, Erosion (RUSLE), Schwermetalle nach BBodSchV, Wasserspeicherkapazität, pH, DNA-Biodiversität, PFAS und Pestizide. Plus 4 Versiegelungs-Indikatoren in Anhang D und 5 ergänzende Indikatoren über die EU-Pflicht hinaus (Wind-Erosion separat, PAK/PCB, mikrobielle Aktivität, Bodenstruktur, Hydromorphologie). Ein Gesamtstatus „gesund / bedingt / ungesund" als Schnell-Übersicht. Die Tiefe, die niemand sonst pro Adresse liefert.</p>
+
+  <div class="sneak-peek">
+    <div class="sneak-peek-label">Vorab-Status für Ihre Adresse:</div>
+    <div class="sneak-peek-grid">
+      <div class="sneak-peek-cell">
+        <div class="sneak-peek-name">SOC-Konzentration <span class="sneak-peek-tag">Anhang A</span></div>
+        {_sneak_pill(sneak_soc_status)}
+      </div>
+      <div class="sneak-peek-cell">
+        <div class="sneak-peek-name">pH (Versauerung) <span class="sneak-peek-tag">Anhang C</span></div>
+        {_sneak_pill(sneak_ph_status)}
+      </div>
+      <div class="sneak-peek-cell">
+        <div class="sneak-peek-name">Schwermetalle gesamt <span class="sneak-peek-tag">Anhang B</span></div>
+        {_sneak_pill(sneak_metal_status)}
+      </div>
+    </div>
+    <div class="sneak-peek-note">3 von 13 EU-Descriptoren — Status sichtbar, exakte Messwerte und die übrigen 10 Descriptoren plus 4 Versiegelungs-Indikatoren plus 5 Bonus-Indikatoren im Vollbericht.</div>
+  </div>
+
   <div class="locked-content">
     <div class="stat-grid-3">
       <div class="stat-cell"><div class="lbl">EU-Descriptoren bestimmt</div><div class="val">▓▓ / 13</div><div class="sub">+ 4 Sealing + 5 Bonus</div></div>
