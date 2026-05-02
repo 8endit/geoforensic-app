@@ -129,11 +129,11 @@ Aktive Datensätze und Module nach Phase A+B (April 2026):
 | `pesticides_data.py` | LUCAS Pesticides 2018 NUTS2 (118 actives) + Eurostat NUTS-2021 | EU Open Data |
 | `slope_data.py` | OpenTopoData (SRTM 1-arcsec) primary + Open-Elevation fallback | Public Domain / MIT |
 | `soil_directive.py` | EU 2025/2360, 16 Descriptoren mit BBodSchV-Schwellen DE / Circulaire bodemsanering NL | gesetzliche Grundlage |
-| `rfactor_data.py` | ESDAC Panagos 2015 (geplant) / lat-linear DE-NL-AT-CH-Fallback | ESDAC ToS |
+| `rfactor_data.py` | **ESDAC Panagos 2015 LIVE** (429 MB-Raster auf VPS seit 1.5.2026, source=esdac-2015 verifiziert) | ESDAC ToS |
 | `altlasten_data.py` | NL: PDOK Bodemloket WBB-Lokationen / DE: CORINE-Land-Use-Proxy | CC-BY 4.0 / Copernicus |
 | `flood_data.py` | BfG HWRM-RL 3 Szenarien, vom VPS verifiziert | DL-DE/Zero-2.0 |
 | `mining_nrw.py` | Bezirksregierung Arnsberg WMS (NRW only) | dl-de/by-2.0 |
-| `kostra_data.py` | DWD KOSTRA-DWD-2020 (Raster fehlen noch auf VPS) | GeoNutzV |
+| `kostra_data.py` | DWD KOSTRA-DWD-2020 — **3 von ~12 Rastern auf VPS** (D60_T100a, D1440_T100a, D1440_T10a). Rest fehlt | GeoNutzV |
 
 Country-Routing in jedem Modul:
 - DE → BBodSchV-Schwellen, LUCAS-Lookup aktiv, lat-linear-DE R-Faktor, CORINE-Proxy für Altlasten
@@ -148,17 +148,17 @@ Datenquellen-Provenance: `docs/DATA_PROVENANCE.md` ist die einzige verbindliche 
 ### Honest gaps (not working / half-working)
 
 - **Vollbericht-Pipeline scharfgeschaltet, aber nicht customer-facing** — `full_report.py` ist seit 27.4. an den Lead-Flow angebunden (`source != TEASER_SOURCES` → Vollbericht). Quiz und Landing emittieren aber weiterhin nur Teaser-Sources. Triggerbar derzeit nur per direktem `POST /api/leads`.
-- **KOSTRA-Raster fehlen auf dem Server** — `kostra_data.py` rendert „Daten in Vorbereitung" bis die DWD-GeoTIFFs nach `/opt/bodenbericht/rasters/kostra_dwd_2020/` hochgeladen sind. Pull-Script-Stub: `backend/scripts/download_kostra.py`.
-- **ESDAC R-Faktor-Raster fehlt** — `rfactor_data.py` nutzt aktuell die lat-linear-Fallback-Approximation pro Land. Für präzise Werte muss die Anfrage bei ESDAC gestellt + Raster nach `$RASTER_DIR/esdac_rfactor_eu_1km.tif` abgelegt werden.
+- **KOSTRA-Raster teilweise da** — Stand 2.5.2026 nur 3 von erwarteten ~12 Rastern auf VPS: D60_T100a, D1440_T100a, D1440_T10a. Es fehlen vermutlich D60_T10a, D60_T1a, D360_*, D720_*, D2880_* etc. `kostra_data.py` zeigt für vorhandene Wiederkehrzeiten echte Werte, für fehlende „Daten in Vorbereitung". Pull-Script: `backend/scripts/download_kostra.py`.
+- ~~**ESDAC R-Faktor-Raster fehlt**~~ — **erledigt 1.5.2026**, 429 MB-Raster auf VPS unter `/opt/bodenbericht/rasters/esdac_rfactor_eu_1km.tif`, `rfactor_data.py` liest mit `source=esdac-2015`.
 - **Open-Elevation flaky** — primärer Slope-Lookup geht über OpenTopoData (1000 req/day cap), Open-Elevation als Fallback antwortet aktuell mit 504. Phase C: lokale SRTM-Tile-Cache.
 - **Altlasten DE = nur CORINE-Proxy** — adress-genaue Altlasten-Daten in DE sind nach INSPIRE Art 13(1)(f) personenbezogen geschützt (LUBW ALTIS / LANUV FIS AlBo). Modul liefert Land-Use-Indikator + bietet Behörden-Vermittlung (`altlasten@geoforensic.de`) als zukünftiges Add-On. Kein Open-Data-Konter zu docestate.com möglich.
 - **Stripe / paid flow** — code exists in `routers/payments.py`, not active on the domain
 - **User accounts** — register/login routes work, but no live surface (bodenbericht is lead-only)
-- **CORINE land-use raster** — file on disk is corrupt (RGB PNG, no CRS). Lookup code exists but is never called. See `docs/DATA_INVENTORY_AUDIT.md`.
+- ~~**CORINE land-use raster** — file on disk is corrupt~~ — **erledigt**: `corine_2018_clc_100m_de_nl.tif` (11 MB) liegt seit 30.4.2026 auf VPS, Live-Test 2.5.2026 liefert für Stuttgart `code=111, label="Durchgängig städtische Prägung", source=corine-2018`. Code in `soil_data.py` `query_corine()` aktiv genutzt.
 - **HRL imperviousness + AWC water capacity** — rasters are DE-bounds only, NL addresses return NODATA
 - **Map in PDF** — Teaser hat Static-Map auf Seite 1; Cozy designt Vollbericht-Karten separat
 - **NL-language report** — PDF is German only; NL is supposed to be primary market for the paid product
-- **Sentry** — SDK integrated, DSN empty → crashes just die in logs
+- ~~**Sentry**~~ — **scharfgeschaltet 2.5.2026**: DSN für EU-Region (`ingest.de.sentry.io`), DSGVO-konform mit `send_default_pii=False` + Email-Scrubber. DSN aus Repo-Root `.env` (NICHT `backend/.env`!), siehe `memory/bodenbericht_sentry_config.md`. Datenschutzerklärung um Sentry-Sektion ergänzt.
 - **Better Stack Uptime** — not yet scheduled
 - **SSH password login** — still enabled on the server (key-only hardening is TODO in handbook §2.2)
 - **BBSR / GFZ Lizenz-Klärung offen** — Mail-Vorlagen liegen in `docs/MAIL_BBSR_LIZENZ.md` und `docs/MAIL_GFZ_ERDBEBEN.md`, noch nicht rausgeschickt.
