@@ -16,7 +16,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </script>
 
 <meta charset="UTF-8">
-<title>Bodenbericht — Admin Dashboard</title>
+<title>Bodenbericht - Admin Dashboard</title>
 <link rel="stylesheet" href="/tailwind.css">
 <style>
   body { font-family: 'Inter', -apple-system, sans-serif; }
@@ -54,19 +54,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <!-- KPI Cards -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
     <div class="card">
-      <div class="kpi-num" id="kpi-leads-total">–</div>
+      <div class="kpi-num" id="kpi-leads-total">-</div>
       <div class="kpi-lbl">Leads gesamt</div>
     </div>
     <div class="card">
-      <div class="kpi-num" id="kpi-leads-today">–</div>
+      <div class="kpi-num" id="kpi-leads-today">-</div>
       <div class="kpi-lbl">Heute</div>
     </div>
     <div class="card">
-      <div class="kpi-num" id="kpi-leads-week">–</div>
+      <div class="kpi-num" id="kpi-leads-week">-</div>
       <div class="kpi-lbl">Letzte 7 Tage</div>
     </div>
     <div class="card">
-      <div class="kpi-num" id="kpi-reports-total">–</div>
+      <div class="kpi-num" id="kpi-reports-total">-</div>
       <div class="kpi-lbl">Berichte erstellt</div>
     </div>
   </div>
@@ -101,7 +101,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       </table>
     </div>
     <div id="leads-empty" class="hidden text-center py-8 text-gray-400 text-sm">
-      Noch keine Leads — warte auf die ersten Besucher.
+      Noch keine Leads - warte auf die ersten Besucher.
     </div>
   </div>
 </div>
@@ -164,13 +164,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   }
 
   function fmtTime(iso) {
-    if (!iso) return '–';
+    if (!iso) return '-';
     const d = new Date(iso);
     return d.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
   }
 
   function shortText(s, n = 40) {
-    if (!s) return '–';
+    if (!s) return '-';
     return s.length > n ? s.slice(0, n) + '…' : s;
   }
 
@@ -217,19 +217,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             ? '<span class="pill pill-gray" style="background:#e0f2fe;color:#075985;">TEASER</span>'
             : (l.source === 'paid'
                 ? '<span class="pill pill-gray" style="background:#dcfce7;color:#166534;">VOLL</span>'
-                : '<span class="pill pill-gray">—</span>');
+                : '<span class="pill pill-gray">-</span>');
           // Report data attached to the lead (set by C1 pipeline).
-          // Missing for pre-C1 leads — show em-dash placeholders.
+          // Missing for pre-C1 leads - show em-dash placeholders.
           const r = l.report;
           const ampelCell = r && r.ampel
             ? `<span class="pill" style="${AMPEL_STYLE[r.ampel] || ''}">${AMPEL_LABEL[r.ampel] || r.ampel}</span>`
-            : '<span class="text-gray-300">—</span>';
+            : '<span class="text-gray-300">-</span>';
           const scoreCell = r && r.geo_score !== null && r.geo_score !== undefined
             ? `<span class="font-mono text-xs">${r.geo_score}</span>`
-            : '<span class="text-gray-300">—</span>';
+            : '<span class="text-gray-300">-</span>';
           const pdfCell = r && r.has_pdf
             ? `<a href="#" onclick="downloadReportPdf('${r.id}');return false;" class="text-xs text-[#1e3352] underline hover:no-underline">Download</a>`
-            : '<span class="text-gray-300">—</span>';
+            : '<span class="text-gray-300">-</span>';
           return `<tr class="hover:bg-gray-50">
             <td class="px-3 py-2 text-xs text-gray-500 font-mono">${fmtTime(l.created_at)}</td>
             <td class="px-3 py-2 font-medium">${l.email}</td>
