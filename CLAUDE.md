@@ -133,7 +133,7 @@ Aktive Datensätze und Module nach Phase A+B (April 2026):
 | `altlasten_data.py` | NL: PDOK Bodemloket WBB-Lokationen / DE: CORINE-Land-Use-Proxy | CC-BY 4.0 / Copernicus |
 | `flood_data.py` | BfG HWRM-RL 3 Szenarien, vom VPS verifiziert | DL-DE/Zero-2.0 |
 | `mining_nrw.py` | Bezirksregierung Arnsberg WMS (NRW only) | dl-de/by-2.0 |
-| `kostra_data.py` | DWD KOSTRA-DWD-2020 — **3 von ~12 Rastern auf VPS** (D60_T100a, D1440_T100a, D1440_T10a). Rest fehlt | GeoNutzV |
+| `kostra_data.py` | DWD KOSTRA-DWD-2020 — **alle 6 buyer-relevanten Slots LIVE** seit 2.5.2026 (D60_T1a/T10a/T100a + D1440_T1a/T10a/T100a, rasterized aus GIS_*.zip Shapefiles via `scripts/download_kostra.py --ensure-default-set`) | GeoNutzV |
 
 Country-Routing in jedem Modul:
 - DE → BBodSchV-Schwellen, LUCAS-Lookup aktiv, lat-linear-DE R-Faktor, CORINE-Proxy für Altlasten
@@ -148,7 +148,7 @@ Datenquellen-Provenance: `docs/DATA_PROVENANCE.md` ist die einzige verbindliche 
 ### Honest gaps (not working / half-working)
 
 - **Vollbericht-Pipeline scharfgeschaltet, aber nicht customer-facing** — `full_report.py` ist seit 27.4. an den Lead-Flow angebunden (`source != TEASER_SOURCES` → Vollbericht). Quiz und Landing emittieren aber weiterhin nur Teaser-Sources. Triggerbar derzeit nur per direktem `POST /api/leads`.
-- **KOSTRA-Raster teilweise da** — Stand 2.5.2026 nur 3 von erwarteten ~12 Rastern auf VPS: D60_T100a, D1440_T100a, D1440_T10a. Es fehlen vermutlich D60_T10a, D60_T1a, D360_*, D720_*, D2880_* etc. `kostra_data.py` zeigt für vorhandene Wiederkehrzeiten echte Werte, für fehlende „Daten in Vorbereitung". Pull-Script: `backend/scripts/download_kostra.py`.
+- ~~**KOSTRA-Raster teilweise da**~~ — **erledigt 2.5.2026**: alle 6 buyer-relevanten Slots (60min × T1/T10/T100, 24h × T1/T10/T100) sind live. Quelle: GIS_KOSTRA-DWD-2020_D00060.zip + D01440.zip Shapefiles (manuell hochgeladen, weil DWD CDC `/asc/` nur die wertlose StatRR-Variante ohne CRS hostet) — Rasterisierung via `scripts/download_kostra.py --ensure-default-set` mit ogr2ogr-Reproject auf EPSG:4326 + gdal_rasterize HN_<NNN>A_-Spalten. Berlin-Werte: 14.8 / 29.9 / 48.9 mm (60min) und 30.9 / 62.7 / 102.6 mm (24h). Längere Dauerstufen (D360/D720/D2880) sind nicht in KOSTRA_SLOTS definiert und auch nicht angefragt.
 - ~~**ESDAC R-Faktor-Raster fehlt**~~ — **erledigt 1.5.2026**, 429 MB-Raster auf VPS unter `/opt/bodenbericht/rasters/esdac_rfactor_eu_1km.tif`, `rfactor_data.py` liest mit `source=esdac-2015`.
 - **Open-Elevation flaky** — primärer Slope-Lookup geht über OpenTopoData (1000 req/day cap), Open-Elevation als Fallback antwortet aktuell mit 504. Phase C: lokale SRTM-Tile-Cache.
 - **Altlasten DE = nur CORINE-Proxy** — adress-genaue Altlasten-Daten in DE sind nach INSPIRE Art 13(1)(f) personenbezogen geschützt (LUBW ALTIS / LANUV FIS AlBo). Modul liefert Land-Use-Indikator + bietet Behörden-Vermittlung (`altlasten@geoforensic.de`) als zukünftiges Add-On. Kein Open-Data-Konter zu docestate.com möglich.
