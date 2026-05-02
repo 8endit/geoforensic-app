@@ -34,7 +34,9 @@ services:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-geoforensic}
       RASTER_DIR: /app/rasters
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
-      # Sentry — leer = no-op; DSN kommt aus backend/.env
+      # Sentry — leer = no-op; DSN kommt aus der Repo-Root .env
+      # (NICHT backend/.env — docker-compose substituiert ${SENTRY_DSN}
+      # aus seiner eigenen .env im CWD, also Repo-Root). Siehe .env.example.
       SENTRY_DSN: ${SENTRY_DSN:-}
       SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-production}
       SENTRY_TRACES_SAMPLE_RATE: ${SENTRY_TRACES_SAMPLE_RATE:-0.1}
