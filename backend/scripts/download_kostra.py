@@ -217,28 +217,117 @@ def extract_zips_in_place(target_dir: Path) -> list[Path]:
     return extracted_dirs
 
 
-def ensure_default_set(target_dir: Path, base_url: str) -> int:
-    """Pull + extract + convert exactly the 6 buyer-relevant slots.
+_KOSTRA_T_VALUES = [1, 2, 3, 5, 10, 20, 30, 50, 100]
 
-    Idempotent: existing files are not re-downloaded or re-converted.
-    Returns count of compact-named .tif files present at the end
-    (expected: 18 = 9 Wiederkehrintervalle × 2 Dauerstufen, but the
-    KOSTRA_SLOTS in kostra_data.py only references 6 of them).
+
+def rasterize_kostra_shapefiles(target_dir: Path) -> int:
+    """Rasterize KOSTRA shapefiles (GIS_*.zip product) to compact-named GeoTIFFs.
+
+    Looks for ``GIS_KOSTRA-DWD-2020_D<tag>/KOSTRA-DWD-2020_D<tag>.shp`` under
+    ``target_dir`` (extracted on demand via ``extract_zips_in_place``). Each
+    shapefile is a 5-km polygon grid with HN_<003d>A_ columns carrying the
+    Niederschlagshöhe in mm pro Wiederkehrjahr. We reproject to EPSG:4326 once
+    (RasterLookup samples lon/lat directly without reprojection — Raster MUSS
+    in WGS84 sein) and rasterize each HN_*A_ column at 0.01° / ~1 km spacing
+    into ``kostra_D<dur>_T<rp>a.tif`` aliases that the KOSTRA-Loader-Globs
+    erwartet. Idempotent: existing aliases > 100 KB werden geskippt.
+    """
+    import shutil
+    import subprocess
+    import tempfile
+
+    if not shutil.which("gdal_rasterize") or not shutil.which("ogr2ogr"):
+        logger.error("gdal_rasterize or ogr2ogr not on PATH — apt-get install gdal-bin?")
+        return 0
+
+    written = 0
+    for shp_dir in sorted(target_dir.glob("GIS_KOSTRA-DWD-2020_D*")):
+        if not shp_dir.is_dir():
+            continue
+        shps = list(shp_dir.glob("KOSTRA-DWD-2020_D*.shp"))
+        if not shps:
+            logger.warning("no .shp inside %s — skipping", shp_dir)
+            continue
+        shp = shps[0]
+        m = re.search(r"D0*(\d+)\.shp$", shp.name)
+        if not m:
+            logger.warning("can't parse Dauerstufe from %s", shp.name)
+            continue
+        duration = int(m.group(1))
+
+        with tempfile.TemporaryDirectory(prefix="kostra_wgs84_") as td:
+            wgs84_shp = Path(td) / f"{shp.stem}_wgs84.shp"
+            r = subprocess.run(
+                ["ogr2ogr", "-t_srs", "EPSG:4326", str(wgs84_shp), str(shp)],
+                capture_output=True, text=True,
+            )
+            if r.returncode != 0:
+                logger.error("ogr2ogr reproject failed for %s: %s", shp.name, r.stderr.strip())
+                continue
+
+            for tval in _KOSTRA_T_VALUES:
+                col = f"HN_{tval:03d}A_"
+                out_tif = target_dir / f"kostra_D{duration}_T{tval}a.tif"
+                if out_tif.exists() and out_tif.stat().st_size > 100_000:
+                    logger.info("skip rasterize (exists): %s", out_tif.name)
+                    written += 1
+                    continue
+                # Replace any stale broken alias before gdal writes the new file
+                if out_tif.exists():
+                    out_tif.unlink()
+                cmd = [
+                    "gdal_rasterize",
+                    "-a", col,
+                    "-tr", "0.01", "0.01",
+                    "-a_nodata", "-9999",
+                    "-ot", "Float32",
+                    "-of", "GTiff",
+                    "-co", "COMPRESS=DEFLATE",
+                    "-l", wgs84_shp.stem,
+                    str(wgs84_shp),
+                    str(out_tif),
+                ]
+                logger.info("rasterize D%d %s -> %s", duration, col, out_tif.name)
+                r = subprocess.run(cmd, capture_output=True, text=True)
+                if r.returncode != 0:
+                    logger.error("gdal_rasterize failed for %s: %s", col, r.stderr.strip())
+                    continue
+                written += 1
+    return written
+
+
+def ensure_default_set(target_dir: Path, base_url: str) -> int:
+    """Pull + extract + rasterize exactly the buyer-relevant slots.
+
+    Idempotent. Two paths:
+    1. **GIS shapefiles** (preferred — full coverage, EPSG:3035, 5km cells)
+       — already extracted under ``GIS_KOSTRA-DWD-2020_D<tag>/``. We
+       rasterize each HN_<003d>A_ column to a 0.01° EPSG:4326 GeoTIFF.
+    2. **StatRR ASC** (fallback path; the public DWD CDC URL only ships
+       this) — convert ASC → TIF and create compact aliases. Note the
+       StatRR product has NO CRS and only 300×300 pixels, so the TIFs
+       won't be useful for lookups — kept only for backward compat.
     """
     target_dir.mkdir(parents=True, exist_ok=True)
 
-    # Default-ZIPs ziehen (eine pro Dauerstufe)
-    zip_urls: list[str] = []
-    for tag in DEFAULT_SET_DAUERSTUFEN:
-        zip_name = f"StatRR_KOSTRA-DWD-2020_{tag}_ASC.zip"
-        zip_urls.append(urljoin(base_url, zip_name))
-    download_files(zip_urls, target_dir)
-
-    # ZIPs entpacken
+    # ── Path 1: rasterize from existing GIS shapefiles ──────────────────
+    # Extract any GIS_*.zip files first (they're not auto-downloaded — the
+    # operator places them manually because the DWD CDC asc/ folder doesn't
+    # ship the GIS variant).
     extract_zips_in_place(target_dir)
+    rasterized = rasterize_kostra_shapefiles(target_dir)
 
-    # Konvertieren (rekursiv, mit kompaktem Alias für KOSTRA-Glob)
-    convert_asc_to_tif(target_dir)
+    # ── Path 2 (fallback): pull StatRR_*_ASC.zip from DWD ────────────────
+    # Only if no GIS shapefiles produced any aliases. Useful for fresh
+    # bootstraps where the operator hasn't manually uploaded GIS_*.zip.
+    if rasterized == 0:
+        zip_urls: list[str] = []
+        for tag in DEFAULT_SET_DAUERSTUFEN:
+            zip_name = f"StatRR_KOSTRA-DWD-2020_{tag}_ASC.zip"
+            zip_urls.append(urljoin(base_url, zip_name))
+        download_files(zip_urls, target_dir)
+        extract_zips_in_place(target_dir)
+        convert_asc_to_tif(target_dir)
 
     compact_tifs = list(target_dir.glob("kostra_D*_T*a.tif"))
     logger.info("default-set complete: %d compact .tif files in %s", len(compact_tifs), target_dir)
