@@ -64,7 +64,11 @@ DEFAULT_SET_DAUERSTUFEN = ["D00060", "D01440"]
 DEFAULT_SET_T_MIN_MAX = (1, 100)  # T1a bis T100a aus dem ZIP nutzen wir alle dazwischen
 # Intern haben die extracted ASC-Files Namen wie 'StatRR_KOSTRA-DWD-2020_D00060_T100a.asc'
 # Wir benennen sie nach Konvertierung um auf 'kostra_D60_T100a.tif' (kompakter Glob-Match).
-_FILENAME_RE = re.compile(r"D0*(\d+)_T(\d+)a\.(asc|tif)$", re.IGNORECASE)
+# DWD-Filenames sind 'Hn_KOSTRA-DWD-2020_D01440_T100.asc' (Hn=Höhe in mm,
+# Rn=Rate, UC=Confidence). Wir aliasieren nur die Hn_*-Files. Das trailing
+# 'a' aus älteren KOSTRA-Generationen ist optional, T-Nummer kann padded sein
+# (T001/T010/T100) — wir strippen leading zeros.
+_FILENAME_RE = re.compile(r"D0*(\d+)_T0*(\d+)a?\.(asc|tif)$", re.IGNORECASE)
 
 
 class _LinkExtractor(HTMLParser):
@@ -166,9 +170,12 @@ def convert_asc_to_tif(asc_dir: Path) -> list[Path]:
                 continue
         written.append(tif)
 
-        # Zusätzlich: kompakter Symlink-Name im asc_dir-Root für KOSTRA_SLOTS-Glob
+        # Zusätzlich: kompakter Symlink-Name im asc_dir-Root für KOSTRA_SLOTS-Glob.
+        # Nur Hn_*-Files (Niederschlagshöhe in mm); Rn_* (Rate) und UC_*
+        # (Confidence) ignorieren wir — die kompakten Aliase sollen
+        # eindeutig 1 mm-Wert pro (Dauer, Wiederkehr)-Slot liefern.
         m = _FILENAME_RE.search(asc.name)
-        if m:
+        if m and asc.name.lower().startswith("hn_"):
             duration = int(m.group(1))  # e.g. 60 oder 1440 (von D00060 / D01440)
             rp = int(m.group(2))         # e.g. 100, 10, 1
             compact = asc_dir / f"kostra_D{duration}_T{rp}a.tif"
