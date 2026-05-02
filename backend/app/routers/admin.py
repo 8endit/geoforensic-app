@@ -1,6 +1,7 @@
 """Admin activity endpoint — lightweight dashboard data from existing tables."""
 
 import os
+import re
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -11,6 +12,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_db
 from app.models import Lead, Payment, Report, User
+
+# DE-PLZ als 5 zusammenhängende Ziffern, NL als 4-Ziffer + Leer + 2-Buchstaben.
+# Wir extrahieren NUR die PLZ aus address_input für den anonymen Live-Feed —
+# Nichts anderes verlässt die Datenbank Richtung Frontend in dem Endpoint.
+_PLZ_DE_RE = re.compile(r"\b(\d{5})\b")
+_PLZ_NL_RE = re.compile(r"\b(\d{4})\s?([A-Z]{2})\b")
+
+# Quiz-Antwort-Keys, die in /stats für die Verteilungs-Aggregation NICHT
+# berücksichtigt werden — entweder freie Texte (kein kategorisches Histogramm
+# sinnvoll) oder PII (Adresse). Erweiterbar wenn neue Felder hinzukommen.
+_QUIZ_BREAKDOWN_SKIP_KEYS = frozenset({
+    "address", "source_page", "comment", "additional", "notes",
+    "name", "vorname", "nachname", "telefon", "phone",
+})
 
 router = APIRouter(prefix="/api/_admin", tags=["admin"])
 
@@ -56,6 +71,36 @@ async def stats(
     )).all()
     sources = {row[0]: row[1] for row in source_rows}
 
+    # Quiz-Conversion + Antwort-Verteilung. Aggregation passiert in Python
+    # (nicht SQL) weil quiz_answers ein generisches JSON-Feld ist und sich
+    # die Keys über die Zeit ändern können. Bewusst keine Hardcoded-Liste:
+    # jeder neue Quiz-Key taucht automatisch in quiz_breakdown auf.
+    quiz_count = sources.get("quiz", 0)
+    quiz_conversion_pct = round(
+        (quiz_count / leads_total * 100) if leads_total else 0, 1
+    )
+
+    quiz_answers_rows = (await db.execute(
+        select(Lead.quiz_answers).where(Lead.quiz_answers.isnot(None))
+    )).all()
+    quiz_breakdown: dict[str, dict[str, int]] = {}
+    for (qa,) in quiz_answers_rows:
+        if not isinstance(qa, dict):
+            continue
+        for key, value in qa.items():
+            if not value:
+                continue
+            if key in _QUIZ_BREAKDOWN_SKIP_KEYS:
+                continue
+            # Listen (Multi-Select) auseinanderpflücken in Einzel-Counts
+            if isinstance(value, list):
+                values = [str(v) for v in value if v]
+            else:
+                values = [str(value)]
+            bucket = quiz_breakdown.setdefault(key, {})
+            for v in values:
+                bucket[v] = bucket.get(v, 0) + 1
+
     return {
         "timestamp": now.isoformat(),
         "leads": {
@@ -63,6 +108,9 @@ async def stats(
             "today": leads_today,
             "week": leads_week,
             "by_source": sources,
+            "quiz_count": quiz_count,
+            "quiz_conversion_pct": quiz_conversion_pct,
+            "quiz_breakdown": quiz_breakdown,
         },
         "users": {"total": users_total},
         "reports": {
@@ -71,6 +119,56 @@ async def stats(
             "conversion_rate": round((reports_paid / reports_total * 100) if reports_total else 0, 1),
         },
     }
+
+
+@router.get("/feed")
+async def feed(
+    limit: int = 20,
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(_require_admin),
+) -> dict:
+    """Anonymer Live-Feed der letzten Berichte.
+
+    Gibt pro Bericht NUR Zeitstempel + PLZ + Ampel + Geo-Score zurück —
+    keine Vollanschrift, keine Email, keine Lead-ID. Damit kann der
+    Live-Feed-Block im Admin-Dashboard offen herumstehen ohne PII zu
+    exponieren (etwa wenn Stefan/Domenico/Gregor zuschaut).
+
+    PLZ wird aus ``address_input`` extrahiert — DE 5-stellig, NL
+    4-Ziffer + 2-Buchstaben. Wenn keine PLZ gematcht: ``plz=null``.
+    """
+    if limit < 1 or limit > 100:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="limit muss zwischen 1 und 100 liegen",
+        )
+
+    result = await db.execute(
+        select(Report).order_by(Report.created_at.desc()).limit(limit)
+    )
+    reports = result.scalars().all()
+
+    items: list[dict] = []
+    for r in reports:
+        plz = None
+        country = None
+        addr = r.address_input or ""
+        nl_match = _PLZ_NL_RE.search(addr)
+        de_match = _PLZ_DE_RE.search(addr)
+        if nl_match:
+            plz = f"{nl_match.group(1)} {nl_match.group(2)}"
+            country = "NL"
+        elif de_match:
+            plz = de_match.group(1)
+            country = "DE"
+        items.append({
+            "ts": r.created_at.isoformat() if r.created_at else None,
+            "plz": plz,
+            "country": country,
+            "ampel": r.ampel.value if r.ampel else None,
+            "geo_score": r.geo_score,
+        })
+    return {"items": items}
 
 
 @router.get("/leads")

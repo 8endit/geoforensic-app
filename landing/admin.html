@@ -52,7 +52,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   </div>
 
   <!-- KPI Cards -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
     <div class="card">
       <div class="kpi-num" id="kpi-leads-total">-</div>
       <div class="kpi-lbl">Leads gesamt</div>
@@ -69,12 +69,37 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <div class="kpi-num" id="kpi-reports-total">-</div>
       <div class="kpi-lbl">Berichte erstellt</div>
     </div>
+    <div class="card">
+      <div class="kpi-num" id="kpi-quiz-leads">-</div>
+      <div class="kpi-lbl">Quiz-Leads</div>
+    </div>
+    <div class="card">
+      <div class="kpi-num" id="kpi-quiz-conversion">-</div>
+      <div class="kpi-lbl">Quiz-Anteil</div>
+    </div>
   </div>
 
-  <!-- Source Breakdown -->
+  <!-- 2-Spalter: Source Breakdown links, Live Feed rechts -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+    <div class="card lg:col-span-2">
+      <h2 class="text-lg font-semibold mb-4 text-[#1e3352]">Leads nach Quelle</h2>
+      <div id="sources" class="flex gap-4 flex-wrap"></div>
+    </div>
+    <div class="card">
+      <h2 class="text-lg font-semibold mb-1 text-[#1e3352] flex items-center gap-2">
+        <span class="w-2 h-2 bg-green-500 rounded-full" style="animation: pulse 2s infinite;"></span>
+        Live-Feed
+      </h2>
+      <p class="text-xs text-gray-500 mb-3">Letzte Berichte, anonymisiert (nur PLZ + Ampel + Score).</p>
+      <div id="live-feed" class="text-sm"></div>
+    </div>
+  </div>
+
+  <!-- Quiz-Antworten Verteilung -->
   <div class="card mb-6">
-    <h2 class="text-lg font-semibold mb-4 text-[#1e3352]">Leads nach Quelle</h2>
-    <div id="sources" class="flex gap-4 flex-wrap"></div>
+    <h2 class="text-lg font-semibold mb-1 text-[#1e3352]">Quiz-Antworten Verteilung</h2>
+    <p class="text-xs text-gray-500 mb-4">Aggregiert über alle Quiz-Antworten. Neue Felder werden automatisch erfasst.</p>
+    <div id="quiz-breakdown" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
   </div>
 
   <!-- Leads Table -->
@@ -174,26 +199,107 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     return s.length > n ? s.slice(0, n) + '…' : s;
   }
 
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  // Relative Zeit "vor X min", für den Live-Feed angenehmer als ISO.
+  function fmtRelative(iso) {
+    if (!iso) return '-';
+    const diffSec = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+    if (diffSec < 60) return `vor ${diffSec}s`;
+    if (diffSec < 3600) return `vor ${Math.floor(diffSec / 60)}m`;
+    if (diffSec < 86400) return `vor ${Math.floor(diffSec / 3600)}h`;
+    return `vor ${Math.floor(diffSec / 86400)}d`;
+  }
+
+  const AMPEL_STYLE = {
+    gruen: 'background:#dcfce7;color:#166534;',
+    gelb:  'background:#fef3c7;color:#92400e;',
+    rot:   'background:#fee2e2;color:#991b1b;',
+  };
+  const AMPEL_LABEL = { gruen: 'grün', gelb: 'gelb', rot: 'rot' };
+
   async function refresh() {
     document.getElementById('last-refresh').textContent = 'Lade…';
     try {
-      const stats = await fetchJson('/api/_admin/stats');
-      const leadsData = await fetchJson('/api/_admin/leads?limit=100');
+      const [stats, leadsData, feed] = await Promise.all([
+        fetchJson('/api/_admin/stats'),
+        fetchJson('/api/_admin/leads?limit=100'),
+        fetchJson('/api/_admin/feed?limit=20'),
+      ]);
 
       // KPIs
       document.getElementById('kpi-leads-total').textContent = stats.leads.total;
       document.getElementById('kpi-leads-today').textContent = stats.leads.today;
       document.getElementById('kpi-leads-week').textContent = stats.leads.week;
       document.getElementById('kpi-reports-total').textContent = stats.reports.total;
+      document.getElementById('kpi-quiz-leads').textContent = stats.leads.quiz_count ?? 0;
+      document.getElementById('kpi-quiz-conversion').textContent =
+        (stats.leads.quiz_conversion_pct ?? 0) + '%';
 
       // Sources
       const sources = stats.leads.by_source || {};
       const srcHtml = Object.entries(sources).length === 0
         ? '<span class="text-gray-400 text-sm">Noch keine Leads</span>'
         : Object.entries(sources).map(([src, n]) =>
-            `<div class="pill pill-blue">${src}: <strong>${n}</strong></div>`
+            `<div class="pill pill-blue">${escapeHtml(src)}: <strong>${n}</strong></div>`
           ).join('');
       document.getElementById('sources').innerHTML = srcHtml;
+
+      // Live-Feed (anonymisiert: nur PLZ + Ampel + Score)
+      const feedItems = feed.items || [];
+      const feedEl = document.getElementById('live-feed');
+      if (feedItems.length === 0) {
+        feedEl.innerHTML = '<p class="text-gray-400 text-sm">Noch keine Berichte.</p>';
+      } else {
+        feedEl.innerHTML = feedItems.map(item => {
+          const ampel = item.ampel
+            ? `<span class="pill" style="${AMPEL_STYLE[item.ampel] || ''}">${AMPEL_LABEL[item.ampel] || item.ampel}</span>`
+            : '<span class="pill pill-gray">-</span>';
+          const score = item.geo_score ?? '-';
+          const plz = item.plz
+            ? `<span class="font-mono text-gray-700">${escapeHtml(item.plz)}</span>` +
+              (item.country ? `<span class="text-xs text-gray-400 ml-1">${escapeHtml(item.country)}</span>` : '')
+            : '<span class="text-gray-400 text-xs">PLZ unbek.</span>';
+          return `<div class="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">
+            <div class="flex items-center gap-2">${plz}</div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-gray-500 font-mono w-12 text-right">${score}</span>
+              ${ampel}
+              <span class="text-xs text-gray-400 w-16 text-right">${fmtRelative(item.ts)}</span>
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+      // Quiz-Breakdown (dynamisch über alle Antwort-Keys)
+      const breakdown = stats.leads.quiz_breakdown || {};
+      const breakdownEl = document.getElementById('quiz-breakdown');
+      if (Object.keys(breakdown).length === 0) {
+        breakdownEl.innerHTML = '<p class="text-sm text-gray-400 col-span-full">Noch keine Quiz-Antworten.</p>';
+      } else {
+        breakdownEl.innerHTML = Object.entries(breakdown)
+          .sort((a, b) => a[0].localeCompare(b[0]))
+          .map(([key, counts]) => {
+            const total = Object.values(counts).reduce((a, b) => a + b, 0);
+            const rows = Object.entries(counts)
+              .sort((a, b) => b[1] - a[1])
+              .map(([value, count]) => {
+                const pct = total ? (count / total * 100).toFixed(0) : 0;
+                return `<div class="flex items-center justify-between text-xs py-1">
+                  <span class="text-gray-700 truncate flex-1 mr-2" title="${escapeHtml(value)}">${escapeHtml(value)}</span>
+                  <span class="text-gray-500 whitespace-nowrap"><strong>${count}</strong> (${pct}%)</span>
+                </div>`;
+              }).join('');
+            return `<div class="border border-gray-100 rounded p-3 bg-gray-50">
+              <div class="text-xs uppercase tracking-wide font-bold text-[#1e3352] mb-2">${escapeHtml(key)}</div>
+              ${rows}
+            </div>`;
+          }).join('');
+      }
 
       // Leads table
       const leads = leadsData.leads || [];
@@ -203,12 +309,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       } else {
         document.getElementById('leads-empty').classList.add('hidden');
         const TEASER_SOURCES = new Set(['quiz', 'landing', 'premium-waitlist']);
-        const AMPEL_STYLE = {
-          gruen: 'background:#dcfce7;color:#166534;',
-          gelb:  'background:#fef3c7;color:#92400e;',
-          rot:   'background:#fee2e2;color:#991b1b;',
-        };
-        const AMPEL_LABEL = { gruen: 'grün', gelb: 'gelb', rot: 'rot' };
         document.getElementById('leads-body').innerHTML = leads.map(l => {
           const q = l.quiz_answers || {};
           const address = q.address || shortText(q.source_page || '', 30);
