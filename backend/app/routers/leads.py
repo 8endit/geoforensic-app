@@ -31,7 +31,7 @@ from app.flood_data import query_flood
 from app.full_report import generate_full_report
 from app.html_report import generate_html_report
 from app.kostra_data import KostraLoader
-from app.mining_nrw import query_mining_nrw
+from app.mining_de import query_mining
 from app.models import Ampel, Lead, Report, ReportStatus
 from app.pdf_renderer import html_to_pdf
 from app.rate_limit import limiter
@@ -312,20 +312,22 @@ async def _generate_and_send_lead_report(
                 pdf_bytes = html.encode("utf-8")
                 logger.warning("PDF rendering failed, sending HTML as fallback for %s", email)
         else:
-            # NRW Bergbau: only query the WMS for addresses that
-            # Nominatim resolved into Nordrhein-Westfalen. The PDF section
-            # handles all three states (mining_data is None / error /
-            # in_zone False / in_zone True).
-            if (region or {}).get("state") == "Nordrhein-Westfalen":
-                try:
-                    mining_data = await query_mining_nrw(lat, lon)
-                except Exception:
-                    logger.exception(
-                        "NRW Bergbau lookup failed unexpectedly for (%s, %s); "
-                        "report will render the service-unavailable notice.",
-                        lat, lon,
-                    )
-                    mining_data = {"in_zone": False, "fields": [], "error": "lookup_exception"}
+            # Bergbau: dispatcher routes per Bundesland.
+            # NRW -> Bezirksregierung Arnsberg WMS (Berechtsame).
+            # RLP / Saarland -> LGB-RLP WMS (Berechtsame + Altbergbau-Ampelkarte;
+            # das Oberbergamt Saarbrücken ist für beide Länder zuständig).
+            # Andere Bundesländer -> kein WMS verfügbar, Section rendert
+            # den Behörden-Auskunft-Placeholder.
+            state = (region or {}).get("state")
+            try:
+                mining_data = await query_mining(lat, lon, state)
+            except Exception:
+                logger.exception(
+                    "Bergbau dispatcher failed for (%s, %s, %s); "
+                    "report will render the service-unavailable notice.",
+                    lat, lon, state,
+                )
+                mining_data = None
 
             # BfG Hochwasser: nationaler Aggregat, deckt DE-Adressen ab.
             # Bei NL/AT/CH liefert das WMS einfach nichts und die Sektion
@@ -459,10 +461,13 @@ async def _generate_and_send_lead_report(
                     "address_display": display_name,
                     # Compact audit records of the per-layer lookups —
                     # full feature attributes stay out of the audit JSONB.
-                    "mining_nrw": (
+                    "mining": (
                         {
+                            "provider": mining_data.get("provider"),
+                            "available": bool(mining_data.get("available")),
                             "in_zone": bool(mining_data.get("in_zone")),
-                            "fields_count": len(mining_data.get("fields") or []),
+                            "hits_count": len(mining_data.get("hits") or []),
+                            "altbergbau_risk": mining_data.get("altbergbau_risk"),
                             "error": mining_data.get("error"),
                         }
                         if mining_data is not None
