@@ -44,7 +44,11 @@ services:
       - "8000:8000"
     volumes:
       - ./landing:/app/landing:ro
-      - ${RASTER_DIR:-./rasters}:/app/rasters:ro
+      # Rasters: rw weil Pull-Scripts (scripts/download_kostra.py etc.)
+      # neue Datasets per ZIP/HTTP einspielen + per rasterio konvertieren.
+      # Backend-API selbst hat keinen Code-Pfad der schreibt; lesender
+      # Standard-Betrieb bleibt unverändert.
+      - ${RASTER_DIR:-./rasters}:/app/rasters:rw
     # Run pending Alembic migrations before uvicorn boots. The migrations
     # themselves are idempotent (IF NOT EXISTS / DO blocks), so a no-op
     # upgrade when the DB is already at head is instant. Without this
