@@ -313,8 +313,10 @@ def _build_block_pills(
             _block_pill("Pestizide", "stabil" if (pesticides_data or {}).get("available") else "none"),
         ],
         4: [
-            _block_pill(f"EU-Richtlinie · {len((soil_directive_data or {}).get('part_a', {}))} Descriptoren",
-                        "stabil" if soil_directive_data else "none"),
+            _block_pill(
+                f"EU 2025/2360 · {(soil_directive_data or {}).get('descriptors_total', 13)} Descriptoren + 4 Sealing",
+                "stabil" if soil_directive_data else "none",
+            ),
             _block_pill(f"Gesamtnote {rd.get('overall_grade', '—')}", ampel_label),
         ],
     }

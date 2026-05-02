@@ -1,6 +1,13 @@
 {#-
   Sektion 11 (Block 4) — EU Soil Monitoring Directive 2025/2360.
   13 Bodendescriptoren (Anhang A/B/C) + 4 Versiegelungs-Indikatoren (Anhang D).
+  Plus 5 Bonus-Indikatoren über die EU-Pflicht hinaus (separate Sektion).
+
+  Item-Schema (konsistent für jedes Annex-Item):
+    label, annex_descriptor, value, unit, status, status_label,
+    threshold (optional), source, note (optional).
+  Diese Konsistenz ist Erkennungswert: jeder Bericht zeigt jedes Item
+  in derselben Form, sodass Leser uns über die Struktur wiedererkennen.
 -#}
 <section class="section">
   <p class="eyebrow">Block 04 · Gesamt-Bewertung</p>
@@ -10,31 +17,54 @@
   {% if soil_directive_data %}
   {%- set sd = soil_directive_data %}
   <p>
-    Die EU-Bodenmonitoring-Richtlinie (verabschiedet 12. November 2025) verlangt eine flächendeckende
-    Bodenüberwachung über 13 Bodendescriptoren in drei Anhang-Teilen (A: EU-weite Schwellwerte,
-    B: Schwellwerte auf Mitgliedstaat-Ebene, C: rein beobachtende Descriptoren ohne Schwellwerte)
-    plus 4 zusätzliche Versiegelungs- und Bodenabtrag-Indikatoren in Anhang D.
-    Stand am Standort:
+    Die EU-Bodenmonitoring-Richtlinie verlangt eine flächendeckende Bodenüberwachung
+    über 13 Bodendescriptoren in drei Anhang-Teilen: <strong>Teil A</strong> (3 Items, EU-weite Schwellwerte),
+    <strong>Teil B</strong> (5 Items, Mitgliedstaat-Schwellwerte), <strong>Teil C</strong> (5 Items, rein
+    beobachtende Descriptoren ohne Schwellwerte). Plus <strong>Teil D</strong> mit 4 Versiegelungs-
+    und Bodenabtrag-Indikatoren. Stand am Standort:
   </p>
 
-  {%- set parts = [('A', 'EU-weite Schwellwerte', sd.get('part_a', {})),
-                   ('B', 'Mitgliedstaat-Schwellwerte', sd.get('part_b', {})),
-                   ('C', 'Beobachtende Descriptoren', sd.get('part_c', {})),
-                   ('D', 'Versiegelung und Bodenabtrag', sd.get('part_d', {}))] %}
+  {%- set parts = [
+      ('A', 'EU-weite Schwellwerte', sd.get('part_a', {})),
+      ('B', 'Mitgliedstaat-Schwellwerte', sd.get('part_b', {})),
+      ('C', 'Beobachtende Descriptoren', sd.get('part_c', {})),
+      ('D', 'Versiegelung und Bodenabtrag', sd.get('part_d', {}))
+  ] %}
   {% for letter, title, part in parts %}
   {% if part %}
   <h3>Teil {{ letter }} — {{ title }}</h3>
   <table class="data-table">
     <thead>
-      <tr><th>Descriptor</th><th>Wert</th><th>Status</th><th>Quelle</th></tr>
+      <tr>
+        <th>Descriptor (Annex I)</th>
+        <th>Wert</th>
+        <th>Status</th>
+        <th>Schwellwert</th>
+        <th>Quelle</th>
+      </tr>
     </thead>
     <tbody>
       {% for key, item in part.items() %}
       {% if item is mapping %}
       <tr>
-        <td>{{ item.get('label', key) }}</td>
-        <td class="num">{{ item.get('value', '—') }}{% if item.get('unit') %} {{ item.unit }}{% endif %}</td>
+        <td>
+          <strong>{{ item.get('label', key) }}</strong>
+          {%- if item.get('annex_descriptor') and item.annex_descriptor != item.get('label') %}
+            <br><span class="small muted">{{ item.annex_descriptor }}</span>
+          {%- endif %}
+          {%- if item.get('note') %}
+            <br><span class="small muted">{{ item.note }}</span>
+          {%- endif %}
+        </td>
+        <td class="num">
+          {%- if item.get('value') is not none %}
+            {{ item.value }}{% if item.get('unit') %} <span class="small muted">{{ item.unit }}</span>{% endif %}
+          {%- else %}
+            <span class="muted">—</span>
+          {%- endif %}
+        </td>
         <td><span class="pill {{ item.get('status', 'muted') }}">{{ item.get('status_label', item.get('status', '—')) }}</span></td>
+        <td class="small">{{ item.get('threshold', '—') }}</td>
         <td class="small">{{ item.get('source', '—') }}</td>
       </tr>
       {% endif %}
@@ -44,12 +74,58 @@
   {% endif %}
   {% endfor %}
 
-  {% if sd.get('overall') %}
+  {%- set bonus = sd.get('bonus_indicators', {}) %}
+  {% if bonus %}
+  <h3>Über die EU-Pflicht hinaus — 5 ergänzende Indikatoren</h3>
+  <p>
+    Diese fünf Indikatoren stehen <em>nicht</em> in Anhang I der EU-Richtlinie, haben aber
+    in der Praxis konkreten Mehrwert für Käufer, Bauträger und Landwirte. Sie können
+    einzeln als Zusatzmodul ergänzt werden.
+  </p>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Indikator (über EU-Pflicht hinaus)</th>
+        <th>Wert</th>
+        <th>Status</th>
+        <th>Quelle</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for key, item in bonus.items() %}
+      {% if item is mapping %}
+      <tr>
+        <td>
+          <strong>{{ item.get('label', key) }}</strong>
+          {%- if item.get('note') %}
+            <br><span class="small muted">{{ item.note }}</span>
+          {%- endif %}
+        </td>
+        <td class="num">
+          {%- if item.get('value') is not none %}
+            {{ item.value }}{% if item.get('unit') %} <span class="small muted">{{ item.unit }}</span>{% endif %}
+          {%- else %}
+            <span class="muted">—</span>
+          {%- endif %}
+        </td>
+        <td><span class="pill {{ item.get('status', 'muted') }}">{{ item.get('status_label', item.get('status', '—')) }}</span></td>
+        <td class="small">{{ item.get('source', '—') }}</td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
   <h3>Gesamteinordnung nach EU 2025/2360</h3>
   <p>
-    {{ sd.overall.get('summary', '') }}
+    Von <strong>{{ sd.get('descriptors_total', 13) }}</strong> EU-Bodendescriptoren
+    sind <strong>{{ sd.get('descriptors_determined', 0) }}</strong> aus den vorhandenen
+    EU-Datensätzen bestimmt, <strong>{{ sd.get('descriptors_not_remote', 0) }}</strong>
+    erfordern eine Bodenprobe (Biodiversität via DNA-Metabarcoding und PFAS-Konzentrationen),
+    <strong>{{ sd.get('descriptors_not_available', 0) }}</strong> Datensätze fehlen am
+    Standort. Gesamtbewertung nach <em>One-out-all-out</em>-Prinzip: <strong>{{ sd.get('overall_status', '—') }}</strong>.
   </p>
-  {% endif %}
   {% else %}
   <div class="placeholder">
     EU-Bodenrichtlinie-Auswertung derzeit nicht verfügbar — Pipeline scharfgeschaltet,

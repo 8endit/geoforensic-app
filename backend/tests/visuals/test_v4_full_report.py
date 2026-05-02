@@ -174,10 +174,19 @@ def _example_inputs(example_payload: dict) -> dict:
             "top_substance": "Glyphosat",
         },
         "soil_directive_data": {
+            "descriptors_total": 13,
+            "descriptors_determined": 1,
+            "descriptors_not_remote": 0,
+            "descriptors_not_available": 12,
+            "overall_status": "gesund",
             "part_a": {
-                "loss_organic_carbon": {"label": "Loss of soil organic carbon", "value": "stabil",
-                                         "status": "stabil", "status_label": "stabil",
-                                         "source": "SoilGrids 250m", "unit": "%"},
+                "soc_concentration": {
+                    "label": "Verlust organischer Substanz (SOC-Konzentration)",
+                    "annex_descriptor": "Loss of Soil Organic Carbon (concentration)",
+                    "value": 18.5, "unit": "g/kg",
+                    "status": "ok", "status_label": "Innerhalb Schwelle",
+                    "source": "SoilGrids 250m + LUCAS Topsoil",
+                },
             },
         },
         "country_code": "de",

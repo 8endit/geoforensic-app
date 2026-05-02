@@ -129,6 +129,86 @@ MODULES_CATALOG = [
         "included_in_base": False,
         "category": "kontext",
     },
+
+    # ── 5 Bonus-Indikatoren über die EU-Pflicht hinaus ─────────────────
+    # Mappen 1:1 auf die Items in soil_directive.py "bonus_indicators".
+    # Buchbar als optionale Zusatzmodule. Werden im Vollbericht in einer
+    # separaten Sektion "Über die EU-Pflicht hinaus" gezeigt — nur die
+    # gebuchten Module sind dort befüllt, die anderen ausgegraut.
+    {
+        "key": "bonus-wind-erosion",
+        "name": "Wind-Erosion separat (RWEQ)",
+        "short": "Eigenständige Wind-Erosions-Bewertung neben RUSLE",
+        "description": (
+            "Über EU-Anhang I hinaus: Wind-Erosion separat ausgewiesen "
+            "(in der Richtlinie nur als Teil der Gesamt-Erosionsrate). "
+            "RWEQ-Approximation aus Sand-Anteil, Lat, Hangneigung. "
+            "Relevant für Norddeutschland, Veluwe und Drenthe."
+        ),
+        "sources": ["SoilGrids 250m", "SRTM Hangneigung"],
+        "price_eur": 5.00,
+        "included_in_base": False,
+        "category": "bonus",
+    },
+    {
+        "key": "bonus-pak-pcb",
+        "name": "PAK/PCB Altlast-Screening",
+        "short": "BBodSchV-relevante organische Schadstoffe — Vornutzungs-Verdacht",
+        "description": (
+            "Über EU-Anhang I hinaus: PAK (Σ16) und PCB nach BBodSchV §8 "
+            "Anhang 1. Wird bei Vornutzungs-Verdacht (Schmiede, Tankstelle, "
+            "Trafostation, Schießstand) als Standard-Untersuchungspaket geführt. "
+            "Kennzeichnet relevante Verdachtsflächen als not_remote für "
+            "anschließende In-situ-Beprobung."
+        ),
+        "sources": ["BBodSchV Anhang 1", "Vornutzungs-Indikatoren aus CORINE/OSM"],
+        "price_eur": 15.00,
+        "included_in_base": False,
+        "category": "bonus",
+    },
+    {
+        "key": "bonus-microbial-activity",
+        "name": "Mikrobielle Aktivität",
+        "short": "Boden-Atmungsrate und mikrobielle Biomasse als Vitalitäts-Indikator",
+        "description": (
+            "Über EU-Anhang I hinaus: Boden-Atmungsrate und mikrobielle "
+            "Biomasse zusätzlich zur DNA-Biodiversität (EU-Pflicht-Teil C). "
+            "Wo LUCAS-Soil-Biology-Daten verfügbar sind, ergänzen wir die "
+            "Approximation; sonst not_remote."
+        ),
+        "sources": ["LUCAS Soil Biology", "In-situ-Inkubation"],
+        "price_eur": 8.00,
+        "included_in_base": False,
+        "category": "bonus",
+    },
+    {
+        "key": "bonus-soil-structure",
+        "name": "Bodenstruktur und Aggregat-Stabilität",
+        "short": "Erosions- und Versickerungs-Vorlauf aus Korngröße und SOC",
+        "description": (
+            "Über EU-Anhang I hinaus: Aggregat-Stabilitäts-Index aus Ton-Anteil "
+            "und SOC-Konzentration. Voller Test in DIN ISO 10930 (Nasssiebung) "
+            "bleibt Goldstandard, unsere Approximation ist Vorab-Indikator."
+        ),
+        "sources": ["SoilGrids 250m (clay, soc)"],
+        "price_eur": 5.00,
+        "included_in_base": False,
+        "category": "bonus",
+    },
+    {
+        "key": "bonus-hydromorphology",
+        "name": "Hydromorphologie und Drainage",
+        "short": "Wasserhaltungs-Eigenschaften aus WRB-Bodenklasse + Hangneigung",
+        "description": (
+            "Über EU-Anhang I hinaus: Hydromorphologie- und Drainage-Klasse "
+            "aus WRB-Soil-Klassifikation und Hangneigung. Relevant für "
+            "Hochwasser-Vorlauf, Versickerungs- und Wurzeltiefe-Analysen."
+        ),
+        "sources": ["SoilGrids WRB", "SRTM Hangneigung"],
+        "price_eur": 8.00,
+        "included_in_base": False,
+        "category": "bonus",
+    },
 ]
 
 
