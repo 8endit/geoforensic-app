@@ -132,7 +132,7 @@ Aktive Datensätze und Module nach Phase A+B (April 2026):
 | `rfactor_data.py` | **ESDAC Panagos 2015 LIVE** (429 MB-Raster auf VPS seit 1.5.2026, source=esdac-2015 verifiziert) | ESDAC ToS |
 | `altlasten_data.py` | NL: PDOK Bodemloket WBB-Lokationen / DE: CORINE-Land-Use-Proxy | CC-BY 4.0 / Copernicus |
 | `flood_data.py` | BfG HWRM-RL 3 Szenarien, vom VPS verifiziert | DL-DE/Zero-2.0 |
-| `mining_nrw.py` | Bezirksregierung Arnsberg WMS (NRW only) | dl-de/by-2.0 |
+| `mining_de.py` (Dispatcher) + `mining_nrw.py` + `mining_rlp.py` | NRW (Bezirksregierung Arnsberg) + RLP/Saarland (LGB-RLP `mc_berechtsamskarte` für Erdwärme/Kohlenwasserstoffe/Lithium + `mc_aak` Altbergbau-Ampelkarte). Saarland routet via LGB-RLP weil Oberbergamt Saarbrücken für beide Länder zuständig ist. | dl-de/by-2.0 |
 | `kostra_data.py` | DWD KOSTRA-DWD-2020 — **alle 6 buyer-relevanten Slots LIVE** seit 2.5.2026 (D60_T1a/T10a/T100a + D1440_T1a/T10a/T100a, rasterized aus GIS_*.zip Shapefiles via `scripts/download_kostra.py --ensure-default-set`) | GeoNutzV |
 
 Country-Routing in jedem Modul:
