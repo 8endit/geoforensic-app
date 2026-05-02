@@ -120,7 +120,7 @@ Aktive Datensätze und Module nach Phase A+B (April 2026):
 
 | Modul | Datenquelle | Lizenz |
 |---|---|---|
-| EGMS InSAR (PostGIS) | Copernicus EGMS L3, 7,9 Mio Punkte DE/NL/AT/CH | CC BY 4.0 |
+| EGMS InSAR (PostGIS) | Copernicus EGMS L3, 7.92 Mio DE-Punkte + 3.25 Mio NL-Punkte (NL nachgezogen 2.5.2026 aus 16 Tiles E38N30..E41N34, deckt komplettes Holland inkl. Westküste). AT/CH noch offen. | CC BY 4.0 |
 | `soil_data.py` SoilGrids | ISRIC SoilGrids 250m, 6 Variablen | CC BY 4.0 |
 | `soil_data.py` LUCAS | JRC ESDAC, Schwermetalle + Nährstoffe DE | EU Open Data |
 | `soil_data.py` CORINE 2018 | Copernicus EEA CLC2018 v2020_20u1, DE+NL Clip | Copernicus FFO |
