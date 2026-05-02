@@ -12,21 +12,28 @@ Outputs a unified schema that section_05_bergbau.html consumes:
 
     {
         "available": bool,             # True wenn Provider geantwortet hat
-        "in_zone": bool,               # echte Treffer im 200m-Bbox
+        "in_zone": bool,               # Adresse liegt in mind. einer Berechtsame
+                                       # ODER kartografierten Altbergbau-Zone
         "provider": str,               # "NRW" | "RLP+SL" | None
         "hits": list[{                 # normalisiert für Section-Tabelle
             "name": str,
             "status": str,             # Berechtigungs-Art bzw. Risiko-Klasse
             "category": str,           # "Berechtsame" / "Altbergbau-Risiko"
-            "distance_m": float | None,
+            "distance_m": float | None, # immer None — WMS GetFeatureInfo
+                                        # liefert keine Distanz, das hier ist
+                                        # ein Punkt-in-Polygon-Test, kein Radius
         }],
         "altbergbau_risk": str | None,  # nur RLP/SL: "rot"/"gelb"/"gruen"
-        "search_radius_m": int,
-        "nearest_distance_m": float | None,
         "attribution": str,
         "source_urls": list[str],
         "error": str | None,
     }
+
+NB: Berechtsame und AAK-Polygone sind flächenhafte Konzessions- und
+Risiko-Zonen (oft km²-groß). Die korrekte Frage ist "liegt die Adresse
+INNERHALB einer dieser Zonen?", nicht "ist eine Zone im Radius X". Dieses
+Modul beantwortet die erstere; jegliche frühere ``search_radius_m``-Felder
+waren irreführend und wurden entfernt.
 
 Outside NRW/RLP/SL the result is the empty shell mit ``available=False`` —
 das Template rendert dann den "andere Bundesländer brauchen Behörden-
@@ -46,10 +53,6 @@ logger = logging.getLogger(__name__)
 # Bundesland → Provider
 NRW_STATES = {"Nordrhein-Westfalen"}
 RLP_SL_STATES = {"Rheinland-Pfalz", "Saarland"}
-
-# Bbox half-width was 0.001° in both providers ≈ ~111m × ~70m near ~50°N.
-# Diagonal of that bbox is the effective search radius.
-_NOMINAL_SEARCH_RADIUS_M = 130
 
 
 async def query_mining(
@@ -89,8 +92,6 @@ def _empty(provider: str | None, error: str | None = None) -> dict[str, Any]:
         "provider": provider,
         "hits": [],
         "altbergbau_risk": None,
-        "search_radius_m": _NOMINAL_SEARCH_RADIUS_M,
-        "nearest_distance_m": None,
         "attribution": "",
         "source_urls": [],
         "error": error,
@@ -112,8 +113,6 @@ def _adapt_nrw(raw: dict[str, Any]) -> dict[str, Any]:
         "provider": "NRW",
         "hits": hits,
         "altbergbau_risk": None,
-        "search_radius_m": _NOMINAL_SEARCH_RADIUS_M,
-        "nearest_distance_m": None,
         "attribution": raw.get("attribution") or "",
         "source_urls": [raw.get("source_url")] if raw.get("source_url") else [],
         "error": raw.get("error"),
@@ -151,8 +150,6 @@ def _adapt_rlp(raw: dict[str, Any], state: str | None) -> dict[str, Any]:
         "provider": provider_label,
         "hits": hits,
         "altbergbau_risk": raw.get("altbergbau_risk"),
-        "search_radius_m": _NOMINAL_SEARCH_RADIUS_M,
-        "nearest_distance_m": None,
         "attribution": raw.get("attribution") or "",
         "source_urls": raw.get("source_urls") or [],
         "error": raw.get("error"),

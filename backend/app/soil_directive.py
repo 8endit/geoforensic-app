@@ -586,7 +586,6 @@ def query_soil_directive(
     )
 
     # D.3 Settlement area
-    settlement_status = "ok" if corine and corine.get("code") and 100 <= corine["code"] < 200 else "ok"
     settlement_area = _make_item(
         label="Siedlungsflächen-Anteil",
         annex_descriptor="Total settlement area",
