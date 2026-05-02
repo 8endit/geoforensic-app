@@ -202,17 +202,34 @@ Wenn nicht: Propagation-Wartezeit (bis 24h), oder DNS-Einstellungen im Registrar
 
 ## 5. Monitoring & Ops
 
-### 5.1 Sentry (Backend-Fehler)
+### 5.1 Sentry (Backend-Fehler) — LIVE seit 2026-05-02
 
-Noch nicht aktiviert — `SENTRY_DSN` in `backend/.env` auf dem Server leer. Sobald Ben/Domenico ein Sentry-Konto anlegt (EU-Region) und den DSN einträgt, feuert jede Backend-Exception eine Mail.
+EU-Region (`ingest.de.sentry.io`), DSN steht in der **Repo-Root `.env`** (NICHT `backend/.env` — siehe `memory/bodenbericht_sentry_config.md`). DSGVO-konform: `send_default_pii=False` plus `before_send`-Hook der E-Mail-Pattern in Strings/Headers/extras scrubbt. Datenschutzerklärung um Sentry-Sektion ergänzt.
 
-### 5.2 Better Stack (Uptime-Ping)
+Test-Crash: `curl -X POST https://bodenbericht.de/api/_sentry-test` (existiert nur wenn Endpoint registriert; sonst per `docker compose exec backend python -c "import sentry_sdk; sentry_sdk.capture_message('handbook test')"`).
 
-Extern, überwacht:
-- `https://bodenbericht.de/` (Homepage)
-- `https://bodenbericht.de/api/health` (Backend-Ping)
+### 5.2 Better Stack (Uptime-Ping) — Setup-Anleitung
 
-Alarmiert Gregor + Ben wenn eine der beiden zwei Mal hintereinander fehlschlägt.
+**Status:** noch nicht angelegt. Sobald Phase-A-Reststeine (SMTP-Domain) durch sind, einrichten — Outage-Detection ist VOR größerer Werbung essentiell.
+
+**Schritte:**
+
+1. Account anlegen auf https://betterstack.com (Free-Plan reicht: 10 Monitore, 3-min-Intervall, E-Mail-Alerts)
+2. Drei Monitore anlegen:
+
+| Name | URL | Methode | Intervall | Erwartung |
+|---|---|---|---|---|
+| `bodenbericht-homepage` | `https://bodenbericht.de/` | GET | 3 min | HTTP 200, enthält String `Bodenbericht` |
+| `bodenbericht-api-health` | `https://bodenbericht.de/api/health` | GET | 3 min | HTTP 200, JSON `{"status":"ok"}` |
+| `bodenbericht-cert-expiry` | `https://bodenbericht.de/` | GET (TLS-Check) | 24 h | TLS-Zertifikat ≥ 14 Tage Restlaufzeit |
+
+3. Alert-Channel: E-Mail an `bericht@bodenbericht.de` + Backup an Gregor + Ben
+4. Eskalation: 1 Down-Check = stille Notiz, 2 in Folge = E-Mail, 5 in Folge = E-Mail mit `[CRITICAL]`-Prefix
+5. Status-Page (optional, kostenlos): https://bodenbericht.betteruptime.com — Link in Footer der bodenbericht.de aufnehmen falls externe Auskunft gewünscht (für B2B-Käufer wichtig)
+
+**Verifikation nach Setup:**
+- Container kurz stoppen (`docker compose stop backend`) → innerhalb 6 min Alert
+- Container hochfahren (`docker compose up -d backend`) → "Resolved"-Mail innerhalb 6 min
 
 ### 5.3 Manuelle Health-Checks
 
