@@ -6,7 +6,7 @@
 <script defer src="/klaro/klaro-config.js"></script>
 <script defer src="/klaro/klaro.js"></script>
 
-<!-- Google Tag Manager (laedt erst nach Einwilligung via Klaro) -->
+<!-- Google Tag Manager (lädt erst nach Einwilligung via Klaro) -->
 <script type="text/plain" data-type="application/javascript" data-name="google-tag-manager">
 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -29,7 +29,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta property="og:site_name" content="Bodenbericht">
     <meta property="og:url" content="https://bodenbericht.de/datenquellen.html">
     <meta property="og:title" content="Datenquellen und Methodik | Bodenbericht">
-    <meta property="og:description" content="13 offizielle Datenquellen - EGMS, LUCAS, SoilGrids, CORINE, HRL, SRTM, BfG, DWD, NRW Bergbau, BBodSchV, EU-Bodenrichtlinie. Was hinter unseren Berichten steckt.">
+    <meta property="og:description" content="Über 10 offizielle Datenquellen - EGMS, LUCAS, SoilGrids, CORINE, HRL, SRTM, BfG, DWD, NRW Bergbau, BBodSchV, EU-Bodenrichtlinie. Was hinter unseren Berichten steckt.">
     <meta property="og:image" content="https://bodenbericht.de/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -158,7 +158,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         Globales Modellraster mit 250&thinsp;m Auflösung für Bodeneigenschaften. Auf Basis von rund 240.000 georeferenzierten Bodenprofilen weltweit trainiert.
                     </p>
                     <div class="space-y-2 text-xs text-gray-600 mb-4">
-                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Datengrundlage für pH, organische Substanz, Lagerungsdichte und Bodenart (Ton/Sand/Schluff) an Ihrem Standort. Detailwerte folgen in der Premium-Fassung (in Entwicklung).</div>
+                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Datengrundlage für pH (EU-Anhang C: Versauerung), organische Substanz (EU-Anhang A: SOC-Konzentration) und Lagerungsdichte (EU-Anhang A + C: Sub-/Topsoil-Verdichtung) an Ihrem Standort. Bodentextur (Ton/Sand/Schluff) als Hilfs-Info für die Verdichtungs- und Wasser-Retention-Klassifikation. Detailwerte folgen in der Premium-Fassung (in Entwicklung).</div>
                         <div><span class="font-semibold text-navy-800">Grenzen:</span> Modellprodukt, keine Messung vor Ort. Für Entscheidungen mit hohem Geldeinsatz (Kauf, Düngeplanung) empfehlen wir zusätzlich eine Bodenprobe.</div>
                     </div>
                     <a href="https://soilgrids.org/" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
@@ -376,7 +376,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         Die EU-Bodenrichtlinie (in Kraft seit Dezember 2025, Umsetzungsfrist Dezember 2028) definiert <strong>13 Bodendescriptoren in Anhang I, Teile A bis C</strong>, plus 4 zusätzliche Versiegelungs-Indikatoren in Teil D - von Erosion und Bodenverdichtung über Salzgehalt und Nährstoff-Bilanz bis hin zu Schwermetall-Belastung, PFAS und Bodenbiodiversität. Unser Vollbericht wertet alle 13 Descriptoren plus 4 Sealing-Indikatoren systematisch aus, plus 5 ergänzende Indikatoren über die EU-Pflicht hinaus.
                     </p>
                     <div class="space-y-2 text-xs text-gray-600 mb-4">
-                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Vollständige Auswertung der 13 EU-Descriptoren mit konkretem Status (gesund / bedingt / ungesund) pro Adresse. RUSLE-Erosionsmodell (R-Faktor x K-Faktor x LS-Faktor x C-Faktor), Wasserspeicherkapazität (WRB), Salinisierung-Indikator, Schwermetall-Klassifikation gegen BBodSchV-Schwellen, P/N-Indikatoren aus LUCAS, Pestizid-Rückstände aus LUCAS-Pesticides, Lagerungsdichte aus SoilGrids, Versiegelungsgrad aus HRL Imperviousness, Landnutzung aus CORINE.</div>
+                        <div><span class="font-semibold text-navy-800">Was wir damit machen:</span> Vollständige Auswertung der 13 EU-Descriptoren mit konkretem Status (gesund / bedingt / ungesund) pro Adresse. <strong>Anhang A:</strong> Salinisierung (regionaler EC-Indikator), SOC-Konzentration (LUCAS + SoilGrids), Unterboden-Verdichtung (SoilGrids Bulk Density). <strong>Anhang B:</strong> Phosphor (LUCAS), Erosionsrate (RUSLE-Modell R·K·LS·C·P), Schwermetalle (LUCAS + BBodSchV-Schwellen), Wasser-Retention (WRB), SOC-Vorrat (berechnet). <strong>Anhang C:</strong> Stickstoff + SOC/N (LUCAS), pH/Versauerung (SoilGrids), Oberboden-Verdichtung (SoilGrids), Pestizid-Rückstände (LUCAS NUTS2). <strong>Anhang D:</strong> Versiegelungsgrad (HRL Imperviousness), Siedlungsfläche (CORINE).</div>
                         <div><span class="font-semibold text-navy-800">Grenzen / Ehrlichkeit:</span> 2 der 13 EU-Descriptoren erfordern eine In-situ-Beprobung und sind nicht remote bestimmbar - <strong>Boden-Biodiversität</strong> (DNA-Metabarcoding für Pilze und Bakterien) und <strong>PFAS-Konzentrationen</strong>. Wir kennzeichnen sie im Bericht entsprechend „not_remote". Modell-Schätzungen (RUSLE, N-Surplus, EC) tragen explizit ein <em>source</em>-Etikett im Bericht.</div>
                     </div>
                     <a href="https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=OJ:L_202502360" rel="noopener" target="_blank" class="inline-flex items-center gap-1 text-xs text-brand-700 font-semibold hover:text-brand-800">
