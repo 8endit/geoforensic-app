@@ -1,25 +1,26 @@
 {#-
   Sektion 11 (Block 4) — EU Soil Monitoring Directive 2025/2360.
-  16-Descriptor-Bewertung mit Provenance pro Wert.
+  13 Bodendescriptoren (Anhang A/B/C) + 4 Versiegelungs-Indikatoren (Anhang D).
 -#}
 <section class="section">
   <p class="eyebrow">Block 04 · Gesamt-Bewertung</p>
-  <h2>11 · EU Soil Monitoring Directive — 16 Descriptoren</h2>
-  <h4>Rechtsgrundlage: EU 2025/2360 · Umsetzung Mitgliedstaaten bis ~Dez 2028</h4>
+  <h2>11 · EU Soil Monitoring Directive — 13 Descriptoren + 4 Versiegelungs-Indikatoren</h2>
+  <h4>Rechtsgrundlage: Directive (EU) 2025/2360 · in Kraft seit 16.12.2025 · nationale Umsetzung bis Dezember 2028</h4>
 
   {% if soil_directive_data %}
   {%- set sd = soil_directive_data %}
   <p>
-    Die EU-Bodenrichtlinie (verabschiedet 2025) verlangt eine flächendeckende
-    Bodenüberwachung über 16 Descriptoren in vier Teilen (A: EU-weite Kriterien,
-    B: regionale Anpassung, C: chemische Belastung, D: Biodiversität).
+    Die EU-Bodenmonitoring-Richtlinie (verabschiedet 12. November 2025) verlangt eine flächendeckende
+    Bodenüberwachung über 13 Bodendescriptoren in drei Anhang-Teilen (A: EU-weite Schwellwerte,
+    B: Schwellwerte auf Mitgliedstaat-Ebene, C: rein beobachtende Descriptoren ohne Schwellwerte)
+    plus 4 zusätzliche Versiegelungs- und Bodenabtrag-Indikatoren in Anhang D.
     Stand am Standort:
   </p>
 
-  {%- set parts = [('A', 'EU-Kriterien', sd.get('part_a', {})),
-                   ('B', 'Regionale Anpassung', sd.get('part_b', {})),
-                   ('C', 'Chemische Belastung', sd.get('part_c', {})),
-                   ('D', 'Biodiversität', sd.get('part_d', {}))] %}
+  {%- set parts = [('A', 'EU-weite Schwellwerte', sd.get('part_a', {})),
+                   ('B', 'Mitgliedstaat-Schwellwerte', sd.get('part_b', {})),
+                   ('C', 'Beobachtende Descriptoren', sd.get('part_c', {})),
+                   ('D', 'Versiegelung und Bodenabtrag', sd.get('part_d', {}))] %}
   {% for letter, title, part in parts %}
   {% if part %}
   <h3>Teil {{ letter }} — {{ title }}</h3>

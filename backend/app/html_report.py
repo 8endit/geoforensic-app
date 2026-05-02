@@ -957,11 +957,11 @@ def generate_html_report(
 </div>
 
 <div class="card locked">
-  <h2>EU-Bodenüberwachungsrichtlinie 2025/2360 — alle 16 Descriptoren</h2>
-  <p class="teaser-note">Im Vollbericht: vollständige Auswertung gegen die 16 Descriptoren der EU-Bodenüberwachungsrichtlinie (2025/2360, Umsetzungsfrist Dezember 2028) — Wassererosion (RUSLE-Modell), Wind-Erosion, organischer Kohlenstoff, pH, Schwermetalle nach BBodSchV, Phosphor- und Stickstoff-Indikatoren, Lagerungsdichte, Bodenart, Wasserspeicherkapazität, Salinisierung, Versiegelungsgrad, Landnutzung. Ein Gesamtstatus „gesund / bedingt / ungesund" als Schnell-Übersicht. Die Tiefe, die niemand sonst pro Adresse liefert.</p>
+  <h2>EU-Bodenmonitoring-Richtlinie 2025/2360 — alle 13 Descriptoren plus 5 ergänzende Indikatoren</h2>
+  <p class="teaser-note">Im Vollbericht: vollständige Auswertung gegen die 13 Bodendescriptoren der EU-Bodenmonitoring-Richtlinie (Directive (EU) 2025/2360, in Kraft seit 16.12.2025, nationale Umsetzung bis Dezember 2028) in den Anhang-Teilen A (EU-weite Schwellwerte), B (Mitgliedstaat-Schwellwerte) und C (beobachtende Descriptoren) — Salinisierung, organischer Kohlenstoff, Lagerungsdichte, Phosphor und Stickstoff, Erosion (RUSLE), Schwermetalle nach BBodSchV, Wasserspeicherkapazität, pH, DNA-Biodiversität, PFAS und Pestizide. Plus 4 Versiegelungs-Indikatoren in Anhang D und 5 ergänzende Indikatoren über die EU-Pflicht hinaus (Wind-Erosion separat, PAK/PCB, mikrobielle Aktivität, Bodenstruktur, Hydromorphologie). Ein Gesamtstatus „gesund / bedingt / ungesund" als Schnell-Übersicht. Die Tiefe, die niemand sonst pro Adresse liefert.</p>
   <div class="locked-content">
     <div class="stat-grid-3">
-      <div class="stat-cell"><div class="lbl">Descriptoren bestimmt</div><div class="val">▓▓ / 16</div></div>
+      <div class="stat-cell"><div class="lbl">EU-Descriptoren bestimmt</div><div class="val">▓▓ / 13</div><div class="sub">+ 4 Sealing + 5 Bonus</div></div>
       <div class="stat-cell"><div class="lbl">Gesamtstatus</div><div class="val">▓▓▓</div><div class="sub">gesund / bedingt / ungesund</div></div>
       <div class="stat-cell"><div class="lbl">Erosionsmodell</div><div class="val">▓▓▓ t/ha/J</div><div class="sub">RUSLE</div></div>
     </div>
@@ -973,7 +973,7 @@ def generate_html_report(
   <div class="kicker">Vollbericht</div>
   <h3>Alles sehen, was hier noch verdeckt ist</h3>
   {_CTA_VISUALS_HTML}
-  <p>Sechs interaktive Visualisierungen — Risiko-Dashboard, Karte mit InSAR-Punkten, Velocity-Zeitreihe, Bodenprofil-Querschnitt, Korrelations-Spinne und Nachbarschafts-Histogramm — plus alle exakten Messwerte für Schwermetalle, Bodenqualität, Nährstoffe, Pestizid-Rückstände, Geländeprofil, Bergbau, Altlasten, Hochwasser, Starkregen und die 16 Descriptoren der EU-Bodenüberwachungsrichtlinie 2025/2360. Inklusive PDF-Download.</p>
+  <p>Sechs interaktive Visualisierungen — Risiko-Dashboard, Karte mit InSAR-Punkten, Velocity-Zeitreihe, Bodenprofil-Querschnitt, Korrelations-Spinne und Nachbarschafts-Histogramm — plus alle exakten Messwerte für Schwermetalle, Bodenqualität, Nährstoffe, Pestizid-Rückstände, Geländeprofil, Bergbau, Altlasten, Hochwasser, Starkregen und alle 13 Descriptoren der EU-Bodenmonitoring-Richtlinie 2025/2360 plus 4 Versiegelungs-Indikatoren und 5 ergänzende Indikatoren über die EU-Pflicht hinaus. Inklusive PDF-Download.</p>
   <a href="https://bodenbericht.de/#premium">Auf die Warteliste</a>
   <div class="small">Noch nicht bestellbar. Early-Bird-Platz sichern, Start-Rabatt erhalten.</div>
 </div>

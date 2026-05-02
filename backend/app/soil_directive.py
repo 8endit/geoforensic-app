@@ -1,13 +1,24 @@
-"""EU Soil Monitoring Directive (EU) 2025/2360 — all 16 descriptors.
+"""EU Soil Monitoring Directive (EU) 2025/2360 — Anhang I.
 
 Ported from ProofTrailAgents/geoforensic/backend/reports/soil_directive.py
 and adapted to the geoforensic-app SoilDataLoader API.
 
+Per Annex I (Verabschiedung 12.11.2025, in Kraft seit 16.12.2025):
+13 Bodendescriptoren in Teilen A (EU-Kriterien, 3 Items), B (Mitgliedstaat-
+Kriterien, 5 Items) und C (rein beobachtend, 5 Items), plus 4 Versiegelungs-
+Indikatoren in Teil D. Verifiziert gegen EUR-Lex PDF.
+
 The directive is the legal anchor for our paid-product moat: until 2028
 no German competitor (BBSR, K.A.R.L., on-geo, EnviroTrust, docestate)
 maps these descriptors at address level. We do — with the explicit honesty
-that 4 of 16 descriptors require in-situ sampling and cannot be derived
+that 2 of 13 descriptors (Boden-Biodiversität via DNA-Metabarcoding,
+PFAS-Konzentrationen) require in-situ sampling and cannot be derived
 remotely; those are flagged ``status="not_remote"`` not faked.
+
+Über die EU-Pflicht hinaus liefern wir 5 ergänzende Indikatoren
+(Wind-Erosion separat, PAK/PCB, mikrobielle Aktivität, Bodenstruktur,
+Hydromorphologie) — siehe ``organic_contaminants`` in part_b und
+``erosion_wind`` in part_a.
 
 Returns a structured dict consumed by the Vollbericht PDF template
 ``backend/app/full_report.py``.
@@ -483,10 +494,13 @@ def query_soil_directive(
     else:
         overall = "keine_daten"
 
-    total_descriptors = 16
+    # Per EUR-Lex Annex I: 13 Bodendescriptoren in Teilen A+B+C
+    # plus 4 Versiegelungs-Indikatoren in Teil D = 17 Mess-Größen.
+    # Davon 2 echt nicht-remote: Biodiversität (DNA-Metabarcoding) + PFAS.
+    total_descriptors = 13
     determined = sum(1 for s in all_statuses if s not in ("na", "not_remote"))
-    not_remote = 4
-    not_available = total_descriptors - determined - not_remote
+    not_remote = 2
+    not_available = max(total_descriptors - determined - not_remote, 0)
 
     datasets = []
     if has_soilgrids:

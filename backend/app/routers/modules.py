@@ -105,10 +105,11 @@ MODULES_CATALOG = [
     {
         "key": "bodenqualitaet",
         "name": "Bodenqualität (EU 2025/2360)",
-        "short": "SOC, pH, Schwermetalle, Textur nach EU-Bodendirektive",
+        "short": "SOC, pH, Schwermetalle, Textur nach EU-Bodenmonitoring-Richtlinie",
         "description": (
-            "Die 12 bodenchemischen Kennwerte aus EU-Bodenmonitoring-"
-            "Direktive 2025/2360. Compliance-Basis ab Mitte 2027 Pflicht."
+            "Alle 13 Bodendescriptoren der EU-Bodenmonitoring-Richtlinie 2025/2360 "
+            "(Anhang I, Teile A bis C) plus 4 Versiegelungs-Indikatoren in Teil D. "
+            "Compliance-Basis ab nationaler Umsetzung bis Dezember 2028."
         ),
         "sources": ["SoilGrids 250m", "LUCAS 2022 Topsoil"],
         "price_eur": 22.00,
