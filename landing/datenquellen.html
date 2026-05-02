@@ -37,6 +37,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://bodenbericht.de/og-image.png">
     <link rel="stylesheet" href="/tailwind.css">
+
+    <!-- Structured Data: BreadcrumbList + WebPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Bodenbericht", "item": "https://bodenbericht.de/"},
+            {"@type": "ListItem", "position": 2, "name": "Datenquellen", "item": "https://bodenbericht.de/datenquellen.html"}
+          ]
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://bodenbericht.de/datenquellen.html#webpage",
+          "url": "https://bodenbericht.de/datenquellen.html",
+          "name": "Datenquellen und Methodik | Bodenbericht",
+          "description": "Transparente Übersicht aller Datenquellen für die Bodenbericht-Analyse: Copernicus EGMS, LUCAS, SoilGrids, CORINE, HRL Imperviousness, SRTM, BfG Hochwasser, DWD KOSTRA, NRW Bergbau, BBodSchV, EU-Bodenrichtlinie 2025/2360 plus 5 ergänzende Indikatoren.",
+          "inLanguage": "de-DE",
+          "isPartOf": {"@type": "WebSite", "name": "Bodenbericht", "url": "https://bodenbericht.de/"}
+        }
+      ]
+    }
+    </script>
+
     <style>
         html { scroll-behavior: smooth; }
         .hero-gradient { background: linear-gradient(135deg, #0c1d3a 0%, #122b52 40%, #1a3a6b 100%); }

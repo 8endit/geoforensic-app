@@ -37,6 +37,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://bodenbericht.de/og-image.png">
     <link rel="stylesheet" href="/tailwind.css">
+
+    <!-- Structured Data: BreadcrumbList + WebPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Bodenbericht", "item": "https://bodenbericht.de/"},
+            {"@type": "ListItem", "position": 2, "name": "Muster-Bericht", "item": "https://bodenbericht.de/muster-bericht.html"}
+          ]
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://bodenbericht.de/muster-bericht.html#webpage",
+          "url": "https://bodenbericht.de/muster-bericht.html",
+          "name": "Muster-Bericht ansehen | Bodenbericht",
+          "description": "So sieht der kostenlose Bodenbericht aus - mit Beispieldaten in voller Länge. Demonstriert Ampel-Klassifikation, EGMS-Auswertung, Schwermetall-Vergleich gegen BBodSchV-Schwellen und SoilGrids-Bodenparameter.",
+          "inLanguage": "de-DE",
+          "isPartOf": {"@type": "WebSite", "name": "Bodenbericht", "url": "https://bodenbericht.de/"}
+        }
+      ]
+    }
+    </script>
+
     <style>
         html { scroll-behavior: smooth; }
         .hero-gradient { background: linear-gradient(135deg, #0c1d3a 0%, #122b52 40%, #1a3a6b 100%); }

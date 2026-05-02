@@ -250,7 +250,7 @@ async def fetch_altlasten(lat: float, lon: float, country_code: str = "de") -> d
         async with httpx.AsyncClient(
             timeout=15.0,
             follow_redirects=True,
-            headers={"User-Agent": "GeoForensic/0.1 (contact@geoforensic.de)"},
+            headers={"User-Agent": "GeoForensic/0.1 (kontakt@geoforensic.de)"},
         ) as client:
             sites = await _query_pdok_bodemloket(client, lat, lon)
         site_dicts = [asdict(s) for s in sites]
