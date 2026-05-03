@@ -172,16 +172,11 @@ async def _wms_get_feature_info(
         return []
 
 
-def _extract_ampel_risk(features: list[dict[str, Any]]) -> str | None:
-    """Map AAK feature properties to a Ampel-Klasse string.
+_RISK_RANK = {"rot": 3, "gelb": 2, "gruen": 1}
 
-    The AAK ("Altbergbau Ampelkarte") encodes risk via a category attribute.
-    Without a verified attribute name we look at common candidates and
-    fall back to "vorhanden" if any feature was returned at all.
-    """
-    if not features:
-        return None
-    feat = features[0]
+
+def _classify_one(feat: dict[str, Any]) -> str | None:
+    """Classify a single AAK feature into 'rot' / 'gelb' / 'gruen' / raw / None."""
     lowered = {k.lower(): v for k, v in feat.items()}
     for key in ("ampel", "risiko", "kategorie", "klasse", "color", "farbe"):
         val = lowered.get(key)
@@ -194,4 +189,26 @@ def _extract_ampel_risk(features: list[dict[str, Any]]) -> str | None:
             if "gruen" in v or "grün" in v or "niedrig" in v or "green" in v:
                 return "gruen"
             return str(val)
-    return "vorhanden"
+    return None
+
+
+def _extract_ampel_risk(features: list[dict[str, Any]]) -> str | None:
+    """Map AAK feature properties to a Ampel-Klasse string.
+
+    The AAK ("Altbergbau Ampelkarte") encodes risk via a category attribute.
+    Without a verified attribute name we look at common candidates and
+    fall back to "vorhanden" if any feature was returned but none classified.
+
+    When multiple polygons overlap at the queried point (e.g. a Berechtsame
+    plus an old-mining hot-spot), we return the *worst* classification so
+    we never silently downgrade a red zone because a green polygon was
+    listed first in the WMS response.
+    """
+    if not features:
+        return None
+    classified: list[str] = [c for c in (_classify_one(f) for f in features) if c]
+    if not classified:
+        # WMS returned features but none matched our heuristic — flag presence.
+        return "vorhanden"
+    # Pick the worst by ordered ranking; unknown raw values rank below rot/gelb/gruen.
+    return max(classified, key=lambda c: _RISK_RANK.get(c, 0))

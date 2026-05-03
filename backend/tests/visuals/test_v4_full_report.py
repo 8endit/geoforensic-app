@@ -148,7 +148,7 @@ def _example_inputs(example_payload: dict) -> dict:
                 "intensity_60min_T20": 26.8,
             },
         },
-        "mining_data": {"available": True, "hits": [], "search_radius_m": 500},
+        "mining_data": {"available": True, "hits": []},
         "slope_data": {
             "available": True,
             "slope_deg": 4.2,

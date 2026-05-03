@@ -28,11 +28,11 @@
   <div class="kpi-strip">
     <div class="kpi">
       <div class="v">{{ hits|length }}</div>
-      <div class="l">Treffer im Suchradius</div>
+      <div class="l">Berechtsame / Zonen am Standort</div>
     </div>
     <div class="kpi">
-      <div class="v">{{ '%.0f' % mining_data.get('search_radius_m', 130) }} m</div>
-      <div class="l">Suchradius</div>
+      <div class="v small">Punkt-in-Polygon</div>
+      <div class="l">Abfragetyp ({{ provider }})</div>
     </div>
     {% if ampel %}
     <div class="kpi">
@@ -61,10 +61,10 @@
   </table>
   {% else %}
   <p>
-    Keine Bergbauberechtigungen oder kartografierte Altbergbau-Zonen im Suchradius.
-    Damit besteht für diese Adresse <strong>kein adressgenaues Senkungsrisiko aus Tagesbergbau</strong>;
-    historische Stollen unterhalb des kartografierten Bestands können
-    nicht ausgeschlossen werden.
+    Die Adresse liegt in keiner kartografierten Berechtsame und in keiner Altbergbau-Risikozone
+    des Provider-Bestands. Damit besteht für diese Adresse <strong>kein adressgenaues
+    Senkungsrisiko aus Tagesbergbau nach Aktenlage</strong>; historische Stollen unterhalb
+    des kartografierten Bestands können nicht ausgeschlossen werden.
   </p>
   {% endif %}
   {% else %}

@@ -586,7 +586,6 @@ def query_soil_directive(
     )
 
     # D.3 Settlement area
-    settlement_status = "ok" if corine and corine.get("code") and 100 <= corine["code"] < 200 else "ok"
     settlement_area = _make_item(
         label="Siedlungsflächen-Anteil",
         annex_descriptor="Total settlement area",
@@ -649,17 +648,64 @@ def query_soil_directive(
     )
 
     # Bonus 3 — Mikrobielle Aktivität (Atmungsrate, Biomasse)
+    #
+    # SOC-basierter Screening-Proxy nach Anderson & Domsch 1989 (Soil Biol.
+    # Biochem. 21:471–479): in gesundem Mineralboden bewegt sich der Quotient
+    # Cmic / SOC zwischen 1–4 % (Mittelwert ~2 % für mitteleuropäische
+    # Acker- und Waldböden). Der metabolische Quotient qCO2 schwankt
+    # zwischen 0,5 und 2 μg CO2-C pro mg Cmic pro Stunde; wir fixieren ihn
+    # pragmatisch auf 1.0 für die Ableitung der Basalatmung. Ergebnis ist
+    # ein Screening-Wert, kein Laborwert.
+    #
+    # Roadmap: ESDAC Soil Microbial Diversity Maps (JRC 2023, ~1 km,
+    # interpoliert aus 715 LUCAS-Sites) ersetzen diesen Proxy mit
+    # gemessenen Werten je Standort, sobald die Raster auf dem VPS liegen
+    # (siehe docs/EU_DIRECTIVE_16_DATA_LAYERS.md §9). Dann wird hier ein
+    # `loader.query_microbial(...)` vor dem SOC-Fallback gerufen.
+    microbial_value = None
+    microbial_status = "not_remote"
+    microbial_source = "LUCAS Soil Biology / In-situ-Inkubation"
+    microbial_threshold: str | None = None
+    microbial_note = (
+        "Boden-Atmungsrate als Vitalitäts-Indikator zusätzlich zur DNA-"
+        "Biodiversität (EU-Pflichtteil). Wo LUCAS-Soil-Biology-Daten "
+        "verfügbar sind, ergänzen wir die Approximation."
+    )
+    if soc_pct is not None and soc_pct > 0:
+        cmic_ug_per_g = round(soc_pct * 200, 0)             # μg C / g Boden
+        basal_resp_ug_per_g_h = round(soc_pct * 0.2, 2)     # μg CO2-C / g·h
+        # Bewertungs-Schwellen orientieren sich an Anderson 2003
+        # (qCO2-Range gesunder Böden):
+        #   ≥ 0,4 μg/g·h → vital · 0,2-0,4 → reduziert · < 0,2 → gestresst
+        if basal_resp_ug_per_g_h >= 0.4:
+            microbial_status = "ok"
+        elif basal_resp_ug_per_g_h >= 0.2:
+            microbial_status = "warn"
+        else:
+            microbial_status = "alert"
+        microbial_value = basal_resp_ug_per_g_h
+        microbial_source = "SoilGrids SOC-Proxy (Anderson and Domsch 1989)"
+        microbial_threshold = (
+            "≥ 0,4 vital · 0,2 – 0,4 reduziert · < 0,2 gestresst (Anderson 2003)"
+        )
+        microbial_note = (
+            f"Screening-Schätzung: Cmic ≈ {cmic_ug_per_g:.0f} μg C/g Boden, "
+            f"Basalatmung ≈ {basal_resp_ug_per_g_h:.2f} μg CO2-C/g·h. "
+            "Ableitung aus SOC nach Anderson and Domsch 1989 (Cmic/SOC ≈ 2 %, "
+            "qCO2 ≈ 1 μg CO2-C/mg Cmic·h). Ersetzt keine "
+            "DIN-ISO-16072-Inkubation; ESDAC Soil Microbial Diversity Map "
+            "(1 km, 715 LUCAS-Sites) ist auf der Roadmap und ersetzt diesen "
+            "Proxy mit gemessenen Werten je Standort."
+        )
     microbial_activity = _make_item(
         label="Mikrobielle Aktivität (Atmungsrate, Biomasse)",
         annex_descriptor="(über EU-Pflicht hinaus — Boden-Vitalität)",
-        value=None, unit="μg CO2-C / g·h",
-        status="not_remote",
-        source="LUCAS Soil Biology / In-situ-Inkubation",
-        note=(
-            "Boden-Atmungsrate als Vitalitäts-Indikator zusätzlich zur DNA-Biodiversität "
-            "(EU-Pflichtteil). Wo LUCAS-Soil-Biology-Daten verfügbar sind, "
-            "ergänzen wir die Approximation."
-        ),
+        value=microbial_value,
+        unit="μg CO2-C / g·h",
+        status=microbial_status,
+        threshold=microbial_threshold,
+        source=microbial_source,
+        note=microbial_note,
     )
 
     # Bonus 4 — Bodenstruktur / Aggregat-Stabilität
