@@ -199,11 +199,19 @@ Datenquellen-Provenance: `docs/DATA_PROVENANCE.md` ist die einzige verbindliche 
   - **Strategieentscheidung getroffen 2026-04-27: Option B = „Soil-Act + InSAR-Moat + BBSR-Interpretations-Layer"** (siehe `docs/MARKET_REALITY_DE_2026.md` §6). Heißt konkret: keine Avista-artigen sieben Risikomodule bauen, stattdessen den EGMS-Tiefen-Moat und die EU-Soil-Directive-Compliance ausbauen, BBSR als Datenquelle ingesten statt selbst Naturgefahren-Layer produzieren. Solange dieser Pfad nicht abgeräumt ist, kein neues Risikomodul aufmachen.
   - Baugrundgutachten (EUR 849–2500, mit Bohrung) bleiben das einzige B2C-Pendant ohne Wettbewerb in der "Desk-Screening"-Nische.
 
-### Pricing (NOT finalized — needs market validation)
-- Current config: `STRIPE_REPORT_PRICE_CENTS=19900` (EUR 199) — likely too high for NL market
-- Target NL: EUR 19-39 per report (between FunderConsult 7.95 and QuickScan 350+)
-- Target DE: EUR 49-99 per report (kein direkter B2C-Desk-Screening-Wettbewerb in der Nische; B2B-Markt aber durch on-geo/K.A.R.L. besetzt)
-- Free preview (ampel + point count, no auth needed) — this is the lead magnet
+### Pricing (Launch-Stand seit 2026-05-03, Marktvalidierung ausstehend)
+- Default-Konfig in `.env.example`: `STRIPE_REPORT_PRICE_CENTS=3900` (39 €).
+  NL-Launch-Preis. Server-`.env` muss händisch nachgezogen werden; vorher
+  stand 4900 (49 €) im Repo, davor 19900 (199 €).
+- Anker-Logik: 39 € für NL-Markt = ~5× FunderConsult (7,95 €), klar unter
+  QuickScan (350 €+). Sweet-Spot „lohnt sich, ist aber kein Investment".
+- DE-Pricing-Plan: 49 € Standard, 89 € Premium-Tier mit Karten-Pack +
+  CSV-Anhang. Country-Routing in der Stripe-Session-Erstellung ist
+  noch nicht implementiert (Stefan-Sprint), aktuell zahlt jeder den
+  Default-Preis.
+- B2B-API-Schiene auf geoforensic.de: ab 149 €/Monat oder 7,90 €/Lookup
+  bei ≥ 100/Monat. Eigener Sales-Cycle, separate Diskussion.
+- Free-Teaser (Ampel + Point-Count, kein Auth): bleibt das Lead-Magnet.
 - Discussed but NOT implemented: first 100 free, promo codes, tiered pricing
 
 ### Data Sources & Licensing
