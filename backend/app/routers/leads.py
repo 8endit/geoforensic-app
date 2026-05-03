@@ -247,10 +247,26 @@ async def _generate_and_send_lead_report(
                 for row in ts_result
             ]
 
-        # 3. Compute metrics
+        # 3. Compute metrics — DISTANZ-GEWICHTETER Mittelwert.
+        #
+        # Punkte direkt an der Adresse dominieren die Ampel; entfernte
+        # Punkte ziehen den Mittelwert nicht ungebührlich in eine Richtung.
+        # Verhindert False-Positives (Nachbarquartier 400 m weg hat
+        # Senkung → falsch-gelbes Haus) und False-Negatives (eigener
+        # Block senkt sich, Umgebung stabil → falsch-grünes Haus).
+        #
+        # Schema: w_i = 1 / max(d_i, 50 m). Inverse Distanz, linear (1/d)
+        # statt 1/d², damit nicht 5 sehr-nahe Punkte 65 weiter entfernte
+        # komplett überstimmen. 50 m-Floor entspricht typischer PSI-Spacing
+        # in dichter Stadt und verhindert Division durch Werte < 1 m.
+        # Identisches Schema in routers/reports.py (V.1 hatte dort linear
+        # taper 1.0 → 0.1, jetzt synchronisiert).
+        DIST_FLOOR_M = 50.0
         if points:
             velocities = [abs(float(p["mean_velocity_mm_yr"])) for p in points]
-            mean_v = sum(velocities) / len(velocities)
+            weights = [1.0 / max(float(p["distance_m"]), DIST_FLOOR_M) for p in points]
+            weight_sum = sum(weights)
+            mean_v = sum(v * w for v, w in zip(velocities, weights)) / weight_sum
             max_v = max(velocities)
             ampel = _ampel_from_velocity(mean_v)
             geo_score = _compute_geo_score(velocities, timeseries)

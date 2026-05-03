@@ -47,13 +47,14 @@ class Settings(BaseSettings):
 
     # EGMS screening — used by the pipeline (SQL radius) and by the report
     # template so the radius + measurement window is not hardcoded in copy.
-    # 750 m default ergibt typisch ~110-180 Punkte/Adresse in DE-Stadt
-    # (vs. ~50-80 bei 500 m). Größerer Sample = stabilerer Mittelwert,
-    # bessere Korrelation EGMS×Niederschlag, mehr Punkte auf der Karte.
-    # Trade-off: bei 750 m liegen Punkte aus dem weiteren Quartier mit
-    # im Sample, nicht nur direkte Nachbarn — wir kommunizieren das im
-    # PDF konsequent als "im Quartier" / "im 750 m-Radius".
-    egms_radius_m: int = 750
+    #
+    # Wir bleiben bei 500 m als Fenster (typisch ~50-80 PSI in DE-Stadt)
+    # und gewichten den Mittelwert ÜBER das Fenster mit inverser
+    # Distanz² (siehe routers/leads.py + routers/reports.py). Damit
+    # dominieren Punkte direkt am Haus die Ampel, statt von Nachbarblöcken
+    # 400 m weiter weg verwässert zu werden. Größerer Radius wäre nur
+    # eine Volumen-Schein-Verbesserung.
+    egms_radius_m: int = 500
     egms_period_start: int = 2019
     egms_period_end: int = 2023
 

@@ -308,11 +308,17 @@ async def _run_report_pipeline(report_id: uuid.UUID) -> None:
             else:
                 median_velocity = ordered_velocities[mid]
 
+            # Distanz-gewichteter Mittelwert mit inverser Distanz (1/d, 50 m-Floor).
+            # Identisches Schema in routers/leads.py — siehe dort für die
+            # Begründung (False-Pos/Neg-Schutz, warum 1/d statt 1/d², warum 50 m).
+            # Vorher: linearer Taper 1.0 → 0.1 — zu lasch, Punkte am Rand des
+            # 500 m-Radius zählten noch 10 % statt fast nichts.
+            DIST_FLOOR_M = 50.0
             weighted_sum = 0.0
             weight_total = 0.0
             for point in points:
-                distance = float(point["distance_m"])
-                weight = max(0.1, 1.0 - (distance / report.radius_m))
+                distance = max(float(point["distance_m"]), DIST_FLOOR_M)
+                weight = 1.0 / distance
                 weighted_sum += abs(float(point["mean_velocity_mm_yr"])) * weight
                 weight_total += weight
             weighted_velocity = weighted_sum / weight_total if weight_total else mean_velocity

@@ -215,14 +215,15 @@ Datenquellen-Provenance: `docs/DATA_PROVENANCE.md` ist die einzige verbindliche 
 Je dichter das Messpunkte-Netz pro Adresse, desto präziser lässt sich der
 Bericht rechnen — mittlere Geschwindigkeit, Streuung, Trendklassifikation und
 GeoScore werden statistisch belastbarer je mehr Punkte im Untersuchungsradius
-liegen. Default-Radius seit 2026-05-03: **750 m** (vorher 500 m, siehe
-`backend/app/config.py egms_radius_m`). Grobe Referenzwerte für eine
-deutsche Wohnsiedlung:
+liegen. Default-Radius: **500 m** mit **distanz-gewichtetem Mittelwert**
+(1/d, 50 m-Floor) — Punkte näher am Haus dominieren die Ampel, entfernte
+verwässern den Wert nicht. Grobe Referenzwerte für eine deutsche
+Wohnsiedlung:
 
-| Quelle | typisch / 500 m | typisch / 750 m | Messzeitraum | NL abgedeckt? |
-|---|---|---|---|---|
-| EGMS | 50 – 80 | 110 – 180 | 2019 – 2023 | ja |
-| BGR BBD | 80 – 120 | 180 – 270 | 2015 – 2024 | nein |
+| Quelle | typisch Punkte / 500 m | Messzeitraum | NL abgedeckt? |
+|---|---|---|---|
+| EGMS | 50 – 80 | 2019 – 2023 | ja |
+| BGR BBD | 80 – 120 | 2015 – 2024 | nein |
 
 Unsere aktuelle Wahl (EGMS als einzige Quelle) ist ein bewusster Kompromiss
 aus Lizenz-Sicherheit, EU-Abdeckung (NL ist Markt #1) und Datendichte. Für
