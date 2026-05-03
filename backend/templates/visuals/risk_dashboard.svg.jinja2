@@ -79,7 +79,9 @@
   {# Box 4: PSI-Punkte #}
   <rect x="215" y="200" width="220" height="40" rx="8"
         fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
-  <text x="228" y="218" font-size="12" fill="#5F5E5A">PSI-Punkte im 500 m-Radius</text>
+  {#- Radius matches config.egms_radius_m default (750 m); hardcoded label,
+      mit-aktualisieren wenn config gebumpt wird. -#}
+  <text x="228" y="218" font-size="12" fill="#5F5E5A">PSI-Punkte im 750 m-Radius</text>
   <text x="422" y="230" text-anchor="end" font-size="14" font-weight="500"
         fill="#2C2C2A">{{ fmt_int(data.psi_count_in_radius) }}</text>
 

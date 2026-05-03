@@ -15,7 +15,7 @@
     Adresse im Vergleich zur Nachbarschaft? Die Korrelations-Spinne
     normiert die sechs wichtigsten Einflussgrößen auf eine 0–5-Skala;
     das Histogramm vergleicht die Velocity der Adresse mit allen
-    PSI-Punkten im 500 m-Radius.
+    PSI-Punkten im {{ payload.components.property_context_map.radius_meters }} m-Radius.
   </p>
 
   <div class="visual">{{ radar_svg|safe }}</div>
@@ -38,7 +38,7 @@
     {{ radar.interpretation }}
   </p>
   <p>
-    In der Nachbarschaft (500 m) liegt die Adresse bei
+    In der Nachbarschaft ({{ payload.components.property_context_map.radius_meters }} m) liegt die Adresse bei
     <strong>Perzentil {{ hist.percentile if hist.percentile is not none else '—' }}</strong>
     der absoluten Velocity-Verteilung —
     {% if (hist.percentile or 0) <= 25 %}

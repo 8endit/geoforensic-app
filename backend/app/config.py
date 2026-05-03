@@ -47,7 +47,13 @@ class Settings(BaseSettings):
 
     # EGMS screening — used by the pipeline (SQL radius) and by the report
     # template so the radius + measurement window is not hardcoded in copy.
-    egms_radius_m: int = 500
+    # 750 m default ergibt typisch ~110-180 Punkte/Adresse in DE-Stadt
+    # (vs. ~50-80 bei 500 m). Größerer Sample = stabilerer Mittelwert,
+    # bessere Korrelation EGMS×Niederschlag, mehr Punkte auf der Karte.
+    # Trade-off: bei 750 m liegen Punkte aus dem weiteren Quartier mit
+    # im Sample, nicht nur direkte Nachbarn — wir kommunizieren das im
+    # PDF konsequent als "im Quartier" / "im 750 m-Radius".
+    egms_radius_m: int = 750
     egms_period_start: int = 2019
     egms_period_end: int = 2023
 
