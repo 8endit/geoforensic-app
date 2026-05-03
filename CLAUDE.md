@@ -196,7 +196,7 @@ Datenquellen-Provenance: `docs/DATA_PROVENANCE.md` ist die einzige verbindliche 
   - **docestate.com** — B2C Altlastenkataster pro Grundstück, ~30–100 EUR.
   - Was niemand kombiniert: **gemessene InSAR-Bodenbewegung mit Zeitreihen + Käufer-PDF + EU-Soil-Directive-Compliance**. Das ist unser einziger echter Moat.
   - **Pflichtversicherung Elementar** ist im Koalitionsvertrag 2025 + Bundesrats-Vorstoß + Linke-Antrag 16.04.2026 — noch nicht beschlossen. Falls Opt-out-Modell kommt: ~50 Versicherer brauchen adressgenaue Risikodaten → B2B-API-Sog.
-  - **Strategieentscheidung Avista-Parität vs. Soil-Act/InSAR-Pivot ist offen** — bis zur Entscheidung kein neues Risikomodul anfangen.
+  - **Strategieentscheidung getroffen 2026-04-27: Option B = „Soil-Act + InSAR-Moat + BBSR-Interpretations-Layer"** (siehe `docs/MARKET_REALITY_DE_2026.md` §6). Heißt konkret: keine Avista-artigen sieben Risikomodule bauen, stattdessen den EGMS-Tiefen-Moat und die EU-Soil-Directive-Compliance ausbauen, BBSR als Datenquelle ingesten statt selbst Naturgefahren-Layer produzieren. Solange dieser Pfad nicht abgeräumt ist, kein neues Risikomodul aufmachen.
   - Baugrundgutachten (EUR 849–2500, mit Bohrung) bleiben das einzige B2C-Pendant ohne Wettbewerb in der "Desk-Screening"-Nische.
 
 ### Pricing (NOT finalized — needs market validation)
