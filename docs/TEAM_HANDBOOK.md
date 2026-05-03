@@ -174,18 +174,32 @@ Das reicht, damit die Seite läuft und Let's Encrypt SSL zieht.
 bodenbericht.de. CAA 0 issue "letsencrypt.org"
 ```
 
-**MX + SPF/DKIM/DMARC (wenn Mails von `@bodenbericht.de` versendet werden sollen):**
+**MX + SPF/DKIM/DMARC (LIVE seit 2026-05-03):**
 
-Aktuell sendet Brevo im Namen von `bericht@geoforensic.de` — SPF/DKIM gehört dann zur **geoforensic.de**-Domain, nicht zu bodenbericht.de. Wenn ihr irgendwann auf `bericht@bodenbericht.de` umstellt:
+Brevo sendet seit Umstellung A.6 (Domenico-Katalog) im Namen von
+`bericht@bodenbericht.de`. SPF/DKIM/DMARC sind im Brevo-Panel als
+„Fehlerfrei" verifiziert. Folgende Records stehen entsprechend in der
+DNS-Zone:
 
 | Typ | Host | Wert |
 |---|---|---|
-| MX | `bodenbericht.de` | `10 mx1.example.com` (Brevo gibt den Hostname vor) |
 | TXT | `bodenbericht.de` | `v=spf1 include:spf.brevo.com ~all` |
 | TXT | `mail._domainkey.bodenbericht.de` | DKIM-Key aus Brevo-Panel |
 | TXT | `_dmarc.bodenbericht.de` | `v=DMARC1; p=none; rua=mailto:dmarc@bodenbericht.de` |
 
-SPF + DKIM ohne diese Records: Mails landen mit hoher Wahrscheinlichkeit im Spam. **Erst einrichten, wenn Mails tatsächlich von @bodenbericht.de kommen sollen.**
+`SMTP_FROM_EMAIL` in `backend/.env` muss auf dem Server händisch nachgezogen
+werden (das Repo-`.env.example` ist bereits umgestellt):
+
+```
+SMTP_FROM_EMAIL=bericht@bodenbericht.de
+```
+
+Danach `docker compose up -d --force-recreate backend` (kein Rebuild
+nötig, env_file wird beim Container-Start neu gelesen).
+
+`team@geoforensic.de` bleibt für B2B-Kommunikation (Lizenzanfragen, Domenico-
+Stuff, BBSR/GFZ-Korrespondenz) reserviert — separater Postfach-Pfad,
+keine Brevo-SMTP-Anbindung.
 
 ### 4.3 DNS-Test
 

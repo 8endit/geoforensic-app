@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     smtp_port: int = 587
     smtp_user: str = ""
     smtp_password: str = ""
-    smtp_from_email: str = "bericht@geoforensic.de"
+    smtp_from_email: str = "bericht@bodenbericht.de"
     smtp_from_name: str = "Bodenbericht"
 
     # EGMS screening — used by the pipeline (SQL radius) and by the report
