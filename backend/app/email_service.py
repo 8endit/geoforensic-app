@@ -300,3 +300,131 @@ async def send_report_email(
     except Exception:
         logger.exception("Failed to send report email for %s", report_id)
         return False
+
+
+# ---------------------------------------------------------------------------
+# Review-request follow-up (B.5 from SEO_BRANDING_ROLLOUT_PLAN)
+# ---------------------------------------------------------------------------
+
+_REVIEW_HTML_TEMPLATE = """<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Wie war Ihr Bodenbericht?</title>
+<style>
+  body {{ margin: 0; padding: 0; background: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937; }}
+  .container {{ max-width: 600px; margin: 0 auto; background: #ffffff; }}
+  .content {{ padding: 36px 40px 28px 40px; }}
+  h1 {{ font-size: 22px; font-weight: 700; color: #0c1d3a; margin: 0 0 16px 0; line-height: 1.3; }}
+  p {{ font-size: 15px; line-height: 1.6; margin: 0 0 14px 0; }}
+  .cta {{ text-align: center; margin: 24px 0 8px 0; }}
+  .cta a {{ display: inline-block; padding: 12px 26px; background: #16a34a; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; }}
+  .footer {{ padding: 20px 40px; font-size: 12px; color: #6b7280; text-align: center; border-top: 1px solid #e5e7eb; }}
+  .muted {{ color: #6b7280; font-size: 13px; }}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="content">
+      <h1>Wie war Ihr Bodenbericht?</h1>
+      <p>Sie haben vor einigen Tagen Ihren Bodenbericht für <strong>{address}</strong> erhalten.</p>
+      <p>Wenn er Ihnen weitergeholfen hat, würde uns eine kurze öffentliche Bewertung sehr helfen — wir sind ein junges Team, und ehrliches Feedback ist der wichtigste Hebel, neue Käufer auf uns aufmerksam zu machen.</p>
+      <div class="cta"><a href="{review_url}">Bewertung abgeben</a></div>
+      <p class="muted">Falls etwas nicht so war wie erwartet, antworten Sie einfach auf diese Mail — wir lesen jede Rückmeldung und bessern nach.</p>
+    </div>
+    <div class="footer">Bodenbericht · ein Service der Tepnosholding GmbH · <a href="https://bodenbericht.de/impressum.html">Impressum</a></div>
+  </div>
+</body>
+</html>
+"""
+
+_REVIEW_TEXT_TEMPLATE = """\
+Wie war Ihr Bodenbericht?
+
+Sie haben vor einigen Tagen Ihren Bodenbericht für {address} erhalten.
+
+Wenn er Ihnen weitergeholfen hat, würde uns eine kurze öffentliche
+Bewertung sehr helfen — wir sind ein junges Team, und ehrliches
+Feedback ist der wichtigste Hebel, neue Käufer auf uns aufmerksam
+zu machen.
+
+Bewertung abgeben:
+{review_url}
+
+Falls etwas nicht so war wie erwartet, antworten Sie einfach auf
+diese Mail — wir lesen jede Rückmeldung und bessern nach.
+
+—
+Bodenbericht · ein Service der Tepnosholding GmbH
+https://bodenbericht.de/impressum.html
+"""
+
+
+async def send_review_request_email(
+    recipient_email: str,
+    report_address: str,
+    review_url: str,
+) -> bool:
+    """Follow-up after PDF send asking for a public Provenexpert review.
+
+    Returns True on success. Returns False (and skips silently) if
+    SMTP isn't configured OR ``review_url`` is empty — the latter is
+    the graceful-degradation path while the Provenexpert profile is
+    still being set up by Domenico.
+
+    The mail uses the same Brevo SMTP path as ``send_report_email`` so
+    deliverability is governed by the same SPF/DKIM/DMARC setup. Reply-To
+    routes to ``team@geoforensic.de`` for the inbound-feedback case.
+    """
+    if not settings.smtp_host:
+        logger.warning(
+            "SMTP not configured — skipping review-request mail to %s",
+            recipient_email,
+        )
+        return False
+    if not review_url:
+        logger.info(
+            "PROVENEXPERT_REVIEW_URL not set — skipping review-request mail to %s "
+            "(graceful degradation while profile is pending)",
+            recipient_email,
+        )
+        return False
+
+    msg = EmailMessage()
+    msg["Subject"] = f"Wie war Ihr Bodenbericht für {report_address}?"
+    from_name = getattr(settings, "smtp_from_name", "Bodenbericht")
+    msg["From"] = f"{from_name} <{settings.smtp_from_email}>"
+    msg["To"] = recipient_email
+    msg["Reply-To"] = "team@geoforensic.de"
+
+    msg.set_content(
+        _REVIEW_TEXT_TEMPLATE.format(
+            address=report_address,
+            review_url=review_url,
+        ),
+        subtype="plain",
+        charset="utf-8",
+    )
+    msg.add_alternative(
+        _REVIEW_HTML_TEMPLATE.format(
+            address=escape(report_address),
+            review_url=escape(review_url),
+        ),
+        subtype="html",
+        charset="utf-8",
+    )
+
+    try:
+        await aiosmtplib.send(
+            msg,
+            hostname=settings.smtp_host,
+            port=settings.smtp_port,
+            username=settings.smtp_user or None,
+            password=settings.smtp_password or None,
+            start_tls=True,
+        )
+        logger.info("Review-request mail sent to %s", recipient_email)
+        return True
+    except Exception:
+        logger.exception("Failed to send review-request mail to %s", recipient_email)
+        return False

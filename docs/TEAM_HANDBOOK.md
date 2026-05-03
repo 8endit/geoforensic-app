@@ -212,6 +212,49 @@ dig +short bodenbericht.de @1.1.1.1        # Cloudflare DNS
 
 Wenn nicht: Propagation-Wartezeit (bis 24h), oder DNS-Einstellungen im Registrar-Panel prüfen.
 
+### 4.4 Review-Request-Mail nach PDF-Versand
+
+Hintergrund: Domenico-Sprint B.5 — sieben Tage nach Vollbericht-Versand
+bekommen Käufer eine kurze Folge-Mail mit Bitte um öffentliche
+Provenexpert-Bewertung. Code in
+``backend/scripts/send_pending_review_requests.py``, Mail-Template in
+``backend/app/email_service.py :: send_review_request_email``.
+
+**Voraussetzung:** Domenico hat das Provenexpert-Profil angelegt und
+die URL liegt vor. Eintragen in ``backend/.env``:
+
+```
+PROVENEXPERT_REVIEW_URL=https://www.provenexpert.com/<slug>/
+REVIEW_REQUEST_DELAY_DAYS=7   # optional, default 7
+```
+
+Solange ``PROVENEXPERT_REVIEW_URL`` leer ist, sendet das Script nichts
+(graceful degradation), eingeplante Cronjobs sind also gefahrlos.
+
+**Cron-Setup auf dem VPS** (root-Crontab, ein Lauf pro Tag um 09:30):
+
+```cron
+30 9 * * * cd /opt/bodenbericht && /usr/bin/docker compose run --rm \
+    --entrypoint "" backend \
+    python -m scripts.send_pending_review_requests \
+    >> /var/log/bodenbericht/review_requests.log 2>&1
+```
+
+`docker compose run --rm` startet einen Einmal-Container, sodass der
+laufende Backend-Container nicht beeinträchtigt wird. Idempotenz wird
+über ``report_data.review_request_sent_at`` (JSONB) gewährleistet — das
+Script überspringt Reports, die schon eine Bitte bekommen haben.
+
+**Verifikation nach erstem Lauf:**
+
+```bash
+docker compose run --rm --entrypoint "" backend \
+    python -m scripts.send_pending_review_requests
+# erwartete Ausgabe: "Done — sent=N, skipped=M"
+docker compose exec db psql -U postgres geoforensic -c \
+    "SELECT count(*) FROM reports WHERE report_data ? 'review_request_sent_at'"
+```
+
 ---
 
 ## 5. Monitoring & Ops

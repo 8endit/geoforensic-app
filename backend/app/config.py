@@ -45,15 +45,23 @@ class Settings(BaseSettings):
     smtp_from_email: str = "bericht@bodenbericht.de"
     smtp_from_name: str = "Bodenbericht"
 
+    # Provenexpert-Review-Link für die Follow-up-Mail nach PDF-Versand.
+    # Leer lassen → keine Review-Mail wird verschickt (Domenico-Sprint
+    # B.5 wartet noch auf Profil-Anlage). Sobald Profil existiert und URL
+    # eingetragen ist, schickt scripts/send_pending_review_requests.py
+    # die Bitte an alle Reports älter als REVIEW_REQUEST_DELAY_DAYS.
+    provenexpert_review_url: str = ""
+    review_request_delay_days: int = 7
+
     # EGMS screening — used by the pipeline (SQL radius) and by the report
     # template so the radius + measurement window is not hardcoded in copy.
     #
     # Wir bleiben bei 500 m als Fenster (typisch ~50-80 PSI in DE-Stadt)
-    # und gewichten den Mittelwert ÜBER das Fenster mit inverser
-    # Distanz² (siehe routers/leads.py + routers/reports.py). Damit
-    # dominieren Punkte direkt am Haus die Ampel, statt von Nachbarblöcken
-    # 400 m weiter weg verwässert zu werden. Größerer Radius wäre nur
-    # eine Volumen-Schein-Verbesserung.
+    # und gewichten den Mittelwert ÜBER das Fenster mit inverser Distanz
+    # (1/d, 50 m-Floor; siehe routers/leads.py + routers/reports.py).
+    # Damit dominieren Punkte direkt am Haus die Ampel, statt von
+    # Nachbarblöcken 400 m weiter weg verwässert zu werden. Größerer
+    # Radius wäre nur eine Volumen-Schein-Verbesserung.
     egms_radius_m: int = 500
     egms_period_start: int = 2019
     egms_period_end: int = 2023
