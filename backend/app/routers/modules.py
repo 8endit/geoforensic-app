@@ -173,10 +173,18 @@ MODULES_CATALOG = [
         "description": (
             "Über EU-Anhang I hinaus: Boden-Atmungsrate und mikrobielle "
             "Biomasse zusätzlich zur DNA-Biodiversität (EU-Pflicht-Teil C). "
-            "Wo LUCAS-Soil-Biology-Daten verfügbar sind, ergänzen wir die "
-            "Approximation; sonst not_remote."
+            "Screening-Schätzung aus SoilGrids-SOC nach Anderson and "
+            "Domsch 1989 (Cmic/SOC ≈ 2 %, qCO2 ≈ 1 μg CO2-C/mg Cmic·h) "
+            "mit Bewertungs-Ampel ≥ 0,4 vital · 0,2-0,4 reduziert · "
+            "< 0,2 gestresst. ESDAC Soil Microbial Diversity Map (1 km, "
+            "715 LUCAS-Sites) ist auf der Roadmap und ersetzt den Proxy "
+            "mit gemessenen Werten."
         ),
-        "sources": ["LUCAS Soil Biology", "In-situ-Inkubation"],
+        "sources": [
+            "SoilGrids 250m SOC",
+            "Anderson and Domsch 1989 (Cmic/SOC, qCO2)",
+            "ESDAC Soil Microbial Diversity Map (geplant)",
+        ],
         "price_eur": 8.00,
         "included_in_base": False,
         "category": "bonus",
