@@ -515,7 +515,7 @@ def query_soil_directive(
     )
 
     # C.5 Soil contamination (PFAS + Pestizide) — Part C subset
-    pest = query_pesticides(lat, lon, country_code=cc)
+    pest = query_pesticides(lat, lon)
     if pest.available:
         if pest.flagged_count > 0:
             pest_status = "alert"
