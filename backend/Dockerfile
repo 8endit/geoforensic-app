@@ -28,6 +28,9 @@ COPY scripts ./scripts
 # the six visual SVGs (visuals/). visual_renderer.py resolves them via
 # parents[1] from app/, so they must sit at /app/templates/ inside the image.
 COPY templates ./templates
+# static/ holds tokens.css, fonts (Sentient/Geist), full_report.css —
+# referenced absolut von full_report.html via /app/static/...
+COPY static ./static
 # Alembic config + migration scripts must be in the image so
 # `alembic upgrade head` works at container start (see
 # docker-compose.yml backend service `command:` override). alembic.ini
