@@ -24,6 +24,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
 COPY scripts ./scripts
+# templates/ holds Jinja2 sources for the Vollbericht-PDF (full_report/) and
+# the six visual SVGs (visuals/). visual_renderer.py resolves them via
+# parents[1] from app/, so they must sit at /app/templates/ inside the image.
+COPY templates ./templates
 # Alembic config + migration scripts must be in the image so
 # `alembic upgrade head` works at container start (see
 # docker-compose.yml backend service `command:` override). alembic.ini
