@@ -13,9 +13,14 @@ Two-product repo for address-based ground motion + soil screening.
 | **geoforensic.de** | planned | Paid product, Groundsure-style depth | **Full PDF** — all engine output (not wired yet) |
 
 Routing happens via the lead `source` field in
-`backend/app/routers/leads.py` — `TEASER_SOURCES = {"quiz", "landing",
-"premium-waitlist"}`. Anything else is reserved for the future paid/full
-flow and currently falls back to the teaser with a log warning.
+`backend/app/routers/leads.py` — **deny-by-default**:
+`PAID_SOURCES = {"paid", "checkout", "stripe", "pilot-vollbericht"}`
+löst den Vollbericht aus, **alles andere** liefert den Teaser. Eine
+neue Landing-Form mit unbekannter Source läuft also automatisch
+sicher in den Teaser-Pfad. Außerdem:
+`DOI_SOURCES = {"premium-waitlist"}` umgeht die Report-Pipeline ganz
+und versendet stattdessen eine Double-Opt-In-Bestätigungs-Mail
+(`/api/leads/confirm/{token}`).
 
 ## Architecture
 
@@ -147,7 +152,7 @@ Datenquellen-Provenance: `docs/DATA_PROVENANCE.md` ist die einzige verbindliche 
 
 ### Honest gaps (not working / half-working)
 
-- **Vollbericht-Pipeline scharfgeschaltet, aber nicht customer-facing** — `full_report.py` ist seit 27.4. an den Lead-Flow angebunden (`source != TEASER_SOURCES` → Vollbericht). Quiz und Landing emittieren aber weiterhin nur Teaser-Sources. Triggerbar derzeit nur per direktem `POST /api/leads`.
+- **Vollbericht-Pipeline scharfgeschaltet, aber nicht customer-facing** — `full_report.py` ist seit 27.4. an den Lead-Flow angebunden (`source ∈ PAID_SOURCES` → Vollbericht). Quiz, Landing und Persona-Pages emittieren Teaser-Sources; nur `pilot-vollbericht` (Pilot-Vorab-Form) und die Stripe-Sources (`paid`, `checkout`, `stripe`) lösen den Vollbericht aus. Stripe-Pfad ist code-bereit, aber nicht customer-facing.
 - ~~**KOSTRA-Raster teilweise da**~~ — **erledigt 2.5.2026**: alle 6 buyer-relevanten Slots (60min × T1/T10/T100, 24h × T1/T10/T100) sind live. Quelle: GIS_KOSTRA-DWD-2020_D00060.zip + D01440.zip Shapefiles (manuell hochgeladen, weil DWD CDC `/asc/` nur die wertlose StatRR-Variante ohne CRS hostet) — Rasterisierung via `scripts/download_kostra.py --ensure-default-set` mit ogr2ogr-Reproject auf EPSG:4326 + gdal_rasterize HN_<NNN>A_-Spalten. Berlin-Werte: 14.8 / 29.9 / 48.9 mm (60min) und 30.9 / 62.7 / 102.6 mm (24h). Längere Dauerstufen (D360/D720/D2880) sind nicht in KOSTRA_SLOTS definiert und auch nicht angefragt.
 - ~~**ESDAC R-Faktor-Raster fehlt**~~ — **erledigt 1.5.2026**, 429 MB-Raster auf VPS unter `/opt/bodenbericht/rasters/esdac_rfactor_eu_1km.tif`, `rfactor_data.py` liest mit `source=esdac-2015`.
 - **Open-Elevation flaky** — primärer Slope-Lookup geht über OpenTopoData (1000 req/day cap), Open-Elevation als Fallback antwortet aktuell mit 504. Phase C: lokale SRTM-Tile-Cache.

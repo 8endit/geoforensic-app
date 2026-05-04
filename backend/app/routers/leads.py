@@ -16,17 +16,19 @@ the wording of the outbound mail (see ``email_service.is_teaser``).
 
 import asyncio
 import logging
+import secrets
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, EmailStr
-from sqlalchemy import text
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.dependencies import get_db
-from app.email_service import send_report_email
+from app.email_service import send_report_email, send_waitlist_confirmation_email
 from app.flood_data import query_flood
 from app.full_report import generate_full_report
 from app.html_report import generate_html_report
@@ -60,6 +62,12 @@ logger = logging.getLogger(__name__)
 # will be removed from this set the day the Stripe paywall goes live.
 PAID_SOURCES = {"paid", "checkout", "stripe", "pilot-vollbericht"}
 
+# Marketing-style sources that require double-opt-in per UWG § 7 Abs. 2 Nr. 2.
+# A lead with one of these sources is created with a confirmation token and
+# receives a confirmation mail; the row stays "pending" until the user clicks
+# the link, which sets confirmed_at via /api/leads/confirm/{token}.
+DOI_SOURCES = {"premium-waitlist"}
+
 
 class LeadCreate(BaseModel):
     email: EmailStr
@@ -67,6 +75,11 @@ class LeadCreate(BaseModel):
     answers: dict | None = None
     timestamp: str | None = None
     source: str = "quiz"
+    # Honeypot: legitimate users never see this field; bots fill every input
+    # they find. Any non-empty value flips this lead into the silently-discarded
+    # bot bucket. Field name "website" is generic enough to attract naive
+    # scraper bots without raising suspicion in their fill heuristics.
+    website: str | None = None
 
 
 class LeadResponse(BaseModel):
@@ -572,6 +585,48 @@ async def capture_lead(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
+    # Honeypot: bots fill every input including the hidden one.  Return a
+    # 201 so the client doesn't learn the trap exists, but skip everything
+    # downstream (no DB write, no mail, no geocode).
+    if payload.website and payload.website.strip():
+        logger.info(
+            "Honeypot triggered (source=%s, ip=%s) — silently discarded",
+            payload.source,
+            getattr(request.client, "host", "?"),
+        )
+        # Return a fake LeadResponse so the bot client sees success.
+        return LeadResponse(
+            id=str(uuid.uuid4()),
+            email=payload.email,
+            created_at=datetime.now(timezone.utc),
+        )
+
+    # DOI sources (premium-waitlist) bypass the geocode + report path: we
+    # only collect the email behind a token-gated confirmation, no PDF.
+    if payload.source in DOI_SOURCES:
+        token = secrets.token_urlsafe(32)
+        lead = Lead(
+            email=payload.email,
+            quiz_answers=dict(payload.answers or {}),
+            source=payload.source,
+            confirmation_token=token,
+        )
+        db.add(lead)
+        await db.commit()
+        await db.refresh(lead)
+
+        # Premium-Waitlist is bodenbericht.de-exclusive — confirmation link
+        # must NEVER point at geoforensic.de (which is currently parked).
+        confirm_url = f"https://bodenbericht.de/api/leads/confirm/{token}"
+        background_tasks.add_task(
+            send_waitlist_confirmation_email,
+            recipient_email=payload.email,
+            confirm_url=confirm_url,
+        )
+        return LeadResponse(
+            id=str(lead.id), email=lead.email, created_at=lead.created_at
+        )
+
     # If address provided: validate synchronously via geocoding BEFORE saving
     # the lead, so the user gets immediate feedback on typos instead of a silent
     # failure in the background report pipeline.
@@ -618,3 +673,60 @@ async def capture_lead(
         email=lead.email,
         created_at=lead.created_at,
     )
+
+
+_DOI_CONFIRMED_HTML = """<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anmeldung bestätigt - Bodenbericht</title>
+<link rel="stylesheet" href="/tailwind.css"></head>
+<body class="font-sans bg-gray-50 min-h-screen flex items-center justify-center p-6">
+  <div class="max-w-md w-full bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
+    <div class="w-14 h-14 rounded-full bg-brand-500/15 flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+    </div>
+    <h1 class="text-2xl font-bold text-navy-900 mb-2">Anmeldung bestätigt</h1>
+    <p class="text-gray-600 leading-relaxed mb-6">Sie sind auf der Premium-Bericht-Warteliste eingetragen. Wir melden uns, sobald der Bericht verfügbar ist.</p>
+    <a href="/" class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2.5 rounded-lg transition">Zur Startseite</a>
+  </div>
+</body></html>"""
+
+_DOI_INVALID_HTML = """<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bestätigungslink ungültig - Bodenbericht</title>
+<link rel="stylesheet" href="/tailwind.css"></head>
+<body class="font-sans bg-gray-50 min-h-screen flex items-center justify-center p-6">
+  <div class="max-w-md w-full bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
+    <h1 class="text-2xl font-bold text-navy-900 mb-2">Bestätigungslink ungültig</h1>
+    <p class="text-gray-600 leading-relaxed mb-6">Der Link ist abgelaufen, falsch kopiert oder bereits verwendet. Sie können sich erneut für die Warteliste eintragen.</p>
+    <a href="/#premium" class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2.5 rounded-lg transition">Zur Warteliste</a>
+  </div>
+</body></html>"""
+
+
+@router.get("/confirm/{token}", response_class=HTMLResponse)
+async def confirm_lead(token: str, db: AsyncSession = Depends(get_db)):
+    """Double-opt-in confirmation for DOI_SOURCES leads (premium-waitlist).
+
+    Accepting GET (not POST) is intentional — the link is followed by a
+    plain mail-client click. Tokens are single-use: confirmation_token is
+    cleared once confirmed_at is set, so a second click of the same link
+    falls through to the "invalid" page.
+    """
+    if not token or len(token) > 64:
+        return HTMLResponse(_DOI_INVALID_HTML, status_code=400)
+
+    result = await db.execute(
+        select(Lead).where(Lead.confirmation_token == token)
+    )
+    lead = result.scalar_one_or_none()
+    if lead is None:
+        return HTMLResponse(_DOI_INVALID_HTML, status_code=404)
+
+    lead.confirmed_at = datetime.now(timezone.utc)
+    lead.confirmation_token = None
+    await db.commit()
+    logger.info(
+        "DOI confirmed for lead %s (email=%s, source=%s)",
+        lead.id, lead.email, lead.source,
+    )
+    return HTMLResponse(_DOI_CONFIRMED_HTML, status_code=200)

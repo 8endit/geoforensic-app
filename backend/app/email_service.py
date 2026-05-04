@@ -428,3 +428,111 @@ async def send_review_request_email(
     except Exception:
         logger.exception("Failed to send review-request mail to %s", recipient_email)
         return False
+
+
+# ---------------------------------------------------------------------------
+# Premium-Waitlist Double-Opt-In confirmation mail (UWG § 7 Abs. 2 Nr. 2)
+# ---------------------------------------------------------------------------
+
+_DOI_HTML_TEMPLATE = """<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Bitte bestätigen Sie Ihre Anmeldung</title>
+<style>
+  body {{ margin: 0; padding: 0; background: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937; }}
+  .container {{ max-width: 600px; margin: 0 auto; background: #ffffff; }}
+  .content {{ padding: 36px 40px 28px 40px; }}
+  h1 {{ font-size: 22px; font-weight: 700; color: #0c1d3a; margin: 0 0 16px 0; line-height: 1.3; }}
+  p {{ font-size: 15px; line-height: 1.6; margin: 0 0 14px 0; }}
+  .cta {{ text-align: center; margin: 28px 0 8px 0; }}
+  .cta a {{ display: inline-block; padding: 14px 30px; background: #16a34a; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; }}
+  .footer {{ padding: 20px 40px; font-size: 12px; color: #6b7280; text-align: center; border-top: 1px solid #e5e7eb; }}
+  .muted {{ color: #6b7280; font-size: 13px; }}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="content">
+      <h1>Bitte bestätigen Sie Ihre Anmeldung</h1>
+      <p>Sie haben sich für die Premium-Bericht-Warteliste auf <a href="https://bodenbericht.de/">bodenbericht.de</a> eingetragen.</p>
+      <p>Bitte bestätigen Sie diesen Wunsch durch Klick auf den Button — erst danach merken wir Sie für die Benachrichtigung vor.</p>
+      <div class="cta"><a href="{confirm_url}">Anmeldung bestätigen</a></div>
+      <p class="muted">Falls Sie diese E-Mail unerwartet erhalten haben, ignorieren Sie sie einfach — Ihre Adresse wird ohne Bestätigung nicht weiter verwendet und nach 30 Tagen gelöscht.</p>
+    </div>
+    <div class="footer">Bodenbericht · ein Service der Tepnosholding GmbH · <a href="https://bodenbericht.de/impressum.html">Impressum</a> · <a href="https://bodenbericht.de/datenschutz.html">Datenschutz</a></div>
+  </div>
+</body>
+</html>
+"""
+
+_DOI_TEXT_TEMPLATE = """\
+Bitte bestätigen Sie Ihre Anmeldung
+
+Sie haben sich für die Premium-Bericht-Warteliste auf bodenbericht.de
+eingetragen.
+
+Bitte bestätigen Sie diesen Wunsch durch Klick auf den folgenden Link —
+erst danach merken wir Sie für die Benachrichtigung vor:
+
+{confirm_url}
+
+Falls Sie diese E-Mail unerwartet erhalten haben, ignorieren Sie sie
+einfach — Ihre Adresse wird ohne Bestätigung nicht weiter verwendet
+und nach 30 Tagen gelöscht.
+
+—
+Bodenbericht · ein Service der Tepnosholding GmbH
+https://bodenbericht.de/impressum.html
+https://bodenbericht.de/datenschutz.html
+"""
+
+
+async def send_waitlist_confirmation_email(
+    recipient_email: str,
+    confirm_url: str,
+) -> bool:
+    """Send the double-opt-in confirmation mail for the premium waitlist.
+
+    Returns True on success. Skips (returns False) silently if SMTP
+    isn't configured — the lead row stays unconfirmed and gets pruned
+    after 30 days.
+    """
+    if not settings.smtp_host:
+        logger.warning(
+            "SMTP not configured — skipping DOI mail to %s", recipient_email
+        )
+        return False
+
+    msg = EmailMessage()
+    msg["Subject"] = "Bitte bestätigen Sie Ihre Anmeldung zur Premium-Warteliste"
+    from_name = getattr(settings, "smtp_from_name", "Bodenbericht")
+    msg["From"] = f"{from_name} <{settings.smtp_from_email}>"
+    msg["To"] = recipient_email
+    msg["Reply-To"] = "team@geoforensic.de"
+
+    msg.set_content(
+        _DOI_TEXT_TEMPLATE.format(confirm_url=confirm_url),
+        subtype="plain",
+        charset="utf-8",
+    )
+    msg.add_alternative(
+        _DOI_HTML_TEMPLATE.format(confirm_url=escape(confirm_url)),
+        subtype="html",
+        charset="utf-8",
+    )
+
+    try:
+        await aiosmtplib.send(
+            msg,
+            hostname=settings.smtp_host,
+            port=settings.smtp_port,
+            username=settings.smtp_user or None,
+            password=settings.smtp_password or None,
+            start_tls=True,
+        )
+        logger.info("DOI mail sent to %s", recipient_email)
+        return True
+    except Exception:
+        logger.exception("Failed to send DOI mail to %s", recipient_email)
+        return False

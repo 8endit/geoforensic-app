@@ -128,6 +128,12 @@ class Lead(Base):
     source: Mapped[str] = mapped_column(String(100), nullable=False, default="quiz")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
+    # Double-opt-in for marketing-style sources (premium-waitlist).
+    # confirmation_token is set on lead creation and cleared on confirmation;
+    # confirmed_at is the audit trail (UWG § 7(2) proof of consent).
+    confirmation_token: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
     # Reports that were produced from this lead. A lead can trigger
     # multiple reports over time (first the free teaser, later the paid
     # full version), so this is a 1-to-many. Ordered newest-first for
