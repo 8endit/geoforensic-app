@@ -28,7 +28,7 @@ import logging
 import uuid
 
 import stripe
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -110,6 +110,7 @@ async def create_checkout(
 @router.post("/webhook")
 async def stripe_webhook(
     request: Request,
+    background_tasks: BackgroundTasks,
     stripe_signature: str | None = Header(default=None, alias="Stripe-Signature"),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, str]:
@@ -170,7 +171,8 @@ async def stripe_webhook(
         # Re-trigger the lead pipeline with source="stripe" → PAID_SOURCES
         # → full report renderer + paid-mail template.
         from app.routers.leads import _generate_and_send_lead_report
-        asyncio.create_task(_generate_and_send_lead_report(
+        background_tasks.add_task(
+            _generate_and_send_lead_report,
             email=email,
             address=address,
             answers={"source_metadata": "stripe-purchase",
@@ -178,7 +180,7 @@ async def stripe_webhook(
             db_url="",
             source="stripe",
             lead_id=lead_id,
-        ))
+        )
         logger.info("Stripe lead-flow triggered Vollbericht for lead %s", lead_id)
         return {"status": "ok-lead-flow"}
 
@@ -242,6 +244,7 @@ class LeadCheckoutResponse(BaseModel):
 @router.post("/checkout-from-lead", response_model=LeadCheckoutResponse)
 async def create_checkout_from_lead(
     payload: LeadCheckoutRequest,
+    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ) -> LeadCheckoutResponse:
     """Public endpoint reached from the Teaser PDF CTA.
@@ -273,7 +276,11 @@ async def create_checkout_from_lead(
     if not settings.stripe_secret_key:
         logger.info("Stripe not configured — mock-mode Vollbericht for lead %s", lead.id)
         from app.routers.leads import _generate_and_send_lead_report
-        asyncio.create_task(_generate_and_send_lead_report(
+        # FastAPI BackgroundTasks runs after the response is fully sent and
+        # in the same event loop context — robuster als asyncio.create_task,
+        # das mit der DB-Session-Lifecycle kollidiert.
+        background_tasks.add_task(
+            _generate_and_send_lead_report,
             email=payload.email,
             address=payload.address,
             answers={"source_metadata": "mock-purchase",
@@ -281,7 +288,7 @@ async def create_checkout_from_lead(
             db_url="",
             source="stripe",
             lead_id=lead.id,
-        ))
+        )
         return LeadCheckoutResponse(
             checkout_url=f"{settings.stripe_checkout_success_url}&mock=1&lead_id={lead.id}",
         )
