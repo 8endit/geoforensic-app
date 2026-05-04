@@ -3,6 +3,7 @@
 Two-product repo for address-based ground motion + soil screening.
 
 **Repo:** https://github.com/8endit/geoforensic-app
+**Masterplan (single source of truth):** `docs/MASTERPLAN.md` — *vor jeder Plan-Änderung dort schauen, wenn Konflikt: Masterplan gewinnt.*
 **Operational truth:** `docs/TEAM_HANDBOOK.md` (server, deploys, DNS, monitoring).
 
 ## Two products in one repo

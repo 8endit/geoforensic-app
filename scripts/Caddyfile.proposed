@@ -1,0 +1,112 @@
+# Caddyfile for bodenbericht.de — proposed hardening
+# Stand: 2026-05-03 (Audit-Folge — siehe MASTERPLAN.md "Fix #9")
+#
+# Server-Pfad: /etc/caddy/Caddyfile
+# Aktivierung: ssh root@185.218.124.158 then nano /etc/caddy/Caddyfile,
+#              dann `caddy validate --config /etc/caddy/Caddyfile`
+#              dann `systemctl reload caddy`
+# Rollback:    Backup vor Änderung als /etc/caddy/Caddyfile.bak speichern;
+#              auf Reload-Fehler systemctl status caddy + journalctl -u caddy.
+#
+# Was sich gegenüber dem Audit-Stand 2026-05-03 ändert:
+# (a) CSP wird im Report-Only-Modus aktiviert — sammelt 7 Tage Verstöße,
+#     dann auf enforced umstellen.
+# (b) Cache-Control wird differenziert: HTML kurzlebig, Static immutable.
+# (c) Server-Header auf /api/* gestrippt (uvicorn-Disclosure raus).
+# (d) Permissions-Policy + COOP/COEP ergänzt.
+# (e) /admin.html optional via basicauth — auskommentiert, aktivieren
+#     wenn Login-Daten zwischen Ben + Domenico geteilt sind.
+# (f) Brotli + zstd zusätzlich zu gzip.
+
+bodenbericht.de, www.bodenbericht.de {
+    # Strikt-www→bare normalisieren (vor allen anderen Direktiven).
+    @www host www.bodenbericht.de
+    redir @www https://bodenbericht.de{uri} permanent
+
+    # Encoding: brotli + zstd + gzip (in Präferenz-Reihenfolge).
+    encode zstd br gzip
+
+    # ---- Security-Header (alle Responses) ----
+    header {
+        # HSTS bleibt wie gehabt (1 Jahr, includeSubDomains, kein preload —
+        # erst nach allen Subdomains-HTTPS-Audit aktivieren).
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+        # Bestehend
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+
+        # NEU: Permissions-Policy — alles abschalten was wir nicht brauchen
+        Permissions-Policy "geolocation=(), camera=(), microphone=(), interest-cohort=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
+
+        # NEU: Cross-Origin-Opener-Policy (sichere Browsing-Context-Isolation)
+        Cross-Origin-Opener-Policy "same-origin"
+
+        # NEU: CSP im REPORT-ONLY-Modus für 7 Tage. Dann von "Report-Only"
+        # auf den scharfen Header "Content-Security-Policy" umstellen.
+        # 'unsafe-inline' für script-src ist temporär nötig wegen GTM-Bootstrap
+        # + Klaro inline; mittelfristig auf nonce/hash umstellen.
+        Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://www.google-analytics.com https://eu.i.posthog.com https://eu-assets.i.posthog.com https://*.ingest.de.sentry.io; frame-src 'none'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; report-uri /api/csp-report"
+
+        # NEU: Server-Header auf HTML stripen (uvicorn-Disclosure verhindert)
+        -Server
+    }
+
+    # ---- Static assets: immutable + jährlich ----
+    @static {
+        path /tailwind.css /tailwind-quiz.css
+        path /klaro/*
+        path /fonts/*
+        path /images/*
+        path /static/*
+        path /favicon.ico /favicon.svg
+        path /og-image.png
+    }
+    header @static Cache-Control "public, max-age=31536000, immutable"
+
+    # ---- HTML: kurzlebig (5 Min) damit Updates schnell durchschlagen ----
+    @html {
+        path *.html /
+    }
+    header @html Cache-Control "public, max-age=300, must-revalidate"
+
+    # ---- /admin.html: optional basicauth ----
+    # Aktivieren sobald Domenico + Ben Login geteilt haben:
+    # @admin path /admin.html
+    # basicauth @admin {
+    #     admin <bcrypt-hash>
+    # }
+
+    # ---- /api/* → FastAPI ----
+    @api path /api/*
+    handle @api {
+        # Server-Header von uvicorn strippen (Stack-Disclosure raus)
+        header -Server
+        reverse_proxy localhost:8000
+    }
+
+    # ---- robots.txt + sitemap.xml + llms.txt: kurzlebig ----
+    @meta {
+        path /robots.txt /sitemap.xml /llms.txt
+    }
+    header @meta Cache-Control "public, max-age=3600"
+
+    # ---- Default: alles andere als statische Files servieren ----
+    root * /opt/bodenbericht/landing
+    file_server
+
+    # 404 → custom Page
+    handle_errors {
+        @404 expression `{err.status_code} == 404`
+        rewrite @404 /404.html
+        file_server
+    }
+
+    # Logs (Caddy default → stdout/stderr → journalctl -u caddy)
+}
+
+# ---- HTTP → HTTPS-Redirect (Caddy macht das default, aber explizit ist klarer) ----
+http://bodenbericht.de, http://www.bodenbericht.de {
+    redir https://bodenbericht.de{uri} permanent
+}
