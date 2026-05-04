@@ -623,27 +623,52 @@ class SoilDataLoader:
             return None
 
         out: dict[str, float | None] = {"cmic": None, "bas": None, "qo2": None}
+        # ESDAC microbial deckt nur Acker/Wald/Grünland (18% Europa-Fläche
+        # mit validen Werten — trainiert auf 715 LUCAS-Topsoil-Samples).
+        # Stadt-Pixel sind systematisch NODATA. Wir suchen daher in einem
+        # Ring nach dem nächsten validen Pixel (bis ~10 km Radius).
+        # Pragmatisch: das Microbial-Signal variiert auf km-Skala wenig,
+        # nächster Acker/Wald-Pixel ist als Approximation akzeptabel.
+        from rasterio.windows import Window
+        SEARCH_RADIUS_PX = 10  # 1-km-Pixel × 10 = 10 km Suchradius
         for slot, rl in self._microbial.items():
             try:
                 ds = rl._ds
                 row, col = ds.index(x, y)
                 h, w = ds.height, ds.width
-                if not (0 <= row < h and 0 <= col < w):
-                    continue
-                # Windowed read so we don't load the whole raster
-                from rasterio.windows import Window
-                win = Window(col, row, 1, 1)
-                arr = ds.read(1, window=win)
-                if arr.size == 0:
-                    continue
-                val = float(arr[0, 0])
-                nodata = ds.nodata
-                if nodata is not None and val == nodata:
-                    continue
-                # ESDAC nodata sentinel is a tiny negative float — guard against it
-                if val < -1e30:
-                    continue
-                out[slot] = round(val, 3)
+
+                def _read_one(r: int, c: int) -> float | None:
+                    if not (0 <= r < h and 0 <= c < w):
+                        return None
+                    arr = ds.read(1, window=Window(c, r, 1, 1))
+                    if arr.size == 0:
+                        return None
+                    v = float(arr[0, 0])
+                    if v < -1e30:  # ESDAC nodata sentinel
+                        return None
+                    if ds.nodata is not None and v == ds.nodata:
+                        return None
+                    return v
+
+                # Center pixel first
+                val = _read_one(row, col)
+                if val is None:
+                    # Ring-search outward
+                    for ring in range(1, SEARCH_RADIUS_PX + 1):
+                        for dr in range(-ring, ring + 1):
+                            for dc in range(-ring, ring + 1):
+                                if abs(dr) != ring and abs(dc) != ring:
+                                    continue
+                                v = _read_one(row + dr, col + dc)
+                                if v is not None:
+                                    val = v
+                                    break
+                            if val is not None:
+                                break
+                        if val is not None:
+                            break
+                if val is not None:
+                    out[slot] = round(val, 3)
             except Exception as exc:
                 logger.warning("microbial query %s at (%s, %s) failed: %s", slot, lat, lon, exc)
         return out
