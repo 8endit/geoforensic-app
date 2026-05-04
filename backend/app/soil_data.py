@@ -501,9 +501,9 @@ class SoilDataLoader:
         self._lucas: Optional[LucasLookup] = None
         # ESDAC microbial: drei separate Lookups (Cmic / bas / qO2). Wir
         # halten sie außerhalb von ._soilgrids, weil sie in EPSG:3035 leben
-        # statt in WGS84 — query_microbial() macht die Transformation.
+        # statt in WGS84 — query_microbial() macht die Transformation per
+        # rasterio.warp.transform (kein extra pyproj-Import nötig).
         self._microbial: dict[str, "RasterLookup"] = {}
-        self._microbial_transformer = None  # lazily init via pyproj
         self._loaded = False
 
     @classmethod
@@ -614,18 +614,10 @@ class SoilDataLoader:
         """
         if not self._microbial:
             return None
-        if self._microbial_transformer is None:
-            try:
-                from pyproj import Transformer
-                self._microbial_transformer = Transformer.from_crs(
-                    "EPSG:4326", _MICROBIAL_CRS, always_xy=True,
-                )
-            except Exception as exc:
-                logger.warning("pyproj unavailable for microbial reproject: %s", exc)
-                return None
-
         try:
-            x, y = self._microbial_transformer.transform(lon, lat)
+            from rasterio.warp import transform as _warp_transform
+            xs, ys = _warp_transform("EPSG:4326", _MICROBIAL_CRS, [lon], [lat])
+            x, y = xs[0], ys[0]
         except Exception as exc:
             logger.warning("microbial reproject failed at (%s, %s): %s", lat, lon, exc)
             return None
