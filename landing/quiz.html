@@ -116,6 +116,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
   </style>
+<script defer src="/static/landing-tracking.js"></script>
+    <link rel="preload" href="/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+
 </head>
 <body class="bg-white font-sans text-brand-800 antialiased">
 
@@ -261,14 +265,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         Ihre Risiko-Analyse<br>ist abgeschlossen.
       </h2>
 
-      <!-- Dynamic result snippet -->
+      <!-- Dynamic result snippet (filled by updateResultSnippet() before this view becomes visible) -->
       <div id="result-snippet" class="w-full bg-brand-50 rounded-xl p-5 mb-6 border border-brand-100">
         <div class="flex items-center gap-2 mb-2">
-          <span class="inline-block w-3 h-3 rounded-full bg-amber-400"></span>
-          <span class="text-sm font-semibold text-brand-800">Mittleres bis erhöhtes Risiko erkannt</span>
+          <span class="inline-block w-3 h-3 rounded-full bg-gray-300"></span>
+          <span class="text-sm font-semibold text-brand-800">Auswertung wird vorbereitet</span>
         </div>
         <p class="text-sm text-brand-700/70 leading-relaxed mb-3">
-          Wir haben potenziell relevante Daten für Ihr Profil gefunden. Lassen Sie sich Ihren detaillierten Bodenbericht mit Handlungsempfehlungen zusenden.
+          Ihre persönliche Auswertung basiert auf Ihren Antworten und den verfügbaren öffentlichen Datenquellen für Ihre Adresse.
         </p>
         <p class="text-xs text-brand-700/60 leading-relaxed border-t border-brand-100 pt-3">
           <span class="font-semibold">Ihr Bericht enthält:</span>
@@ -278,6 +282,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
       <!-- Lead Capture Form -->
       <form id="email-form" class="w-full" onsubmit="handleSubmit(event)">
+            <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label>Website (bitte leer lassen)<input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label></div>
         <label class="block text-sm font-medium text-brand-700 mb-2">
           Für welches Grundstück möchten Sie den Bericht?
         </label>
@@ -314,7 +319,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         >
           Kostenlosen Bericht anfordern
         </button>
+        <p class="mt-3 text-xs text-brand-700/60 leading-relaxed text-center">
+          Mit Klick stimmen Sie der Verarbeitung Ihrer Daten gemäß
+          <a href="/datenschutz.html" class="underline hover:text-brand-700">Datenschutzerklärung</a> zu.
+          Kein Spam. Abmeldung jederzeit möglich.
+        </p>
       </form>
+
+      <!-- Error message (inline, replaces alert()) -->
+      <div id="quiz-error" class="hidden mt-4 bg-red-50 border-2 border-red-200 rounded-xl p-4 text-center" role="alert" aria-live="assertive">
+        <p class="text-red-800 text-sm font-medium" id="quiz-error-msg">Senden fehlgeschlagen.</p>
+      </div>
 
       <!-- Success message (hidden by default) -->
       <div id="success-message" class="hidden w-full text-center">
@@ -418,6 +433,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     function startQuiz() {
       currentQuestion = 0;
       answers.length = 0;
+      window.bbTrack && window.bbTrack("quiz_started");
       showView("view-quiz");
       setTimeout(() => renderQuestion(), 400);
     }
@@ -487,6 +503,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
       // Store answer
       answers[currentQuestion] = label;
+      window.bbTrack && window.bbTrack("quiz_question_answered", {
+        question_index: currentQuestion,
+        question_count: questions.length,
+        answer: label,
+      });
 
       // Auto-advance after short delay
       setTimeout(() => {
@@ -536,6 +557,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       // After analysis, compute dynamic result and show
       setTimeout(() => {
         updateResultSnippet();
+        window.bbTrack && window.bbTrack("quiz_completed", {
+          nutzung: answers[0] || "",
+          bedenken: answers[1] || "",
+          historie: answers[2] || "",
+          dringlichkeit: answers[3] || "",
+        });
         showView("view-result");
       }, 3800);
     }
@@ -579,52 +606,40 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }
 
     // --- Form Submission ---
-    async function handleSubmit(e) {
+    function handleSubmit(e) {
       e.preventDefault();
       const email = document.getElementById("email").value;
       const street = document.getElementById("address-street").value;
       const city = document.getElementById("address-city").value;
-      const address = `${street.trim()}, ${city.trim()}`;
-      const btn = document.getElementById("submit-btn");
-
-      btn.disabled = true;
-      btn.textContent = "Wird gesendet...";
-
-      try {
-        const res = await fetch("/api/leads", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email,
-            address,
-            answers: {
-              nutzung: answers[0] || "",
-              bedenken: answers[1] || "",
-              historie: answers[2] || "",
-              dringlichkeit: answers[3] || "",
-            },
-            source: "quiz",
-          }),
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.detail || "Senden fehlgeschlagen");
-        }
-        // Show success state
-        document.getElementById("email-form").classList.add("hidden");
-        document.getElementById("success-message").classList.remove("hidden");
-      } catch (err) {
-        btn.disabled = false;
-        btn.textContent = "Kostenlosen Bericht anfordern";
-        alert("Fehler: " + err.message + "\nBitte versuchen Sie es erneut.");
-      }
+      document.getElementById("quiz-error").classList.add("hidden");
+      return window.bbSubmitLead({
+        source: "quiz",
+        payload: {
+          email,
+          address: `${street.trim()}, ${city.trim()}`,
+          answers: {
+            nutzung: answers[0] || "",
+            bedenken: answers[1] || "",
+            historie: answers[2] || "",
+            dringlichkeit: answers[3] || "",
+          },
+          source: "quiz",
+        },
+        btn: document.getElementById("submit-btn"),
+        busyLabel: "Wird gesendet...",
+        resetLabel: "Kostenlosen Bericht anfordern",
+        formId: "email-form",
+        successId: "success-message",
+        errorId: "quiz-error",
+        errorMsgId: "quiz-error-msg",
+      });
     }
   </script>
 
   <!-- ============================================ -->
   <!-- FOOTER                                       -->
   <!-- ============================================ -->
-  <footer class="bg-brand-900 text-gray-400 py-12 md:py-16 mt-16">
+  <footer class="bg-brand-900 text-gray-300 py-12 md:py-16 mt-16 border-t border-brand-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid md:grid-cols-5 gap-8 mb-10">
         <!-- Brand -->
@@ -636,7 +651,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             <span class="text-lg font-bold text-white tracking-tight">Boden<span class="text-accent-400">bericht</span></span>
           </div>
           <p class="text-sm leading-relaxed max-w-sm">
-            Wissenschaftlich fundierte Bodenanalysen für Privatpersonen, Landwirte und Immobilienkäufer. Sicherheit für Ihren Boden. Einfach, schnell und zuverlässig.
+            Adress-basiertes Bodenrisiko-Screening für Privatpersonen, Landwirte und Immobilienkäufer. Auf Basis offizieller EU-Datensätze. Einfach, schnell, transparent.
           </p>
         </div>
 

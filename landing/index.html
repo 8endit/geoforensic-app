@@ -187,6 +187,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             transform: rotate(180deg);
         }
     </style>
+<script defer src="/static/landing-tracking.js"></script>
+    <link rel="preload" href="/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+
 </head>
 <body class="font-sans text-gray-800 antialiased">
 
@@ -222,7 +226,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 </a>
 
                 <!-- Mobile menu button -->
-                <button id="mobile-menu-btn" class="sm:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                <button id="mobile-menu-btn" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-menu" class="sm:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
                 </button>
             </div>
@@ -276,21 +280,25 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
                 <!-- Hero Inline Lead Form -->
                 <form id="hero-lead-form" class="mt-10 max-w-md mx-auto lg:mx-0 space-y-3" onsubmit="handleHeroLead(event)">
-                    <input type="text" id="hero-street" required placeholder="Straße + Hausnummer"
-                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
-                    <input type="text" id="hero-city" required placeholder="PLZ + Ort"
-                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
-                    <input type="email" id="hero-email" required placeholder="Ihre E-Mail-Adresse"
-                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+            <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label>Website (bitte leer lassen)<input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label></div>
+                    <label for="hero-street" class="sr-only">Straße und Hausnummer</label>
+                    <input type="text" id="hero-street" name="street" autocomplete="street-address" required placeholder="Straße + Hausnummer"
+                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                    <label for="hero-city" class="sr-only">Postleitzahl und Ort</label>
+                    <input type="text" id="hero-city" name="city" autocomplete="postal-code address-level2" required placeholder="PLZ + Ort"
+                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                    <label for="hero-email" class="sr-only">E-Mail-Adresse</label>
+                    <input type="email" id="hero-email" name="email" autocomplete="email" required placeholder="Ihre E-Mail-Adresse"
+                           class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
                     <button type="submit" id="hero-submit-btn"
                             onclick="(window.dataLayer||[]).push({event:'cta_main'})"
                             class="cta-pulse w-full inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold text-lg px-10 py-4 rounded-xl transition-all shadow-lg shadow-brand-500/30 hover:shadow-brand-400/40 active:scale-[0.98]">
-                        Kostenlosen Bericht anfordern
+                        Meine Adresse prüfen lassen
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
                     </button>
                 </form>
                 <p class="text-xs text-white/60 text-center mt-3 leading-relaxed max-w-md mx-auto">
-                    Mit Klick auf „Kostenlosen Bericht anfordern" stimmen Sie der Verarbeitung Ihrer Daten gemäß
+                    Mit Klick stimmen Sie der Verarbeitung Ihrer Daten gemäß
                     <a href="/datenschutz.html" class="underline hover:text-white">Datenschutzerklärung</a> zu.
                     Ihre E-Mail kann auch für Updates zu verwandten Angeboten genutzt werden (§ 7 Abs. 3 UWG),
                     Widerspruch jederzeit möglich.
@@ -301,6 +309,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     </div>
                     <p class="text-white font-semibold">Bericht wird erstellt!</p>
                     <p class="text-gray-300 text-sm mt-1">Prüfen Sie Ihre E-Mail in wenigen Minuten.</p>
+                </div>
+                <div id="hero-error" class="hidden mt-4 max-w-md mx-auto bg-red-500/10 border border-red-400/40 rounded-xl p-4 text-center" role="alert" aria-live="assertive">
+                    <p class="text-sm text-red-200" id="hero-error-msg">Senden fehlgeschlagen.</p>
                 </div>
 
                 <!-- Secondary path: Quiz (visuell klar untergeordnet) -->
@@ -786,16 +797,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         </div>
     </section>
 
-    <!-- TODO: Eigene Sub-Landingpages /garten.html und /landwirtschaft.html anlegen -->
     <section class="py-12 bg-gray-50">
         <div class="max-w-4xl mx-auto px-4 text-center">
             <p class="text-sm text-gray-500 uppercase tracking-wide font-semibold mb-3">Auch geeignet für</p>
-            <p class="text-gray-600">
-                <strong class="text-navy-800">Gartenbesitzer</strong> (Schwermetalle im Gemüseanbau) ·
-                <strong class="text-navy-800">Landwirte</strong> (regionale Bodenbelastung) ·
-                <strong class="text-navy-800">Bauträger</strong> (Standortprüfung vor Kauf).
-                <br>
-                <span class="text-xs text-gray-500 mt-2 inline-block">Dedizierte Sub-Landingpages folgen in Q3/2026.</span>
+            <p class="text-gray-600 leading-relaxed">
+                <a href="/fuer-gartenbesitzer.html" class="font-semibold text-navy-800 hover:text-brand-700 underline decoration-gray-300 hover:decoration-brand-500">Gartenbesitzer</a>
+                <span class="text-gray-500">(Schwermetalle im Gemüseanbau)</span> ·
+                <a href="/fuer-landwirte.html" class="font-semibold text-navy-800 hover:text-brand-700 underline decoration-gray-300 hover:decoration-brand-500">Landwirte</a>
+                <span class="text-gray-500">(regionale Bodenbelastung)</span> ·
+                <a href="/fuer-bautraeger.html" class="font-semibold text-navy-800 hover:text-brand-700 underline decoration-gray-300 hover:decoration-brand-500">Bauträger</a>
+                <span class="text-gray-500">(Standortprüfung vor Kauf)</span> ·
+                <a href="/fuer-immobilienkaeufer.html" class="font-semibold text-navy-800 hover:text-brand-700 underline decoration-gray-300 hover:decoration-brand-500">Immobilienkäufer</a>
+                <span class="text-gray-500">(Risikoprüfung vor Kreditzusage)</span>
             </p>
         </div>
     </section>
@@ -1157,9 +1170,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <form id="live-check-form" class="bg-white border-2 border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm" onsubmit="handleLiveCheck(event)">
           <label for="live-check-address" class="block text-sm font-semibold text-navy-800 mb-2">Adresse</label>
           <div class="flex flex-col sm:flex-row gap-3">
-            <input type="text" id="live-check-address" required minlength="5" maxlength="500"
+            <input type="text" id="live-check-address" name="address" autocomplete="street-address" required minlength="5" maxlength="500"
                    placeholder="z.B. Bismarckstraße 10, 10625 Berlin"
-                   class="flex-1 px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-brand-400 transition text-base">
+                   class="flex-1 px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 transition text-base">
             <button type="submit" id="live-check-btn"
                     class="inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-900 text-white font-bold text-base px-6 py-3 rounded-lg transition-all shadow-md active:scale-[0.98]">
               <span id="live-check-btn-label">Ampel anzeigen</span>
@@ -1174,11 +1187,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           </p>
         </form>
 
-        <!-- Result card (gefuellt per JS) -->
-        <div id="live-check-result" class="hidden mt-6"></div>
+        <!-- Result card (gefuellt per JS). aria-live=polite kündigt das Ergebnis screenreadern an, ohne andere Aufgaben zu unterbrechen. tabindex=-1 erlaubt programmatischen Fokus. -->
+        <div id="live-check-result" class="hidden mt-6" tabindex="-1" role="region" aria-live="polite" aria-label="Ergebnis Ihrer Adress-Prüfung"></div>
 
-        <!-- Error box -->
-        <div id="live-check-error" class="hidden mt-6 bg-red-50 border-2 border-red-200 rounded-2xl p-5 text-center">
+        <!-- Error box: role=alert sorgt für unmittelbare Screenreader-Ankündigung. -->
+        <div id="live-check-error" class="hidden mt-6 bg-red-50 border-2 border-red-200 rounded-2xl p-5 text-center" role="alert" aria-live="assertive">
           <p class="text-red-800 text-sm font-medium">Fehler beim Laden.</p>
           <p class="text-red-700 text-xs mt-1" id="live-check-error-msg"></p>
         </div>
@@ -1205,27 +1218,38 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
                     <!-- Direct lead capture form -->
                     <form id="direct-lead-form" class="mt-8 max-w-md mx-auto space-y-3" onsubmit="handleDirectLead(event)">
-                        <input type="text" id="direct-street" required placeholder="Straße + Hausnummer"
-                            class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
-                        <input type="text" id="direct-city" required placeholder="PLZ + Ort"
-                            class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
-                        <input type="email" id="direct-email" required placeholder="Ihre E-Mail-Adresse"
-                            class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+            <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label>Website (bitte leer lassen)<input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label></div>
+                        <label for="direct-street" class="sr-only">Straße und Hausnummer</label>
+                        <input type="text" id="direct-street" name="street" autocomplete="street-address" required placeholder="Straße + Hausnummer"
+                            class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                        <label for="direct-city" class="sr-only">Postleitzahl und Ort</label>
+                        <input type="text" id="direct-city" name="city" autocomplete="postal-code address-level2" required placeholder="PLZ + Ort"
+                            class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
+                        <label for="direct-email" class="sr-only">E-Mail-Adresse</label>
+                        <input type="email" id="direct-email" name="email" autocomplete="email" required placeholder="Ihre E-Mail-Adresse"
+                            class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
                         <button type="submit" id="direct-submit-btn"
                             class="cta-pulse w-full inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold text-lg px-10 py-4 rounded-xl transition-all shadow-lg shadow-brand-500/30 hover:shadow-brand-400/40 active:scale-[0.98]">
-                            Kostenlosen Bericht anfordern
+                            Bericht für meine Adresse anfordern
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
                         </button>
+                        <p class="mt-3 text-xs text-gray-400 leading-relaxed">
+                            Mit Klick stimmen Sie der Verarbeitung Ihrer Daten gemäß
+                            <a href="/datenschutz.html" class="underline hover:text-gray-300">Datenschutzerklärung</a> zu.
+                        </p>
                     </form>
+                    <div id="direct-error" class="hidden mt-4 bg-red-500/10 border border-red-400/40 rounded-xl p-4 text-center" role="alert" aria-live="assertive">
+                        <p class="text-sm text-red-200" id="direct-error-msg">Senden fehlgeschlagen.</p>
+                    </div>
                     <div id="direct-success" class="hidden mt-6">
                         <div class="w-14 h-14 rounded-full bg-brand-500/20 flex items-center justify-center mx-auto mb-3">
                             <svg class="w-7 h-7 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                         </div>
                         <p class="text-white font-semibold text-lg">Geschafft!</p>
                         <p class="text-gray-300 text-sm mt-1">Ihr Bodenbericht wird erstellt und an Ihre E-Mail gesendet.</p>
-                        <p class="text-gray-500 text-xs mt-3">Nichts angekommen? Werfen Sie auch einen Blick in den Spam-Ordner - die erste Mail von <span class="font-mono text-gray-300">bericht@bodenbericht.de</span> landet dort manchmal.</p>
+                        <p class="text-gray-400 text-xs mt-3">Nichts angekommen? Werfen Sie auch einen Blick in den Spam-Ordner - die erste Mail von <span class="font-mono text-gray-300">bericht@bodenbericht.de</span> landet dort manchmal.</p>
                     </div>
-                    <p class="mt-4 text-gray-500 text-sm">Kostenlos. Kein Abo. Ihre Daten sind sicher.</p>
+                    <p class="mt-4 text-gray-400 text-sm">Kostenlos. Kein Abo. Ihre Daten sind sicher.</p>
 
                     <p class="mt-3 text-gray-500 text-xs">Oder machen Sie zuerst unseren <a href="/quiz.html" class="text-brand-400 hover:text-brand-300 underline">60-Sekunden-Risikocheck</a></p>
                 </div>
@@ -1296,6 +1320,45 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         </div>
                     </div>
 
+                    <!-- FAQ NL: Markt Niederlande / KCAF / FunderMaps -->
+                    <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                        <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 transition">
+                            <span class="font-semibold text-navy-800 text-sm md:text-base pr-4">Funktioniert der Bodenbericht auch für niederländische Adressen?</span>
+                            <svg class="faq-chevron w-5 h-5 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                        </button>
+                        <div class="faq-answer px-6 pb-5">
+                            <p class="text-gray-600 text-sm leading-relaxed">
+                                Ja. Die Niederlande sind sogar unser primärer Zielmarkt: Seit 1. April 2026 muss jedes niederländische Taxatierapport ein Fundament-Risiko-Label (A-E, KCAF/FunderMaps) enthalten. Käufer mit Label C, D oder E wollen verstehen, was hinter der Einstufung steckt - der Bodenbericht zeigt die Zeitreihe der Bodenbewegung (Copernicus EGMS), ergänzt um Bodenqualität (SoilGrids/LUCAS) und Altlast-Indikatoren aus dem PDOK-Bodemloket. Wir liefern damit die Daten-Tiefe als Zweitmeinung neben dem Pflicht-Label.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ: Unterschied zu einem Baugrundgutachten -->
+                    <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                        <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 transition">
+                            <span class="font-semibold text-navy-800 text-sm md:text-base pr-4">Was ist der Unterschied zu einem Baugrundgutachten?</span>
+                            <svg class="faq-chevron w-5 h-5 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                        </button>
+                        <div class="faq-answer px-6 pb-5">
+                            <p class="text-gray-600 text-sm leading-relaxed">
+                                Ein Baugrundgutachten beruht auf Bohrungen und Laboranalysen am Grundstück selbst - höchste Auflösung, höchster Aufwand, marktüblich im hohen drei- bis vierstelligen Euro-Bereich (Drittpreis), Bearbeitung mehrere Wochen. Der Bodenbericht beruht auf Fernerkundung und öffentlichen Datensätzen - flächendeckend, in Minuten, ohne Bohrung. Sie ergänzen sich: Der Bodenbericht zeigt vor Vertragsabschluss, ob ein Baugrundgutachten überhaupt sinnvoll ist. Mehr Detail auf der <a href="/fuer-immobilienkaeufer.html#vergleich" class="underline hover:text-brand-600">Käufer-Seite</a>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ: Datenschutz / was passiert mit der Adresse -->
+                    <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                        <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 transition">
+                            <span class="font-semibold text-navy-800 text-sm md:text-base pr-4">Was passiert mit meiner Adresse und meiner E-Mail?</span>
+                            <svg class="faq-chevron w-5 h-5 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                        </button>
+                        <div class="faq-answer px-6 pb-5">
+                            <p class="text-gray-600 text-sm leading-relaxed">
+                                Wir verarbeiten Ihre Adresse zur Geokodierung über OpenStreetMap-Nominatim (Anfrage anonymisiert) und für die Auswertung der EU-Datensätze. E-Mail nur für den Versand des Berichts. Hosting in Deutschland (Contabo VPS), Versand über Brevo-SMTP mit DKIM. Wir verkaufen, vermieten oder geben Ihre Daten nicht an Dritte weiter. Vollständige Beschreibung in der <a href="/datenschutz.html" class="underline hover:text-brand-600">Datenschutzerklärung</a>; Löschung jederzeit per Mail an <span class="font-mono text-navy-700">team@geoforensic.de</span>.
+                            </p>
+                        </div>
+                    </div>
+
                     <!-- FAQ 5 -->
                     <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
                         <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 transition">
@@ -1351,14 +1414,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         </div>
 
         <form id="pilot-vollbericht-form" class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm space-y-3" onsubmit="handlePilotLead(event)">
+            <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label>Website (bitte leer lassen)<input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label></div>
+          <label for="pilot-street" class="sr-only">Straße und Hausnummer</label>
           <div class="grid sm:grid-cols-2 gap-3">
-            <input type="text" id="pilot-street" required placeholder="Straße + Hausnummer"
-                   class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-brand-400 transition text-base">
-            <input type="text" id="pilot-city" required placeholder="PLZ + Ort"
-                   class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-brand-400 transition text-base">
+            <input type="text" id="pilot-street" name="street" autocomplete="street-address" required placeholder="Straße + Hausnummer"
+                   class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 transition text-base">
+            <label for="pilot-city" class="sr-only">Postleitzahl und Ort</label>
+            <input type="text" id="pilot-city" name="city" autocomplete="postal-code address-level2" required placeholder="PLZ + Ort"
+                   class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 transition text-base">
           </div>
-          <input type="email" id="pilot-email" required placeholder="Ihre E-Mail-Adresse"
-                 class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-brand-400 transition text-base">
+          <label for="pilot-email" class="sr-only">E-Mail-Adresse</label>
+          <input type="email" id="pilot-email" name="email" autocomplete="email" required placeholder="Ihre E-Mail-Adresse"
+                 class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 transition text-base">
           <button type="submit" id="pilot-submit-btn"
                   onclick="(window.dataLayer||[]).push({event:'cta_pilot_vollbericht'})"
                   class="w-full inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-900 text-white font-bold text-base px-8 py-3.5 rounded-lg transition-all shadow-md active:scale-[0.98]">
@@ -1373,6 +1440,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           </p>
         </form>
 
+        <div id="pilot-error" class="hidden mt-6 bg-red-50 border-2 border-red-200 rounded-2xl p-5 text-center" role="alert" aria-live="assertive">
+            <p class="text-red-800 text-sm font-medium" id="pilot-error-msg">Senden fehlgeschlagen.</p>
+        </div>
         <div id="pilot-success" class="hidden mt-8 text-center bg-brand-50 border border-brand-200 rounded-2xl p-6">
           <div class="w-12 h-12 rounded-full bg-brand-500 flex items-center justify-center mx-auto mb-3">
             <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
@@ -1456,6 +1526,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         <!-- Waitlist form -->
         <form id="premium-waitlist-form" class="max-w-md mx-auto">
+            <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label>Website (bitte leer lassen)<input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label></div>
           <label class="sr-only" for="premium-email">E-Mail-Adresse</label>
           <div class="flex flex-col sm:flex-row gap-3">
             <input
@@ -1473,13 +1544,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               Benachrichtigen
             </button>
           </div>
-          <p class="text-xs text-gray-500 mt-3 text-center">
+          <p class="text-xs text-gray-400 mt-3 text-center leading-relaxed">
             Wir melden uns, sobald der Premium-Bericht verfügbar ist. Kein Newsletter, keine Werbung. Jederzeit kündbar.
+            Sie erhalten eine Bestätigungs-Mail (Double-Opt-In). Verarbeitung gemäß
+            <a href="/datenschutz.html" class="underline hover:text-gray-300">Datenschutzerklärung</a>.
           </p>
           <div id="premium-waitlist-success" class="hidden mt-4 text-center">
             <div class="inline-flex items-center gap-2 bg-brand-500/20 text-brand-300 px-4 py-2 rounded-lg text-sm font-medium">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-              Eingetragen. Wir melden uns.
+              Bitte bestätigen Sie den Link in der Mail.
             </div>
           </div>
           <div id="premium-waitlist-error" class="hidden mt-4 text-center">
@@ -1492,7 +1565,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- ============================================ -->
     <!-- FOOTER                                       -->
     <!-- ============================================ -->
-    <footer class="bg-navy-900 text-gray-400 py-12 md:py-16">
+    <footer class="bg-navy-900 text-gray-300 py-12 md:py-16 border-t border-navy-700">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid md:grid-cols-5 gap-8 mb-10">
                 <!-- Brand -->
@@ -1504,7 +1577,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         <span class="text-lg font-bold text-white tracking-tight">Boden<span class="text-brand-400">bericht</span></span>
                     </div>
                     <p class="text-sm leading-relaxed max-w-sm">
-                        Wissenschaftlich fundierte Bodenanalysen für Privatpersonen, Landwirte und Immobilienkäufer. Sicherheit für Ihren Boden. Einfach, schnell und zuverlässig.
+                        Adress-basiertes Bodenrisiko-Screening für Privatpersonen, Landwirte und Immobilienkäufer. Auf Basis offizieller EU-Datensätze. Einfach, schnell und zuverlässig.
                     </p>
                 </div>
 
@@ -1571,32 +1644,51 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- JAVASCRIPT                                   -->
     <!-- ============================================ -->
     <script>
-        // Mobile menu toggle
+        // Mobile menu toggle (a11y: keep aria-expanded + aria-label in sync)
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
+        function setMobileMenuOpen(open) {
+            mobileMenu.classList.toggle('hidden', !open);
+            mobileMenuBtn.setAttribute('aria-expanded', String(open));
+            mobileMenuBtn.setAttribute('aria-label', open ? 'Menü schließen' : 'Menü öffnen');
+        }
         mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
+            setMobileMenuOpen(mobileMenu.classList.contains('hidden'));
         });
         // Close mobile menu on link click
         mobileMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+            link.addEventListener('click', () => setMobileMenuOpen(false));
         });
 
-        // FAQ Accordion
-        document.querySelectorAll('.faq-toggle').forEach(button => {
+        // FAQ Accordion (a11y: aria-expanded on button + aria-hidden on panel,
+        // single-open behavior, unique IDs assigned at init for aria-controls)
+        document.querySelectorAll('.faq-toggle').forEach((button, idx) => {
+            const answer = button.nextElementSibling;
+            const panelId = 'faq-panel-' + (idx + 1);
+            answer.setAttribute('id', panelId);
+            answer.setAttribute('role', 'region');
+            answer.setAttribute('aria-hidden', 'true');
+            button.setAttribute('aria-controls', panelId);
+            button.setAttribute('aria-expanded', 'false');
+
             button.addEventListener('click', () => {
-                const answer = button.nextElementSibling;
                 const chevron = button.querySelector('.faq-chevron');
                 const isOpen = answer.classList.contains('open');
 
                 // Close all
-                document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
+                document.querySelectorAll('.faq-answer').forEach(a => {
+                    a.classList.remove('open');
+                    a.setAttribute('aria-hidden', 'true');
+                });
                 document.querySelectorAll('.faq-chevron').forEach(c => c.classList.remove('rotate'));
+                document.querySelectorAll('.faq-toggle').forEach(b => b.setAttribute('aria-expanded', 'false'));
 
                 // Toggle current
                 if (!isOpen) {
                     answer.classList.add('open');
+                    answer.setAttribute('aria-hidden', 'false');
                     chevron.classList.add('rotate');
+                    button.setAttribute('aria-expanded', 'true');
                 }
             });
         });
@@ -1616,38 +1708,28 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         observer.observe(document.querySelector('.hero-gradient'));
 
         // Hero inline lead capture form
-        async function handleHeroLead(e) {
+        function handleHeroLead(e) {
             e.preventDefault();
             const street = document.getElementById('hero-street').value;
             const city = document.getElementById('hero-city').value;
             const email = document.getElementById('hero-email').value;
-            const btn = document.getElementById('hero-submit-btn');
-
-            btn.disabled = true;
-            btn.textContent = 'Wird gesendet...';
-
-            try {
-                const res = await fetch('/api/leads', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email,
-                        address: street.trim() + ', ' + city.trim(),
-                        answers: { nutzung: 'direkt', source_page: 'landing_hero' },
-                        source: 'hero_direct'
-                    })
-                });
-                if (!res.ok) {
-                    const data = await res.json().catch(() => ({}));
-                    throw new Error(data.detail || 'Senden fehlgeschlagen');
-                }
-                document.getElementById('hero-lead-form').classList.add('hidden');
-                document.getElementById('hero-success').classList.remove('hidden');
-            } catch (err) {
-                btn.disabled = false;
-                btn.textContent = 'Kostenlosen Bericht anfordern';
-                alert('Fehler: ' + err.message + '\nBitte prüfen Sie die Adresse und versuchen Sie es erneut.');
-            }
+            document.getElementById('hero-error').classList.add('hidden');
+            return window.bbSubmitLead({
+                source: 'hero_direct',
+                payload: {
+                    email,
+                    address: street.trim() + ', ' + city.trim(),
+                    answers: { nutzung: 'direkt', source_page: 'landing_hero' },
+                    source: 'hero_direct'
+                },
+                btn: document.getElementById('hero-submit-btn'),
+                busyLabel: 'Wird gesendet...',
+                resetLabel: 'Meine Adresse prüfen lassen',
+                formId: 'hero-lead-form',
+                successId: 'hero-success',
+                errorId: 'hero-error',
+                errorMsgId: 'hero-error-msg'
+            });
         }
 
         // Live-Check (Browser-Preview, B.1) - POST /api/reports/preview
@@ -1719,14 +1801,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
               <!-- Ein-Klick-Konversion: Email-only, Adresse ist schon bekannt -->
               <form id="live-check-convert-form" class="mt-6 pt-6 border-t border-gray-200" onsubmit="handleLiveCheckConvert(event)" data-address="${escapeHtml(data.address_resolved)}">
+            <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label>Website (bitte leer lassen)<input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label></div>
                 <label for="live-check-email" class="block text-sm font-semibold text-navy-800 mb-2">Vollständigen Bericht für diese Adresse per E-Mail</label>
                 <div class="flex flex-col sm:flex-row gap-3">
-                  <input type="email" id="live-check-email" required placeholder="Ihre E-Mail-Adresse"
-                         class="flex-1 px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-brand-400 transition text-base">
+                  <input type="email" id="live-check-email" name="email" autocomplete="email" required placeholder="Ihre E-Mail-Adresse"
+                         class="flex-1 px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 transition text-base">
                   <button type="submit" id="live-check-convert-btn"
                           onclick="(window.dataLayer||[]).push({event:'cta_live_check_convert'})"
                           class="inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold text-base px-6 py-3 rounded-lg transition-all shadow-md active:scale-[0.98]">
-                    <span id="live-check-convert-label">Bericht anfordern</span>
+                    <span id="live-check-convert-label">Vollständigen Bericht senden</span>
                   </button>
                 </div>
                 <p class="text-xs text-gray-500 mt-3">
@@ -1735,6 +1818,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 </p>
               </form>
 
+              <div id="live-check-convert-error" class="hidden mt-4 bg-red-50 border-2 border-red-200 rounded-xl p-4 text-center" role="alert" aria-live="assertive">
+                <p class="text-red-800 text-sm font-medium" id="live-check-convert-error-msg">Senden fehlgeschlagen.</p>
+              </div>
               <div id="live-check-convert-success" class="hidden mt-6 pt-6 border-t border-gray-200 text-center">
                 <div class="w-12 h-12 rounded-full bg-brand-500 flex items-center justify-center mx-auto mb-3">
                   <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
@@ -1747,6 +1833,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           result.classList.remove('hidden');
           // Smooth scroll, damit das Resultat sichtbar wird auch wenn Form oben war
           result.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+          // a11y: programmatischen Fokus auf das Ergebnis legen, damit Screen-Reader
+          // und Tastatur-Nutzer dort weitermachen, wo das visuelle Ergebnis erscheint.
+          // tabindex="-1" am Wrapper erlaubt den fokussierbaren, aber nicht im
+          // Tab-Fluss enthaltenen Move.
+          requestAnimationFrame(() => {
+            try { result.focus({ preventScroll: true }); } catch (e) { /* noop */ }
+          });
         }
 
         async function handleLiveCheck(e) {
@@ -1772,15 +1865,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               body: JSON.stringify({address: addr})
             });
             if (res.status === 429) {
+              window.bbTrack && window.bbTrack('live_check_failed', { status: 429, reason: 'rate_limit' });
               throw new Error('Zu viele Anfragen - bitte in ein paar Minuten erneut versuchen.');
             }
             if (!res.ok) {
               const data = await res.json().catch(() => ({}));
+              window.bbTrack && window.bbTrack('live_check_failed', { status: res.status });
               throw new Error(data.detail || 'Adresse konnte nicht ausgewertet werden.');
             }
             const data = await res.json();
             renderLiveCheckResult(data);
-            (window.dataLayer||[]).push({event: 'live_check_complete', ampel: data.ampel, point_count: data.point_count});
+            window.bbTrack && window.bbTrack('live_check_complete', { ampel: data.ampel, point_count: data.point_count });
           } catch (err) {
             errMsg.textContent = err.message;
             errBox.classList.remove('hidden');
@@ -1791,111 +1886,81 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           }
         }
 
-        async function handleLiveCheckConvert(e) {
+        function handleLiveCheckConvert(e) {
           e.preventDefault();
           const form = document.getElementById('live-check-convert-form');
           const address = form.dataset.address;
           const email = document.getElementById('live-check-email').value.trim();
-          const btn = document.getElementById('live-check-convert-btn');
-          const lbl = document.getElementById('live-check-convert-label');
-
-          btn.disabled = true;
-          lbl.textContent = 'Wird gesendet...';
-
-          try {
-            const res = await fetch('/api/leads', {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({
-                email,
-                address,
-                answers: {nutzung: 'live-check', source_page: 'landing_live_check'},
-                source: 'live-check'
-              })
-            });
-            if (!res.ok) {
-              const data = await res.json().catch(() => ({}));
-              throw new Error(data.detail || 'Senden fehlgeschlagen');
-            }
-            form.classList.add('hidden');
-            document.getElementById('live-check-convert-success').classList.remove('hidden');
-          } catch (err) {
-            btn.disabled = false;
-            lbl.textContent = 'Bericht anfordern';
-            alert('Fehler: ' + err.message);
-          }
+          document.getElementById('live-check-convert-error').classList.add('hidden');
+          return window.bbSubmitLead({
+            source: 'live-check',
+            payload: {
+              email,
+              address,
+              answers: { nutzung: 'live-check', source_page: 'landing_live_check' },
+              source: 'live-check'
+            },
+            btn: document.getElementById('live-check-convert-btn'),
+            resetLabelEl: document.getElementById('live-check-convert-label'),
+            busyLabel: 'Wird gesendet...',
+            resetLabel: 'Vollständigen Bericht senden',
+            formId: 'live-check-convert-form',
+            successId: 'live-check-convert-success',
+            errorId: 'live-check-convert-error',
+            errorMsgId: 'live-check-convert-error-msg'
+          });
         }
 
         // Pilot-Vollbericht-Anfrage - emittiert source="pilot-vollbericht",
         // welcher in backend PAID_SOURCES enthalten ist und damit den
         // Vollbericht statt des Teasers ausliefert.
-        async function handlePilotLead(e) {
+        function handlePilotLead(e) {
             e.preventDefault();
             const street = document.getElementById('pilot-street').value;
             const city = document.getElementById('pilot-city').value;
             const email = document.getElementById('pilot-email').value;
-            const btn = document.getElementById('pilot-submit-btn');
-
-            btn.disabled = true;
-            btn.textContent = 'Wird gesendet...';
-
-            try {
-                const res = await fetch('/api/leads', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email,
-                        address: street.trim() + ', ' + city.trim(),
-                        answers: { nutzung: 'pilot', source_page: 'landing_pilot' },
-                        source: 'pilot-vollbericht'
-                    })
-                });
-                if (!res.ok) {
-                    const data = await res.json().catch(() => ({}));
-                    throw new Error(data.detail || 'Senden fehlgeschlagen');
-                }
-                document.getElementById('pilot-vollbericht-form').classList.add('hidden');
-                document.getElementById('pilot-success').classList.remove('hidden');
-            } catch (err) {
-                btn.disabled = false;
-                btn.textContent = 'Vollbericht als Pilot-Nutzer anfordern';
-                alert('Fehler: ' + err.message + '\nBitte prüfen Sie die Adresse und versuchen Sie es erneut.');
-            }
+            document.getElementById('pilot-error').classList.add('hidden');
+            return window.bbSubmitLead({
+                source: 'pilot-vollbericht',
+                payload: {
+                    email,
+                    address: street.trim() + ', ' + city.trim(),
+                    answers: { nutzung: 'pilot', source_page: 'landing_pilot' },
+                    source: 'pilot-vollbericht'
+                },
+                btn: document.getElementById('pilot-submit-btn'),
+                busyLabel: 'Wird gesendet...',
+                resetLabel: 'Vollbericht als Pilot-Nutzer anfordern',
+                formId: 'pilot-vollbericht-form',
+                successId: 'pilot-success',
+                errorId: 'pilot-error',
+                errorMsgId: 'pilot-error-msg'
+            });
         }
 
         // Direct lead capture form
-        async function handleDirectLead(e) {
+        function handleDirectLead(e) {
             e.preventDefault();
             const street = document.getElementById('direct-street').value;
             const city = document.getElementById('direct-city').value;
             const email = document.getElementById('direct-email').value;
-            const btn = document.getElementById('direct-submit-btn');
-
-            btn.disabled = true;
-            btn.textContent = 'Wird gesendet...';
-
-            try {
-                const res = await fetch('/api/leads', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email,
-                        address: street.trim() + ', ' + city.trim(),
-                        answers: { nutzung: 'direkt', source_page: 'landing' },
-                        source: 'landing_direct'
-                    })
-                });
-                if (!res.ok) {
-                    const data = await res.json().catch(() => ({}));
-                    throw new Error(data.detail || 'Senden fehlgeschlagen');
-                }
-                document.getElementById('direct-lead-form').classList.add('hidden');
-                document.getElementById('direct-success').classList.remove('hidden');
-            } catch (err) {
-                btn.disabled = false;
-                btn.textContent = 'Kostenlosen Bericht anfordern';
-                alert('Fehler: ' + err.message + '\nBitte pruefen Sie die Adresse und versuchen Sie es erneut.');
-            }
+            document.getElementById('direct-error').classList.add('hidden');
+            return window.bbSubmitLead({
+                source: 'landing_direct',
+                payload: {
+                    email,
+                    address: street.trim() + ', ' + city.trim(),
+                    answers: { nutzung: 'direkt', source_page: 'landing' },
+                    source: 'landing_direct'
+                },
+                btn: document.getElementById('direct-submit-btn'),
+                busyLabel: 'Wird gesendet...',
+                resetLabel: 'Bericht für meine Adresse anfordern',
+                formId: 'direct-lead-form',
+                successId: 'direct-success',
+                errorId: 'direct-error',
+                errorMsgId: 'direct-error-msg'
+            });
         }
 
         // Premium waitlist form
@@ -1910,15 +1975,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             btn.textContent = 'Wird gesendet...';
             btn.disabled = true;
             try {
+              const payload = (window.bbBuildPayload || (b => b))({ email, source: 'premium-waitlist' });
               const res = await fetch('/api/leads', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, source: 'premium-waitlist' }),
+                body: JSON.stringify(payload),
               });
+              window.bbTrackLeadResult && window.bbTrackLeadResult('premium-waitlist', res);
               if (!res.ok) throw new Error('Request failed');
               document.getElementById('premium-waitlist-form').querySelector('.flex.flex-col').classList.add('hidden');
               document.getElementById('premium-waitlist-success').classList.remove('hidden');
             } catch (err) {
+              window.bbTrackLeadResult && window.bbTrackLeadResult('premium-waitlist', null, { error_message: String(err && err.message || err) });
               document.getElementById('premium-waitlist-error').classList.remove('hidden');
             } finally {
               btn.textContent = originalText;

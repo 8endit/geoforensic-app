@@ -124,6 +124,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         html { scroll-behavior: smooth; }
         .hero-gradient { background: linear-gradient(135deg, #0c1d3a 0%, #122b52 40%, #1a3a6b 100%); }
     </style>
+<script defer src="/static/landing-tracking.js"></script>
+    <link rel="preload" href="/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+
 </head>
 <body class="font-sans text-gray-800 antialiased">
 
@@ -384,6 +388,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             </p>
 
             <form id="garten-lead-form" class="mt-8 max-w-md mx-auto space-y-3" onsubmit="handleGartenLead(event)">
+            <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label>Website (bitte leer lassen)<input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label></div>
                 <input type="text" id="garten-street" required placeholder="Straße + Hausnummer"
                     class="w-full px-4 py-3.5 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-brand-400 focus:bg-white/15 transition-all text-base backdrop-blur-sm">
                 <input type="text" id="garten-city" required placeholder="PLZ + Ort"
@@ -423,7 +428,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </aside>
 
     <!-- FOOTER -->
-    <footer class="bg-navy-900 text-gray-400 py-12 md:py-16 border-t border-navy-700">
+    <footer class="bg-navy-900 text-gray-300 py-12 md:py-16 border-t border-navy-700">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid md:grid-cols-4 gap-8 mb-10">
                 <div class="md:col-span-2">
@@ -434,7 +439,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         <span class="text-lg font-bold text-white tracking-tight">Boden<span class="text-brand-400">bericht</span></span>
                     </div>
                     <p class="text-sm leading-relaxed max-w-sm">
-                        Wissenschaftlich fundierte Bodenanalysen für Privatpersonen, Landwirte und Immobilienkäufer. Sicherheit für Ihren Boden.
+                        Adress-basiertes Bodenrisiko-Screening für Privatpersonen, Landwirte und Immobilienkäufer. Auf Basis offizieller EU-Datensätze.
                     </p>
                 </div>
                 <div>
@@ -484,10 +489,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             btn.textContent = 'Wird gesendet...';
 
             try {
-                const res = await fetch('/api/leads', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
+                const payload = (window.bbBuildPayload || (b => b))({
                         email,
                         address: street.trim() + ', ' + city.trim(),
                         answers: {
@@ -496,8 +498,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                             utm_content: 'gartenbesitzer'
                         },
                         source: 'landing_garten'
-                    })
+                    });
+                const res = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 });
+                window.bbTrackLeadResult && window.bbTrackLeadResult('landing_garten', res);
                 if (!res.ok) {
                     const data = await res.json().catch(() => ({}));
                     throw new Error(data.detail || 'Senden fehlgeschlagen');
@@ -507,7 +514,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             } catch (err) {
                 btn.disabled = false;
                 btn.textContent = 'Kostenlosen Bericht anfordern';
-                alert('Fehler: ' + err.message + '\nBitte prüfen Sie die Adresse und versuchen Sie es erneut.');
+                window.bbTrackLeadResult && window.bbTrackLeadResult('landing_garten', null, { error_message: String(err && err.message || err) });
+                {
+                    const errBox = document.getElementById('garten-error');
+                    const errMsg = document.getElementById('garten-error-msg');
+                    if (errMsg) errMsg.textContent = err.message + ' Bitte prüfen Sie die Adresse und versuchen Sie es erneut.';
+                    if (errBox) { errBox.classList.remove('hidden'); try { errBox.setAttribute('tabindex', '-1'); errBox.focus(); } catch (e) {} }
+                }
             }
         }
     </script>
