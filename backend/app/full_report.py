@@ -175,7 +175,7 @@ def _build_data_sources_list(
             "url": "https://egms.land.copernicus.eu/",
             "resolution_m": 100,
             "method": "PostGIS spatial query, 500 m radius",
-            "note": "Sentinel-1 InSAR L3, 7,9 Mio Punkte DE/NL/AT/CH (Stand 2026).",
+            "note": "Sentinel-1 InSAR L3, 7,92 Mio Punkte DE + 3,25 Mio Punkte NL (Stand 2026-05). AT/CH-Coverage in Vorbereitung.",
         })
     if has_soil:
         out.append({

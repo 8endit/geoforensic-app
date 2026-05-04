@@ -1,10 +1,11 @@
 # Bodenbericht
 
-> Automatisiertes Bodenrisiko-Screening für Immobilienkäufer in DE/NL/AT/CH.
-> Ampel-Klassifikation für Bodenbewegungen (Setzung/Hebung), Altlasten-Hinweise,
-> Schwermetalle, Bodenqualität und 16 Descriptoren der EU-Bodenrichtlinie
-> 2025/2360 — auf Basis offizieller EU-Satellitendaten (Copernicus EGMS) und
-> nationaler Bundesdatensätze.
+> Automatisiertes Bodenrisiko-Screening für Immobilienkäufer in DE und NL
+> (AT/CH in Vorbereitung). Ampel-Klassifikation für Bodenbewegungen
+> (Setzung/Hebung), Altlasten-Hinweise, Schwermetalle, Bodenqualität und
+> 13 Descriptoren der EU-Bodenrichtlinie 2025/2360 plus 4 Versiegelungs-
+> Indikatoren — auf Basis offizieller EU-Satellitendaten (Copernicus EGMS)
+> und nationaler Bundesdatensätze.
 
 Bodenbericht ist ein Service der Tepnosholding GmbH, betrieben über die
 Geoforensic GmbH. Aktuell kostenloser Pilot-Bericht (Teaser-PDF). Der
