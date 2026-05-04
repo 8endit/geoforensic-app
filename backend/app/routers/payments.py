@@ -223,10 +223,16 @@ async def _send_report_after_payment(report: Report, email: str) -> None:
 class LeadCheckoutRequest(BaseModel):
     """Pre-filled by the Teaser-PDF CTA: lead_id from the lead record,
     email + address from what the user originally entered. We re-validate
-    against the DB to make sure the (lead_id, email) pair is real."""
+    against the DB to make sure the (lead_id, email) pair is real.
+
+    coupon_code is optional and only honored if it matches a known coupon
+    (currently only "EARLY50") AND the lead is among the first N
+    non-operator free leads.
+    """
     lead_id: uuid.UUID
     email: EmailStr
     address: str
+    coupon_code: str | None = None
 
 
 class LeadCheckoutResponse(BaseModel):
@@ -243,6 +249,16 @@ async def create_checkout_from_lead(
     Validates (lead_id, email) against the DB, then creates a Stripe Checkout
     Session whose `metadata` carries lead_id + email + address — the webhook
     uses those to re-trigger the report pipeline with `source="stripe"`.
+
+    When Stripe is not configured (no STRIPE_SECRET_KEY in env, e.g. in dev
+    or pre-onboarding), we run the mock-mode path: trigger the Vollbericht
+    generation directly and return the success-URL, simulating a free
+    paid-flow. This lets us test end-to-end before Stripe is live.
+
+    When the EARLY50 coupon is in `payload.coupon_code` and is valid (lead
+    is among the first EARLY50_LIMIT free leads, not the operator email),
+    the Stripe session is created with the discount applied; mock-mode
+    just notes the discount in logs.
     """
     # 1. Validate lead exists + email matches (case-insensitive)
     lead = await db.get(Lead, payload.lead_id)
@@ -250,47 +266,76 @@ async def create_checkout_from_lead(
         # Same 404 either way so we don't leak which leg failed
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lead not found")
 
-    # 2. Stripe must be configured for live use; in dev (no key) we redirect
-    # straight to the success URL so the local-test UX still works.
+    # 2. Mock-mode: no Stripe configured → trigger Vollbericht directly,
+    # redirect to /danke. This is the path you walk while Stripe is still
+    # being onboarded — the buyer experience stays identical except no card
+    # is charged.
     if not settings.stripe_secret_key:
+        logger.info("Stripe not configured — mock-mode Vollbericht for lead %s", lead.id)
+        from app.routers.leads import _generate_and_send_lead_report
+        asyncio.create_task(_generate_and_send_lead_report(
+            email=payload.email,
+            address=payload.address,
+            answers={"source_metadata": "mock-purchase",
+                     "mock_reason": "stripe_not_configured"},
+            db_url="",
+            source="stripe",
+            lead_id=lead.id,
+        ))
         return LeadCheckoutResponse(
             checkout_url=f"{settings.stripe_checkout_success_url}&mock=1&lead_id={lead.id}",
         )
 
+    # 3. Live Stripe path
     stripe.api_key = settings.stripe_secret_key
-    try:
-        session = stripe.checkout.Session.create(
-            mode="payment",
-            success_url=f"{settings.stripe_checkout_success_url}&session_id={{CHECKOUT_SESSION_ID}}",
-            cancel_url=settings.stripe_checkout_cancel_url,
-            customer_email=payload.email,
-            line_items=[
-                {
-                    "price_data": {
-                        "currency": "eur",
-                        "product_data": {
-                            "name": "Bodenbericht — Vollbericht (Premium)",
-                            "description": (
-                                f"Adresse: {payload.address[:200]} · "
-                                "12 Datensektionen, ~30 Seiten PDF, EU-Bodenrichtlinie konform."
-                            ),
-                        },
-                        "unit_amount": settings.stripe_report_price_cents,
+    session_kwargs = {
+        "mode": "payment",
+        "success_url": f"{settings.stripe_checkout_success_url}&session_id={{CHECKOUT_SESSION_ID}}",
+        "cancel_url": settings.stripe_checkout_cancel_url,
+        "customer_email": payload.email,
+        "line_items": [
+            {
+                "price_data": {
+                    "currency": "eur",
+                    "product_data": {
+                        "name": "Bodenbericht — Vollbericht (Premium)",
+                        "description": (
+                            f"Adresse: {payload.address[:200]} · "
+                            "12 Datensektionen, ~30 Seiten PDF, EU-Bodenrichtlinie konform."
+                        ),
                     },
-                    "quantity": 1,
-                }
-            ],
-            metadata={
-                # Stripe metadata: max 50 keys, max 500 chars per value
-                "flow": "lead",
-                "lead_id": str(lead.id),
-                "email": payload.email,
-                "address": payload.address[:480],
-            },
-            # Stripe Tax automatically computes DE 19% / NL 21% MwSt etc.
-            # Requires Stripe Tax to be enabled in the dashboard.
-            automatic_tax={"enabled": True},
-        )
+                    "unit_amount": settings.stripe_report_price_cents,
+                },
+                "quantity": 1,
+            }
+        ],
+        "metadata": {
+            # Stripe metadata: max 50 keys, max 500 chars per value
+            "flow": "lead",
+            "lead_id": str(lead.id),
+            "email": payload.email,
+            "address": payload.address[:480],
+        },
+        # Stripe Tax automatically computes DE 19% / NL 21% MwSt etc.
+        # Requires Stripe Tax to be enabled in the dashboard.
+        "automatic_tax": {"enabled": True},
+    }
+
+    # Apply EARLY50 coupon if requested + still within first-N quota.
+    # Operator's own email is excluded from the count (so internal smoke
+    # tests don't burn coupon slots).
+    if payload.coupon_code and payload.coupon_code.upper() == "EARLY50":
+        if await _early50_still_available(db, exclude_email=settings.operator_email):
+            session_kwargs["discounts"] = [{"coupon": "EARLY50"}]
+            logger.info("EARLY50 coupon applied for lead %s", lead.id)
+            # Tax must be off when discounts is used in Checkout (Stripe
+            # rejects automatic_tax + discounts combo in price_data mode).
+            session_kwargs["automatic_tax"] = {"enabled": False}
+        else:
+            logger.info("EARLY50 coupon requested but quota exhausted for %s", lead.id)
+
+    try:
+        session = stripe.checkout.Session.create(**session_kwargs)
     except stripe.error.StripeError as exc:
         logger.exception("Stripe session create failed for lead %s", lead.id)
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
@@ -300,4 +345,39 @@ async def create_checkout_from_lead(
 
     logger.info("Stripe session %s created for lead %s", session.id, lead.id)
     return LeadCheckoutResponse(checkout_url=session.url)
+
+
+# ── EARLY50 coupon helpers ──────────────────────────────────────────────
+
+EARLY50_LIMIT = 50  # First N non-operator free leads get the coupon
+
+
+async def _early50_still_available(db: AsyncSession, exclude_email: str | None) -> bool:
+    """True when fewer than EARLY50_LIMIT non-operator leads exist so far."""
+    from sqlalchemy import func, select as _select
+    stmt = _select(func.count(Lead.id))
+    if exclude_email:
+        stmt = stmt.where(Lead.email != exclude_email)
+    result = await db.execute(stmt)
+    count = result.scalar_one() or 0
+    return count <= EARLY50_LIMIT
+
+
+async def is_early50_eligible(db: AsyncSession, lead: Lead, exclude_email: str | None) -> bool:
+    """True for the lead if (a) it isn't the operator email and (b) the
+    cumulative non-operator-lead count at the time of *this* lead's
+    insertion was within the EARLY50_LIMIT.
+
+    Used by the teaser-PDF-renderer to decide whether to advertise the
+    coupon code in the lead's mail.
+    """
+    if exclude_email and lead.email.lower() == exclude_email.lower():
+        return False
+    from sqlalchemy import func, select as _select
+    stmt = _select(func.count(Lead.id)).where(Lead.created_at <= lead.created_at)
+    if exclude_email:
+        stmt = stmt.where(Lead.email != exclude_email)
+    result = await db.execute(stmt)
+    rank = result.scalar_one() or 0
+    return rank <= EARLY50_LIMIT
 

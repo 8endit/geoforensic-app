@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     stripe_checkout_cancel_url: str = "http://localhost:3000/dashboard?paid=0"
     stripe_report_price_cents: int = 19900
 
+    # Operator's own email — used to exclude internal smoke-test leads
+    # from the EARLY50 coupon counter so launch-day promo slots aren't
+    # burned by your own QA runs. Set in backend/.env.
+    operator_email: str = "benjaminweise41@gmail.com"
+
     google_client_id: str = ""
     apple_client_id: str = ""
 

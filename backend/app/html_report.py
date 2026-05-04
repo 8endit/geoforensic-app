@@ -355,6 +355,8 @@ def generate_html_report(
     elevated_threshold_mm_yr: float = 2.0,
     lead_id: str | None = None,
     recipient_email: str | None = None,
+    coupon_code: str | None = None,
+    coupon_label: str | None = None,
 ) -> str:
     """Generate a professional HTML report string.
 
@@ -382,14 +384,40 @@ def generate_html_report(
     # caller that doesn't pass those args (e.g. older tests).
     _stripe_ready = bool(lead_id and recipient_email)
     if _stripe_ready:
-        _kaufen_qs = urlencode({
+        _qs_params = {
             "lead_id": str(lead_id),
             "email": recipient_email,
             "address": address,
-        })
-        _price_eur = f"{_settings.stripe_report_price_cents / 100:.0f}"
+        }
+        _price_cents = _settings.stripe_report_price_cents
+        # If a valid coupon is attached, we calculate the post-discount
+        # price right in the CTA so the buyer sees the rabattierte Summe
+        # (not just "Code anwenden, dann sehen Sie").
+        if coupon_code and coupon_code.upper() == "EARLY50":
+            _qs_params["coupon"] = coupon_code.upper()
+            _discounted_cents = _price_cents // 2  # EARLY50 = 50%
+            _price_eur = f"{_discounted_cents / 100:.2f}".replace(".", ",")
+            _strike_eur = f"{_price_cents / 100:.0f}"
+            _cta_text = (
+                f"Vollbericht freischalten &mdash; "
+                f"<s style='opacity:0.6;font-weight:400;'>{_strike_eur} &euro;</s> "
+                f"<strong>{_price_eur} &euro;</strong> mit Code "
+                f"<code style='background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:4px;'>{coupon_code.upper()}</code>"
+            )
+            _coupon_banner = (
+                f"<div style='background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;"
+                f"padding:10px 14px;margin:12px 0;font-size:13px;color:#78350f;'>"
+                f"<strong>Early-Bird-Rabatt:</strong> Sie geh&ouml;ren zu den ersten 50 Test-Empf&auml;ngern. "
+                f"Mit dem Code <code style='background:#fff;padding:2px 6px;border-radius:4px;'>{coupon_code.upper()}</code> "
+                f"sparen Sie {coupon_label or '50 %'} auf den Vollbericht."
+                f"</div>"
+            )
+        else:
+            _price_eur = f"{_price_cents / 100:.0f}"
+            _cta_text = f"Vollbericht freischalten &mdash; {_price_eur} &euro; zzgl. MwSt"
+            _coupon_banner = ""
+        _kaufen_qs = urlencode(_qs_params)
         _cta_link = f"https://bodenbericht.de/kaufen.html?{_kaufen_qs}"
-        _cta_text = f"Vollbericht freischalten — {_price_eur} &euro; zzgl. MwSt"
         _cta_subline = (
             "Sichere Zahlung &uuml;ber Stripe (Karte, SEPA, Klarna). "
             "Bericht wird sofort nach Zahlungseingang erstellt und per E-Mail zugestellt."
@@ -398,6 +426,7 @@ def generate_html_report(
         _cta_link = "https://bodenbericht.de/#premium"
         _cta_text = "Auf die Warteliste"
         _cta_subline = "Noch nicht bestellbar. Early-Bird-Platz sichern, Start-Rabatt erhalten."
+        _coupon_banner = ""
     if egms_period_start is None:
         egms_period_start = _settings.egms_period_start
     if egms_period_end is None:
@@ -1113,6 +1142,7 @@ def generate_html_report(
   <h3>Alles sehen, was hier noch verdeckt ist</h3>
   {_CTA_VISUALS_HTML}
   <p>Sechs interaktive Visualisierungen — Risiko-Dashboard, Karte mit InSAR-Punkten, Velocity-Zeitreihe, Bodenprofil-Querschnitt, Korrelations-Spinne und Nachbarschafts-Histogramm — plus alle exakten Messwerte für Schwermetalle, Bodenqualität, Nährstoffe, Pestizid-Rückstände, Geländeprofil, Bergbau, Altlasten, Hochwasser, Starkregen und alle 13 Descriptoren der EU-Bodenmonitoring-Richtlinie 2025/2360 plus 4 Versiegelungs-Indikatoren und 5 ergänzende Indikatoren über die EU-Pflicht hinaus. Inklusive PDF-Download.</p>
+  {_coupon_banner}
   <a href="{_cta_link}">{_cta_text}</a>
   <div class="small">{_cta_subline}</div>
 </div>

@@ -317,6 +317,16 @@ async def _generate_and_send_lead_report(
         flood_data: dict | None = None
         if is_teaser:
             map_data_uri = await fetch_static_map(lat, lon)
+            # EARLY50-Check vorab: nur Teaser-Empfänger, deren Lead unter
+            # den ersten 50 nicht-Operator-Leads ist, sehen den Coupon.
+            _early50_eligible = False
+            if lead_id is not None:
+                from app.routers.payments import is_early50_eligible
+                _the_lead = await db.get(Lead, lead_id)
+                if _the_lead is not None:
+                    _early50_eligible = await is_early50_eligible(
+                        db, _the_lead, exclude_email=settings.operator_email,
+                    )
             html = generate_html_report(
                 address=display_name,
                 lat=lat,
@@ -339,6 +349,11 @@ async def _generate_and_send_lead_report(
                 # serverseitig konfiguriert ist (sonst no-op-Mock-Pfad).
                 lead_id=str(lead_id) if lead_id else None,
                 recipient_email=email,
+                # EARLY50 coupon: Lead bekommt einen sichtbaren Rabatt-Code
+                # in der CTA, wenn er zu den ersten 50 Test-Empfaengern
+                # gehoert (Operator-Email ausgeschlossen).
+                coupon_code=("EARLY50" if _early50_eligible else None),
+                coupon_label=("50 %" if _early50_eligible else None),
             )
             pdf_bytes = html_to_pdf(html)
             if pdf_bytes is None:
