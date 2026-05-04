@@ -32,199 +32,130 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta property="og:image" content="https://bodenbericht.de/og-image.png">
 <meta property="og:locale" content="de_DE">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Widerrufsbelehrung | Bodenbericht">
+<meta name="twitter:description" content="Widerrufsbelehrung für Verbraucherverträge gemäß Paragraph 355 BGB.">
 <meta name="twitter:image" content="https://bodenbericht.de/og-image.png">
-<style>
-  :root {
-    --brand: #16a34a;
-    --brand-dark: #15803d;
-    --navy-900: #0c1d3a;
-    --navy-800: #122b52;
-    --navy-700: #1a3a6b;
-    --navy-600: #1e3a6e;
-    --text: #1f2937;
-    --text-muted: #6b7280;
-    --border: #e5e7eb;
-    --bg: #ffffff;
-    --bg-soft: #f9fafb;
-  }
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body {
-    margin: 0;
-    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    color: var(--text);
-    line-height: 1.65;
-    background: var(--bg);
-    -webkit-font-smoothing: antialiased;
-  }
-  header.site {
-    position: sticky; top: 0; z-index: 20;
-    background: rgba(255,255,255,.96);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--border);
-  }
-  header .wrap {
-    max-width: 1120px; margin: 0 auto; padding: 14px 20px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  header .logo {
-    display: inline-flex; align-items: center; gap: 10px;
-    text-decoration: none; color: var(--navy-800);
-    font-weight: 700; font-size: 17px; letter-spacing: -0.01em;
-  }
-  header .logo .dot {
-    width: 32px; height: 32px; border-radius: 8px; background: var(--brand);
-    display: inline-flex; align-items: center; justify-content: center; color: white;
-    font-weight: 700; font-size: 14px;
-  }
-  header .logo .accent { color: var(--brand); }
-  header nav a {
-    color: var(--text-muted); text-decoration: none;
-    font-size: 14px; font-weight: 500; margin-left: 22px;
-    transition: color .15s;
-  }
-  header nav a:hover { color: var(--navy-700); }
+<link rel="stylesheet" href="/tailwind.css">
+    <link rel="preload" href="/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
 
-  main { max-width: 820px; margin: 0 auto; padding: 48px 20px 80px; }
-  h1 {
-    font-size: 32px; font-weight: 800; color: var(--navy-900);
-    letter-spacing: -0.02em; margin: 0 0 8px;
-  }
-  .subtitle { color: var(--text-muted); font-size: 14px; margin: 0 0 32px; }
-  h2 {
-    font-size: 20px; font-weight: 700; color: var(--navy-800);
-    margin: 32px 0 12px; letter-spacing: -0.01em;
-  }
-  p { margin: 0 0 14px; }
-  p strong { color: var(--navy-900); }
-  a.link {
-    color: var(--brand-dark); text-decoration: underline; text-underline-offset: 2px;
-  }
-  a.link:hover { color: var(--navy-700); }
-  .callout {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    border-left: 3px solid var(--brand);
-    border-radius: 8px;
-    padding: 14px 18px;
-    margin: 14px 0 28px;
-    font-size: 14px;
-  }
-  .formular {
-    background: var(--bg-soft);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px 22px;
-    margin: 20px 0;
-    font-size: 14px;
-    line-height: 1.8;
-  }
-  .formular .row { color: var(--text-muted); }
-
-  footer.site {
-    background: var(--navy-900); color: #cbd5e1;
-    padding: 40px 20px 28px; margin-top: 80px;
-  }
-  footer .wrap {
-    max-width: 1120px; margin: 0 auto;
-    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px;
-    font-size: 13px;
-  }
-  footer a {
-    color: #cbd5e1; text-decoration: none;
-    margin-right: 18px;
-  }
-  footer a:hover { color: white; }
-  footer .brand { color: white; font-weight: 700; }
-  @media (max-width: 520px) {
-    header nav { display: none; }
-    h1 { font-size: 26px; }
-  }
-</style>
 </head>
-<body>
+<body class="font-sans text-gray-800 antialiased">
 
-<header class="site">
-  <div class="wrap">
-    <a class="logo" href="/" aria-label="Bodenbericht Startseite">
-      <img src="/images/logo-horizontal.png" alt="Bodenbericht - digitale Bodenbewertung und Analyse" style="height:44px;width:auto;">
-    </a>
-    <nav>
-      <a href="/">Startseite</a>
-      <a href="/datenquellen.html">Datenquellen</a>
-      <a href="/muster-bericht.html">Muster-Bericht</a>
-    </nav>
-  </div>
+<!-- HEADER -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16 md:h-18">
+            <a href="/index.html" class="flex items-center gap-2" aria-label="Bodenbericht Startseite">
+                <img src="/images/logo-horizontal.png" alt="Bodenbericht - digitale Bodenbewertung und Analyse" class="h-10 md:h-12 w-auto" width="640" height="214" loading="eager" decoding="async">
+            </a>
+            <nav class="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-gray-600">
+                <a href="/index.html#so-funktionierts" class="hover:text-navy-700 transition">So funktioniert's</a>
+                <a href="/fuer-immobilienkaeufer.html" class="hover:text-navy-700 transition">Für Käufer</a>
+                <a href="/index.html#leistungen" class="hover:text-navy-700 transition">Leistungen</a>
+                <a href="/datenquellen.html" class="hover:text-navy-700 transition">Datenquellen</a>
+                <a href="/index.html#faq" class="hover:text-navy-700 transition">FAQ</a>
+            </nav>
+            <a href="/index.html#cta" class="hidden sm:inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition shadow-md shadow-brand-600/20">
+                Bericht anfordern
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+            </a>
+        </div>
+    </div>
 </header>
 
-<main>
-  <h1>Widerrufsbelehrung</h1>
-  <p class="subtitle">Stand: April 2026</p>
+<main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+    <h1 class="text-3xl md:text-4xl font-extrabold text-navy-900 tracking-tight mb-2">Widerrufsbelehrung</h1>
+    <p class="text-sm text-gray-500 mb-10">Stand: April 2026</p>
 
-  <div class="callout">
-    <strong>Hinweis zum Anwendungsbereich:</strong> Diese Widerrufsbelehrung gilt für entgeltliche Verbraucherverträge, die Sie über bodenbericht.de mit uns abschließen (insbesondere im Rahmen zukünftiger kostenpflichtiger Angebote wie dem Premium-Bericht). Für den in der Pilotphase kostenlos angebotenen Bodenbericht besteht mangels Entgeltlichkeit kein gesetzliches Widerrufsrecht nach Paragraph 312g BGB; dennoch können Sie die Löschung Ihrer Daten jederzeit formlos verlangen.
-  </div>
+    <div class="bg-brand-50 border border-brand-200 rounded-xl p-5 mb-8">
+        <p class="text-sm leading-relaxed">
+            <strong class="text-navy-900">Hinweis zum Anwendungsbereich:</strong> Diese Widerrufsbelehrung gilt für entgeltliche Verbraucherverträge, die Sie über bodenbericht.de mit uns abschließen (insbesondere im Rahmen zukünftiger kostenpflichtiger Angebote wie dem Premium-Bericht). Für den in der Pilotphase kostenlos angebotenen Bodenbericht besteht mangels Entgeltlichkeit kein gesetzliches Widerrufsrecht nach Paragraph 312g BGB; dennoch können Sie die Löschung Ihrer Daten jederzeit formlos verlangen.
+        </p>
+    </div>
 
-  <h2>Widerrufsrecht</h2>
-  <p>Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.</p>
-  <p>Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.</p>
-  <p>Um Ihr Widerrufsrecht auszuüben, müssen Sie uns</p>
-  <p>
-    <span class="row"><strong>Tepnosholding GmbH</strong></span><br>
-    An der Schelmenhalde 35<br>
-    71665 Vaihingen an der Enz<br>
-    Deutschland<br>
-    E-Mail: <a class="link" href="mailto:team@geoforensic.de">team@geoforensic.de</a>
-  </p>
-  <p>mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief oder eine E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das untenstehende Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist.</p>
-  <p>Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absenden.</p>
-
-  <h2>Folgen des Widerrufs</h2>
-  <p>Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags bei uns eingegangen ist. Für diese Rückzahlung verwenden wir dasselbe Zahlungsmittel, das Sie bei der ursprünglichen Transaktion eingesetzt haben, es sei denn, mit Ihnen wurde ausdrücklich etwas anderes vereinbart; in keinem Fall werden Ihnen wegen dieser Rückzahlung Entgelte berechnet.</p>
-
-  <h2>Vorzeitiges Erlöschen des Widerrufsrechts</h2>
-  <p>Das Widerrufsrecht erlischt bei einem Vertrag über die Bereitstellung von nicht auf einem körperlichen Datenträger befindlichen digitalen Inhalten (z. B. elektronisch bereitgestellter Bodenbericht als PDF), wenn wir mit der Ausführung des Vertrags begonnen haben, nachdem Sie</p>
-  <ul>
-    <li>ausdrücklich zugestimmt haben, dass wir mit der Ausführung des Vertrags vor Ablauf der Widerrufsfrist beginnen, und</li>
-    <li>Ihre Kenntnis davon bestätigt haben, dass Sie durch Ihre Zustimmung mit Beginn der Ausführung des Vertrags Ihr Widerrufsrecht verlieren.</li>
-  </ul>
-
-  <h2>Muster-Widerrufsformular</h2>
-  <p>(Wenn Sie den Vertrag widerrufen wollen, können Sie dieses Formular ausfüllen und an uns zurückschicken.)</p>
-  <div class="formular">
-    <p class="row">An:</p>
-    <p>
-      Tepnosholding GmbH<br>
-      An der Schelmenhalde 35<br>
-      71665 Vaihingen an der Enz<br>
-      E-Mail: team@geoforensic.de
+    <h2 class="text-xl font-bold text-navy-800 mt-8 mb-3 tracking-tight">Widerrufsrecht</h2>
+    <p class="mb-3 leading-relaxed">Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.</p>
+    <p class="mb-3 leading-relaxed">Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.</p>
+    <p class="mb-3 leading-relaxed">Um Ihr Widerrufsrecht auszuüben, müssen Sie uns</p>
+    <p class="mb-3 leading-relaxed">
+        <strong class="text-navy-900">Tepnosholding GmbH</strong><br>
+        An der Schelmenhalde 35<br>
+        71665 Vaihingen an der Enz<br>
+        Deutschland<br>
+        E-Mail: <a class="text-brand-700 hover:text-brand-800 underline" href="mailto:team@geoforensic.de">team@geoforensic.de</a>
     </p>
-    <p>Hiermit widerrufe(n) ich / wir (*) den von mir / uns (*) abgeschlossenen Vertrag über den Kauf der folgenden Waren (*) / die Erbringung der folgenden Dienstleistung (*):</p>
-    <p class="row">- Bestellt am (*) / erhalten am (*):<br>
-    - Name des / der Verbraucher(s):<br>
-    - Anschrift des / der Verbraucher(s):<br>
-    - Unterschrift des / der Verbraucher(s) (nur bei Mitteilung auf Papier):<br>
-    - Datum:</p>
-    <p class="row">(*) Unzutreffendes streichen.</p>
-  </div>
+    <p class="mb-3 leading-relaxed">mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief oder eine E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das untenstehende Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist.</p>
+    <p class="mb-3 leading-relaxed">Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absenden.</p>
+
+    <h2 class="text-xl font-bold text-navy-800 mt-8 mb-3 tracking-tight">Folgen des Widerrufs</h2>
+    <p class="mb-3 leading-relaxed">Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags bei uns eingegangen ist. Für diese Rückzahlung verwenden wir dasselbe Zahlungsmittel, das Sie bei der ursprünglichen Transaktion eingesetzt haben, es sei denn, mit Ihnen wurde ausdrücklich etwas anderes vereinbart; in keinem Fall werden Ihnen wegen dieser Rückzahlung Entgelte berechnet.</p>
+
+    <h2 class="text-xl font-bold text-navy-800 mt-8 mb-3 tracking-tight">Vorzeitiges Erlöschen des Widerrufsrechts</h2>
+    <p class="mb-3 leading-relaxed">Das Widerrufsrecht erlischt bei einem Vertrag über die Bereitstellung von nicht auf einem körperlichen Datenträger befindlichen digitalen Inhalten (z. B. elektronisch bereitgestellter Bodenbericht als PDF), wenn wir mit der Ausführung des Vertrags begonnen haben, nachdem Sie</p>
+    <ul class="list-disc pl-6 mb-3 space-y-1 leading-relaxed">
+        <li>ausdrücklich zugestimmt haben, dass wir mit der Ausführung des Vertrags vor Ablauf der Widerrufsfrist beginnen, und</li>
+        <li>Ihre Kenntnis davon bestätigt haben, dass Sie durch Ihre Zustimmung mit Beginn der Ausführung des Vertrags Ihr Widerrufsrecht verlieren.</li>
+    </ul>
+
+    <h2 class="text-xl font-bold text-navy-800 mt-8 mb-3 tracking-tight">Muster-Widerrufsformular</h2>
+    <p class="mb-3 leading-relaxed">(Wenn Sie den Vertrag widerrufen wollen, können Sie dieses Formular ausfüllen und an uns zurückschicken.)</p>
+    <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 text-sm leading-relaxed">
+        <p class="mb-2"><strong class="text-navy-900">An:</strong></p>
+        <p class="mb-3">
+            Tepnosholding GmbH<br>
+            An der Schelmenhalde 35<br>
+            71665 Vaihingen an der Enz<br>
+            E-Mail: team@geoforensic.de
+        </p>
+        <p class="mb-3">Hiermit widerrufe(n) ich / wir (*) den von mir / uns (*) abgeschlossenen Vertrag über den Kauf der folgenden Waren (*) / die Erbringung der folgenden Dienstleistung (*):</p>
+        <p class="mb-2">- Bestellt am (*) / erhalten am (*):<br>
+        - Name des / der Verbraucher(s):<br>
+        - Anschrift des / der Verbraucher(s):<br>
+        - Unterschrift des / der Verbraucher(s) (nur bei Mitteilung auf Papier):<br>
+        - Datum:</p>
+        <p class="text-gray-600 italic">(*) Unzutreffendes streichen.</p>
+    </div>
 </main>
 
-<footer class="site">
-  <div class="wrap">
-    <div>
-      <div class="brand">Bodenbericht</div>
-      <div style="margin-top:4px">Ein Service der Tepnosholding GmbH</div>
+<!-- FOOTER -->
+<footer class="bg-navy-900 text-gray-300 py-12 md:py-16 border-t border-navy-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-4 gap-8 mb-10">
+            <div class="md:col-span-2">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                    </div>
+                    <span class="text-lg font-bold text-white tracking-tight">Boden<span class="text-brand-400">bericht</span></span>
+                </div>
+                <p class="text-sm leading-relaxed max-w-sm">
+                    Adress-basiertes Bodenrisiko-Screening für Privatpersonen, Landwirte und Immobilienkäufer. Auf Basis offizieller EU-Datensätze.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-semibold text-white text-sm mb-4">Für wen</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="/fuer-immobilienkaeufer.html" class="hover:text-white transition">Für Käufer</a></li>
+                    <li><a href="/fuer-gartenbesitzer.html" class="hover:text-white transition">Für Gartenbesitzer</a></li>
+                    <li><a href="/fuer-bautraeger.html" class="hover:text-white transition">Für Bauträger</a></li>
+                    <li><a href="/fuer-landwirte.html" class="hover:text-white transition">Für Landwirte</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-semibold text-white text-sm mb-4">Rechtliches</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="/impressum.html" class="hover:text-white transition">Impressum</a></li>
+                    <li><a href="/datenschutz.html" class="hover:text-white transition">Datenschutz</a></li>
+                    <li><a href="#" onclick="if(window.klaro){klaro.show();}return false;" class="hover:text-white transition">Datenschutz-Einstellungen</a></li>
+                    <li><a href="/widerruf.html" class="hover:text-white transition">Widerrufsbelehrung</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p class="text-xs">© 2026 Bodenbericht. Alle Rechte vorbehalten.</p>
+        </div>
     </div>
-    <div>
-      <a href="/">Startseite</a>
-      <a href="/datenquellen.html">Datenquellen</a>
-      <a href="/muster-bericht.html">Muster-Bericht</a>
-      <a href="/impressum.html">Impressum</a>
-      <a href="/datenschutz.html">Datenschutz</a>
-      <a href="#" onclick="if(window.klaro){klaro.show();}return false;">Datenschutz-Einstellungen</a>
-      <a href="/widerruf.html">Widerrufsbelehrung</a>
-    </div>
-  </div>
 </footer>
 
 </body>

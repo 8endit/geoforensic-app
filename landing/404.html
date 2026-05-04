@@ -6,15 +6,6 @@
 <script defer src="/klaro/klaro-config.js"></script>
 <script defer src="/klaro/klaro.js"></script>
 
-<!-- Google Tag Manager (lädt erst nach Einwilligung via Klaro) -->
-<script type="text/plain" data-type="application/javascript" data-name="google-tag-manager">
-(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-KFG5W96X');
-</script>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Seite nicht gefunden - Bodenbericht</title>
@@ -24,145 +15,59 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/favicon.svg">
-<style>
-  :root {
-    --brand: #16a34a;
-    --brand-dark: #15803d;
-    --navy-900: #0c1d3a;
-    --navy-800: #122b52;
-    --navy-700: #1a3a6b;
-    --text: #1f2937;
-    --text-muted: #6b7280;
-    --border: #e5e7eb;
-    --bg-soft: #f9fafb;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    min-height: 100vh;
-    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    color: var(--text);
-    background: linear-gradient(180deg, #ffffff 0%, var(--bg-soft) 100%);
-    display: flex;
-    flex-direction: column;
-    -webkit-font-smoothing: antialiased;
-  }
-  header.site {
-    background: white;
-    border-bottom: 1px solid var(--border);
-    padding: 14px 20px;
-  }
-  header .wrap {
-    max-width: 1120px; margin: 0 auto;
-    display: flex; align-items: center;
-  }
-  .logo {
-    display: inline-flex; align-items: center; gap: 10px;
-    text-decoration: none; color: var(--navy-800);
-    font-weight: 700; font-size: 17px; letter-spacing: -0.01em;
-  }
-  .logo .dot {
-    width: 32px; height: 32px; border-radius: 8px; background: var(--brand);
-    display: inline-flex; align-items: center; justify-content: center; color: white;
-    font-weight: 700; font-size: 14px;
-  }
-  .logo .accent { color: var(--brand); }
+<link rel="stylesheet" href="/tailwind.css">
+    <link rel="preload" href="/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
 
-  main {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px 80px;
-    text-align: center;
-  }
-  .box { max-width: 540px; }
-  .code {
-    font-size: 92px;
-    font-weight: 800;
-    color: var(--brand);
-    letter-spacing: -0.04em;
-    line-height: 1;
-    margin-bottom: 18px;
-  }
-  h1 {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--navy-900);
-    margin-bottom: 14px;
-    letter-spacing: -0.015em;
-  }
-  p {
-    color: var(--text-muted);
-    font-size: 16px;
-    line-height: 1.6;
-    margin-bottom: 28px;
-  }
-  .cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--brand);
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 15px;
-    padding: 14px 28px;
-    border-radius: 10px;
-    transition: background .15s, transform .15s;
-  }
-  .cta:hover { background: var(--brand-dark); transform: translateY(-1px); }
-  .links {
-    margin-top: 36px;
-    padding-top: 28px;
-    border-top: 1px solid var(--border);
-    font-size: 14px;
-    color: var(--text-muted);
-  }
-  .links a {
-    color: var(--navy-700);
-    text-decoration: none;
-    margin: 0 10px;
-  }
-  .links a:hover { color: var(--brand-dark); text-decoration: underline; }
-
-  footer.site {
-    background: var(--navy-900); color: #cbd5e1;
-    padding: 28px 20px;
-    font-size: 13px;
-    text-align: center;
-  }
-</style>
 </head>
-<body>
+<body class="font-sans text-gray-800 antialiased min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50">
 
-<header class="site">
-  <div class="wrap">
-    <a class="logo" href="/" aria-label="Bodenbericht Startseite">
-      <img src="/images/logo-horizontal.png" alt="Bodenbericht - digitale Bodenbewertung und Analyse" style="height:44px;width:auto;">
-    </a>
-  </div>
+<!-- HEADER (slim) -->
+<header class="bg-white border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <a href="/" class="inline-flex items-center gap-2" aria-label="Bodenbericht Startseite">
+            <img src="/images/logo-horizontal.png" alt="Bodenbericht - digitale Bodenbewertung und Analyse" class="h-10 md:h-11 w-auto" width="640" height="214" loading="eager" decoding="async">
+        </a>
+    </div>
 </header>
 
-<main>
-  <div class="box">
-    <div class="code">404</div>
-    <h1>Diese Seite gibt es nicht.</h1>
-    <p>Der Link ist vielleicht veraltet oder falsch geschrieben. Kein Problem - fangen wir von vorne an.</p>
-    <a class="cta" href="/">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-      Zurück zur Startseite
-    </a>
-    <div class="links">
-      <a href="/">Startseite</a>·
-      <a href="/quiz.html">Risikocheck</a>·
-      <a href="/muster-bericht.html">Muster-Bericht</a>·
-      <a href="/datenquellen.html">Datenquellen</a>
+<main class="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-16 text-center">
+    <div class="max-w-xl mx-auto">
+        <div class="text-8xl md:text-9xl font-extrabold text-brand-600 tracking-tight leading-none mb-4">404</div>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-navy-900 tracking-tight mb-3">Diese Seite gibt es nicht.</h1>
+        <p class="text-gray-600 leading-relaxed mb-7">Der Link ist vielleicht veraltet oder falsch geschrieben. Kein Problem - fangen wir von vorne an.</p>
+        <a href="/" class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-lg transition shadow-md shadow-brand-600/20">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Zurück zur Startseite
+        </a>
+        <div class="mt-10 pt-8 border-t border-gray-200 text-sm text-gray-500 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+            <a href="/" class="hover:text-brand-700 underline-offset-2 hover:underline">Startseite</a>
+            <span class="text-gray-300">·</span>
+            <a href="/quiz.html" class="hover:text-brand-700 underline-offset-2 hover:underline">Risikocheck</a>
+            <span class="text-gray-300">·</span>
+            <a href="/muster-bericht.html" class="hover:text-brand-700 underline-offset-2 hover:underline">Muster-Bericht</a>
+            <span class="text-gray-300">·</span>
+            <a href="/datenquellen.html" class="hover:text-brand-700 underline-offset-2 hover:underline">Datenquellen</a>
+            <span class="text-gray-300">·</span>
+            <a href="/wissen/" class="hover:text-brand-700 underline-offset-2 hover:underline">Wissen</a>
+        </div>
     </div>
-  </div>
 </main>
 
-<footer class="site">
-  <div>Bodenbericht · Ein Service der Tepnosholding GmbH</div>
+<!-- FOOTER (slim, with required legal links per § 5 DDG) -->
+<footer class="bg-navy-900 text-gray-300 py-8 border-t border-navy-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <p class="text-sm mb-3"><span class="font-semibold text-white">Bodenbericht</span> · Ein Service der Tepnosholding GmbH</p>
+        <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs">
+            <a href="/impressum.html" class="hover:text-white transition">Impressum</a>
+            <span class="text-gray-500">·</span>
+            <a href="/datenschutz.html" class="hover:text-white transition">Datenschutz</a>
+            <span class="text-gray-500">·</span>
+            <a href="/widerruf.html" class="hover:text-white transition">Widerrufsbelehrung</a>
+            <span class="text-gray-500">·</span>
+            <a href="#" onclick="if(window.klaro){klaro.show();}return false;" class="hover:text-white transition">Datenschutz-Einstellungen</a>
+        </div>
+    </div>
 </footer>
 
 </body>

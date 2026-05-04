@@ -35,142 +35,58 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta property="og:locale" content="de_DE">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://bodenbericht.de/og-image.png">
+<link rel="stylesheet" href="/tailwind.css">
 <style>
-  :root {
-    --brand: #16a34a;
-    --brand-dark: #15803d;
-    --navy-900: #0c1d3a;
-    --navy-800: #122b52;
-    --navy-700: #1a3a6b;
-    --navy-600: #1e3a6e;
-    --text: #1f2937;
-    --text-muted: #6b7280;
-    --border: #e5e7eb;
-    --bg: #ffffff;
-    --bg-soft: #f9fafb;
-  }
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body {
-    margin: 0;
-    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    color: var(--text);
-    line-height: 1.65;
-    background: var(--bg);
-    -webkit-font-smoothing: antialiased;
-  }
-  header.site {
-    position: sticky; top: 0; z-index: 20;
-    background: rgba(255,255,255,.96);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--border);
-  }
-  header .wrap {
-    max-width: 1120px; margin: 0 auto; padding: 14px 20px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  header .logo {
-    display: inline-flex; align-items: center; gap: 10px;
-    text-decoration: none; color: var(--navy-800);
-    font-weight: 700; font-size: 17px; letter-spacing: -0.01em;
-  }
-  header .logo .dot {
-    width: 32px; height: 32px; border-radius: 8px; background: var(--brand);
-    display: inline-flex; align-items: center; justify-content: center; color: white;
-    font-weight: 700; font-size: 14px;
-  }
-  header .logo .accent { color: var(--brand); }
-  header nav a {
-    color: var(--text-muted); text-decoration: none;
-    font-size: 14px; font-weight: 500; margin-left: 22px;
-    transition: color .15s;
-  }
-  header nav a:hover { color: var(--navy-700); }
-
-  main { max-width: 820px; margin: 0 auto; padding: 48px 20px 80px; }
-  h1 {
-    font-size: 32px; font-weight: 800; color: var(--navy-900);
-    letter-spacing: -0.02em; margin: 0 0 8px;
-  }
-  .subtitle { color: var(--text-muted); font-size: 14px; margin: 0 0 32px; }
-  h2 {
-    font-size: 22px; font-weight: 700; color: var(--navy-800);
-    margin: 40px 0 12px; letter-spacing: -0.01em;
-    padding-top: 8px;
-  }
-  h3 {
-    font-size: 16px; font-weight: 700; color: var(--navy-700);
-    margin: 24px 0 8px; letter-spacing: -0.005em;
-  }
-  p { margin: 0 0 14px; }
-  p strong { color: var(--navy-900); }
-  ul { margin: 0 0 16px; padding-left: 22px; }
-  ul li { margin-bottom: 8px; }
-  .company { font-weight: 600; color: var(--navy-900); }
-  a.link {
-    color: var(--brand-dark); text-decoration: underline; text-underline-offset: 2px;
-    word-break: break-word;
-  }
-  a.link:hover { color: var(--navy-700); }
-  .toc {
-    background: var(--bg-soft);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 18px 22px;
-    margin: 16px 0 32px;
-    font-size: 14px;
-  }
-  .toc a { display: block; color: var(--navy-700); text-decoration: none; padding: 3px 0; }
-  .toc a:hover { color: var(--brand-dark); }
-  .callout {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    border-left: 3px solid var(--brand);
-    border-radius: 8px;
-    padding: 14px 18px;
-    margin: 14px 0;
-    font-size: 14px;
-  }
-  .upper { text-transform: uppercase; font-size: 13px; letter-spacing: 0.02em; }
-
-  footer.site {
-    background: var(--navy-900); color: #cbd5e1;
-    padding: 40px 20px 28px; margin-top: 80px;
-  }
-  footer .wrap {
-    max-width: 1120px; margin: 0 auto;
-    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px;
-    font-size: 13px;
-  }
-  footer a {
-    color: #cbd5e1; text-decoration: none;
-    margin-right: 18px;
-  }
-  footer a:hover { color: white; }
-  footer .brand { color: white; font-weight: 700; }
-  @media (max-width: 520px) {
-    header nav { display: none; }
-    h1 { font-size: 26px; }
-    h2 { font-size: 19px; }
-  }
+  /* Minimal styling for legal-text-specific classes only.
+     All chrome (header/footer/typography defaults) comes from tailwind.css. */
+  main { line-height: 1.65; }
+  main h1 { font-size: 28px; font-weight: 800; color: #0c1d3a; letter-spacing: -0.02em; margin: 0 0 8px; }
+  main h2 { font-size: 20px; font-weight: 700; color: #122b52; margin: 36px 0 10px; padding-top: 8px; letter-spacing: -0.01em; }
+  main h3 { font-size: 15px; font-weight: 700; color: #1a3a6b; margin: 22px 0 8px; }
+  main p { margin: 0 0 12px; }
+  main p strong { color: #0c1d3a; }
+  main ul { margin: 0 0 16px; padding-left: 22px; }
+  main ul li { margin-bottom: 8px; }
+  main .subtitle { color: #6b7280; font-size: 14px; margin: 0 0 28px; }
+  main .company { font-weight: 600; color: #0c1d3a; }
+  main a.link { color: #15803d; text-decoration: underline; text-underline-offset: 2px; word-break: break-word; }
+  main a.link:hover { color: #1a3a6b; }
+  main .toc { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 18px 22px; margin: 16px 0 32px; font-size: 14px; }
+  main .toc a { display: block; color: #1a3a6b; text-decoration: none; padding: 3px 0; }
+  main .toc a:hover { color: #15803d; }
+  main .callout { background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 3px solid #16a34a; border-radius: 8px; padding: 14px 18px; margin: 14px 0; font-size: 14px; }
+  main .upper { text-transform: uppercase; font-size: 13px; letter-spacing: 0.02em; }
+  @media (max-width: 520px) { main h1 { font-size: 24px; } main h2 { font-size: 18px; } }
 </style>
-</head>
-<body>
+    <link rel="preload" href="/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
 
-<header class="site">
-  <div class="wrap">
-    <a class="logo" href="/" aria-label="Bodenbericht Startseite">
-      <img src="/images/logo-horizontal.png" alt="Bodenbericht - digitale Bodenbewertung und Analyse" style="height:44px;width:auto;">
-    </a>
-    <nav>
-      <a href="/">Startseite</a>
-      <a href="/datenquellen.html">Datenquellen</a>
-      <a href="/muster-bericht.html">Muster-Bericht</a>
-    </nav>
-  </div>
+</head>
+<body class="font-sans text-gray-800 antialiased">
+
+<!-- HEADER -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16 md:h-18">
+            <a href="/index.html" class="flex items-center gap-2" aria-label="Bodenbericht Startseite">
+                <img src="/images/logo-horizontal.png" alt="Bodenbericht - digitale Bodenbewertung und Analyse" class="h-10 md:h-12 w-auto" width="640" height="214" loading="eager" decoding="async">
+            </a>
+            <nav class="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-gray-600">
+                <a href="/index.html#so-funktionierts" class="hover:text-navy-700 transition">So funktioniert's</a>
+                <a href="/fuer-immobilienkaeufer.html" class="hover:text-navy-700 transition">Für Käufer</a>
+                <a href="/index.html#leistungen" class="hover:text-navy-700 transition">Leistungen</a>
+                <a href="/datenquellen.html" class="hover:text-navy-700 transition">Datenquellen</a>
+                <a href="/index.html#faq" class="hover:text-navy-700 transition">FAQ</a>
+            </nav>
+            <a href="/index.html#cta" class="hidden sm:inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition shadow-md shadow-brand-600/20">
+                Bericht anfordern
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+            </a>
+        </div>
+    </div>
 </header>
 
-<main>
+<main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
   <h1>Datenschutzerklärung</h1>
   <p class="subtitle">Stand: Mai 2026</p>
 
@@ -327,29 +243,51 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <h3>PostHog (EU-Region)</h3>
   <p>Diese Website nutzt nach Ihrer Einwilligung das Produkt-Analytik-Tool PostHog der PostHog Inc., 2261 Market Street #4008, San Francisco, CA 94114, USA. Wir nutzen ausschließlich die <strong>EU-Instanz</strong> (<code>eu.i.posthog.com</code>) mit Hosting in Frankfurt am Main (AWS eu-central-1). Eine Übermittlung in die USA findet beim normalen Betrieb nicht statt.</p>
   <p>PostHog erfasst anonymisierte Nutzungsdaten (Seitenaufrufe, Klicks, Scrolltiefe, Formular-Interaktionen) sowie optional Session-Aufzeichnungen zur Verbesserung der Nutzerfreundlichkeit. Eingabefelder und sensible Inhalte werden dabei automatisch maskiert. Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und Paragraph 25 Abs. 1 TDDDG. Mit PostHog besteht ein Vertrag über Auftragsverarbeitung nach Art. 28 DSGVO. Datenschutzerklärung: <a class="link" href="https://posthog.com/privacy" target="_blank" rel="noopener">posthog.com/privacy</a>.</p>
-  <p><strong>Hinweis zur Bündelung:</strong> PostHog wird über den Google Tag Manager als Tag ausgeliefert. Mit Aktivierung des Klaro-Service „Google Tag Manager (GA4 + PostHog)" werden Google Analytics 4 und PostHog gemeinsam aktiviert. Eine separate Ablehnung von ausschließlich PostHog (oder ausschließlich GA4) ist über den aktuellen Klaro-Service-Eintrag nicht vorgesehen — wer einen der beiden Dienste ablehnen möchte, lehnt das gesamte GTM-Bündel ab. Wir prüfen die Aufspaltung in zwei separate Klaro-Services für ein zukünftiges Update.</p>
+  <p><strong>Granulare Einwilligung:</strong> Sie können Google Analytics 4 und PostHog im Consent-Banner unabhängig voneinander akzeptieren oder ablehnen. Der Google Tag Manager dient ausschließlich als technischer Loader und wird nur dann geladen, wenn Sie mindestens einen der beiden Analyse-Dienste akzeptiert haben. Die GTM-internen Trigger sind so konfiguriert, dass das jeweilige Analyse-Tag nur feuert, wenn der entsprechende Service-Eintrag im Klaro-Cookie gesetzt ist (entsprechend EDPB-Leitlinien 03/2022 zur granularen Einwilligung).</p>
 
   <h3>Widerruf Ihrer Einwilligung</h3>
   <p>Sie können Ihre Einwilligung für alle Analyse-Dienste jederzeit mit Wirkung für die Zukunft widerrufen, indem Sie im Footer auf <em>„Datenschutz-Einstellungen"</em> klicken und die entsprechenden Dienste deaktivieren. Bereits gesetzte Cookies der deaktivierten Dienste werden durch Klaro! automatisch gelöscht.</p>
 
 </main>
 
-<footer class="site">
-  <div class="wrap">
-    <div>
-      <div class="brand">Bodenbericht</div>
-      <div style="margin-top:4px">Ein Service der Tepnosholding GmbH</div>
+<!-- FOOTER -->
+<footer class="bg-navy-900 text-gray-300 py-12 md:py-16 border-t border-navy-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-4 gap-8 mb-10">
+            <div class="md:col-span-2">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                    </div>
+                    <span class="text-lg font-bold text-white tracking-tight">Boden<span class="text-brand-400">bericht</span></span>
+                </div>
+                <p class="text-sm leading-relaxed max-w-sm">
+                    Adress-basiertes Bodenrisiko-Screening für Privatpersonen, Landwirte und Immobilienkäufer. Auf Basis offizieller EU-Datensätze.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-semibold text-white text-sm mb-4">Für wen</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="/fuer-immobilienkaeufer.html" class="hover:text-white transition">Für Käufer</a></li>
+                    <li><a href="/fuer-gartenbesitzer.html" class="hover:text-white transition">Für Gartenbesitzer</a></li>
+                    <li><a href="/fuer-bautraeger.html" class="hover:text-white transition">Für Bauträger</a></li>
+                    <li><a href="/fuer-landwirte.html" class="hover:text-white transition">Für Landwirte</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-semibold text-white text-sm mb-4">Rechtliches</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="/impressum.html" class="hover:text-white transition">Impressum</a></li>
+                    <li><a href="/datenschutz.html" class="hover:text-white transition">Datenschutz</a></li>
+                    <li><a href="#" onclick="if(window.klaro){klaro.show();}return false;" class="hover:text-white transition">Datenschutz-Einstellungen</a></li>
+                    <li><a href="/widerruf.html" class="hover:text-white transition">Widerrufsbelehrung</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p class="text-xs">© 2026 Bodenbericht. Alle Rechte vorbehalten.</p>
+        </div>
     </div>
-    <div>
-      <a href="/">Startseite</a>
-      <a href="/datenquellen.html">Datenquellen</a>
-      <a href="/muster-bericht.html">Muster-Bericht</a>
-      <a href="/impressum.html">Impressum</a>
-      <a href="/datenschutz.html">Datenschutz</a>
-      <a href="#" onclick="if(window.klaro){klaro.show();}return false;">Datenschutz-Einstellungen</a>
-      <a href="/widerruf.html">Widerrufsbelehrung</a>
-    </div>
-  </div>
 </footer>
 
 </body>

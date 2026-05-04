@@ -1,14 +1,20 @@
 /* Klaro consent manager config — bodenbericht.de
- * Docs: https://klaro.org/docs/
  *
- * Services:
- *   - google-tag-manager: lädt GTM (Container GTM-KFG5W96X), der wiederum GA4 + PostHog lädt.
+ * Services (granular, EDPB Guidelines 03/2022 §§ 95–103: getrennte Zwecke = getrennter Toggle):
+ *   - google-analytics-4 : Traffic-Statistik (anonymisiert), via GTM-Bootstrap
+ *   - posthog            : Produkt-Analytik + Session-Replay, via GTM-Bootstrap
  *
- * Hinweis: GA4 und PostHog sind in GTM als Tags konfiguriert; sie feuern nur,
- * wenn GTM selbst geladen ist — also nur nach Consent dieses einen Service-Eintrags.
+ * GTM ist der gemeinsame Bootstrap-Loader (`landing/index.html:10-16`); welcher
+ * Tag innerhalb von GTM tatsächlich feuert, hängt vom `klaro-consent`-Cookie
+ * + GTM-internen Trigger-Variablen ab. Klaro setzt für jeden akzeptierten
+ * Service ein Cookie `klaro` mit dem Service-Namen, GTM liest das aus.
+ *
+ * Wenn der Nutzer GA4 akzeptiert aber PostHog ablehnt, lädt GTM also nur
+ * GA4 — die granulare Wahl wird erst innerhalb GTM durchgesetzt. Dafür
+ * werden die GTM-Trigger entsprechend konfiguriert.
  */
 window.klaroConfig = {
-    version: 1,
+    version: 2,
     elementID: "klaro",
     storageMethod: "cookie",
     storageName: "klaro-consent",
@@ -28,7 +34,7 @@ window.klaroConfig = {
             consentNotice: {
                 title: "Cookies & Analyse",
                 description:
-                    "Wir nutzen anonymisierte Analyse-Tools (Google Analytics 4, PostHog), um die Nutzung unserer Website zu verstehen und das Angebot zu verbessern. Ihre Einwilligung ist freiwillig und jederzeit widerrufbar.",
+                    "Wir nutzen pseudonymisierte Analyse-Tools (Google Analytics 4 für Traffic-Statistik, PostHog für Nutzungs-Analyse mit Session-Aufzeichnungen), um unser Angebot zu verbessern. Sie können jeden Dienst getrennt akzeptieren oder ablehnen — Ihre Einwilligung ist freiwillig und jederzeit widerrufbar.",
                 learnMore: "Details"
             },
             consentModal: {
@@ -47,7 +53,12 @@ window.klaroConfig = {
                 analytics: {
                     title: "Analyse",
                     description:
-                        "Erfassen anonymisierter Nutzungsdaten (Seitenaufrufe, Klicks, Scrolltiefe, Sitzungs-Verlauf) zur Verbesserung der Website."
+                        "Erfassen pseudonymisierter Nutzungsdaten (Seitenaufrufe, Klicks, Scrolltiefe) zur Verbesserung der Website."
+                },
+                "session-replay": {
+                    title: "Session-Aufzeichnung",
+                    description:
+                        "Pseudonymisierte Aufzeichnung Ihrer Mausbewegungen, Klicks und Scrolls auf der Seite, um Bedienprobleme zu erkennen. Eingaben in Formularfeldern werden ausgeschlossen."
                 }
             },
             service: {
@@ -65,15 +76,53 @@ window.klaroConfig = {
 
     services: [
         {
+            // Orchestrator: lädt den GTM-Container. GTM selbst sammelt KEINE
+            // Daten, sondern triggert intern die Tags für GA4/PostHog --
+            // diese Tags müssen IM GTM-UI so konfiguriert sein, dass sie nur
+            // feuern, wenn das `klaro`-Cookie den jeweiligen Service-Namen
+            // ("google-analytics-4" / "posthog") enthält. Dadurch bleibt
+            // granulare Einwilligung erhalten, auch wenn nur einer der beiden
+            // akzeptiert wurde.
+            //
+            // Damit GTM beim Akzeptieren JEDES der beiden Analyse-Dienste
+            // lädt, ist dieser Eintrag mit `default: false` markiert -- Klaro
+            // bietet ihn dem Nutzer als eigenen Toggle nicht an (per
+            // `contextualConsentOnly: true`), aktiviert ihn aber automatisch,
+            // wenn GA4 ODER PostHog akzeptiert werden (siehe Watcher in
+            // `landing/static/landing-tracking.js`, der Klaro-Updates
+            // beobachtet und ggf. den Manager-Status nachzieht).
             name: "google-tag-manager",
-            title: "Google Tag Manager (GA4 + PostHog)",
+            title: "Google Tag Manager",
             description:
-                "Lädt Google Analytics 4 (Traffic-Quellen, Seitenaufrufe) und PostHog (Produkt-Analytik, Session-Aufzeichnungen). Daten werden anonymisiert verarbeitet, IP-Adressen gekürzt.",
+                "Technischer Orchestrator zum Laden der oben gewählten Analyse-Dienste. Sammelt selbst keine Daten.",
+            purposes: ["analytics"],
+            required: false,
+            optOut: false,
+            onlyOnce: true,
+            contextualConsentOnly: true
+        },
+        {
+            name: "google-analytics-4",
+            title: "Google Analytics 4",
+            description:
+                "Erfasst pseudonymisierte Nutzungsdaten (Seitenaufrufe, Traffic-Quellen, Verweildauer). IP-Adressen werden gekürzt verarbeitet (Anonymize-IP). Anbieter: Google Ireland Ltd. (EU-US Data Privacy Framework zertifiziert).",
             purposes: ["analytics"],
             cookies: [
                 [/^_ga/, "/", ".bodenbericht.de"],
                 [/^_gid/, "/", ".bodenbericht.de"],
-                [/^_gat/, "/", ".bodenbericht.de"],
+                [/^_gat/, "/", ".bodenbericht.de"]
+            ],
+            required: false,
+            optOut: false,
+            onlyOnce: true
+        },
+        {
+            name: "posthog",
+            title: "PostHog (EU)",
+            description:
+                "Pseudonymisierte Produkt-Analytik mit Session-Replay (Mausspuren + Klicks; keine Formular-Eingaben). Anbieter: PostHog Inc., Hosting in der EU (Frankfurt).",
+            purposes: ["session-replay"],
+            cookies: [
                 [/^ph_/, "/", ".bodenbericht.de"]
             ],
             required: false,
