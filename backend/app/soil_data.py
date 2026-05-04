@@ -475,6 +475,16 @@ _HRL_IMPERVIOUS_FILENAME = "hrl_imperviousness_20m.tif"
 _WRB_FILENAME = "soilhydro_awc_0-30cm.tif"  # mis-named on disk; contains WRB codes 1-29
 _LUCAS_FILENAME = "lucas_soil_de.csv"
 
+# ESDAC Soil Microbial Activity (Xu et al. 2020, JRC) — 1 km, EPSG:3035 LAEA.
+# "lc" = land-cover-aware Modell (vorzuziehen über "gen" generic). Raster sind
+# nativ in Meter-Projektion, nicht WGS84 — query_microbial() reprojiziert
+# lat/lon zur Abfrage.
+_MICROBIAL_DIR = "esdac_microbial/annual"
+_MICROBIAL_CMIC_FILE = "Cmic_lc_annual_mean_t.tif.tif"   # ESDAC packt zwei .tif
+_MICROBIAL_BAS_FILE = "bas_lc_annual_mean_t.tif"
+_MICROBIAL_QO2_FILE = "qO2_annual_mean_lc.tif.tif"
+_MICROBIAL_CRS = "EPSG:3035"
+
 
 class SoilDataLoader:
     """Singleton holding all pre-loaded soil datasets."""
@@ -489,6 +499,11 @@ class SoilDataLoader:
         self._imperviousness: Optional[RasterLookup] = None
         self._wrb: Optional[RasterLookup] = None
         self._lucas: Optional[LucasLookup] = None
+        # ESDAC microbial: drei separate Lookups (Cmic / bas / qO2). Wir
+        # halten sie außerhalb von ._soilgrids, weil sie in EPSG:3035 leben
+        # statt in WGS84 — query_microbial() macht die Transformation.
+        self._microbial: dict[str, "RasterLookup"] = {}
+        self._microbial_transformer = None  # lazily init via pyproj
         self._loaded = False
 
     @classmethod
@@ -548,6 +563,25 @@ class SoilDataLoader:
             self._lucas = LucasLookup(path=lucas_path)
             self._lucas.load()
 
+        # ESDAC Soil Microbial Activity (3 layers, EPSG:3035 native).
+        microbial_dir = self.raster_dir / _MICROBIAL_DIR
+        if microbial_dir.is_dir():
+            for slot, fname in (
+                ("cmic", _MICROBIAL_CMIC_FILE),
+                ("bas", _MICROBIAL_BAS_FILE),
+                ("qo2", _MICROBIAL_QO2_FILE),
+            ):
+                p = microbial_dir / fname
+                if p.exists():
+                    rl = RasterLookup(path=p)
+                    rl.open()
+                    self._microbial[slot] = rl
+            if self._microbial:
+                logger.info(
+                    "Loaded ESDAC microbial layers: %s",
+                    ", ".join(self._microbial),
+                )
+
         self._loaded = True
         loaded = [f"soilgrids:{k}" for k in self._soilgrids]
         if self._corine:
@@ -558,8 +592,69 @@ class SoilDataLoader:
             loaded.append("wrb")
         if self._lucas:
             loaded.append("lucas")
+        if self._microbial:
+            loaded.append(f"microbial({len(self._microbial)})")
         logger.info("SoilDataLoader ready: %s", ", ".join(loaded) or "no datasets")
         return self
+
+    # ── ESDAC microbial query (EPSG:3035 with on-the-fly reprojection) ─
+
+    def query_microbial(self, lat: float, lon: float) -> dict[str, float | None] | None:
+        """Sample Cmic / bas / qO2 from ESDAC microbial rasters at (lat, lon).
+
+        Returns ``None`` if no rasters loaded. Returns a dict with keys
+        cmic / bas / qo2 (each ``float | None``) when at least one layer
+        responds. Raster CRS ist EPSG:3035 (LAEA Europe in Metern), wir
+        reprojizieren das WGS84-Eingabepaar einmalig pro Aufruf.
+
+        Units (per Xu et al. 2020):
+          cmic — μg C / g Boden (mikrobielle Biomasse)
+          bas  — μg CO2-C / g · h (basale Atmungsrate)
+          qo2  — μg CO2-C / mg Cmic · h (metabolic quotient, Stress-Indikator)
+        """
+        if not self._microbial:
+            return None
+        if self._microbial_transformer is None:
+            try:
+                from pyproj import Transformer
+                self._microbial_transformer = Transformer.from_crs(
+                    "EPSG:4326", _MICROBIAL_CRS, always_xy=True,
+                )
+            except Exception as exc:
+                logger.warning("pyproj unavailable for microbial reproject: %s", exc)
+                return None
+
+        try:
+            x, y = self._microbial_transformer.transform(lon, lat)
+        except Exception as exc:
+            logger.warning("microbial reproject failed at (%s, %s): %s", lat, lon, exc)
+            return None
+
+        out: dict[str, float | None] = {"cmic": None, "bas": None, "qo2": None}
+        for slot, rl in self._microbial.items():
+            try:
+                ds = rl._ds
+                row, col = ds.index(x, y)
+                h, w = ds.height, ds.width
+                if not (0 <= row < h and 0 <= col < w):
+                    continue
+                # Windowed read so we don't load the whole raster
+                from rasterio.windows import Window
+                win = Window(col, row, 1, 1)
+                arr = ds.read(1, window=win)
+                if arr.size == 0:
+                    continue
+                val = float(arr[0, 0])
+                nodata = ds.nodata
+                if nodata is not None and val == nodata:
+                    continue
+                # ESDAC nodata sentinel is a tiny negative float — guard against it
+                if val < -1e30:
+                    continue
+                out[slot] = round(val, 3)
+            except Exception as exc:
+                logger.warning("microbial query %s at (%s, %s) failed: %s", slot, lat, lon, exc)
+        return out
 
     # ── Query methods ──────────────────────────────────────────────────
 

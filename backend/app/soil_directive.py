@@ -671,7 +671,42 @@ def query_soil_directive(
         "Biodiversität (EU-Pflichtteil). Wo LUCAS-Soil-Biology-Daten "
         "verfügbar sind, ergänzen wir die Approximation."
     )
-    if soc_pct is not None and soc_pct > 0:
+
+    # Primär: ESDAC Soil Microbial Activity Map (Xu et al. 2020) wenn am
+    # Standort verfügbar. Liefert direkt gemessene Cmic / bas / qO2 (1 km
+    # EPSG:3035, Europa-Coverage). Fällt auf SOC-Proxy (Anderson and Domsch
+    # 1989) zurück wenn das Raster fehlt oder ein NODATA-Pixel trifft.
+    mic = loader.query_microbial(lat, lon)
+    if mic and mic.get("bas") is not None:
+        bas_val = mic["bas"]              # μg CO2-C / g · h
+        cmic_val = mic.get("cmic")        # μg C / g Boden
+        qo2_val = mic.get("qo2")          # μg CO2-C / mg Cmic · h (Stress)
+        if bas_val >= 0.4:
+            microbial_status = "ok"
+        elif bas_val >= 0.2:
+            microbial_status = "warn"
+        else:
+            microbial_status = "alert"
+        # qO2 > 4 μg CO2-C / mg Cmic·h ist klassischer Stress-Marker
+        # (Anderson 2003) — eskaliert die Bewertung
+        if qo2_val is not None and qo2_val > 4.0 and microbial_status == "ok":
+            microbial_status = "warn"
+        microbial_value = round(bas_val, 2)
+        microbial_source = "ESDAC Soil Microbial Activity Map (Xu et al. 2020, JRC)"
+        microbial_threshold = (
+            "Bas ≥ 0,4 vital · 0,2 – 0,4 reduziert · < 0,2 gestresst (Anderson 2003); "
+            "qO2 > 4 = Stress-Indikator"
+        )
+        parts = [f"Basalatmung {bas_val:.2f} μg CO2-C/g·h"]
+        if cmic_val is not None:
+            parts.append(f"Cmic {cmic_val:.0f} μg C/g")
+        if qo2_val is not None:
+            parts.append(f"qCO2 {qo2_val:.2f}")
+        microbial_note = (
+            "Direkt gemessen aus ESDAC Soil Microbial Activity Map "
+            "(1 km, EPSG:3035 Europa-Coverage). " + ", ".join(parts) + "."
+        )
+    elif soc_pct is not None and soc_pct > 0:
         cmic_ug_per_g = round(soc_pct * 200, 0)             # μg C / g Boden
         basal_resp_ug_per_g_h = round(soc_pct * 0.2, 2)     # μg CO2-C / g·h
         # Bewertungs-Schwellen orientieren sich an Anderson 2003
