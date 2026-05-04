@@ -44,6 +44,12 @@ services:
       - "8000:8000"
     volumes:
       - ./landing:/app/landing:ro
+      # shared/ liegt im Repo-Root, ist aber ausserhalb des backend-Build-
+      # Contexts — visual_renderer.py erwartet die Tokens unter
+      # /shared/visual_tokens.json (parents[1] vom backend-Code aus).
+      # Bind-Mount statt COPY weil shared zwischen Backend + Frontend +
+      # Cozy geteilt wird und nicht per-Image gebunden sein soll.
+      - ./shared:/shared:ro
       # Rasters: rw weil Pull-Scripts (scripts/download_kostra.py etc.)
       # neue Datasets per ZIP/HTTP einspielen + per rasterio konvertieren.
       # Backend-API selbst hat keinen Code-Pfad der schreibt; lesender
