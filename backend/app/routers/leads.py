@@ -334,6 +334,11 @@ async def _generate_and_send_lead_report(
                 timeseries=timeseries,
                 elevated_count=elevated_count,
                 elevated_threshold_mm_yr=ELEVATED_THRESHOLD_MM_YR,
+                # Stripe-CTA: lead_id + email aktivieren den /kaufen-Link
+                # statt des Warteliste-Fallbacks. Wirken nur wenn Stripe
+                # serverseitig konfiguriert ist (sonst no-op-Mock-Pfad).
+                lead_id=str(lead_id) if lead_id else None,
+                recipient_email=email,
             )
             pdf_bytes = html_to_pdf(html)
             if pdf_bytes is None:

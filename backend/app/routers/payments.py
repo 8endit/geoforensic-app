@@ -1,4 +1,26 @@
-"""Stripe payment endpoints — checkout session + webhook + email delivery."""
+"""Stripe payment endpoints — checkout session + webhook + email delivery.
+
+Two checkout flows:
+
+1. **Legacy user-account flow** (`POST /checkout`): authenticated User has a
+   completed Report in their dashboard, clicks "buy", we create a Stripe
+   session bound to that report_id. Code path kept for backward compat but
+   never triggered live (no user-facing dashboard exists today).
+
+2. **Lead flow** (`POST /checkout-from-lead`): the actual public-facing path.
+   The free Teaser PDF includes a "Vollbericht freischalten" CTA that links
+   here with the recipient's lead_id, email, and the address that was
+   originally screened. We create a Stripe session whose metadata carries
+   those three values; on `checkout.session.completed` the webhook re-triggers
+   the report pipeline with `source="stripe"` so the Vollbericht is generated
+   for the same lead and mailed via Brevo.
+
+Lead-flow auth: lead_id + email must match a row in the leads table. That
+prevents random checkout sessions for arbitrary email addresses (cheap
+spam-vector mitigation; Stripe itself blocks at the API level if abuse is
+detected). Combined with the slowapi rate-limiter on `/api/leads/*` this
+is enough for MVP.
+"""
 
 import asyncio
 import json
@@ -7,13 +29,14 @@ import uuid
 
 import stripe
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
+from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.dependencies import get_current_user, get_db
 from app.email_service import send_report_email
-from app.models import Payment, PaymentStatus, Report, ReportStatus, User
+from app.models import Lead, Payment, PaymentStatus, Report, ReportStatus, User
 from app.pdf_generator import generate_report_pdf
 from app.schemas import CheckoutRequest, CheckoutResponse
 
@@ -118,6 +141,48 @@ async def stripe_webhook(
     if not stripe_session_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing session id")
 
+    # ── Lead-flow branch — metadata.flow == "lead" means the buyer came from
+    # the Teaser-PDF CTA. Re-trigger the report pipeline with source="stripe"
+    # so a Vollbericht is generated for the existing lead and mailed.
+    metadata = session_obj.get("metadata") or {}
+    if metadata.get("flow") == "lead":
+        lead_id_raw = metadata.get("lead_id")
+        email = metadata.get("email")
+        address = metadata.get("address")
+        if not (lead_id_raw and email and address):
+            logger.warning("Stripe lead webhook missing metadata: %s", metadata)
+            return {"status": "lead-metadata-incomplete"}
+
+        try:
+            lead_id = uuid.UUID(lead_id_raw)
+        except ValueError:
+            logger.warning("Stripe lead webhook invalid lead_id: %s", lead_id_raw)
+            return {"status": "lead-id-invalid"}
+
+        # Idempotency: if we already saw this session, no-op. Use the
+        # existing payments table as ledger keyed on stripe_session_id.
+        existing = await db.execute(
+            select(Payment).where(Payment.stripe_session_id == stripe_session_id)
+        )
+        if existing.scalar_one_or_none() is not None:
+            return {"status": "already-processed"}
+
+        # Re-trigger the lead pipeline with source="stripe" → PAID_SOURCES
+        # → full report renderer + paid-mail template.
+        from app.routers.leads import _generate_and_send_lead_report
+        asyncio.create_task(_generate_and_send_lead_report(
+            email=email,
+            address=address,
+            answers={"source_metadata": "stripe-purchase",
+                     "stripe_session_id": stripe_session_id},
+            db_url="",
+            source="stripe",
+            lead_id=lead_id,
+        ))
+        logger.info("Stripe lead-flow triggered Vollbericht for lead %s", lead_id)
+        return {"status": "ok-lead-flow"}
+
+    # ── Legacy user-account branch — original Report+Payment row update.
     result = await db.execute(select(Payment).where(Payment.stripe_session_id == stripe_session_id))
     payment = result.scalar_one_or_none()
     if payment is None:
@@ -151,4 +216,88 @@ async def _send_report_after_payment(report: Report, email: str) -> None:
         )
     except Exception:
         logger.exception("Failed to send report email for %s to %s", report.id, email)
+
+
+# ── Lead-flow checkout ──────────────────────────────────────────────────
+
+class LeadCheckoutRequest(BaseModel):
+    """Pre-filled by the Teaser-PDF CTA: lead_id from the lead record,
+    email + address from what the user originally entered. We re-validate
+    against the DB to make sure the (lead_id, email) pair is real."""
+    lead_id: uuid.UUID
+    email: EmailStr
+    address: str
+
+
+class LeadCheckoutResponse(BaseModel):
+    checkout_url: str
+
+
+@router.post("/checkout-from-lead", response_model=LeadCheckoutResponse)
+async def create_checkout_from_lead(
+    payload: LeadCheckoutRequest,
+    db: AsyncSession = Depends(get_db),
+) -> LeadCheckoutResponse:
+    """Public endpoint reached from the Teaser PDF CTA.
+
+    Validates (lead_id, email) against the DB, then creates a Stripe Checkout
+    Session whose `metadata` carries lead_id + email + address — the webhook
+    uses those to re-trigger the report pipeline with `source="stripe"`.
+    """
+    # 1. Validate lead exists + email matches (case-insensitive)
+    lead = await db.get(Lead, payload.lead_id)
+    if lead is None or lead.email.lower() != payload.email.lower():
+        # Same 404 either way so we don't leak which leg failed
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lead not found")
+
+    # 2. Stripe must be configured for live use; in dev (no key) we redirect
+    # straight to the success URL so the local-test UX still works.
+    if not settings.stripe_secret_key:
+        return LeadCheckoutResponse(
+            checkout_url=f"{settings.stripe_checkout_success_url}&mock=1&lead_id={lead.id}",
+        )
+
+    stripe.api_key = settings.stripe_secret_key
+    try:
+        session = stripe.checkout.Session.create(
+            mode="payment",
+            success_url=f"{settings.stripe_checkout_success_url}&session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=settings.stripe_checkout_cancel_url,
+            customer_email=payload.email,
+            line_items=[
+                {
+                    "price_data": {
+                        "currency": "eur",
+                        "product_data": {
+                            "name": "Bodenbericht — Vollbericht (Premium)",
+                            "description": (
+                                f"Adresse: {payload.address[:200]} · "
+                                "12 Datensektionen, ~30 Seiten PDF, EU-Bodenrichtlinie konform."
+                            ),
+                        },
+                        "unit_amount": settings.stripe_report_price_cents,
+                    },
+                    "quantity": 1,
+                }
+            ],
+            metadata={
+                # Stripe metadata: max 50 keys, max 500 chars per value
+                "flow": "lead",
+                "lead_id": str(lead.id),
+                "email": payload.email,
+                "address": payload.address[:480],
+            },
+            # Stripe Tax automatically computes DE 19% / NL 21% MwSt etc.
+            # Requires Stripe Tax to be enabled in the dashboard.
+            automatic_tax={"enabled": True},
+        )
+    except stripe.error.StripeError as exc:
+        logger.exception("Stripe session create failed for lead %s", lead.id)
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
+
+    if not session.url:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Stripe returned no URL")
+
+    logger.info("Stripe session %s created for lead %s", session.id, lead.id)
+    return LeadCheckoutResponse(checkout_url=session.url)
 

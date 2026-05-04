@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+
+<!-- Klaro consent manager (self-hosted, DSGVO-konform) -->
+<script defer src="/klaro/klaro-config.js"></script>
+<script defer src="/klaro/klaro.js"></script>
+
+<!-- Google Tag Manager (lädt erst nach Einwilligung via Klaro) -->
+<script type="text/plain" data-type="application/javascript" data-name="google-tag-manager">
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-KFG5W96X');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kauf abgebrochen - Bodenbericht</title>
+<meta name="description" content="Der Bezahlvorgang wurde abgebrochen. Es wurde nichts berechnet.">
+<meta name="robots" content="noindex,follow">
+<link rel="canonical" href="https://bodenbericht.de/abbruch.html">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="stylesheet" href="/tailwind.css">
+</head>
+<body class="bg-gray-50 text-navy-800 antialiased">
+
+<main class="min-h-screen flex items-center justify-center px-4 py-16">
+    <div class="max-w-xl w-full bg-white rounded-2xl border border-gray-200 shadow-sm p-8 md:p-12 text-center">
+        <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-6">
+            <svg class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </div>
+        <h1 class="text-2xl md:text-3xl font-extrabold mb-4">Bezahlvorgang abgebrochen</h1>
+        <p class="text-gray-700 leading-relaxed mb-2">
+            Es wurde <strong>nichts berechnet</strong> und kein Bericht ausgelöst.
+        </p>
+        <p class="text-sm text-gray-600 leading-relaxed mb-8">
+            Falls etwas unklar war oder Sie eine andere Zahlungsmethode brauchen,
+            schreiben Sie uns gerne an <a href="mailto:bericht@bodenbericht.de" class="text-brand-700 underline hover:text-brand-800">bericht@bodenbericht.de</a>.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="/" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-gray-300 text-sm font-semibold hover:bg-gray-50 transition">
+                Zurück zur Startseite
+            </a>
+            <a href="/quiz.html" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold transition">
+                Neuen Bericht starten
+            </a>
+        </div>
+    </div>
+</main>
+
+<div id="klaro"></div>
+</body>
+</html>

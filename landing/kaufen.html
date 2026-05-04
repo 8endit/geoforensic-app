@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+
+<!-- Klaro consent manager (self-hosted, DSGVO-konform) -->
+<script defer src="/klaro/klaro-config.js"></script>
+<script defer src="/klaro/klaro.js"></script>
+
+<!-- Google Tag Manager (lädt erst nach Einwilligung via Klaro) -->
+<script type="text/plain" data-type="application/javascript" data-name="google-tag-manager">
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-KFG5W96X');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vollbericht freischalten - Bodenbericht</title>
+<meta name="description" content="Bezahlvorgang für den Bodenbericht-Vollbericht. Sicher abgewickelt über Stripe.">
+<!--
+  Bridge-Page zwischen Teaser-PDF-CTA (GET-Link mit lead_id/email/address)
+  und Stripe Checkout (POST). Liest die drei URL-Parameter, ruft
+  /api/payments/checkout-from-lead, leitet auf die Stripe-Session-URL weiter.
+  Falls JS fehlt: manueller Submit-Button als Fallback.
+-->
+<meta name="robots" content="noindex,follow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="stylesheet" href="/tailwind.css">
+</head>
+<body class="bg-gray-50 text-navy-800 antialiased">
+
+<main class="min-h-screen flex items-center justify-center px-4 py-16">
+    <div class="max-w-xl w-full bg-white rounded-2xl border border-gray-200 shadow-sm p-8 md:p-12">
+
+        <div id="loading-state" class="text-center">
+            <div class="w-12 h-12 mx-auto rounded-full border-4 border-gray-200 border-t-brand-600 animate-spin mb-6"></div>
+            <h1 class="text-xl font-extrabold mb-2">Bezahlung wird vorbereitet…</h1>
+            <p class="text-sm text-gray-600">Sie werden gleich zur sicheren Zahlung bei Stripe weitergeleitet.</p>
+        </div>
+
+        <div id="error-state" class="hidden text-center">
+            <div class="w-12 h-12 mx-auto rounded-full bg-red-100 flex items-center justify-center mb-6">
+                <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+            </div>
+            <h1 class="text-xl font-extrabold mb-2">Bezahlung konnte nicht gestartet werden</h1>
+            <p id="error-message" class="text-sm text-gray-600 mb-6">Bitte prüfen Sie den Link aus Ihrer E-Mail oder schreiben Sie uns.</p>
+            <a href="mailto:bericht@bodenbericht.de" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold transition">
+                Per E-Mail Hilfe anfordern
+            </a>
+        </div>
+
+        <div id="manual-state" class="hidden">
+            <h1 class="text-xl font-extrabold mb-3">Vollbericht freischalten</h1>
+            <p class="text-sm text-gray-700 mb-2">Adresse: <strong id="display-address">—</strong></p>
+            <p class="text-sm text-gray-700 mb-6">E-Mail: <strong id="display-email">—</strong></p>
+            <p class="text-sm text-gray-600 mb-6">JavaScript ist deaktiviert. Klicken Sie zum Bezahlen:</p>
+            <button id="manual-button" class="w-full px-5 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold transition">
+                Zur Bezahlung (39 € + MwSt)
+            </button>
+        </div>
+
+        <p class="text-xs text-gray-500 text-center mt-8">
+            Sichere Zahlung über Stripe Payments Europe Ltd, Dublin (Irland).<br>
+            Es gelten unsere <a href="/widerruf.html" class="underline hover:text-gray-700">Widerrufsbelehrung</a> und <a href="/datenschutz.html" class="underline hover:text-gray-700">Datenschutzerklärung</a>.
+        </p>
+    </div>
+</main>
+
+<script>
+(function() {
+    var params = new URLSearchParams(window.location.search);
+    var leadId = params.get('lead_id');
+    var email = params.get('email');
+    var address = params.get('address');
+
+    function showError(msg) {
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('manual-state').classList.add('hidden');
+        document.getElementById('error-state').classList.remove('hidden');
+        if (msg) document.getElementById('error-message').textContent = msg;
+    }
+
+    function showManual() {
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('manual-state').classList.remove('hidden');
+        document.getElementById('display-address').textContent = address || '—';
+        document.getElementById('display-email').textContent = email || '—';
+    }
+
+    if (!leadId || !email || !address) {
+        showError('Der Link ist unvollständig. Bitte verwenden Sie den Original-Link aus Ihrer Bericht-E-Mail.');
+        return;
+    }
+
+    function startCheckout() {
+        return fetch('/api/payments/checkout-from-lead', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lead_id: leadId, email: email, address: address }),
+        }).then(function(r) {
+            if (!r.ok) {
+                return r.text().then(function(t) { throw new Error('HTTP ' + r.status + ': ' + t); });
+            }
+            return r.json();
+        }).then(function(data) {
+            if (!data.checkout_url) throw new Error('Keine Bezahl-URL erhalten');
+            window.location.href = data.checkout_url;
+        }).catch(function(err) {
+            console.error(err);
+            showError('Die Bezahlung konnte nicht gestartet werden. Möglich: Link abgelaufen oder Konto noch nicht freigeschaltet.');
+        });
+    }
+
+    document.getElementById('manual-button').addEventListener('click', startCheckout);
+
+    // Auto-trigger on load
+    startCheckout();
+})();
+</script>
+
+<noscript>
+<style>
+  #loading-state { display: none; }
+</style>
+<script>document.getElementById('manual-state').classList.remove('hidden');</script>
+</noscript>
+
+<div id="klaro"></div>
+</body>
+</html>

@@ -353,8 +353,15 @@ def generate_html_report(
     timeseries: list | None = None,
     elevated_count: int = 0,
     elevated_threshold_mm_yr: float = 2.0,
+    lead_id: str | None = None,
+    recipient_email: str | None = None,
 ) -> str:
-    """Generate a professional HTML report string."""
+    """Generate a professional HTML report string.
+
+    When ``lead_id`` and ``recipient_email`` are both passed in, the CTA
+    block at the bottom links to the live Stripe-checkout flow (via the
+    `/kaufen` bridge page); otherwise it falls back to the waitlist link.
+    """
     answers = answers or {}
     now = datetime.now(timezone.utc)
     has_egms = point_count > 0
@@ -363,9 +370,34 @@ def generate_html_report(
     # render a correct report (and we have one source of truth for radius +
     # measurement window instead of hardcoded copy).
     from app.config import get_settings
+    from urllib.parse import urlencode
     _settings = get_settings()
     if radius_m is None:
         radius_m = _settings.egms_radius_m
+
+    # Build the CTA: if we have a lead_id + recipient_email AND Stripe is
+    # configured (live key set OR mock-mode in dev), wire the button up to
+    # /kaufen which triggers the Stripe Checkout Session. Otherwise fall
+    # back to the waitlist anchor — keeps backward compatibility for any
+    # caller that doesn't pass those args (e.g. older tests).
+    _stripe_ready = bool(lead_id and recipient_email)
+    if _stripe_ready:
+        _kaufen_qs = urlencode({
+            "lead_id": str(lead_id),
+            "email": recipient_email,
+            "address": address,
+        })
+        _price_eur = f"{_settings.stripe_report_price_cents / 100:.0f}"
+        _cta_link = f"https://bodenbericht.de/kaufen.html?{_kaufen_qs}"
+        _cta_text = f"Vollbericht freischalten — {_price_eur} &euro; zzgl. MwSt"
+        _cta_subline = (
+            "Sichere Zahlung &uuml;ber Stripe (Karte, SEPA, Klarna). "
+            "Bericht wird sofort nach Zahlungseingang erstellt und per E-Mail zugestellt."
+        )
+    else:
+        _cta_link = "https://bodenbericht.de/#premium"
+        _cta_text = "Auf die Warteliste"
+        _cta_subline = "Noch nicht bestellbar. Early-Bird-Platz sichern, Start-Rabatt erhalten."
     if egms_period_start is None:
         egms_period_start = _settings.egms_period_start
     if egms_period_end is None:
@@ -1081,8 +1113,8 @@ def generate_html_report(
   <h3>Alles sehen, was hier noch verdeckt ist</h3>
   {_CTA_VISUALS_HTML}
   <p>Sechs interaktive Visualisierungen — Risiko-Dashboard, Karte mit InSAR-Punkten, Velocity-Zeitreihe, Bodenprofil-Querschnitt, Korrelations-Spinne und Nachbarschafts-Histogramm — plus alle exakten Messwerte für Schwermetalle, Bodenqualität, Nährstoffe, Pestizid-Rückstände, Geländeprofil, Bergbau, Altlasten, Hochwasser, Starkregen und alle 13 Descriptoren der EU-Bodenmonitoring-Richtlinie 2025/2360 plus 4 Versiegelungs-Indikatoren und 5 ergänzende Indikatoren über die EU-Pflicht hinaus. Inklusive PDF-Download.</p>
-  <a href="https://bodenbericht.de/#premium">Auf die Warteliste</a>
-  <div class="small">Noch nicht bestellbar. Early-Bird-Platz sichern, Start-Rabatt erhalten.</div>
+  <a href="{_cta_link}">{_cta_text}</a>
+  <div class="small">{_cta_subline}</div>
 </div>
 
 <div class="card report-tail">
