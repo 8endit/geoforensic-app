@@ -1,0 +1,51 @@
+name: html-integrity
+
+on:
+  pull_request:
+    paths:
+      - "**.html"
+      - "**.htm"
+      - "scripts/pre-commit-html-check.py"
+      - ".github/workflows/html-integrity.yml"
+  push:
+    branches: [main]
+    paths:
+      - "**.html"
+      - "**.htm"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run HTML integrity check on changed files
+        run: |
+          set -euo pipefail
+          # On push: diff against parent. On PR: diff against base.
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="origin/${{ github.base_ref }}"
+            git fetch --depth=1 origin "${{ github.base_ref }}"
+          else
+            BASE="HEAD~1"
+          fi
+
+          # Stage the changed HTML files in a synthetic index, then run the hook.
+          # This reuses the pre-commit-html-check logic exactly.
+          changed_html=$(git diff --name-only --diff-filter=ACM "$BASE" HEAD -- '*.html' '*.htm' || true)
+          if [ -z "$changed_html" ]; then
+            echo "No HTML changes — nothing to check."
+            exit 0
+          fi
+          echo "Changed HTML files:"
+          echo "$changed_html" | sed 's/^/  - /'
+          # Stage them so `git diff --cached --diff-filter=ACM` returns them.
+          echo "$changed_html" | xargs git add
+          python3 scripts/pre-commit-html-check.py
