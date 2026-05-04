@@ -28,9 +28,10 @@
   <h3>Bewegungsverlauf 2020 – 2024</h3>
   <p class="small">
     Trendlinie aus linearer Regression über die quartalsmittel der nächsten Streuer.
-    {% if payload.components.velocity_timeseries.correlation_coefficient is not none %}
-      Niederschlag–Bewegung Pearson r = {{ '%.2f' % payload.components.velocity_timeseries.correlation_coefficient }}
-      — {% if payload.components.velocity_timeseries.correlation_coefficient|abs < 0.3 %}kein nachweisbarer Zusammenhang{% elif payload.components.velocity_timeseries.correlation_coefficient > 0 %}saisonal-getrieben{% else %}gegenläufig{% endif %}.
+    {%- set _r = payload.components.velocity_timeseries.get('correlation_coefficient') if payload.components.velocity_timeseries is mapping else none %}
+    {% if _r is not none %}
+      Niederschlag–Bewegung Pearson r = {{ '%.2f' % _r }}
+      — {% if _r|abs < 0.3 %}kein nachweisbarer Zusammenhang{% elif _r > 0 %}saisonal-getrieben{% else %}gegenläufig{% endif %}.
     {% endif %}
   </p>
   <div class="visual">{{ ts_svg|safe }}</div>
