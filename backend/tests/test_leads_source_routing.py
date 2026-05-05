@@ -1,11 +1,15 @@
 """Source-routing tests for /api/leads.
 
-These guard A.8 from the SEO-Branding-Rollout-Plan: the landing form
-"Premium-Vorab-Anfrage" emits source="pilot-vollbericht" and MUST yield
-the Vollbericht (is_teaser=False), while every other source falls
-through to the teaser. This is also where future flow additions get
-caught — every new source string defaults to teaser unless it gets
-explicitly added to PAID_SOURCES.
+Deny-by-default: nur Stripe-flow Sources lösen den Vollbericht aus,
+alles andere fällt durch auf Teaser. Jeder neue Source-String muss
+explizit in PAID_SOURCES aufgenommen werden, sonst landet er
+automatisch im sicheren Teaser-Pfad.
+
+Vorher gab's eine pilot-vollbericht Source (kostenloser Vollbericht
+für Pilot-Tester) — entfernt 2026-05-05 weil redundant mit EARLY50-
+Coupon und widersprüchlich zur Discount-Strategie. Discount für die
+ersten 50 läuft jetzt ausschließlich über den EARLY50-Coupon im
+Stripe-Path (siehe routers/payments.py).
 
 Implementation note: the test parses PAID_SOURCES out of the source file
 via ast instead of importing it, because importing app.routers.leads
@@ -33,15 +37,15 @@ def paid_sources() -> set[str]:
     raise AssertionError("PAID_SOURCES not found in leads.py")
 
 
-def test_pilot_vollbericht_is_paid_source(paid_sources):
-    """The pilot landing form must route to the full report."""
-    assert "pilot-vollbericht" in paid_sources
-
-
 def test_existing_paid_sources_still_route_to_full_report(paid_sources):
-    """Stripe/checkout sources stay whitelisted after the pilot addition."""
+    """Stripe/checkout sources stay whitelisted."""
     for src in ("paid", "checkout", "stripe"):
         assert src in paid_sources
+
+
+def test_pilot_vollbericht_was_removed(paid_sources):
+    """Pilot-Free-Path is gone; first-50 = EARLY50 discount via Stripe."""
+    assert "pilot-vollbericht" not in paid_sources
 
 
 @pytest.mark.parametrize(
@@ -53,6 +57,7 @@ def test_existing_paid_sources_still_route_to_full_report(paid_sources):
         "landing_direct",      # Inline CTA form
         "premium-waitlist",    # Email-only waitlist (no address)
         "pilot",               # Typo variant — must not accidentally match
+        "pilot-vollbericht",   # Removed source must not re-enter
         "vollbericht",         # Naked source name
         "",                    # Empty string
         "PILOT-VOLLBERICHT",   # Case mismatch
@@ -68,4 +73,4 @@ def test_unknown_sources_fall_through_to_teaser(paid_sources, src):
 
 def test_paid_sources_set_is_minimal(paid_sources):
     """Sanity check that we did not accidentally widen the whitelist."""
-    assert paid_sources == {"paid", "checkout", "stripe", "pilot-vollbericht"}
+    assert paid_sources == {"paid", "checkout", "stripe"}

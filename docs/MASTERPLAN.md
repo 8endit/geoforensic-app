@@ -35,12 +35,14 @@
 - Brevo-SMTP mit DKIM `bodenbericht.de` (umgezogen 3.5.2026 von `geoforensic.de`).
 - Caddy (TLS) → FastAPI (8000) auf Contabo VPS `185.218.124.158`, `/opt/bodenbericht`.
 
-### 1.2 Lead-Flow-Routing (verifiziert 2026-05-03)
-- **`PAID_SOURCES = {"paid", "checkout", "stripe", "pilot-vollbericht"}`** → Vollbericht
+### 1.2 Lead-Flow-Routing (verifiziert 2026-05-05)
+- **`PAID_SOURCES = {"paid", "checkout", "stripe"}`** → Vollbericht
 - **`DOI_SOURCES = {"premium-waitlist"}`** → Bestätigungs-Mail mit Token, kein Bericht
 - **alles andere** → Teaser-Bericht (deny-by-default)
 
-5 Lead-Forms auf index.html (hero, direct, pilot-vollbericht, live-check-convert, premium-waitlist) + Quiz + 4 Persona-Forms = 10 Eintrittspunkte. Alle senden POST `/api/leads` außer Live-Check (POST `/api/reports/preview`, kein Lead).
+4 Lead-Forms auf index.html (hero, direct, live-check-convert, premium-waitlist) + Quiz + 4 Persona-Forms = 9 Eintrittspunkte. Alle senden POST `/api/leads` außer Live-Check (POST `/api/reports/preview`, kein Lead).
+
+Pilot-Vollbericht-Form (kostenloser Vollbericht für Pilot-Tester via `pilot-vollbericht` Source) wurde 2026-05-05 entfernt: redundant mit EARLY50-Coupon und widersprüchlich zur Discount-Strategie. Discount für die ersten 50 läuft jetzt ausschließlich über EARLY50-Coupon im Stripe-Path.
 
 ### 1.3 Backend-Pipeline (Vollbericht)
 12 Sektionen, alle aktiv per 2.5.2026: Bodenbewegung (EGMS), Schwermetalle (LUCAS+SoilGrids), Bergbau (NRW+RLP+Saarland), Hochwasser (BfG HWRM), KOSTRA Starkregen, SoilGrids-Bodenqualität, Nährstoffe, Geländeprofil (SRTM), EU Soil Directive 16-Descriptoren, Pestizide (LUCAS), Altlasten (NL: PDOK / DE: CORINE-Proxy), Individuelle Einschätzung. Sentry EU live (`send_default_pii=False`).
@@ -172,9 +174,10 @@ Detaillierter Datenkatalog: [DATA_PROVENANCE.md](DATA_PROVENANCE.md), [DATA_SOUR
 - **Footer-Konsistenz:** `bg-navy-900 text-gray-300 py-12 md:py-16 border-t border-navy-700` ist der Standard. quiz.html ist Ausnahme (`bg-brand-900`) — soll harmonisiert werden (3.2.2).
 
 ### 4.2 Lead-Routing (deny-by-default)
-- `PAID_SOURCES = {"paid", "checkout", "stripe", "pilot-vollbericht"}` → Vollbericht
+- `PAID_SOURCES = {"paid", "checkout", "stripe"}` → Vollbericht
 - `DOI_SOURCES = {"premium-waitlist"}` → Bestätigungs-Mail
 - alles andere → Teaser
+- Discount-Strategie: EARLY50-Coupon (50 % off, erste 50 non-operator-Leads) im Stripe-Path
 
 ### 4.3 DSGVO / Consent
 - Keine 3rd-party-Domains pre-Consent. Keine Cookies bei First-Visit.

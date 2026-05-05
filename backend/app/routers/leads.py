@@ -56,11 +56,15 @@ logger = logging.getLogger(__name__)
 # When the paid flow is wired up (Stripe checkout etc.), it will set
 # source="paid" (or another value listed here) AFTER payment confirmation.
 #
-# "pilot-vollbericht" is a temporary pilot-phase exception: a dedicated
-# landing form ("Premium-Vorab-Anfrage") emits this source so pilot
-# users get the full Vollbericht for free while we collect feedback. It
-# will be removed from this set the day the Stripe paywall goes live.
-PAID_SOURCES = {"paid", "checkout", "stripe", "pilot-vollbericht"}
+# Discount-Strategie für Early-Bird ist EARLY50-Coupon im Stripe-Path
+# (siehe `is_early50_eligible` in routers/payments.py): erste 50
+# non-operator Leads bekommen 50 % Rabatt aufs Vollbericht-Pricing.
+# Vorher gab's eine separate `pilot-vollbericht` Source die kostenlos
+# Vollbericht emittierte (Pilot-Section auf Landing) — entfernt
+# 2026-05-05: redundant + irreführend ("kostenlos für 50" widersprach
+# der eigentlichen Discount-Strategie + Teaser ist eh schon kostenlos
+# als Lead-Magnet).
+PAID_SOURCES = {"paid", "checkout", "stripe"}
 
 # Marketing-style sources that require double-opt-in per UWG § 7 Abs. 2 Nr. 2.
 # A lead with one of these sources is created with a confirmation token and

@@ -15,10 +15,12 @@ Two-product repo for address-based ground motion + soil screening.
 
 Routing happens via the lead `source` field in
 `backend/app/routers/leads.py` — **deny-by-default**:
-`PAID_SOURCES = {"paid", "checkout", "stripe", "pilot-vollbericht"}`
-löst den Vollbericht aus, **alles andere** liefert den Teaser. Eine
-neue Landing-Form mit unbekannter Source läuft also automatisch
-sicher in den Teaser-Pfad. Außerdem:
+`PAID_SOURCES = {"paid", "checkout", "stripe"}` löst den Vollbericht
+aus, **alles andere** liefert den Teaser. Eine neue Landing-Form mit
+unbekannter Source läuft also automatisch sicher in den Teaser-Pfad.
+Discount-Strategie für Early-Bird läuft via EARLY50-Coupon im
+Stripe-Path (`is_early50_eligible` in `routers/payments.py`): erste
+50 non-operator Leads bekommen 50 % Rabatt. Außerdem:
 `DOI_SOURCES = {"premium-waitlist"}` umgeht die Report-Pipeline ganz
 und versendet stattdessen eine Double-Opt-In-Bestätigungs-Mail
 (`/api/leads/confirm/{token}`).
@@ -153,7 +155,7 @@ Datenquellen-Provenance: `docs/DATA_PROVENANCE.md` ist die einzige verbindliche 
 
 ### Honest gaps (not working / half-working)
 
-- **Vollbericht-Pipeline scharfgeschaltet, aber nicht customer-facing** — `full_report.py` ist seit 27.4. an den Lead-Flow angebunden (`source ∈ PAID_SOURCES` → Vollbericht). Quiz, Landing und Persona-Pages emittieren Teaser-Sources; nur `pilot-vollbericht` (Pilot-Vorab-Form) und die Stripe-Sources (`paid`, `checkout`, `stripe`) lösen den Vollbericht aus. Stripe-Pfad ist code-bereit, aber nicht customer-facing.
+- **Vollbericht-Pipeline scharfgeschaltet, aber nicht customer-facing** — `full_report.py` ist seit 27.4. an den Lead-Flow angebunden (`source ∈ PAID_SOURCES` → Vollbericht). Quiz, Landing und Persona-Pages emittieren Teaser-Sources; nur die Stripe-Sources (`paid`, `checkout`, `stripe`) lösen den Vollbericht aus. Stripe-Pfad ist im Mock-Mode komplett verdrahtet (Teaser-CTA → `/kaufen.html` → `/api/payments/checkout-from-lead` → Vollbericht-Trigger), wartet auf Stripe-Live-Verifikation für echten Geldfluss.
 - ~~**KOSTRA-Raster teilweise da**~~ — **erledigt 2.5.2026**: alle 6 buyer-relevanten Slots (60min × T1/T10/T100, 24h × T1/T10/T100) sind live. Quelle: GIS_KOSTRA-DWD-2020_D00060.zip + D01440.zip Shapefiles (manuell hochgeladen, weil DWD CDC `/asc/` nur die wertlose StatRR-Variante ohne CRS hostet) — Rasterisierung via `scripts/download_kostra.py --ensure-default-set` mit ogr2ogr-Reproject auf EPSG:4326 + gdal_rasterize HN_<NNN>A_-Spalten. Berlin-Werte: 14.8 / 29.9 / 48.9 mm (60min) und 30.9 / 62.7 / 102.6 mm (24h). Längere Dauerstufen (D360/D720/D2880) sind nicht in KOSTRA_SLOTS definiert und auch nicht angefragt.
 - ~~**ESDAC R-Faktor-Raster fehlt**~~ — **erledigt 1.5.2026**, 429 MB-Raster auf VPS unter `/opt/bodenbericht/rasters/esdac_rfactor_eu_1km.tif`, `rfactor_data.py` liest mit `source=esdac-2015`.
 - **Open-Elevation flaky** — primärer Slope-Lookup geht über OpenTopoData (1000 req/day cap), Open-Elevation als Fallback antwortet aktuell mit 504. Phase C: lokale SRTM-Tile-Cache.

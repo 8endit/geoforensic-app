@@ -1390,70 +1390,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </section>
 
     <!-- ============================================ -->
-    <!-- PILOT-VOLLBERICHT (Premium-Vorab-Anfrage)    -->
-    <!-- A.8 Source-Routing - emittiert source="pilot-vollbericht",   -->
-    <!-- das ist die einzige nicht-bezahlte Source in PAID_SOURCES    -->
-    <!-- in backend/app/routers/leads.py. Pilot-Nutzer erhalten den   -->
-    <!-- Vollbericht statt Teaser-PDF.                                -->
-    <!-- ============================================ -->
-    <section id="pilot" class="py-16 md:py-20 bg-gradient-to-b from-gray-50 to-white border-b border-gray-100">
-      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-8">
-          <div class="inline-flex items-center gap-2 bg-brand-50 text-brand-700 text-xs font-bold tracking-wide uppercase px-3 py-1.5 rounded-full mb-4 border border-brand-200/60">
-            <span class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></span>
-            Pilot-Phase - nur jetzt
-          </div>
-          <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 leading-tight tracking-tight">
-            Vollbericht statt Teaser - gegen ehrliches Feedback.
-          </h2>
-          <p class="mt-4 text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Wir suchen 50 Pilot-Nutzer, die unseren neuen <strong class="text-navy-800">Vollbericht</strong>
-            (alle 12 Sektionen, 13 EU-Descriptoren plus 5 ergänzende Indikatoren, 6 Visuals) kostenlos erhalten und
-            uns 10 Minuten Rückmeldung geben. Begrenzt auf die Pilot-Phase.
-          </p>
-        </div>
-
-        <form id="pilot-vollbericht-form" class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm space-y-3" onsubmit="handlePilotLead(event)">
-            <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label>Website (bitte leer lassen)<input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label></div>
-          <label for="pilot-street" class="sr-only">Straße und Hausnummer</label>
-          <div class="grid sm:grid-cols-2 gap-3">
-            <input type="text" id="pilot-street" name="street" autocomplete="street-address" required placeholder="Straße + Hausnummer"
-                   class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 transition text-base">
-            <label for="pilot-city" class="sr-only">Postleitzahl und Ort</label>
-            <input type="text" id="pilot-city" name="city" autocomplete="postal-code address-level2" required placeholder="PLZ + Ort"
-                   class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 transition text-base">
-          </div>
-          <label for="pilot-email" class="sr-only">E-Mail-Adresse</label>
-          <input type="email" id="pilot-email" name="email" autocomplete="email" required placeholder="Ihre E-Mail-Adresse"
-                 class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 transition text-base">
-          <button type="submit" id="pilot-submit-btn"
-                  onclick="(window.dataLayer||[]).push({event:'cta_pilot_vollbericht'})"
-                  class="w-full inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-900 text-white font-bold text-base px-8 py-3.5 rounded-lg transition-all shadow-md active:scale-[0.98]">
-            Vollbericht als Pilot-Nutzer anfordern
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
-          </button>
-          <p class="text-xs text-gray-500 text-center leading-relaxed">
-            Mit Klick stimmen Sie der Verarbeitung Ihrer Daten gemäß
-            <a href="/datenschutz.html" class="underline hover:text-gray-700">Datenschutzerklärung</a> zu.
-            Wir melden uns nach dem Bericht einmal mit drei Feedback-Fragen -
-            danach kein weiterer Kontakt ohne Ihren Wunsch.
-          </p>
-        </form>
-
-        <div id="pilot-error" class="hidden mt-6 bg-red-50 border-2 border-red-200 rounded-2xl p-5 text-center" role="alert" aria-live="assertive">
-            <p class="text-red-800 text-sm font-medium" id="pilot-error-msg">Senden fehlgeschlagen.</p>
-        </div>
-        <div id="pilot-success" class="hidden mt-8 text-center bg-brand-50 border border-brand-200 rounded-2xl p-6">
-          <div class="w-12 h-12 rounded-full bg-brand-500 flex items-center justify-center mx-auto mb-3">
-            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-          </div>
-          <p class="text-navy-800 font-semibold">Vollbericht wird erstellt!</p>
-          <p class="text-gray-600 text-sm mt-1">Prüfen Sie Ihre E-Mail in wenigen Minuten. Absender: <span class="font-mono">bericht@bodenbericht.de</span></p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================================ -->
     <!-- PREMIUM TEASER                               -->
     <!-- ============================================ -->
     <section id="premium" class="py-16 md:py-24 bg-navy-900 text-white relative overflow-hidden">
@@ -1909,33 +1845,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             errorId: 'live-check-convert-error',
             errorMsgId: 'live-check-convert-error-msg'
           });
-        }
-
-        // Pilot-Vollbericht-Anfrage - emittiert source="pilot-vollbericht",
-        // welcher in backend PAID_SOURCES enthalten ist und damit den
-        // Vollbericht statt des Teasers ausliefert.
-        function handlePilotLead(e) {
-            e.preventDefault();
-            const street = document.getElementById('pilot-street').value;
-            const city = document.getElementById('pilot-city').value;
-            const email = document.getElementById('pilot-email').value;
-            document.getElementById('pilot-error').classList.add('hidden');
-            return window.bbSubmitLead({
-                source: 'pilot-vollbericht',
-                payload: {
-                    email,
-                    address: street.trim() + ', ' + city.trim(),
-                    answers: { nutzung: 'pilot', source_page: 'landing_pilot' },
-                    source: 'pilot-vollbericht'
-                },
-                btn: document.getElementById('pilot-submit-btn'),
-                busyLabel: 'Wird gesendet...',
-                resetLabel: 'Vollbericht als Pilot-Nutzer anfordern',
-                formId: 'pilot-vollbericht-form',
-                successId: 'pilot-success',
-                errorId: 'pilot-error',
-                errorMsgId: 'pilot-error-msg'
-            });
         }
 
         // Direct lead capture form
