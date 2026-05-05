@@ -2,14 +2,20 @@
 # Run this after changing Tailwind classes in any *.html file.
 #
 # Usage (from repo root):
-#   cd landing
-#   ./build.ps1
+#   ./scripts/build_landing.ps1
 #
-# First-time setup: download the Tailwind standalone CLI into this folder:
-#   curl -L -o tailwindcss.exe https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.15/tailwindcss-windows-x64.exe
-# (tailwindcss.exe is .gitignored; every dev downloads their own copy.)
+# 2026-05-05 verlegt aus landing/build.ps1 nach scripts/build_landing.ps1
+# weil das alte Skript per FastAPI-StaticFiles-Mount unter
+# https://bodenbericht.de/build.ps1 öffentlich abrufbar war.
+#
+# Tailwind-CLI-Erstinstallation in landing/:
+#   curl -L -o landing/tailwindcss.exe https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.15/tailwindcss-windows-x64.exe
+# (landing/tailwindcss.exe ist .gitignored; jeder Dev lädt sich seine Kopie.)
 
 $ErrorActionPreference = "Stop"
+$RepoRoot = Split-Path -Parent $PSScriptRoot
+Push-Location (Join-Path $RepoRoot 'landing')
+try {
 
 if (-not (Test-Path "./tailwindcss.exe")) {
   Write-Host "tailwindcss.exe not found. Downloading v3.4.15..."
@@ -31,3 +37,8 @@ Write-Host "Building tailwind-quiz.css (quiz)..."
 Write-Host ""
 Write-Host "Done. Sizes:"
 Get-ChildItem tailwind*.css | Select-Object Name, Length | Format-Table -AutoSize
+
+}
+finally {
+  Pop-Location
+}

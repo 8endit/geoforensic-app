@@ -19,6 +19,7 @@ from app.config import get_settings
 from app.database import Base, engine
 from app.rate_limit import limiter
 from app.routers import admin, auth, geocode, health, leads, modules, payments, provenance, reports
+from app.static_filter import is_blocked_static_path
 
 settings = get_settings()
 
@@ -164,6 +165,8 @@ if LANDING_DIR.is_dir():
     # with 404 status. /api/* never reaches here (separate routers above).
     class _LandingStaticFiles(StaticFiles):
         async def get_response(self, path, scope):
+            if is_blocked_static_path(path):
+                return FileResponse(LANDING_DIR / "404.html", status_code=404)
             try:
                 return await super().get_response(path, scope)
             except StarletteHTTPException as exc:
