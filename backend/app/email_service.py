@@ -104,7 +104,7 @@ _HTML_TEMPLATE = """<!DOCTYPE html>
             </div>
             {upsell}
 
-            <p>Rückfragen? Antworten Sie einfach auf diese E-Mail oder schreiben Sie an <a href="mailto:team@geoforensic.de">team@geoforensic.de</a>.</p>
+            <p>Rückfragen? Antworten Sie einfach auf diese E-Mail oder schreiben Sie an <a href="mailto:bericht@bodenbericht.de">bericht@bodenbericht.de</a>.</p>
 
             <p style="margin-top: 28px;">Mit freundlichen Grüßen<br>Ihr Bodenbericht-Team</p>
 
@@ -209,7 +209,7 @@ def _build_text_body(address: str, is_teaser: bool = True) -> str:
         + "Der Bericht fasst öffentlich verfügbare EU-Satelliten- und Bodendaten "
         "für Ihre Adresse zusammen. Die Auswertung läuft automatisiert — eine "
         "fachliche Einzelbewertung vor Ort ersetzt er nicht.\n\n"
-        "Bei Rückfragen erreichen Sie uns unter team@geoforensic.de.\n\n"
+        "Bei Rückfragen erreichen Sie uns unter bericht@bodenbericht.de.\n\n"
         "Mit freundlichen Grüßen\n"
         "Ihr Bodenbericht-Team\n\n"
         "---\n"
@@ -248,7 +248,7 @@ async def send_report_email(
     from_name = getattr(settings, "smtp_from_name", "Bodenbericht")
     msg["From"] = f"{from_name} <{settings.smtp_from_email}>"
     msg["To"] = recipient_email
-    msg["Reply-To"] = "team@geoforensic.de"
+    msg["Reply-To"] = "bericht@bodenbericht.de"
 
     # Plaintext first, then HTML as alternative. charset="utf-8" is explicit
     # so we never fall back to ASCII/cp1252 (which silently drops umlauts
@@ -395,7 +395,7 @@ async def send_review_request_email(
     from_name = getattr(settings, "smtp_from_name", "Bodenbericht")
     msg["From"] = f"{from_name} <{settings.smtp_from_email}>"
     msg["To"] = recipient_email
-    msg["Reply-To"] = "team@geoforensic.de"
+    msg["Reply-To"] = "bericht@bodenbericht.de"
 
     msg.set_content(
         _REVIEW_TEXT_TEMPLATE.format(
@@ -509,7 +509,7 @@ async def send_waitlist_confirmation_email(
     from_name = getattr(settings, "smtp_from_name", "Bodenbericht")
     msg["From"] = f"{from_name} <{settings.smtp_from_email}>"
     msg["To"] = recipient_email
-    msg["Reply-To"] = "team@geoforensic.de"
+    msg["Reply-To"] = "bericht@bodenbericht.de"
 
     msg.set_content(
         _DOI_TEXT_TEMPLATE.format(confirm_url=confirm_url),
