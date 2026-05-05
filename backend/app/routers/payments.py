@@ -614,13 +614,47 @@ async def create_checkout_direct(
 
 # ── EARLY50 coupon helpers ──────────────────────────────────────────────
 
-EARLY50_LIMIT = 50  # First N non-operator free leads get the coupon
+EARLY50_LIMIT = 50  # First N non-operator + non-test leads get the coupon
+
+
+# Defensive Test-Pattern-Exklusion: alle Mails die wie ein interner Test
+# aussehen, zaehlen NICHT in den 50er-Quota. Vorher (bis 2026-05-05) zaehlten
+# alle non-operator-Mails — inkl. perfsmoke+/audit+/vbsmoke+/etc. — und
+# verbrannten echte Kaeufer-Slots. Domains die wir bewusst behalten (echte
+# externe Tester wie Domenico, Stefan, Gregor) zaehlen weiter normal.
+_TEST_EMAIL_PATTERNS = (
+    "%+audit%@%",         # +audit, +audit-de, +audit-nl, +audit-de2 etc.
+    "%+perfsmoke%@%",     # scripts/perf_smoke.py
+    "%+vbsmoke%@%",       # vollbericht-smoke
+    "%+smoke%@%",         # generisch
+    "%+test%@%",          # generisch
+    "%+probe%@%",
+    "%+banner@%",
+    "%+livecheck%@%",
+    "%+legacy@%",
+    "%+log2@%",
+    "%+t9@%",
+    "earlytest%",         # earlytest@example.com
+    "%@geoforensic.de",   # interne Test-Domain (gehoert uns)
+)
+
+
+def _early50_exclusion_clause():
+    """SQLAlchemy-Where-Clause: alle Lead.email NOT LIKE pattern.
+
+    Wird gemeinsam von _early50_still_available + is_early50_eligible
+    benutzt damit die Quota-Logik konsistent bleibt.
+    """
+    from sqlalchemy import and_, not_, or_
+    return and_(*[not_(Lead.email.like(p)) for p in _TEST_EMAIL_PATTERNS])
 
 
 async def _early50_still_available(db: AsyncSession, exclude_email: str | None) -> bool:
-    """True when fewer than EARLY50_LIMIT non-operator leads exist so far."""
+    """True when fewer than EARLY50_LIMIT non-operator + non-test leads
+    exist so far.
+    """
     from sqlalchemy import func, select as _select
-    stmt = _select(func.count(Lead.id))
+    stmt = _select(func.count(Lead.id)).where(_early50_exclusion_clause())
     if exclude_email:
         stmt = stmt.where(Lead.email != exclude_email)
     result = await db.execute(stmt)
@@ -629,8 +663,9 @@ async def _early50_still_available(db: AsyncSession, exclude_email: str | None) 
 
 
 async def is_early50_eligible(db: AsyncSession, lead: Lead, exclude_email: str | None) -> bool:
-    """True for the lead if (a) it isn't the operator email and (b) the
-    cumulative non-operator-lead count at the time of *this* lead's
+    """True for the lead if (a) it isn't the operator email, (b) it isn't
+    a test-pattern email (audit/smoke/probe/etc, see _TEST_EMAIL_PATTERNS),
+    and (c) the cumulative non-test-lead count at the time of *this* lead's
     insertion was within the EARLY50_LIMIT.
 
     Used by the teaser-PDF-renderer to decide whether to advertise the
@@ -638,8 +673,23 @@ async def is_early50_eligible(db: AsyncSession, lead: Lead, exclude_email: str |
     """
     if exclude_email and lead.email.lower() == exclude_email.lower():
         return False
+    # Test-Pattern-Mails (audit+/smoke/probe/...) sind selber nicht eligible
+    # — sonst wuerde ein Smoke-Test-Lead in seiner Mail noch eine EARLY50-
+    # Anpreisung kriegen. Gleiches Pattern wie in _early50_still_available.
+    e_low = lead.email.lower()
+    test_patterns_lower = (
+        "+audit", "+perfsmoke", "+vbsmoke", "+smoke", "+test",
+        "+probe", "+banner", "+livecheck", "+legacy", "+log2", "+t9",
+    )
+    if e_low.startswith("earlytest") or e_low.endswith("@geoforensic.de"):
+        return False
+    if any(p in e_low for p in test_patterns_lower):
+        return False
     from sqlalchemy import func, select as _select
-    stmt = _select(func.count(Lead.id)).where(Lead.created_at <= lead.created_at)
+    stmt = _select(func.count(Lead.id)).where(
+        Lead.created_at <= lead.created_at,
+        _early50_exclusion_clause(),
+    )
     if exclude_email:
         stmt = stmt.where(Lead.email != exclude_email)
     result = await db.execute(stmt)
