@@ -1,11 +1,30 @@
-# Mail an Copernicus Land Monitoring Service Help-Desk
+# Anfrage an Copernicus Land Monitoring Service Help-Desk
 
-**An:** `clms-helpdesk@eea.europa.eu`
-**Betreff:** API token request for programmatic EGMS access — registered user, B2C application
+**Wichtig — KEIN E-Mail-Versand:** Copernicus Land hat keine öffentliche
+Help-Desk-Email-Adresse. Anfragen laufen ausschließlich über das
+Webformular auf:
 
-**Notiz vor Versand:** absenden von einer Adresse die zu deinem Account
-gehört (`n00mez0g` ist dein EGMS-Login). Auf Englisch, weil das Help-Desk
-EN-first arbeitet. Antwortzeit erfahrungsgemäß 1–3 Wochen.
+  → **https://land.copernicus.eu/contact-form**
+
+(Mein erster Versuch mit `clms-helpdesk@eea.europa.eu` war ein Pattern-Guess
+ohne Quelle und ist beim User gebounct — Adresse existiert nicht.)
+
+**Verifiziert via:**
+- https://land.copernicus.eu/en/contact-service-helpdesk — sagt explizit
+  "contact us using the form provided below"
+- https://land.copernicus.eu/en/products/european-ground-motion-service —
+  führt zur selben Service-Desk-Seite
+- https://egms.land.copernicus.eu/ "Help"-Link zeigt auf
+  /contact-form
+
+**Anwendung:** Body unten als Copy-Paste-Vorlage ins Webformular
+einsetzen. Felder die das Formular vermutlich abfragt (Name, Org,
+E-Mail-Adresse für Antwort) zusätzlich oben ausfüllen — die müssen nicht
+in den Body. Antwortzeit laut Webseite "Mon-Fr in CET-Bürozeiten",
+erfahrungsgemäß 1-3 Wochen für inhaltliche Fragen.
+
+**Betreff/Subject** (falls das Formular ein solches Feld hat):
+`API token request for programmatic EGMS access — registered user, B2C application`
 
 ---
 
