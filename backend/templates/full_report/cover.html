@@ -57,9 +57,11 @@
        else 'Kein Bergbau im Suchradius dokumentiert')) %}
 
   {%- set ms = soil_profile.get('metal_status', {}) if soil_profile else {} %}
-  {%- set _has_metal_alert = false %}
-  {%- set _has_metal_warn = false %}
-  {%- for k, v in ms.items() %}{%- if v == 'kritisch' %}{% set _has_metal_alert = true %}{%- elif v == 'auffaellig' %}{% set _has_metal_warn = true %}{%- endif %}{%- endfor %}
+  {#- metal_status ist dict-of-dicts: {"cd": {"status": "critical", ...}, ...}.
+      pluck status-strings (backend liefert "ok"/"warn"/"critical"). -#}
+  {%- set _ms_statuses = ms.values() | map(attribute='status') | list %}
+  {%- set _has_metal_alert = 'critical' in _ms_statuses %}
+  {%- set _has_metal_warn = 'warn' in _ms_statuses %}
   {%- set _metalle_amp = 'rot' if _has_metal_alert else ('gelb' if _has_metal_warn else 'gruen') %}
   {%- set _metalle_text = (
        'Schwermetall-Werte über Sanierungsschwelle — Bodenprobe vor Garten/Spielnutzung' if _has_metal_alert

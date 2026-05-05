@@ -57,8 +57,12 @@
     boden­fachgutachterliche In-situ-Beprobung gemäß §11 BBodSchV.
   </p>
 
-  {%- set has_alert = status.values() | selectattr('==', 'kritisch') | list | length > 0 %}
-  {%- set has_warn = status.values() | selectattr('==', 'auffaellig') | list | length > 0 %}
+  {#- metal_status ist ein dict-of-dicts: {"cd": {"status": "critical", ...}, ...}
+      pluck die .status-strings raus, dann check auf "critical"/"warn".
+      Backend-Strings sind "ok" / "warn" / "critical" (siehe soil_data.py L815). -#}
+  {%- set _statuses = status.values() | map(attribute='status') | list %}
+  {%- set has_alert = 'critical' in _statuses %}
+  {%- set has_warn = 'warn' in _statuses %}
   <div class="so-was">
     <span class="label">Heißt für Sie</span>
     {% if has_alert %}
