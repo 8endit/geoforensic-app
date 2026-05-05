@@ -34,6 +34,13 @@
   {% if part %}
   <h3>Teil {{ letter }} — {{ title }}</h3>
   <table class="data-table">
+    <colgroup>
+      <col style="width: 32%"> {# Descriptor — lange Texte, mehr Platz #}
+      <col style="width: 16%"> {# Wert — nummerisch + Einheit #}
+      <col style="width: 14%"> {# Status — Pill, zentriert #}
+      <col style="width: 20%"> {# Schwellwert #}
+      <col style="width: 18%"> {# Quelle #}
+    </colgroup>
     <thead>
       <tr>
         <th>Descriptor (Annex I)</th>
@@ -84,6 +91,12 @@
     Komplett-Tier des Vollberichts enthalten.
   </p>
   <table class="data-table">
+    <colgroup>
+      <col style="width: 40%">
+      <col style="width: 18%">
+      <col style="width: 18%">
+      <col style="width: 24%">
+    </colgroup>
     <thead>
       <tr>
         <th>Indikator (über EU-Pflicht hinaus)</th>

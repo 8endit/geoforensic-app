@@ -394,10 +394,15 @@ a { color: var(--premium-accent, #22C55E); text-decoration: none; }
   margin-top: 2pt;
 }
 
-/* Data tables (used in §Schwermetalle, §Pestizide etc.) */
+/* Data tables (used in §Schwermetalle, §Pestizide, §EU-Directive etc.).
+   table-layout: fixed damit pro-Tabelle <colgroup> mit festen Breiten
+   greift — vorher rechnete der Browser auto-layout, was zwischen
+   Tabellen unterschiedliche Spalten-Breiten ergab (Domenico-Feedback
+   2026-05-05: 'einheitlich bringen'). */
 .data-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
   font-size: 9pt;
   margin: 6pt 0 10pt;
 }
@@ -405,6 +410,8 @@ a { color: var(--premium-accent, #22C55E); text-decoration: none; }
   text-align: left;
   padding: 4pt 8pt;
   border-bottom: 0.25pt solid #E5E3DA;
+  word-wrap: break-word;
+  vertical-align: top;
 }
 .data-table th {
   font-family: var(--font-mono, "Geist Mono"), monospace;

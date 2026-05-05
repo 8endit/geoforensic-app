@@ -418,7 +418,11 @@ def generate_full_report(
     basemap = None
     if fetch_basemap_tiles:
         try:
-            basemap = fetch_basemap(lat, lon, radius_m=500, width_px=600, height_px=320)
+            # Map quadratisch (600x600) damit der 500m-Radius vollständig
+            # sichtbar ist. Vorher 600x320 → flach, oben/unten waren ~270m
+            # vom Radius gecroppt → Map zeigte einen Stadtblock weiter über
+            # den User-Radius hinaus. Domenico-Feedback 2026-05-05.
+            basemap = fetch_basemap(lat, lon, radius_m=500, width_px=600, height_px=600)
         except Exception:  # noqa: BLE001
             logger.exception("basemap fetch failed; falling back to grey")
             basemap = None

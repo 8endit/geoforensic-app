@@ -16,13 +16,17 @@
            - attribution
     data - die rohe Komponente (für PSI-Anzahl, etc.)
 
-  Layout (680 × 480 ViewBox):
-    Kartenfläche x=40, y=80, 600×320
-    Legende y=415, Attribution y=455
+  Layout (680 × 760 ViewBox):
+    Kartenfläche x=40, y=80, 600×600 (quadratisch damit 500m-Radius
+                                       komplett sichtbar ist — vorher
+                                       600×320 hat den Radius oben/unten
+                                       gecroppt, Domenico-Feedback
+                                       2026-05-05)
+    Legende y=695, Attribution y=735
 -#}
 {%- set sparse = data.psi_points|length < 10 -%}
 <svg xmlns="http://www.w3.org/2000/svg"
-     width="680" height="480" viewBox="0 0 680 480"
+     width="680" height="760" viewBox="0 0 680 760"
      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
   <title>Bodenbericht Grundstück-im-Kontext-Karte</title>
   <desc>{{ data.psi_points|length }} PSI-Punkte im {{ map.radius_m }} m-Radius
@@ -106,8 +110,8 @@
   </g>
   {% endif %}
 
-  {# Legende #}
-  <g transform="translate(40, 415)">
+  {# Legende — y=695 (vorher 415, weil Map jetzt 600px statt 320px hoch) #}
+  <g transform="translate(40, 695)">
     <circle cx="8" cy="10" r="4" fill="{{ tokens.ampel.stabil.color }}"/>
     <text x="20" y="14" font-size="12" fill="#5F5E5A">stabil</text>
 
@@ -131,8 +135,8 @@
     <text x="530" y="14" font-size="12" fill="#5F5E5A">Ihr Gebäude</text>
   </g>
 
-  {# Norden-Pfeil + Attribution #}
-  <text x="40" y="455" font-size="11" fill="#5F5E5A">
+  {# Norden-Pfeil + Attribution — y=735 (vorher 455) #}
+  <text x="40" y="735" font-size="11" fill="#5F5E5A">
     Norden ↑
     {%- if map.attribution %} · {{ map.attribution }}{% endif %}
     {%- if map.zoom %} · z={{ map.zoom }}{% endif %}

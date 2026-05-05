@@ -350,7 +350,7 @@ def build_map_render_context(
     basemap: Optional[dict] = None,
     tokens: Optional[dict] = None,
     map_width: int = 600,
-    map_height: int = 320,
+    map_height: int = 600,
     map_x: int = 40,
     map_y: int = 80,
 ) -> dict:
@@ -383,7 +383,24 @@ def build_map_render_context(
         attribution = ""
         zoom = None
 
-    # Project PSI points
+    # Project PSI points — gefiltert auf nur die im radius_m-Kreis um die
+    # Adresse. PSI-Liste kommt zwar bereits als ST_DWithin-Query gefiltert,
+    # aber wir filtern hier defensive nochmal nach echter Haversine-Distanz
+    # weil:
+    # 1. Tests/Mocks koennten ungefilterte Listen reinreichen
+    # 2. Klar dokumentierte Garantie: was visuell auf der Karte ist, ist
+    #    auch im 500m-Radius des Berichts
+    # Domenico-Feedback 2026-05-05: 'wir sollten nicht Punkte zeigen die
+    # nicht angefragt wurden'.
+    deg_per_m_lat_filter = 1.0 / 111_320.0
+    cos_lat_filter = math.cos(math.radians(address_lat))
+
+    def _within_radius(plat: float, plon: float) -> bool:
+        # equirectangular approximation — fuer 500m + Berlin-lat exakt genug
+        dy_m = (plat - address_lat) / deg_per_m_lat_filter
+        dx_m = (plon - address_lon) * 111_320.0 * cos_lat_filter
+        return (dx_m * dx_m + dy_m * dy_m) <= (radius_m * radius_m)
+
     dots: list[dict] = []
     for p in psi_points:
         try:
@@ -392,6 +409,8 @@ def build_map_render_context(
             v = float(p["velocity"])
         except (KeyError, ValueError, TypeError):
             continue
+        if not _within_radius(lat, lon):
+            continue  # explizite Radius-Schranke
         x, y = project_lonlat_to_pixel(lon, lat, bbox, map_width, map_height)
         # Drop points outside the visible window (with 4 px tolerance)
         if x < -4 or y < -4 or x > map_width + 4 or y > map_height + 4:
