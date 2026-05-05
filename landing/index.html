@@ -161,26 +161,39 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         .hero-gradient {
             background: linear-gradient(135deg, #0c1d3a 0%, #122b52 40%, #1a3a6b 100%);
         }
-        /* Hero-Background-Photo Layer + dunkler Tint für Text-Lesbarkeit. */
+        /* Hero-Background-Photo Layer + dezenter Tint für Text-Lesbarkeit.
+           User-Feedback 2026-05-05: vorige Version "zu viel blau" — Bild war
+           kaum sichtbar. Opacity hoch, Tint nur dort wo Text sitzt
+           (Top + Bottom-Vignette, Mitte transparent). */
         .hero-photo {
             background-image: url('/images/photos/hero-german-town.jpg');
             background-size: cover;
-            background-position: center 30%;
-            opacity: 0.32;
+            background-position: center 35%;
+            opacity: 0.85;
         }
         .hero-photo-tint {
-            background: linear-gradient(180deg, rgba(12,29,58,0.45) 0%, rgba(18,43,82,0.65) 60%, rgba(12,29,58,0.85) 100%);
+            background:
+              linear-gradient(180deg, rgba(12,29,58,0.55) 0%, rgba(12,29,58,0.10) 35%, rgba(12,29,58,0.10) 65%, rgba(12,29,58,0.75) 100%);
         }
-        /* Premium-Section: Sunset-Bild mit dunklem Navy-Tint
-           damit weißer Text auf dem dunklen Theme weiterhin lesbar bleibt. */
+        /* Premium-Section: Sunset-Bild prominent, Orange durchscheinend.
+           User-Feedback 2026-05-05: "Orange durch das Bild hat mir besser
+           gefallen". Tint nur als dunkle Vignette an Top+Bottom (wo Headline
+           und Form sitzen), Mitte komplett transparent. Text bekommt zusätzlich
+           text-shadow für Lesbarkeit auf dem warmen Bild. */
         .premium-photo {
             background-image: url('/images/photos/waitlist-aerial-sunset.jpg');
             background-size: cover;
             background-position: center 50%;
-            opacity: 0.28;
+            opacity: 1;
         }
         .premium-photo-tint {
-            background: linear-gradient(180deg, rgba(12,29,58,0.55) 0%, rgba(12,29,58,0.75) 50%, rgba(12,29,58,0.92) 100%);
+            background:
+              linear-gradient(180deg, rgba(12,29,58,0.65) 0%, rgba(12,29,58,0) 25%, rgba(12,29,58,0) 75%, rgba(12,29,58,0.65) 100%);
+        }
+        /* Headlines + Sub-Text in Premium-Section dunkler abhebenfähig
+           machen damit sie auf dem hellen Sunset lesbar sind. */
+        #premium h2, #premium .text-lg, #premium .text-sm {
+            text-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 0 12px rgba(0,0,0,0.25);
         }
         .trust-gradient {
             background: linear-gradient(90deg, #f0fdf4 0%, #dcfce7 50%, #f0fdf4 100%);
@@ -274,10 +287,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <!-- Background photo (Pexels 3489009) — Luftaufnahme deutsches Wohngebiet -->
         <div class="hero-photo absolute inset-0"></div>
         <div class="hero-photo-tint absolute inset-0"></div>
-        <!-- Background pattern (überlagert über Photo + Tint) -->
-        <div class="absolute inset-0 opacity-5">
-            <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)"/></svg>
-        </div>
+        <!-- Grid-pattern bewusst rausgenommen 2026-05-05 — wirkte mit Photo redundant -->
+
 
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
