@@ -83,10 +83,14 @@ def _chrome_pdf(chrome_path: str, html: str) -> bytes:
             "file:///" + html_path.replace("\\", "/"),
         ]
 
+        # 30 s war zu knapp für Vollberichte mit ~20 inline-SVGs +
+        # Embedded-Fonts; Chrome wurde dann mit SIGTERM gekillt und
+        # _chrome_pdf raised RuntimeError → Vollbericht still failed.
+        # 120 s ist großzügig, die echte Wall-Time liegt typisch 25-60 s.
         result = subprocess.run(
             cmd,
             capture_output=True,
-            timeout=30,
+            timeout=120,
         )
 
         if not os.path.exists(pdf_path):

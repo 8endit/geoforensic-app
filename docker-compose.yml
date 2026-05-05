@@ -61,9 +61,16 @@ services:
     # line the operator has to remember to `docker compose exec backend
     # alembic upgrade head` after every deploy, which is exactly the
     # failure mode we just hit with the 2026-04-24 reports.lead_id patch.
+    # --workers 4: vier eigenständige Python-Prozesse parallel. Single
+    # Worker = einziger Crash killt ALLE laufenden Pipelines + alle
+    # asyncio-Tasks teilen einen ThreadPool. Mit 4 Workern × Chrome-
+    # Semaphore(2) = max 8 PDFs parallel bei ~600 MB RAM = 4,8 GB,
+    # passt in 12 GB VPS-RAM mit Headroom für DB/OS/Redis. CPU-Cores
+    # sind 6, leichte Oversubscription ist OK weil PDFs primär
+    # I/O- und subprocess-bound sind.
     command: >
       sh -c "alembic upgrade head &&
-             exec uvicorn app.main:app --host 0.0.0.0 --port 8000"
+             exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4"
     depends_on:
       db:
         condition: service_healthy

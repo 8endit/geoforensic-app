@@ -17,6 +17,7 @@ the wording of the outbound mail (see ``email_service.is_teaser``).
 import asyncio
 import logging
 import secrets
+import time
 import uuid
 from datetime import datetime, timezone
 
@@ -43,6 +44,14 @@ from app.static_map import fetch_static_map
 
 router = APIRouter(prefix="/api/leads", tags=["leads"])
 logger = logging.getLogger(__name__)
+
+# Chrome-Headless ist single-process pro Render und braucht ~600 MB RAM.
+# Pro uvicorn-Worker max 2 parallel, damit ein Worker mit 4 concurrent
+# Berichten den Container nicht OOM-killt (4 Worker × 2 Chrome × 600 MB
+# = 4,8 GB, passt in 12 GB VPS-RAM mit Headroom für DB/OS/Redis).
+# Berichte 3+ pro Worker queuen sich asynchron, der Lead-Flow bleibt
+# in der Pipeline aber wartet hier kurz statt OOM zu sterben.
+_CHROME_SEMAPHORE = asyncio.Semaphore(2)
 
 # Lead-Flow-Routing — deny-by-default.
 #
@@ -196,13 +205,19 @@ async def _generate_and_send_lead_report(
     from app.database import SessionLocal
 
     is_teaser = source not in PAID_SOURCES
+    _pipeline_t0 = time.perf_counter()
 
     try:
         # 1. Geocode (or use pre-computed result from request handler)
+        _t0 = time.perf_counter()
         if geocoded is not None:
             lat, lon, display_name, country_code, region = geocoded
         else:
             lat, lon, display_name, country_code, region = await geocode_address(address)
+        logger.info(
+            "pipeline.geocode took=%.2fs lead=%s teaser=%s",
+            time.perf_counter() - _t0, lead_id, is_teaser,
+        )
 
         # 2. EGMS query — radius comes from settings so copy in the PDF
         #    and the SQL query can never drift apart.
@@ -212,6 +227,7 @@ async def _generate_and_send_lead_report(
         # the Ampel-begruendung line in the report. 2 mm/a is the
         # standard gelb/yellow boundary used throughout the app.
         ELEVATED_THRESHOLD_MM_YR = 2.0
+        _t0 = time.perf_counter()
         async with SessionLocal() as db:
             result = await db.execute(
                 text(
@@ -267,6 +283,10 @@ async def _generate_and_send_lead_report(
                 (row._mapping["period"], float(row._mapping["avg_displacement"]))
                 for row in ts_result
             ]
+        logger.info(
+            "pipeline.egms_query took=%.2fs lead=%s points=%d ts_periods=%d",
+            time.perf_counter() - _t0, lead_id, len(points), len(timeseries),
+        )
 
         # 3. Compute metrics — DISTANZ-GEWICHTETER Mittelwert.
         #
@@ -299,9 +319,18 @@ async def _generate_and_send_lead_report(
         # 4. Query soil data (SoilGrids + LUCAS + CORINE) — country-routed so
         #    NL addresses do not get DE-LUCAS values interpolated from 200km away
         #    and DE-thresholds (BBodSchV) do not appear on a Dutch report.
+        # query_full_profile ist synchron + Disk-IO — to_thread damit der
+        # Event-Loop nicht blockiert (concurrent-user fairness).
         try:
+            _t0 = time.perf_counter()
             soil_loader = SoilDataLoader.get()
-            soil_profile = soil_loader.query_full_profile(lat, lon, country_code=country_code)
+            soil_profile = await asyncio.to_thread(
+                soil_loader.query_full_profile, lat, lon, country_code,
+            )
+            logger.info(
+                "pipeline.soil_loader took=%.2fs lead=%s",
+                time.perf_counter() - _t0, lead_id,
+            )
         except Exception:
             logger.warning("Soil data query failed for (%s, %s), using empty profile", lat, lon)
             soil_profile = {}
@@ -363,87 +392,124 @@ async def _generate_and_send_lead_report(
                 coupon_code=("EARLY50" if _early50_eligible else None),
                 coupon_label=("50 %" if _early50_eligible else None),
             )
-            pdf_bytes = html_to_pdf(html)
+            _t0 = time.perf_counter()
+            async with _CHROME_SEMAPHORE:
+                _wait_s = time.perf_counter() - _t0
+                _render_t0 = time.perf_counter()
+                pdf_bytes = await asyncio.to_thread(html_to_pdf, html)
+            logger.info(
+                "pipeline.teaser_pdf took=%.2fs (queue_wait=%.2fs render=%.2fs) lead=%s bytes=%s",
+                time.perf_counter() - _t0, _wait_s,
+                time.perf_counter() - _render_t0, lead_id,
+                len(pdf_bytes) if pdf_bytes else 0,
+            )
             if pdf_bytes is None:
                 # Fallback: send HTML as attachment
                 pdf_bytes = html.encode("utf-8")
                 logger.warning("PDF rendering failed, sending HTML as fallback for %s", email)
         else:
-            # Bergbau: dispatcher routes per Bundesland.
-            # NRW -> Bezirksregierung Arnsberg WMS (Berechtsame).
-            # RLP / Saarland -> LGB-RLP WMS (Berechtsame + Altbergbau-Ampelkarte;
-            # das Oberbergamt Saarbrücken ist für beide Länder zuständig).
-            # Andere Bundesländer -> kein WMS verfügbar, Section rendert
-            # den Behörden-Auskunft-Placeholder.
-            state = (region or {}).get("state")
-            try:
-                mining_data = await query_mining(lat, lon, state)
-            except Exception:
-                logger.exception(
-                    "Bergbau dispatcher failed for (%s, %s, %s); "
-                    "report will render the service-unavailable notice.",
-                    lat, lon, state,
-                )
-                mining_data = None
+            # Phase 1 — alle 5 unabhängigen externen Datencalls PARALLEL.
+            # Vorher liefen die hier sequentiell awaited (mining → flood →
+            # kostra → slope → altlasten), summiert ~6-12 s nur für
+            # Externe. asyncio.gather macht die Summe zur Maximum-Latenz
+            # des langsamsten Calls (~2-3 s typisch).
+            #
+            # soil_directive (Phase 2 unten) braucht slope_data.slope_deg
+            # als Argument, läuft deshalb nach gather.
+            from app.slope_data import fetch_slope
+            from app.altlasten_data import fetch_altlasten
 
-            # BfG Hochwasser: nationaler Aggregat, deckt DE-Adressen ab.
-            # Bei NL/AT/CH liefert das WMS einfach nichts und die Sektion
-            # zeigt "nicht im Gebiet" — das ist akzeptabel als first cut;
-            # eine Country-Gate-Optimierung können wir später ergänzen.
-            if country_code.lower() == "de":
+            state = (region or {}).get("state")
+            _is_de = country_code.lower() == "de"
+
+            async def _safe_mining():
                 try:
-                    flood_data = await query_flood(lat, lon)
+                    return await query_mining(lat, lon, state)
+                except Exception:
+                    logger.exception(
+                        "Bergbau dispatcher failed for (%s, %s, %s); "
+                        "report will render the service-unavailable notice.",
+                        lat, lon, state,
+                    )
+                    return None
+
+            async def _safe_flood():
+                if not _is_de:
+                    return None
+                try:
+                    return await query_flood(lat, lon)
                 except Exception:
                     logger.exception(
                         "BfG flood lookup failed unexpectedly for (%s, %s); "
                         "report will render the service-unavailable notice.",
                         lat, lon,
                     )
-                    flood_data = {
-                        "any_in_zone": False,
-                        "scenarios": {},
-                        "error": "lookup_exception",
-                    }
+                    return {"any_in_zone": False, "scenarios": {}, "error": "lookup_exception"}
 
-            # KOSTRA Starkregen: für alle DE-Adressen, sofern Raster
-            # verfügbar. Loader-Singleton degradiert sauber wenn die
-            # Files nicht auf Platte liegen — query() liefert dann
-            # available=False und der Report rendert "Daten in
-            # Vorbereitung".
-            if country_code.lower() == "de":
+            async def _safe_kostra():
+                # KostraLoader.query() ist synchron + Disk-IO — to_thread
+                # damit der Event-Loop frei bleibt während die anderen
+                # Calls in gather laufen.
+                if not _is_de:
+                    return None
                 try:
-                    kostra_data = KostraLoader.get().query(lat, lon)
+                    return await asyncio.to_thread(KostraLoader.get().query, lat, lon)
                 except Exception:
                     logger.exception(
                         "KOSTRA lookup failed unexpectedly for (%s, %s); "
                         "report will render the unavailable-state notice.",
                         lat, lon,
                     )
-                    kostra_data = {"available": False, "slots": {}}
+                    return {"available": False, "slots": {}}
 
-            # 4b. Slope analysis — multi-scale Open-Elevation lookup. Result
-            # feeds RUSLE LS-factor (otherwise default 2° flattens hillside
-            # erosion estimates) AND becomes its own "Geländeprofil" section.
-            slope_data: dict | None = None
-            slope_deg_for_directive: float | None = None
-            try:
-                from app.slope_data import fetch_slope
-                slope_data = await fetch_slope(lat, lon, country_code=country_code)
-                if slope_data and slope_data.get("available"):
-                    slope_deg_for_directive = slope_data.get("slope_deg")
-            except Exception:
-                logger.exception(
-                    "Slope analysis failed for (%s, %s); RUSLE will use 2° default",
-                    lat, lon,
-                )
-                slope_data = None
+            async def _safe_slope():
+                try:
+                    return await fetch_slope(lat, lon, country_code=country_code)
+                except Exception:
+                    logger.exception(
+                        "Slope analysis failed for (%s, %s); RUSLE will use 2° default",
+                        lat, lon,
+                    )
+                    return None
 
-            # 4c. EU Soil Directive descriptors with the real slope value.
+            async def _safe_altlasten():
+                try:
+                    return await fetch_altlasten(lat, lon, country_code=country_code)
+                except Exception:
+                    logger.exception(
+                        "Altlasten lookup failed for (%s, %s); section will be skipped",
+                        lat, lon,
+                    )
+                    return None
+
+            _phase1_t0 = time.perf_counter()
+            mining_data, flood_data, kostra_data, slope_data, altlasten_data = await asyncio.gather(
+                _safe_mining(),
+                _safe_flood(),
+                _safe_kostra(),
+                _safe_slope(),
+                _safe_altlasten(),
+            )
+            logger.info(
+                "pipeline.phase1_external took=%.2fs lead=%s",
+                time.perf_counter() - _phase1_t0, lead_id,
+            )
+
+            slope_deg_for_directive: float | None = (
+                slope_data.get("slope_deg") if (slope_data and slope_data.get("available")) else None
+            )
+
+            # Phase 2 — soil_directive braucht slope_deg, läuft danach.
             try:
                 from app.soil_directive import query_soil_directive
+                _t0 = time.perf_counter()
                 soil_directive_data = await asyncio.to_thread(
                     query_soil_directive,
                     lat, lon, slope_deg_for_directive, country_code,
+                )
+                logger.info(
+                    "pipeline.soil_directive took=%.2fs lead=%s",
+                    time.perf_counter() - _t0, lead_id,
                 )
             except Exception:
                 logger.exception(
@@ -451,20 +517,6 @@ async def _generate_and_send_lead_report(
                     lat, lon,
                 )
                 soil_directive_data = None
-
-            # 4d. Altlasten — country-routed. NL hits PDOK Bodemloket WMS
-            # (real cataster); DE returns a CORINE land-use proxy plus a
-            # pointer to authority enquiry. Both fail gracefully.
-            altlasten_data: dict | None = None
-            try:
-                from app.altlasten_data import fetch_altlasten
-                altlasten_data = await fetch_altlasten(lat, lon, country_code=country_code)
-            except Exception:
-                logger.exception(
-                    "Altlasten lookup failed for (%s, %s); section will be skipped",
-                    lat, lon,
-                )
-                altlasten_data = None
 
             # Map our PostGIS row schema (mean_velocity_mm_yr, lat, lon,
             # coherence, distance_m) to the visual_payload.build_payload
@@ -505,28 +557,38 @@ async def _generate_and_send_lead_report(
             if _tier not in ("basis", "komplett"):
                 _tier = "basis"
 
-            pdf_bytes = await asyncio.to_thread(
-                generate_full_report,
-                address=display_name,
-                lat=lat,
-                lon=lon,
-                ampel=ampel,
-                point_count=len(points),
-                mean_velocity=mean_v,
-                max_velocity=max_v,
-                geo_score=geo_score,
-                soil_profile=soil_profile,
-                answers=answers or {},
-                mining_data=mining_data,
-                kostra_data=kostra_data,
-                flood_data=flood_data,
-                soil_directive_data=soil_directive_data,
-                altlasten_data=altlasten_data,
-                slope_data=slope_data,
-                country_code=country_code,
-                psi_points=psi_points,
-                psi_timeseries=psi_timeseries,
-                tier=_tier,
+            _t0 = time.perf_counter()
+            async with _CHROME_SEMAPHORE:
+                _wait_s = time.perf_counter() - _t0
+                _render_t0 = time.perf_counter()
+                pdf_bytes = await asyncio.to_thread(
+                    generate_full_report,
+                    address=display_name,
+                    lat=lat,
+                    lon=lon,
+                    ampel=ampel,
+                    point_count=len(points),
+                    mean_velocity=mean_v,
+                    max_velocity=max_v,
+                    geo_score=geo_score,
+                    soil_profile=soil_profile,
+                    answers=answers or {},
+                    mining_data=mining_data,
+                    kostra_data=kostra_data,
+                    flood_data=flood_data,
+                    soil_directive_data=soil_directive_data,
+                    altlasten_data=altlasten_data,
+                    slope_data=slope_data,
+                    country_code=country_code,
+                    psi_points=psi_points,
+                    psi_timeseries=psi_timeseries,
+                    tier=_tier,
+                )
+            logger.info(
+                "pipeline.full_report took=%.2fs (queue_wait=%.2fs render=%.2fs) lead=%s tier=%s bytes=%s",
+                time.perf_counter() - _t0, _wait_s,
+                time.perf_counter() - _render_t0, lead_id, _tier,
+                len(pdf_bytes) if pdf_bytes else 0,
             )
 
         # 6. Persist a Report row for this lead (C1). The row carries all
@@ -628,6 +690,7 @@ async def _generate_and_send_lead_report(
                 )
 
         # 7. Send email
+        _t0 = time.perf_counter()
         await send_report_email(
             recipient_email=email,
             report_address=display_name,
@@ -636,12 +699,23 @@ async def _generate_and_send_lead_report(
             is_teaser=is_teaser,
         )
         logger.info(
+            "pipeline.send_email took=%.2fs lead=%s",
+            time.perf_counter() - _t0, lead_id,
+        )
+        logger.info(
+            "pipeline.TOTAL took=%.2fs lead=%s teaser=%s ampel=%s pts=%d source=%s",
+            time.perf_counter() - _pipeline_t0, lead_id, is_teaser, ampel, len(points), source,
+        )
+        logger.info(
             "Lead report sent to %s for address %s (%s, %d pts, source=%s, teaser=%s, report_id=%s)",
             email, address, ampel, len(points), source, is_teaser, report_id,
         )
 
     except Exception:
-        logger.exception("Failed to generate lead report for %s", email)
+        logger.exception(
+            "Failed to generate lead report for %s after %.2fs",
+            email, time.perf_counter() - _pipeline_t0,
+        )
 
 
 @router.post("", response_model=LeadResponse, status_code=status.HTTP_201_CREATED)
