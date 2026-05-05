@@ -366,7 +366,7 @@ def generate_full_report(
     — sections render a "Daten in Vorbereitung" placeholder.
     """
     issued_dt = datetime.now(timezone.utc)
-    report_id = report_id or f"GF-{issued_dt.strftime('%Y-%m-%d-%H%M%S')}"
+    report_id = report_id or f"BB-{issued_dt.strftime('%Y-%m-%d-%H%M%S')}"
 
     # ── 1. Build the visuals payload ───────────────────────────────────
     address_dict = {
