@@ -23,6 +23,10 @@ from __future__ import annotations
 import logging
 import math
 import os
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.types import SoilProfile
 from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -787,8 +791,17 @@ class SoilDataLoader:
             return -1.0
         return self._lucas.query_nearest_distance_km(lat, lon)
 
-    def query_full_profile(self, lat: float, lon: float, country_code: str = "de") -> dict:
-        """Run all queries and return a complete soil profile."""
+    def query_full_profile(
+        self, lat: float, lon: float, country_code: str = "de",
+    ) -> "SoilProfile":
+        """Run all queries and return a complete soil profile.
+
+        Return-Type ist app.types.SoilProfile (TypedDict total=False).
+        Konsumenten sollen safe_pluck() statt .get() nutzen damit
+        Tippfehler bei Keys (wie 'imperviousness' statt
+        'imperviousness_pct' am 2026-05-05) WARNING loggen statt silent
+        None zurückzugeben.
+        """
         soil = self.query_all_soilgrids(lat, lon)
         metals = self.query_metals(lat, lon, country_code=country_code)
         nutrients = self.query_nutrients(lat, lon, country_code=country_code)

@@ -18,9 +18,9 @@
   {#- status ist dict-of-dicts {key: {status: "ok"/"warn"/"critical", ...}}.
       Wir mappen die Backend-Strings auf das menschen-lesbare Pill-Label
       (gleichzeitig auch CSS-Klasse, dank Aliase in full_report.css).
-      Vorher wurde fälschlich `status.get(key)` direkt als CSS-Klasse +
-      Pill-Text genutzt → Jinja druckte den ganzen dict als Text. -#}
-  {%- set _STATUS_LABEL = {'ok': 'innerhalb Schwelle', 'warn': 'auffällig', 'critical': 'kritisch'} %}
+      Mapping-Map kommt aus app/types.PILL_STATUS_LABEL_DE und wird im
+      Jinja-Env globally registriert (full_report.py _full_report_env). -#}
+  {%- set _STATUS_LABEL = PILL_STATUS_LABEL_DE %}
   <table class="data-table">
     <thead>
       <tr>

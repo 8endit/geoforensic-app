@@ -2,6 +2,7 @@ import asyncio
 import csv
 import io
 import logging
+import re
 import time
 import uuid
 
@@ -37,42 +38,75 @@ _nominatim_lock = asyncio.Lock()
 _last_nominatim_call = 0.0
 
 
-# OSM ist editierbar von jedem. Vandalismus (Stadt-Tag wird kurz auf
-# Beleidigung/Hetze geändert) lebt typischerweise nur Stunden bevor es
-# revertiert wird — aber WIR cachen 30 Tage, also würde ein einziger
-# vergifteter Hit für einen Monat in unsere Kunden-Mails durchschlagen.
-# Aufgefallen 2026-05-05: "Berlin" → "Nazi-Stadt" für Alexanderplatz,
-# wir hätten das einem Käufer in einer Versand-Mail gezeigt.
+# Defense gegen externe nicht-vertrauenswürdige Geocode-Daten.
 #
-# Defense in depth:
-#  1. Verdachts-Wörterliste; sobald irgendein Adress-Feld einen Treffer
-#     hat, NICHT in Cache schreiben + log warning + Sentry-Notification
-#     wäre nice (TODO).
-#  2. Beim Lesen aus dem Cache nochmal prüfen; wenn vergiftet → DEL und
-#     behandle als Cache-Miss (selbstheilung der bereits vergifteten
-#     Einträge ohne manuellen Redis-Eingriff).
-#  3. Cache-TTL auf 7 Tage runter (siehe config.geocode_cache_ttl_seconds).
+# OSM ist editierbar von jedem. Aufgefallen 2026-05-05: "Berlin" wurde
+# kurz auf "Nazi-Stadt" geändert, wir hätten das in einer Käufer-Mail
+# gezeigt. Deshalb 3 Validierungsschichten BEVOR Daten in den Cache
+# oder ins Customer-Facing-PDF wandern:
 #
-# Liste ist bewusst breit (auch DE-Hetze, derbe Beleidigungen) damit
-# offensichtlicher OSM-Vandalismus erkannt wird ohne false-positives auf
-# legitimen Ortsnamen. Erweiterbar.
+#  1. SCHEMA-VALIDATION (_hit_is_schema_valid): Country MUSS in unserer
+#     4-Land-Whitelist sein, PLZ MUSS dem Land-spezifischen Format
+#     entsprechen. Adress-Felder MÜSSEN strukturell wie Adressen
+#     aussehen (nur Buchstaben/Ziffern/Bindestriche/Leerzeichen,
+#     reasonable Länge). Strukturelle Defense — fängt jeden Vandalismus
+#     mit Sonderzeichen, jeden Schema-Wechsel von Nominatim, jeden
+#     Garbage-Output unabhängig vom konkreten Hetze-Wort.
+#
+#  2. WORTLISTE (_contains_vandalism): bekannte Hetze + derbe
+#     Beleidigungen. Backup für den Fall dass ein Vandale ein Wort
+#     wählt das schema-konform aussieht ("Mörderstadt" passt strukturell
+#     auf eine Stadt-Regex).
+#
+#  3. SELF-HEALING-CACHE: vergiftete cached values werden bei Read
+#     erkannt + per cache_delete entfernt + behandelt als Cache-Miss.
+#
+# TTL ist auf 7 Tage reduziert (vorher 30) → Schadens-Fenster minimiert
+# falls trotz aller drei Layer was durchrutscht.
+
+# Land-Whitelist: nur diese 4 Länder routen wir, alles andere ist Bug
+# in der Adress-Eingabe ODER kompromittierte Nominatim-Antwort.
+_ALLOWED_COUNTRY_CODES = frozenset({"de", "nl", "at", "ch"})
+
+# Postleitzahlen-Format pro Land. DE/AT/CH = 4-5 Ziffern, NL = 4 Ziffern
+# + 2 Buchstaben mit optionalem Leerzeichen ("1234AB" oder "1234 AB").
+_POSTCODE_PATTERNS: dict[str, re.Pattern[str]] = {
+    "de": re.compile(r"^\d{5}$"),
+    "at": re.compile(r"^\d{4}$"),
+    "ch": re.compile(r"^\d{4}$"),
+    "nl": re.compile(r"^\d{4}\s?[A-Za-z]{2}$"),
+}
+
+# Adress-Feld-Regex: Buchstaben (incl. Umlaute, é, ç, etc.), Ziffern,
+# Leerzeichen, Bindestriche, Punkte, Apostrophe, Schrägstriche, Komma,
+# Klammern. Verbietet jeden anderen Sonderzeichen-Salat (Emojis, HTML,
+# Skript-Tags). Max 80 Zeichen — selbst lange holländische Stadtnamen
+# wie "Sint-Anthonis" passen, aber kein vollständiger Vandalismus-
+# Paragraph.
+_ADDRESS_FIELD_REGEX = re.compile(
+    r"^[A-Za-zÀ-ÿĀ-žŒœĐđŁł0-9\s\-./',()&]{1,80}$"
+)
+
+# Bekannte Hetze + derbe Beleidigungen. Backup-Layer für Vandalismus
+# der schema-konform aussieht. Bewusst breit damit offensichtliche
+# OSM-Manipulationen erkannt werden ohne false-positives auf legitimen
+# Ortsnamen. Erweiterbar.
 _VANDALISM_PATTERNS = (
-    "nazi", "hitler", "heil ", "ss-stadt",
+    "nazi", "hitler", "heil ", "ss-stadt", "ss stadt",
     "fuck", "fick", "ficker", "wichser",
     "scheiss", "scheiße", "kacke",
     "hure", "huren", "nutte",
     "arschloch", "arsch ",
     "neger", "kanake",
     "judenstadt", "judensau",
+    "mörderstadt", "moerderstadt",
 )
 
 
 def _contains_vandalism(s: str | None) -> bool:
-    """True wenn der String einen Verdachts-OSM-Vandalismus-Treffer hat.
+    """True wenn der String einen Wortlisten-Treffer hat (Layer 2).
 
     Case-insensitive substring match. False für leere/None Strings.
-    Bewusst keine Regex — substring reicht und ist schneller +
-    nachvollziehbarer.
     """
     if not s:
         return False
@@ -80,11 +114,65 @@ def _contains_vandalism(s: str | None) -> bool:
     return any(p in s_low for p in _VANDALISM_PATTERNS)
 
 
-def _hit_is_vandalised(hit: dict) -> bool:
-    """Scan a Nominatim hit for vandalism in any user-visible field.
+def _is_address_shaped(s: str | None) -> bool:
+    """True wenn s strukturell wie ein Adress-Feld aussieht (Layer 1).
 
-    Prüft display_name + alle address.* Felder — wenn auch nur eines
-    matched, gilt der ganze Hit als vergiftet und wird verworfen.
+    None/leer wird als ok behandelt (sparse Antworten sind ok, fehlende
+    Felder ≠ vergiftet). Strings die existieren MÜSSEN aber dem Format
+    entsprechen.
+    """
+    if not s:
+        return True
+    return bool(_ADDRESS_FIELD_REGEX.match(s))
+
+
+def _hit_is_schema_valid(hit: dict, query: str) -> tuple[bool, str | None]:
+    """Layer 1: strukturelle Validierung der Nominatim-Antwort.
+
+    Returns ``(True, None)`` wenn alles ok, sonst ``(False, reason)``
+    mit knappem Grund-String fürs Logging. Prüft:
+    - country_code muss in 4-Land-Whitelist sein
+    - postcode muss dem Land-Format entsprechen
+    - city/road/state/country (alle string-Felder in address) müssen
+      address-shaped sein
+    - lat/lon müssen Floats in plausiblen Range sein (-90..90, -180..180)
+    """
+    addr = hit.get("address") or {}
+
+    # Country-Whitelist
+    cc = (addr.get("country_code") or "").lower()
+    if cc not in _ALLOWED_COUNTRY_CODES:
+        return False, f"country_code {cc!r} not in whitelist"
+
+    # PLZ-Format pro Land
+    postcode = addr.get("postcode")
+    if postcode is not None:
+        pat = _POSTCODE_PATTERNS.get(cc)
+        if pat is None or not pat.match(str(postcode)):
+            return False, f"postcode {postcode!r} doesn't match {cc} pattern"
+
+    # Lat/Lon-Plausibilität
+    try:
+        lat = float(hit["lat"])
+        lon = float(hit["lon"])
+    except (KeyError, ValueError, TypeError):
+        return False, "lat/lon missing or unparseable"
+    if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+        return False, f"lat/lon out of range: {lat}, {lon}"
+
+    # Adress-Felder strukturell prüfen
+    for k, v in addr.items():
+        if isinstance(v, str) and not _is_address_shaped(v):
+            return False, f"address.{k} not address-shaped: {v[:40]!r}"
+
+    return True, None
+
+
+def _hit_is_vandalised(hit: dict) -> bool:
+    """Layer 2: Wortlisten-Backup-Check.
+
+    Prüft display_name + alle address.* Felder gegen die Hetze-Liste —
+    fängt schema-konformen Vandalismus den Layer 1 nicht erkennt.
     """
     if _contains_vandalism(hit.get("display_name")):
         return True
@@ -197,19 +285,33 @@ async def geocode_address(address: str) -> tuple[float, float, str, str, dict[st
     if cached is not None:
         try:
             c_lat, c_lon, c_display, c_country, c_region = cached
-            # Self-healing-Cache: vergiftete Einträge (z.B. OSM-Vandalismus
-            # der bereits gespeichert wurde) erkennen und löschen, dann
-            # behandeln als Cache-Miss → frischer Nominatim-Lookup.
+            # Self-healing-Cache: cached values gegen die GLEICHEN Validation-
+            # Layer prüfen wie frische Nominatim-Antworten. Schema-Verletzung
+            # ODER Wortliste-Treffer → DEL + Cache-Miss → frischer Lookup.
             _region_dict = dict(c_region) if c_region else {}
-            _suspect = (
-                _contains_vandalism(c_display)
-                or any(_contains_vandalism(v) for v in _region_dict.values() if isinstance(v, str))
-            )
-            if _suspect:
+            _suspect_reason: str | None = None
+            # Layer 1: Country-Whitelist
+            if str(c_country).lower() not in _ALLOWED_COUNTRY_CODES:
+                _suspect_reason = f"country {c_country!r} not in whitelist"
+            # Layer 1: Display + region-strings strukturell
+            elif not _is_address_shaped(c_display):
+                _suspect_reason = "display not address-shaped"
+            elif any(
+                isinstance(v, str) and not _is_address_shaped(v)
+                for v in _region_dict.values()
+            ):
+                _suspect_reason = "region field not address-shaped"
+            # Layer 2: Wortliste
+            elif _contains_vandalism(c_display) or any(
+                _contains_vandalism(v) for v in _region_dict.values() if isinstance(v, str)
+            ):
+                _suspect_reason = "vandalism wordlist hit"
+
+            if _suspect_reason:
                 logger.warning(
-                    "geocode cache poisoned for %r (cached value contains "
-                    "vandalism markers) — purging entry and re-fetching",
-                    query,
+                    "geocode cache poisoned for %r (%s) — purging entry, "
+                    "will re-fetch from Nominatim",
+                    query, _suspect_reason,
                 )
                 await geocode_cache.cache_delete(cache_key)
             else:
@@ -267,34 +369,68 @@ async def geocode_address(address: str) -> tuple[float, float, str, str, dict[st
         )
 
     hit = results[0]
-    # OSM-Vandalismus-Defense: wenn irgendein Adress-Feld (display_name
-    # oder address.*) Hetze/Beleidigung enthält, NICHT cachen + den Hit
-    # mit einem sanitisierten display_name verwenden. Lieber ein leicht
-    # weniger schöner Adress-String im Bericht als "10178 Nazi-Stadt" im
-    # PDF-Header eines Käufers (echter Vorfall 2026-05-05).
+    # Layer 1 + 2: zuerst strukturelle Validierung (schema), dann Wort-
+    # liste. Beide Layers landen im selben Sanitize-Pfad — wir cachen
+    # KEIN suspect-Ergebnis, fallen zurueck auf einen aus User-Input
+    # rekonstruierten Adress-String.
     country_code = hit.get("address", {}).get("country_code", "").lower()
-    if _hit_is_vandalised(hit):
-        logger.error(
-            "Nominatim returned vandalised address for query %r — "
-            "fields contain hate/profanity markers. NOT caching, falling "
-            "back to lat/lon-only display. Hit address keys: %s",
-            query, sorted((hit.get("address") or {}).keys()),
-        )
-        # Falls Adress-Display vergiftet, fallback auf Eingabe + ggf. PLZ.
-        # Adressen mit nur PLZ + originalem Eingabe-Text bleiben safe weil
-        # die kein OSM-Editor-Feld sind.
+    schema_ok, schema_reason = _hit_is_schema_valid(hit, query)
+    is_vandalised = _hit_is_vandalised(hit)
+    if (not schema_ok) or is_vandalised:
+        if not schema_ok:
+            logger.error(
+                "Nominatim schema-violation for query %r: %s. "
+                "NOT caching, falling back to user-input display. "
+                "Hit address keys: %s",
+                query, schema_reason,
+                sorted((hit.get("address") or {}).keys()),
+            )
+        else:
+            logger.error(
+                "Nominatim vandalism-pattern hit for query %r — "
+                "Adress-Feld enthaelt Hetze/Beleidigung. NOT caching. "
+                "Hit address keys: %s",
+                query, sorted((hit.get("address") or {}).keys()),
+            )
+        # Falls lat/lon selbst suspect waren (Schema-Reason "lat/lon..."),
+        # können wir keinen safe-Fallback bauen — die ganze Antwort ist
+        # unbrauchbar. HTTP 502 statt Müll-Bericht.
+        if not schema_ok and schema_reason and schema_reason.startswith("lat/lon"):
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail="Adresse konnte nicht zuverlässig geocodiert werden",
+            )
+        # Falls country_code suspect war (Schema-Reason "country_code ..."),
+        # ebenfalls 502 — wir routen Sektionen länderspezifisch, ohne
+        # validen country_code wäre das Daten-Chaos.
+        if not schema_ok and schema_reason and schema_reason.startswith("country_code"):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Adresse außerhalb der unterstützten Länder (DE/NL/AT/CH)",
+            )
+        # Sonst: lat/lon + country sind valid, nur Adress-Felder
+        # vergiftet/suspect. Safe-Fallback aus User-Input + ggf. PLZ.
         addr = hit.get("address") or {}
         postcode = addr.get("postcode")
+        # PLZ darf nur durch wenn sie das Land-Format matcht (war Teil
+        # von Schema-Layer-1). Bei Schema-Fail nehmen wir KEINE PLZ.
+        pat = _POSTCODE_PATTERNS.get(country_code)
+        postcode_safe = postcode if (pat and postcode and pat.match(str(postcode))) else None
         safe_display = (
-            f"{query.strip()} ({postcode})" if postcode and not _contains_vandalism(postcode)
+            f"{query.strip()} ({postcode_safe})" if postcode_safe
             else query.strip()
         )
-        # Region auf country reduzieren (state/city könnten vergiftet sein)
+        # Region: nur country wenn es schema- und vandalism-clean ist.
+        # state/city/county lassen wir komplett weg (sind die Felder
+        # die Vandalen am häufigsten kapern).
         safe_region: dict[str, str] = {}
         country = addr.get("country")
-        if country and not _contains_vandalism(country):
+        if country and _is_address_shaped(country) and not _contains_vandalism(country):
             safe_region["country"] = country
-        result = (float(hit["lat"]), float(hit["lon"]), safe_display, country_code, safe_region)
+        result = (
+            float(hit["lat"]), float(hit["lon"]),
+            safe_display, country_code, safe_region,
+        )
         # bewusst kein cache_set — nächster Request soll erneut Nominatim
         # fragen, OSM ist meist innerhalb Stunden revertiert.
         return result

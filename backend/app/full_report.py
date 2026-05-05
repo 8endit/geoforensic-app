@@ -40,6 +40,7 @@ from app.chart_helpers import (
     build_timeseries_render_context,
 )
 from app.pdf_renderer import html_to_pdf
+from app.types import safe_pluck
 from app.visual_payload import build_payload
 from app.visual_renderer import load_tokens, render_svg
 
@@ -69,6 +70,12 @@ def _full_report_env() -> Environment:
         trim_blocks=True,
         lstrip_blocks=True,
     )
+    # Globale Konstanten für alle Templates — single source of truth statt
+    # ad-hoc-Mappings pro Template. Wenn das Backend neue Pill-Status-
+    # Strings einführt, hier in app/types.py erweitern, alle Templates
+    # ziehen automatisch nach.
+    from app.types import PILL_STATUS_LABEL_DE
+    env.globals["PILL_STATUS_LABEL_DE"] = PILL_STATUS_LABEL_DE
     return env
 
 
@@ -382,12 +389,13 @@ def generate_full_report(
         "lat": lat,
         "lon": lon,
     }
-    sg = (soil_profile or {}).get("soilgrids", {})
-    # Key heisst im SoilDataLoader-Output 'imperviousness_pct', nicht
-    # 'imperviousness' — Tippfehler in der ersten Pipeline-Version, kam
-    # nie auf weil n/a auf dem Korrelations-Radar nicht weiter auffiel.
-    # Domenico-Feedback 2026-05-05: 'warum ist Versiegelung nie da?'
-    sealing_pct = (soil_profile or {}).get("imperviousness_pct")
+    # safe_pluck() statt .get() damit zukünftige Key-Tippfehler beim
+    # nächsten Render eine WARN-Logmeldung produzieren statt silent
+    # None. Single source of truth für die Key-Namen liegt in
+    # app/types.py (SOIL_PROFILE_KEYS). Anlass war der monatelange
+    # 'imperviousness'-statt-'imperviousness_pct'-Bug 2026-05-05.
+    sg = safe_pluck(soil_profile, "soilgrids", {}) or {}
+    sealing_pct = safe_pluck(soil_profile, "imperviousness_pct")
     payload = build_payload(
         address=address_dict,
         psi_points=psi_points or [],
