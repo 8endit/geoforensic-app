@@ -16,11 +16,15 @@
 
   {% if not chart.available %}
   <text x="40" y="35" font-size="14" font-weight="500" fill="#2C2C2A">Bewegungsverlauf</text>
-  <text x="40" y="53" font-size="12" fill="#5F5E5A">Daten in Vorbereitung</text>
+  <text x="40" y="53" font-size="12" fill="#5F5E5A">Zeitreihen-Datensatz wird nachgeliefert</text>
   <rect x="80" y="80" width="560" height="160" rx="8"
         fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
-  <text x="360" y="160" text-anchor="middle" font-size="14"
-        fill="#5F5E5A">Keine Zeitreihe verfügbar — zu wenige Datenpunkte</text>
+  <text x="360" y="148" text-anchor="middle" font-size="13"
+        fill="#5F5E5A">Quartalsweiser Bewegungsverlauf 2019–2023</text>
+  <text x="360" y="170" text-anchor="middle" font-size="11"
+        fill="#888780">EGMS-Zeitreihen-Import läuft. Die Velocity-Schnitte oben</text>
+  <text x="360" y="186" text-anchor="middle" font-size="11"
+        fill="#888780">basieren auf den Mittelwerten der Punkte und sind belastbar.</text>
   {% else %}
   <text x="40" y="35" font-size="14" font-weight="500" fill="#2C2C2A">Bewegungsverlauf · {{ chart.start_date|truncate(4, true, '') }} bis {{ chart.end_date|truncate(4, true, '') }}</text>
   <text x="40" y="53" font-size="12" fill="#5F5E5A">Negative Werte = Setzung · Säulen = monatlicher Niederschlag</text>
