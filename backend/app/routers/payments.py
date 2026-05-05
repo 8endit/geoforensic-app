@@ -372,6 +372,124 @@ async def create_checkout_from_lead(
     return LeadCheckoutResponse(checkout_url=session.url)
 
 
+# ── Direct-purchase from Landing-Page ──────────────────────────────────
+
+class DirectCheckoutRequest(BaseModel):
+    """Form input from the Landing-Page Direct-Purchase Modal: User gibt
+    Adresse + Email ein, will sofort zur Bezahlung ohne den Mail-Detour
+    über den kostenlosen Teaser.
+
+    Wir legen synchron einen Lead an (source="direct-purchase") und
+    erzeugen sofort eine Stripe-Session — der Vollbericht wird nach
+    Webhook-Empfang generiert + per Mail zugestellt.
+    """
+    email: EmailStr
+    address: str
+    coupon_code: str | None = None
+
+
+@router.post("/checkout-direct", response_model=LeadCheckoutResponse)
+async def create_checkout_direct(
+    payload: DirectCheckoutRequest,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+) -> LeadCheckoutResponse:
+    """Direct-purchase from Landing-Page: ein Schritt — kein Teaser-Detour.
+
+    Legt Lead an (source="direct-purchase") und erzeugt sofort die
+    Stripe-Session. Webhook macht später `_generate_and_send_lead_report
+    (source="stripe")` für diesen Lead und mailt den Vollbericht.
+
+    Coupon-Eligibility: der direkte Kauf ist normalerweise NICHT
+    EARLY50-eligible (das ist der Lead-Magnet-Belohnungs-Mechanismus
+    für die ersten 50 Teaser-Empfänger). Wenn `coupon_code=EARLY50`
+    übergeben wird, prüfen wir denselben quota-Mechanismus wie beim
+    Mail-Pfad — wer schnell genug ist, kriegt den Discount auch direkt.
+    """
+    if not payload.address or not payload.address.strip():
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Address required")
+
+    # Lead-Row anlegen mit source="direct-purchase" für Analytics-Tracking.
+    # (Source ist nicht in PAID_SOURCES — der Vollbericht wird vom
+    # Webhook mit source="stripe" getriggert, nicht durch die Lead-Source.)
+    lead = Lead(
+        email=str(payload.email),
+        source="direct-purchase",
+        quiz_answers={"address_input": payload.address.strip()[:500]},
+    )
+    db.add(lead)
+    await db.commit()
+    await db.refresh(lead)
+
+    # Mock-Mode (kein Stripe-Key): Vollbericht direkt triggern, redirect /danke.
+    if not settings.stripe_secret_key:
+        logger.info("Direct purchase mock-mode for new lead %s", lead.id)
+        from app.routers.leads import _generate_and_send_lead_report
+        background_tasks.add_task(
+            _generate_and_send_lead_report,
+            email=str(payload.email),
+            address=payload.address.strip(),
+            answers={"source_metadata": "direct-purchase-mock"},
+            db_url="",
+            source="stripe",
+            lead_id=lead.id,
+        )
+        return LeadCheckoutResponse(
+            checkout_url=f"{settings.stripe_checkout_success_url}&mock=1&lead_id={lead.id}",
+        )
+
+    # Live-Stripe-Pfad — gleicher Code wie checkout-from-lead, nur
+    # mit dem frisch erzeugten Lead.
+    stripe.api_key = settings.stripe_secret_key
+    session_kwargs = {
+        "mode": "payment",
+        "success_url": f"{settings.stripe_checkout_success_url}&session_id={{CHECKOUT_SESSION_ID}}",
+        "cancel_url": settings.stripe_checkout_cancel_url,
+        "customer_email": str(payload.email),
+        "line_items": [
+            {
+                "price_data": {
+                    "currency": "eur",
+                    "product_data": {
+                        "name": "Bodenbericht — Vollbericht (Premium)",
+                        "description": (
+                            f"Adresse: {payload.address.strip()[:200]} · "
+                            "12 Datensektionen, ~30 Seiten PDF, EU-Bodenrichtlinie konform."
+                        ),
+                    },
+                    "unit_amount": settings.stripe_report_price_cents,
+                },
+                "quantity": 1,
+            }
+        ],
+        "metadata": {
+            "flow": "lead",
+            "lead_id": str(lead.id),
+            "email": str(payload.email),
+            "address": payload.address.strip()[:480],
+        },
+        "automatic_tax": {"enabled": True},
+    }
+
+    if payload.coupon_code and payload.coupon_code.upper() == "EARLY50":
+        if await _early50_still_available(db, exclude_email=settings.operator_email):
+            session_kwargs["discounts"] = [{"coupon": "EARLY50"}]
+            session_kwargs["automatic_tax"] = {"enabled": False}
+            logger.info("EARLY50 coupon applied for direct-purchase lead %s", lead.id)
+
+    try:
+        session = stripe.checkout.Session.create(**session_kwargs)
+    except stripe.error.StripeError as exc:
+        logger.exception("Direct-purchase Stripe session create failed for lead %s", lead.id)
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
+
+    if not session.url:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Stripe returned no URL")
+
+    logger.info("Direct-purchase Stripe session %s created for lead %s", session.id, lead.id)
+    return LeadCheckoutResponse(checkout_url=session.url)
+
+
 # ── EARLY50 coupon helpers ──────────────────────────────────────────────
 
 EARLY50_LIMIT = 50  # First N non-operator free leads get the coupon
