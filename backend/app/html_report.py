@@ -633,10 +633,16 @@ def generate_html_report(
   }}
   .header > * {{ position:relative; }}
   .brand-logo {{
-    height:46px; width:auto; opacity:.95;
-    filter:brightness(0) invert(1);
+    /* Logo direkt anzeigen — kein invert-Filter mehr (produziert in
+       Chrome-Headless Doppelbelichtungs-Effekt bei mehrfarbigem PNG mit
+       Anti-Aliasing). Logo selbst hat schon hellen Wortteil + farbigen
+       Icon-Teil, lesbar auf navy Header ohne Filter. */
+    height:48px; width:auto;
     image-rendering:-webkit-optimize-contrast;
     -webkit-backface-visibility:hidden;
+    background:rgba(255,255,255,0.92);
+    padding:6px 10px;
+    border-radius:4px;
   }}
   .brand-text {{ font-size:18px; font-weight:700; letter-spacing:.5px; }}
   .header-meta {{ font-size:10px; opacity:.85; text-align:right; }}
