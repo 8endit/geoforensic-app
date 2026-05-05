@@ -96,11 +96,15 @@
       <div><span class="label">Datenquellen</span> <span class="value">EGMS · BGR · DWD · Copernicus · LUCAS</span></div>
       <div><span class="label">Tier</span> <span class="value" style="color:var(--premium-accent);">{{ _tier_label }}</span></div>
     </div>
-    <div>
-      {% if qr_svg %}
-      <div class="qr">{{ qr_svg|safe }}</div>
-      <div class="qr-label">Provenance · {{ payload.report_id[:8] }}…</div>
-      {% endif %}
-    </div>
+    {#- QR-Code-Block deaktiviert 2026-05-05 — Vollbericht-payload.report_id
+        ist 'BB-YYYY-MM-DD-HHMMSS' (Timestamp-String aus full_report.py),
+        die Provenance-Route /r/{report_id} erwartet aber eine UUID
+        (Report.id aus der DB). Mismatch → QR-Scan landete auf 404.
+        Reaktivieren sobald wir entweder:
+          (a) den payload.report_id auf die echte Report.id-UUID umstellen
+              (braucht DB-Lookup vor full_report-render), ODER
+          (b) den Provenance-Endpoint auf BB-Prefix-Lookup erweitern.
+        Provenance-Page-Code (routers/provenance.py + templates/provenance/)
+        + Caddy-/r/*-Proxy + alembic-Migrationen bleiben fuer Phase 2 drin. -#}
   </div>
 </section>
