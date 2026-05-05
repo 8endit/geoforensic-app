@@ -475,8 +475,15 @@ def build_histogram_render_context(
             return bands["auffaellig"]["color"]
         return bands["erheblich"]["color"]
 
-    # X-axis spans -5 to +5 mm/yr
-    x_min, x_max = -5.0, 5.0
+    # X-axis spans adaptive je nach Nachbarschafts-Streuung. visual_payload
+    # liefert Median/Std und passt x_min/x_max an damit homogene Lagen
+    # nicht als ein Riesenbalken mitten im weiten -5..+5-Range erscheinen
+    # (Domenico-Feedback 2026-05-05). Fallback -5..+5 wenn Component keine
+    # Range mitbringt (Backwards-Compat fuer aelter erzeugte Payloads).
+    x_min = float(component.get("x_min", -5.0))
+    x_max = float(component.get("x_max", 5.0))
+    if x_max - x_min < 1.0:  # Sanity falls jemand fast-flat range schickt
+        x_min, x_max = -5.0, 5.0
 
     def x_for_v(v: float) -> float:
         return chart_x + (v - x_min) / (x_max - x_min) * chart_width
@@ -520,13 +527,24 @@ def build_histogram_render_context(
         except (TypeError, ValueError):
             pass
 
-    # X-axis ticks at -5, -2.5, 0, +2.5, +5 plus own
+    # X-axis ticks: 5 Stueck gleichmaessig verteilt zwischen x_min und x_max,
+    # damit auch bei adaptiver schmaler Range (z.B. -2..+2 fuer Berlin)
+    # sinnvolle Beschriftungen erscheinen. Vorher fix [-5, -2.5, 0, +2.5, +5].
+    def _fmt_tick(v: float) -> str:
+        if v == 0:
+            return "0"
+        sign = "+" if v > 0 else "−"
+        absv = abs(v)
+        if absv == int(absv):
+            return f"{sign}{int(absv)}"
+        return f"{sign}{absv:.1f}"
+
+    _tick_step = (x_max - x_min) / 4.0
     x_ticks = [
-        {"value": -5.0, "label": "−5", "x": x_for_v(-5)},
-        {"value": -2.5, "label": "−2.5", "x": x_for_v(-2.5)},
-        {"value": 0.0, "label": "0", "x": x_for_v(0)},
-        {"value": 2.5, "label": "+2.5", "x": x_for_v(2.5)},
-        {"value": 5.0, "label": "+5", "x": x_for_v(5)},
+        {"value": x_min + i * _tick_step,
+         "label": _fmt_tick(x_min + i * _tick_step),
+         "x": x_for_v(x_min + i * _tick_step)}
+        for i in range(5)
     ]
 
     return {

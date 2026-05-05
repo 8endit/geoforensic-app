@@ -45,22 +45,30 @@
             fill="{{ tokens.accent.psi_motion.color }}"/>
     {% endfor %}
 
-    {# Achsenbeschriftungen #}
+    {# Achsenbeschriftungen — n/a-Achsen werden ausgegraut + ohne
+       Wert-Label gezeigt, statt mit "n/a" das wie ein Bug wirkt
+       (Domenico-Feedback 2026-05-05). Wert-Label nur wenn Daten da. #}
     {% for axis in radar.axes %}
     {%- set is_dominant = axis.name == radar.dominant_driver %}
+    {%- set is_missing = axis.value is none %}
     <text x="{{ '%.1f' % axis.label_x }}" y="{{ '%.1f' % axis.label_y }}"
           text-anchor="{{ axis.anchor }}" font-size="14" font-weight="500"
-          fill="{% if is_dominant %}{{ tokens.accent.psi_motion.color }}{% else %}#2C2C2A{% endif %}">
+          fill="{% if is_dominant %}{{ tokens.accent.psi_motion.color }}{% elif is_missing %}#B4B2A9{% else %}#2C2C2A{% endif %}"
+          {% if is_missing %}font-style="italic"{% endif %}>
       {{ axis.label }}
     </text>
+    {%- if not is_missing %}
     <text x="{{ '%.1f' % axis.label_x }}" y="{{ '%.1f' % axis.value_y }}"
           text-anchor="{{ axis.anchor }}" font-size="12" fill="#5F5E5A">
-      {%- if axis.value is not none -%}
-        {{ '%.1f' % axis.value }}
-      {%- else -%}
-        n/a
-      {%- endif -%}
+      {{ '%.1f' % axis.value }}
     </text>
+    {%- else %}
+    <text x="{{ '%.1f' % axis.label_x }}" y="{{ '%.1f' % axis.value_y }}"
+          text-anchor="{{ axis.anchor }}" font-size="9.5" fill="#B4B2A9"
+          font-style="italic">
+      Phase 2
+    </text>
+    {%- endif %}
     {% endfor %}
   </g>
 

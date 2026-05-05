@@ -383,7 +383,11 @@ def generate_full_report(
         "lon": lon,
     }
     sg = (soil_profile or {}).get("soilgrids", {})
-    sealing_pct = (soil_profile or {}).get("imperviousness")
+    # Key heisst im SoilDataLoader-Output 'imperviousness_pct', nicht
+    # 'imperviousness' — Tippfehler in der ersten Pipeline-Version, kam
+    # nie auf weil n/a auf dem Korrelations-Radar nicht weiter auffiel.
+    # Domenico-Feedback 2026-05-05: 'warum ist Versiegelung nie da?'
+    sealing_pct = (soil_profile or {}).get("imperviousness_pct")
     payload = build_payload(
         address=address_dict,
         psi_points=psi_points or [],

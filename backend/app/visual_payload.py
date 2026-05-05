@@ -458,7 +458,16 @@ def _build_neighborhood_histogram(
     velocities_mm_per_year: list[float],
     own_velocity: float,
 ) -> dict:
-    """Bin velocities -5…+5 mm/yr in 1 mm steps."""
+    """Bin velocities adaptiv basierend auf Streuung der Nachbarschaft.
+
+    Vorher: Fest -5…+5 mm/yr in 1 mm-Schritten. Bei dichten Stadt-Lagen
+    (Berlin-Mitte: alle 78 Punkte zwischen -1 und 0 mm/Jahr) ergab das
+    EINEN Riesenbalken — die Visualisierung war wertlos.
+
+    Jetzt: x-Range = Median ± max(2.5 × Std, 1 mm), Bin-Width abhängig
+    von der Streuung (0.2/0.5/1.0 mm). Heißt für homogene Nachbarschaften
+    sieht man die Feinverteilung, für heterogene bleibt die ±5-mm-Sicht.
+    """
     try:
         import numpy as np
     except ImportError:  # pragma: no cover
@@ -466,21 +475,43 @@ def _build_neighborhood_histogram(
             "bins": [], "own_velocity": own_velocity,
             "psi_count": len(velocities_mm_per_year),
             "interpretation": "Histogramm-Berechnung nicht verfügbar",
+            "x_min": -5.0, "x_max": 5.0,
         }
 
     if not velocities_mm_per_year:
         return {
             "bins": [], "own_velocity": own_velocity, "psi_count": 0,
             "interpretation": "Keine PSI-Punkte im Radius",
+            "x_min": -5.0, "x_max": 5.0,
         }
 
     arr = np.asarray(velocities_mm_per_year, dtype=float)
-    edges = np.arange(-5, 6, 1)  # [-5, -4, ..., 5]
+    median = float(np.median(arr))
+    std = float(np.std(arr))
+    spread_mm = float(arr.max() - arr.min())
+
+    # Adaptive Bin-Width + Range
+    if std < 0.5:
+        bin_width = 0.2
+        x_min = round(median - 1.5, 1)
+        x_max = round(median + 1.5, 1)
+        spread_label = "sehr homogen"
+    elif std < 2.0:
+        bin_width = 0.5
+        x_min = round(median - 3.0, 1)
+        x_max = round(median + 3.0, 1)
+        spread_label = "ähnlich"
+    else:
+        bin_width = 1.0
+        x_min, x_max = -5.0, 5.0
+        spread_label = "heterogen"
+
+    edges = np.arange(x_min, x_max + bin_width, bin_width)
     counts, _ = np.histogram(arr, bins=edges)
     bins = [
         {"min": float(edges[i]), "max": float(edges[i + 1]), "count": int(counts[i])}
         for i in range(len(counts))
-        if counts[i] > 0  # drop empty bins to keep payload tight
+        if counts[i] > 0
     ]
 
     # Percentile of own velocity in distribution (0=most stable, 100=most extreme)
@@ -490,13 +521,18 @@ def _build_neighborhood_histogram(
     percentile = int(round(100 * rank / len(sorted_vals)))
 
     if percentile <= 25:
-        interp = "Im stabilen Bereich der Nachbarschaft"
+        ranking = "im stabilen Bereich der Nachbarschaft"
     elif percentile <= 60:
-        interp = "Im unauffälligen Mittelbereich der Nachbarschaft"
+        ranking = "im unauffälligen Mittelbereich"
     elif percentile <= 85:
-        interp = "Über dem Median der Nachbarschaft"
+        ranking = "über dem Median der Nachbarschaft"
     else:
-        interp = "Im auffälligen Randbereich der Nachbarschaft"
+        ranking = "im auffälligen Randbereich"
+
+    interp = (
+        f"Nachbarschaft {spread_label} (Spannweite {spread_mm:.1f} mm/Jahr). "
+        f"Ihr Standort liegt {ranking}."
+    )
 
     return {
         "bins": bins,
@@ -504,6 +540,10 @@ def _build_neighborhood_histogram(
         "psi_count": int(len(arr)),
         "percentile": percentile,
         "interpretation": interp,
+        "x_min": float(x_min),
+        "x_max": float(x_max),
+        "neighborhood_median_mm_per_year": round(median, 2),
+        "neighborhood_std_mm_per_year": round(std, 2),
     }
 
 
