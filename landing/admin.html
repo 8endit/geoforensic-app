@@ -308,19 +308,53 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         document.getElementById('leads-body').innerHTML = '';
       } else {
         document.getElementById('leads-empty').classList.add('hidden');
-        const TEASER_SOURCES = new Set(['quiz', 'landing', 'premium-waitlist']);
+        // Lifecycle-Mapping aus dem Backend halten:
+        //   PAID_SOURCES        in routers/leads.py  = {paid, checkout, stripe}
+        //   DOI_SOURCES         in routers/leads.py  = {premium-waitlist}
+        //   direct-purchase                          = Lead-Row vor Stripe-Webhook
+        //                                              (Report wird erst NACH Bezahlung
+        //                                              erzeugt, vorher leer)
+        // Variant-Pille zeigt damit den echten Lifecycle-Status, nicht nur
+        // einen Source-Tag. Vorher waren direct-purchase-Leads als "-"
+        // angezeigt → sah aus wie ein Bug (Domenico-Feedback 2026-05-05).
+        const TEASER_SOURCES = new Set(['quiz', 'landing']);
+        const PAID_SOURCES = new Set(['paid', 'checkout', 'stripe']);
         document.getElementById('leads-body').innerHTML = leads.map(l => {
           const q = l.quiz_answers || {};
-          const address = q.address || shortText(q.source_page || '', 30);
-          const isTeaser = TEASER_SOURCES.has(l.source);
-          const variantBadge = isTeaser
-            ? '<span class="pill pill-gray" style="background:#e0f2fe;color:#075985;">TEASER</span>'
-            : (l.source === 'paid'
-                ? '<span class="pill pill-gray" style="background:#dcfce7;color:#166534;">VOLL</span>'
-                : '<span class="pill pill-gray">-</span>');
-          // Report data attached to the lead (set by C1 pipeline).
-          // Missing for pre-C1 leads - show em-dash placeholders.
+          // Adresse aus quiz_answers — payments.py setzt 'address_input'
+          // bei direct-purchase, leads.py setzt 'address' bei quiz/landing.
+          // Beide Quellen abdecken.
+          const address = q.address || q.address_input || shortText(q.source_page || '', 30);
           const r = l.report;
+          // Status-Pille: Lifecycle, nicht Source-Tag.
+          let variantBadge;
+          if (l.source === 'premium-waitlist') {
+            const confirmed = !!l.confirmed_at;
+            variantBadge = confirmed
+              ? '<span class="pill pill-gray" style="background:#ecfdf5;color:#065f46;">WAITLIST · BESTÄTIGT</span>'
+              : '<span class="pill pill-gray" style="background:#fef3c7;color:#78350f;">WAITLIST · DOI OFFEN</span>';
+          } else if (TEASER_SOURCES.has(l.source)) {
+            variantBadge = '<span class="pill pill-gray" style="background:#e0f2fe;color:#075985;">TEASER</span>';
+          } else if (l.source === 'direct-purchase') {
+            // Bezahlung-Lifecycle: solange kein Report existiert, ist die
+            // Stripe-Session offen (oder abgebrochen). Nach Webhook wird
+            // ein Report-Row erzeugt → Status flippt auf BEZAHLT.
+            if (r) {
+              variantBadge = '<span class="pill pill-gray" style="background:#dcfce7;color:#166534;">VOLL · DIREKTKAUF</span>';
+            } else {
+              // Älter als 24h und immer noch ohne Report → Bezahlung
+              // wahrscheinlich abgebrochen. Sonst noch offen.
+              const ageMs = Date.now() - new Date(l.created_at).getTime();
+              const isStale = ageMs > 24 * 60 * 60 * 1000;
+              variantBadge = isStale
+                ? '<span class="pill pill-gray" style="background:#fee2e2;color:#991b1b;">BEZAHLUNG ABGEBROCHEN</span>'
+                : '<span class="pill pill-gray" style="background:#fef3c7;color:#78350f;">BEZAHLUNG OFFEN</span>';
+            }
+          } else if (PAID_SOURCES.has(l.source)) {
+            variantBadge = '<span class="pill pill-gray" style="background:#dcfce7;color:#166534;">VOLL</span>';
+          } else {
+            variantBadge = `<span class="pill pill-gray">${l.source || '-'}</span>`;
+          }
           const ampelCell = r && r.ampel
             ? `<span class="pill" style="${AMPEL_STYLE[r.ampel] || ''}">${AMPEL_LABEL[r.ampel] || r.ampel}</span>`
             : '<span class="text-gray-300">-</span>';
@@ -364,11 +398,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       const header = ['created_at', 'email', 'source', 'address', 'nutzung', 'bedenken', 'historie', 'dringlichkeit'];
       const rows = leads.map(l => {
         const q = l.quiz_answers || {};
+        // address_input ist der direct-purchase-Variante-Key (payments.py),
+        // address der quiz-Variante-Key (leads.py). Beide abdecken.
         return [
           l.created_at,
           l.email,
           l.source,
-          q.address || '',
+          q.address || q.address_input || '',
           q.nutzung || '',
           q.bedenken || '',
           q.historie || '',

@@ -418,6 +418,7 @@ async def _generate_and_send_lead_report(
             # als Argument, läuft deshalb nach gather.
             from app.slope_data import fetch_slope
             from app.altlasten_data import fetch_altlasten
+            from app.precipitation_data import fetch_annual_precipitation_mm
 
             state = (region or {}).get("state")
             _is_de = country_code.lower() == "de"
@@ -482,13 +483,27 @@ async def _generate_and_send_lead_report(
                     )
                     return None
 
+            async def _safe_precipitation():
+                # Open-Meteo Historical (ERA5). Optional fuer den Korrelations-
+                # Radar — bei Fehler None, Achse zeigt 'Phase 2'.
+                try:
+                    return await fetch_annual_precipitation_mm(lat, lon)
+                except Exception:
+                    logger.exception(
+                        "Open-Meteo precipitation lookup failed for (%s, %s)",
+                        lat, lon,
+                    )
+                    return None
+
             _phase1_t0 = time.perf_counter()
-            mining_data, flood_data, kostra_data, slope_data, altlasten_data = await asyncio.gather(
+            (mining_data, flood_data, kostra_data, slope_data,
+             altlasten_data, annual_precip_mm) = await asyncio.gather(
                 _safe_mining(),
                 _safe_flood(),
                 _safe_kostra(),
                 _safe_slope(),
                 _safe_altlasten(),
+                _safe_precipitation(),
             )
             logger.info(
                 "pipeline.phase1_external took=%.2fs lead=%s",
@@ -582,6 +597,7 @@ async def _generate_and_send_lead_report(
                     country_code=country_code,
                     psi_points=psi_points,
                     psi_timeseries=psi_timeseries,
+                    annual_precipitation_mm=annual_precip_mm,
                     tier=_tier,
                 )
             logger.info(

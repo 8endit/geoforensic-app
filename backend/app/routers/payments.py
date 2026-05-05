@@ -26,6 +26,7 @@ import asyncio
 import json
 import logging
 import os
+import re
 import uuid
 
 import stripe
@@ -252,7 +253,70 @@ def _resolve_tier(raw: str | None) -> str:
     return t if t in VALID_TIERS else "basis"
 
 
-def _tier_price_cents(tier: str) -> int:
+def _resolve_country_pricing(country_code: str | None) -> str:
+    """NL = launch-market (aggressiv); DE/AT/CH = standard. Andere → NL."""
+    cc = (country_code or "").strip().lower()
+    if cc in {"de", "at", "ch"}:
+        return "de"
+    return "nl"
+
+
+# Heuristik: aus dem User-eingegebenen Adress-String den Land-Code raten.
+# Spart einen extra Nominatim-Call beim Checkout (1s extra wäre vermeidbar).
+# 99% korrekt fuer unsere Use-Cases, faellt fuer ambiguose Adressen
+# (kein PLZ angegeben) auf NL = aggressiv = guenstiger zurueck → kunden-
+# freundlicher Default als versehentlich DE-Pricing aufzwingen.
+_NL_POSTCODE_IN_ADDRESS = re.compile(r"\b\d{4}\s?[A-Za-z]{2}\b")
+_DE_POSTCODE_IN_ADDRESS = re.compile(r"\b\d{5}\b")
+_AT_CH_POSTCODE_IN_ADDRESS = re.compile(r"\b\d{4}\b(?!\s?[A-Za-z]{2})")
+
+
+def _country_from_address_input(address: str | None) -> str | None:
+    """Best-effort Land-Detection aus User-Input. None wenn unklar.
+
+    Reihenfolge wichtig: NL-PLZ matcht 4 Ziffern + 2 Buchstaben, das
+    enthaelt auch eine Ziffernfolge die DE-PLZ-aehnlich aussieht. Erst
+    NL pruefen.
+    """
+    if not address:
+        return None
+    s = address.strip()
+    if _NL_POSTCODE_IN_ADDRESS.search(s):
+        return "nl"
+    if _DE_POSTCODE_IN_ADDRESS.search(s):
+        return "de"
+    if _AT_CH_POSTCODE_IN_ADDRESS.search(s):
+        # AT vs CH lässt sich aus PLZ allein nicht trennen — beide haben
+        # gleiches Pricing-Tier, also nehme "de" (= standard).
+        return "de"
+    # Wort-basierte Fallbacks: deutsche Großstadtnamen → "de"
+    s_low = s.lower()
+    if any(c in s_low for c in (
+        "berlin", "münchen", "muenchen", "hamburg", "köln", "koeln",
+        "frankfurt", "stuttgart", "düsseldorf", "duesseldorf",
+        "leipzig", "dresden", "bremen", "hannover", "nürnberg", "nuernberg",
+    )):
+        return "de"
+    if any(c in s_low for c in (
+        "amsterdam", "rotterdam", "den haag", "utrecht", "eindhoven",
+        "groningen", "tilburg", "maastricht", "haarlem",
+    )):
+        return "nl"
+    return None
+
+
+def _tier_price_cents(tier: str, country_code: str | None = None) -> int:
+    """Preis fuer (tier, country). Default-Country ist NL (Launch-Markt).
+
+    NL Basis 39 € / Komplett 59 €  vs.  DE/AT/CH 49 € / 89 €.
+    EARLY50-Coupon wirkt prozentual auf beide (Stripe-Coupon ist 50 % off).
+    """
+    pricing = _resolve_country_pricing(country_code)
+    if pricing == "de":
+        if tier == "komplett":
+            return settings.stripe_report_de_komplett_price_cents
+        return settings.stripe_report_de_price_cents
+    # NL / Default
     if tier == "komplett":
         return settings.stripe_report_komplett_price_cents
     return settings.stripe_report_price_cents
@@ -354,6 +418,9 @@ async def create_checkout_from_lead(
     stripe.api_key = settings.stripe_secret_key
     tier = _resolve_tier(payload.tier)
     tier_name, tier_desc = _tier_product_label(tier)
+    # Country-Pricing: NL-Launch-Tarif vs DE/AT/CH-Standard.
+    country = _country_from_address_input(payload.address)
+    unit_amount = _tier_price_cents(tier, country)
     session_kwargs = {
         "mode": "payment",
         "success_url": f"{settings.stripe_checkout_success_url}&session_id={{CHECKOUT_SESSION_ID}}",
@@ -367,7 +434,7 @@ async def create_checkout_from_lead(
                         "name": tier_name,
                         "description": f"Adresse: {payload.address[:200]} · {tier_desc}",
                     },
-                    "unit_amount": _tier_price_cents(tier),
+                    "unit_amount": unit_amount,
                 },
                 "quantity": 1,
             }
@@ -375,6 +442,7 @@ async def create_checkout_from_lead(
         "metadata": {
             "flow": "lead",
             "tier": tier,
+            "country_pricing": country or "nl-default",
             "lead_id": str(lead.id),
             "email": payload.email,
             "address": payload.address[:480],
@@ -487,6 +555,10 @@ async def create_checkout_direct(
     # Live-Stripe-Pfad
     stripe.api_key = settings.stripe_secret_key
     tier_name, tier_desc = _tier_product_label(tier)
+    # Country-Pricing: NL Launch-Tarif vs DE/AT/CH Standard. Heuristik
+    # aus PLZ in der User-Eingabe — kein extra Geocode-Call hier.
+    country = _country_from_address_input(payload.address)
+    unit_amount = _tier_price_cents(tier, country)
     session_kwargs = {
         "mode": "payment",
         "success_url": f"{settings.stripe_checkout_success_url}&session_id={{CHECKOUT_SESSION_ID}}",
@@ -500,7 +572,7 @@ async def create_checkout_direct(
                         "name": tier_name,
                         "description": f"Adresse: {payload.address.strip()[:200]} · {tier_desc}",
                     },
-                    "unit_amount": _tier_price_cents(tier),
+                    "unit_amount": unit_amount,
                 },
                 "quantity": 1,
             }
@@ -508,6 +580,7 @@ async def create_checkout_direct(
         "metadata": {
             "flow": "lead",
             "tier": tier,
+            "country_pricing": country or "nl-default",
             "lead_id": str(lead.id),
             "email": str(payload.email),
             "address": payload.address.strip()[:480],

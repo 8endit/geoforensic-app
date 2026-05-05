@@ -36,9 +36,19 @@ class Settings(BaseSettings):
     # Bundle-Tiers (Modell B): Basis = 12 Hauptsektionen + EU-Directive,
     # Komplett = Basis + 5 Bonus-Module (Wind-Erosion separat, PAK/PCB,
     # mikrobielle Aktivität, Bodenstruktur, Hydromorphologie). EARLY50
-    # wirkt prozentual auf beide → Basis 19,50 € / Komplett 29,50 €.
-    stripe_report_price_cents: int = 3900       # Basis (kept name for backwards compat)
-    stripe_report_komplett_price_cents: int = 5900  # Komplett-Tier
+    # wirkt prozentual auf beide.
+    #
+    # Country-Routing seit 2026-05-05 (siehe payments._tier_price_cents):
+    # NL ist Launch-Markt mit aggressivem Preis (Anker FunderConsult 7,95 €):
+    #   NL Basis  = 39 € / Komplett = 59 €  → mit EARLY50: 19,50 / 29,50
+    # DE/AT/CH ist Standard-Markt (kein Foundation-Label-Vergleich):
+    #   DE Basis  = 49 € / Komplett = 89 €  → mit EARLY50: 24,50 / 44,50
+    # Default-Pfad (NL_*-Werte) bleibt 'stripe_report_price_cents' weil das
+    # in der Server-.env so gepflegt ist; DE-Werte sind zusätzliche Settings.
+    stripe_report_price_cents: int = 3900           # NL Basis (default/legacy name)
+    stripe_report_komplett_price_cents: int = 5900  # NL Komplett
+    stripe_report_de_price_cents: int = 4900        # DE/AT/CH Basis
+    stripe_report_de_komplett_price_cents: int = 8900  # DE/AT/CH Komplett
 
     # Operator's own email — used to exclude internal smoke-test leads
     # from the EARLY50 coupon counter so launch-day promo slots aren't

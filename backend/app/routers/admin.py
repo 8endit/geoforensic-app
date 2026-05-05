@@ -232,6 +232,10 @@ async def list_leads(
             "source": l.source,
             "quiz_answers": l.quiz_answers or {},
             "created_at": l.created_at.isoformat() if l.created_at else None,
+            # confirmed_at = NULL fuer Transactional-Leads, gesetzt fuer
+            # premium-waitlist nach DOI. Admin-UI nutzt das fuer den
+            # Status-Pille 'WAITLIST · DOI OFFEN' vs '· BESTAETIGT'.
+            "confirmed_at": l.confirmed_at.isoformat() if l.confirmed_at else None,
             "report": latest_report,
         })
 
