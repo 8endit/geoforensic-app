@@ -311,31 +311,91 @@ def import_csv(conn, csv_path: str, batch_rows: int = 100_000) -> dict:
     }
 
 
+def _download_to_temp(url: str, dest_dir: str) -> str:
+    """Download a CSV/ZIP from the EGMS-CDN to dest_dir, return local path.
+
+    EGMS-Downloads sind oft als .zip ausgeliefert (eine CSV drin). Wir
+    auspacken in dest_dir und geben den CSV-Pfad zurück.
+    """
+    import shutil
+    import urllib.request
+    import zipfile
+
+    os.makedirs(dest_dir, exist_ok=True)
+    fname = url.rstrip("/").split("/")[-1].split("?")[0] or "egms_download"
+    local_path = os.path.join(dest_dir, fname)
+    print(f"  Downloading {url} → {local_path}")
+    t0 = time.time()
+    with urllib.request.urlopen(url, timeout=300) as resp:
+        with open(local_path, "wb") as out:
+            shutil.copyfileobj(resp, out, length=1024 * 1024)
+    size_mb = os.path.getsize(local_path) / (1024 * 1024)
+    print(f"  Got {size_mb:.1f} MB in {time.time()-t0:.0f}s")
+
+    # Wenn ZIP: erste CSV drin auspacken
+    if local_path.lower().endswith(".zip"):
+        with zipfile.ZipFile(local_path) as zf:
+            csv_members = [n for n in zf.namelist() if n.lower().endswith(".csv")]
+            if not csv_members:
+                raise RuntimeError(f"ZIP contains no CSV: {zf.namelist()}")
+            target = os.path.join(dest_dir, os.path.basename(csv_members[0]))
+            with zf.open(csv_members[0]) as src, open(target, "wb") as dst:
+                shutil.copyfileobj(src, dst, length=1024 * 1024)
+            print(f"  Extracted CSV: {target}")
+            return target
+    return local_path
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Import EGMS L2b Calibrated time-series CSV → egms_timeseries"
     )
-    parser.add_argument("--csv", required=True, help="Path to EGMS L2b CSV file")
+    src = parser.add_mutually_exclusive_group(required=True)
+    src.add_argument("--csv", help="Path to EGMS L2b CSV file (already on disk)")
+    src.add_argument("--url", help="Direct CDN URL — skript downloadet selbst")
+    src.add_argument(
+        "--bulk-list",
+        help="Path zur 'Download Links'-Textdatei vom EGMS Explorer "
+             "(eine URL pro Zeile). Skript downloadet + importiert alle der Reihe nach.",
+    )
     parser.add_argument("--db-url", default=os.getenv("DATABASE_URL", DEFAULT_DB_URL))
     parser.add_argument("--batch", type=int, default=100_000)
+    parser.add_argument(
+        "--download-dir", default="/tmp/egms-l2",
+        help="Temp-Verzeichnis fuer Download (default /tmp/egms-l2)",
+    )
     args = parser.parse_args()
 
-    if not os.path.isfile(args.csv):
-        print(f"ERROR: CSV not found: {args.csv}", file=sys.stderr)
-        return 2
+    # Pfad-Liste erstellen
+    csv_paths: list[str] = []
+    if args.csv:
+        if not os.path.isfile(args.csv):
+            print(f"ERROR: CSV not found: {args.csv}", file=sys.stderr)
+            return 2
+        csv_paths.append(args.csv)
+    elif args.url:
+        csv_paths.append(_download_to_temp(args.url, args.download_dir))
+    elif args.bulk_list:
+        with open(args.bulk_list, "r") as f:
+            urls = [ln.strip() for ln in f if ln.strip() and not ln.startswith("#")]
+        print(f"Found {len(urls)} URL(s) in bulk list")
+        for i, url in enumerate(urls, 1):
+            print(f"\n=== URL {i}/{len(urls)} ===")
+            csv_paths.append(_download_to_temp(url, args.download_dir))
 
-    size_mb = os.path.getsize(args.csv) / (1024 * 1024)
-    print(f"Importing {args.csv} ({size_mb:.1f} MB)")
-    print(f"DB: {args.db_url.split('@')[-1] if '@' in args.db_url else args.db_url}")
-
+    print(f"\nDB: {args.db_url.split('@')[-1] if '@' in args.db_url else args.db_url}")
     conn = psycopg2.connect(args.db_url)
     conn.autocommit = False
     try:
-        result = import_csv(conn, args.csv, batch_rows=args.batch)
-        print(f"\n✓ Done: {result}")
-        return 0
+        for i, path in enumerate(csv_paths, 1):
+            size_mb = os.path.getsize(path) / (1024 * 1024)
+            print(f"\n=== Import {i}/{len(csv_paths)}: {path} ({size_mb:.1f} MB) ===")
+            result = import_csv(conn, path, batch_rows=args.batch)
+            print(f"  ✓ {result}")
     finally:
         conn.close()
+    print("\nAll done.")
+    return 0
 
 
 if __name__ == "__main__":
