@@ -110,26 +110,25 @@ a { color: var(--premium-accent, #22C55E); text-decoration: none; }
   position: relative;
 }
 
-/* Cover-Brand-Block: beide Texte konsistent im Display-Font (Sentient
-   Light, mit kleiner uppercase-Modulation rechts) statt vorher Sentient
-   links + Geist Mono rechts. Domenico-Feedback 2026-05-05: Font-Mix
-   wirkte unpassend nebeneinander. */
+/* Cover-Brand-Block: beide Texte konsistent in Sentient Extralight,
+   gleicher Schnitt + gleicher Schriftgrad + beide mixed case. Vorherige
+   Variante (uppercase rechts mit letterspacing) wirkte trotz gleicher
+   Familie wie eine andere Schrift weil Sentient Extralight bei
+   kleinem Schriftgrad + uppercase narrow + condensed wird. Domenico-
+   Feedback 2026-05-05 (zweite Welle nach erstem Cover-Fix). */
 .cover .brand {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   font-family: var(--font-display, "Sentient"), sans-serif;
-  font-size: 10.5pt;
+  font-size: 13pt;
   font-weight: 200;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  opacity: 0.78;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  opacity: 0.85;
 }
 .cover .brand .logo {
   font-size: 14pt;
-  font-weight: 200;
-  letter-spacing: 0.04em;
-  text-transform: none;
   opacity: 1;
 }
 
