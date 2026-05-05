@@ -547,6 +547,28 @@ async def _generate_and_send_lead_report(
                 )
                 soil_directive_data = None
 
+            # Pestizide (LUCAS NUTS2-Aggregat) — wird in Section 10 gerendert.
+            # War vorher nicht angedockt und blieb im Vollbericht stumm
+            # ("Daten nicht verfügbar"), Section ohne Inhalt — Audit
+            # 2026-05-05.
+            pesticides_data: dict | None = None
+            try:
+                from app.pesticides_data import query_pesticides
+                _t0 = time.perf_counter()
+                _pest_result = await asyncio.to_thread(query_pesticides, lat, lon)
+                pesticides_data = _pest_result.to_dict()
+                logger.info(
+                    "pipeline.pesticides took=%.2fs lead=%s available=%s",
+                    time.perf_counter() - _t0, lead_id,
+                    pesticides_data.get("available"),
+                )
+            except Exception:
+                logger.exception(
+                    "Pestizide-Lookup failed for (%s, %s); section will be skipped",
+                    lat, lon,
+                )
+                pesticides_data = None
+
             # Map our PostGIS row schema (mean_velocity_mm_yr, lat, lon,
             # coherence, distance_m) to the visual_payload.build_payload
             # schema (velocity, lat, lon, coherence). Without this the
@@ -608,6 +630,7 @@ async def _generate_and_send_lead_report(
                     soil_directive_data=soil_directive_data,
                     altlasten_data=altlasten_data,
                     slope_data=slope_data,
+                    pesticides_data=pesticides_data,
                     country_code=country_code,
                     psi_points=psi_points,
                     psi_timeseries=psi_timeseries,

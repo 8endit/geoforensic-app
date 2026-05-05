@@ -114,10 +114,21 @@ def classify(
     # slope > 1.5x the mean and at least 0.5 mm/yr above it), bump one
     # class. This catches cases where seasonal averaging masks an
     # ongoing acceleration.
+    #
+    # Floor (added 2026-05-05): the trend itself must clear THRESHOLDS[1]
+    # = 1.5 mm/yr in magnitude. Without this floor, a stable site
+    # (base 0.5–1.0 mm/yr, Burland 2 / grade B) was being bumped to
+    # class 3 / grade C purely because a noisy regression slope was
+    # >1.5x the small base. A trend that is itself sub-1.5 mm/yr is
+    # not classification-relevant on its own.
     trend_bumped = False
     if trend_slope_mm_per_year is not None and base > 0:
         trend_mag = abs(trend_slope_mm_per_year)
-        if trend_mag > 1.5 * base and trend_mag - base >= 0.5:
+        if (
+            trend_mag >= THRESHOLDS[1]
+            and trend_mag > 1.5 * base
+            and trend_mag - base >= 0.5
+        ):
             cls = min(cls + 1, 6)
             trend_bumped = True
             velocity_basis = "Mittel der PSI + Trend-Modifier"

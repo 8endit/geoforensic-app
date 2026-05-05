@@ -26,6 +26,7 @@ from __future__ import annotations
 import base64
 import logging
 import re
+import secrets
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
@@ -36,7 +37,6 @@ from app.basemap import build_map_render_context, fetch_basemap
 from app.chart_helpers import (
     build_histogram_render_context,
     build_radar_render_context,
-    build_soil_stack_render_context,
     build_timeseries_render_context,
 )
 from app.pdf_renderer import html_to_pdf
@@ -381,7 +381,10 @@ def generate_full_report(
     if tier not in ("basis", "komplett"):
         tier = "basis"
     issued_dt = datetime.now(timezone.utc)
-    report_id = report_id or f"BB-{issued_dt.strftime('%Y-%m-%d-%H%M%S')}"
+    # Lesbare Bericht-Nr: BB-YYYY-MM-DD-XXXX (4-stelliger Hex-Suffix).
+    # Vorher: HHMMSS-Timestamp — wirkt im Cover wie Build-Number, nicht wie
+    # Geschäftsdokument. 4 Hex-Chars = 65k Möglichkeiten, reicht pro Tag.
+    report_id = report_id or f"BB-{issued_dt.strftime('%Y-%m-%d')}-{secrets.token_hex(2).upper()}"
 
     # ── 1. Build the visuals payload ───────────────────────────────────
     address_dict = {
@@ -439,11 +442,8 @@ def generate_full_report(
     ts_ctx = build_timeseries_render_context(payload["components"]["velocity_timeseries"])
     ts_svg = render_svg("velocity_timeseries",
                         payload["components"]["velocity_timeseries"], chart=ts_ctx)
-    soil_ctx = build_soil_stack_render_context(
-        payload["components"]["soil_context_stack"], tokens=tokens,
-    )
-    soil_svg = render_svg("soil_context_stack",
-                          payload["components"]["soil_context_stack"], stack=soil_ctx)
+    # soil_context_stack-Visual entfernt 2026-05-05 — Schicht-Mächtigkeiten
+    # waren hardcoded und entsprachen nicht den tatsächlichen Datenquellen.
     radar_ctx = build_radar_render_context(payload["components"]["correlation_radar"])
     radar_svg = render_svg("correlation_radar",
                            payload["components"]["correlation_radar"], radar=radar_ctx)
@@ -502,7 +502,7 @@ def generate_full_report(
         pills=pills[3],
     )
     s07 = env.get_template("section_07_bodenqualitaet.html").render(
-        payload=payload, soil_profile=soil_profile, soil_stack_svg=soil_svg,
+        payload=payload, soil_profile=soil_profile,
     )
     s08 = env.get_template("section_08_schwermetalle.html").render(soil_profile=soil_profile)
     s09 = env.get_template("section_09_naehrstoffe.html").render(soil_profile=soil_profile)

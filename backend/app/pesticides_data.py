@@ -74,6 +74,37 @@ class PesticidesResult:
     available: bool = False
     note: Optional[str] = None
 
+    def to_dict(self) -> dict:
+        """Plain dict for Jinja-template consumption.
+
+        Sums concentrations across all detected substances and surfaces
+        the highest-conc substance name — those are the headline KPIs
+        Section 10 (`section_10_pestizide.html`) renders.
+        """
+        total_residue = round(
+            sum(h.concentration_mg_kg for h in self.top_substances), 4
+        )
+        top_name = self.top_substances[0].name if self.top_substances else None
+        return {
+            "available": self.available,
+            "nuts2_code": self.nuts2_code,
+            "nuts2_name": self.nuts2_name,
+            "regional_scope": self.nuts2_name,
+            "detected_count": self.n_substances_detected,
+            "flagged_count": self.flagged_count,
+            "total_residue_mg_per_kg": total_residue,
+            "top_substance": top_name,
+            "top_substances": [
+                {
+                    "name": h.name,
+                    "concentration_mg_kg": h.concentration_mg_kg,
+                    "flagged_legacy": h.flagged_legacy,
+                }
+                for h in self.top_substances
+            ],
+            "note": self.note,
+        }
+
 
 class PesticidesLookup:
     _instance: "PesticidesLookup | None" = None
@@ -156,6 +187,16 @@ class PesticidesLookup:
         return None, None
 
     def query(self, lat: float, lon: float, top_k: int = 5) -> PesticidesResult:
+        # Wenn weder Polygone noch DataFrame geladen wurden, ist die Datei
+        # nicht im Raster-Verzeichnis abgelegt — das ehrlich sagen statt
+        # "Adresse außerhalb EU".
+        if not self._features and self._df is None:
+            return PesticidesResult(
+                nuts2_code=None, nuts2_name=None,
+                n_substances_detected=0, available=False,
+                note="LUCAS-Pestizid-Datensatz auf diesem Server nicht installiert.",
+            )
+
         nuts2, name = self._find_nuts2(lat, lon)
         if nuts2 is None:
             return PesticidesResult(
