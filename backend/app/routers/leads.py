@@ -217,7 +217,11 @@ async def _generate_and_send_lead_report(
                 text(
                     """
                     SELECT
+                        id AS point_id,
                         mean_velocity_mm_yr,
+                        coherence,
+                        ST_Y(geom) AS lat,
+                        ST_X(geom) AS lon,
                         ST_Distance(
                             geom::geography,
                             ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography
@@ -462,6 +466,28 @@ async def _generate_and_send_lead_report(
                 )
                 altlasten_data = None
 
+            # Map our PostGIS row schema (mean_velocity_mm_yr, lat, lon,
+            # coherence, distance_m) to the visual_payload.build_payload
+            # schema (velocity, lat, lon, coherence). Without this the
+            # Vollbericht-visuals see psi_points=[] and renders "Sparse
+            # Data / 0 Punkte" obwohl der Teaser correctly 76 Punkte zählt
+            # — Daten-Bug aus AUDIT_VOLLBERICHT_2026-05-05 §2.1.
+            psi_points = [
+                {
+                    "lat": p["lat"],
+                    "lon": p["lon"],
+                    "velocity": p["mean_velocity_mm_yr"],
+                    "coherence": p.get("coherence"),
+                }
+                for p in points
+            ]
+            # timeseries hier ist list[tuple(period_iso, avg_displacement)]
+            # — build_payload erwartet list[dict(date, displacement_mm)].
+            psi_timeseries = [
+                {"date": period, "displacement_mm": float(disp)}
+                for period, disp in (timeseries or [])
+            ]
+
             # FPDF is synchronous and CPU-bound — wrap in to_thread so a
             # multi-second render does not block the event loop and starve
             # other inbound /api/leads requests.
@@ -484,6 +510,8 @@ async def _generate_and_send_lead_report(
                 altlasten_data=altlasten_data,
                 slope_data=slope_data,
                 country_code=country_code,
+                psi_points=psi_points,
+                psi_timeseries=psi_timeseries,
             )
 
         # 6. Persist a Report row for this lead (C1). The row carries all

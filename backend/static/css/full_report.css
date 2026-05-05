@@ -194,15 +194,21 @@ a { color: var(--premium-accent, #22C55E); text-decoration: none; }
 }
 
 /* ════════════════════════════════════════════════════════════════════
- * BLOCK SEPARATORS — full-page between thematic blocks
+ * BLOCK SEPARATORS — kompakter Inline-Header zwischen den 4 Themenblöcken.
+ * Bis 2026-05-04 waren das full-page heros (height: 257mm + break-before
+ * + break-after) — verbrauchten 3 Seiten im Vollbericht für ~250 Zeichen
+ * Text. Audit 2026-05-05 §3.1: weg damit, kompakter Inline-Block der
+ * mit der ersten Folge-Sektion auf einer Seite läuft.
  * ════════════════════════════════════════════════════════════════════ */
 .block-sep {
-  break-before: page;
-  break-after: page;
-  height: 257mm;        /* A4 minus top+bottom margins */
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  padding: 30mm 0;
+  /* Bewusst KEIN break-before/break-after — Trenner soll bei der nächsten
+     Section bleiben. break-after: avoid hält den Header bei der Section. */
+  break-after: avoid;
+  break-inside: avoid;
+  margin: 14mm 0 8mm;
+  padding: 8mm 0 6mm;
+  border-top: 1.5pt solid #000000;
+  border-bottom: 0.25pt solid #C8C5BC;
 }
 .block-sep .num {
   font-family: var(--font-mono, "Geist Mono"), monospace;
@@ -212,18 +218,19 @@ a { color: var(--premium-accent, #22C55E); text-decoration: none; }
   color: var(--premium-accent, #22C55E);
 }
 .block-sep h2 {
-  font-size: 36pt;
+  font-size: 22pt;
   font-weight: 200;
-  line-height: 1.05;
+  line-height: 1.1;
   color: #000000;
-  margin: 12pt 0 18pt;
-  max-width: 130mm;
+  margin: 6pt 0 8pt;
+  max-width: 160mm;
 }
-.block-sep .desc { color: #5F5E5A; max-width: 120mm; font-size: 11pt; line-height: 1.55; }
+.block-sep .desc { color: #5F5E5A; max-width: 160mm; font-size: 10pt; line-height: 1.5; margin: 0 0 8pt; }
 .block-sep .status-row {
   display: flex;
-  gap: 14pt;
-  margin-top: 20pt;
+  flex-wrap: wrap;
+  gap: 8pt;
+  margin-top: 6pt;
 }
 .block-sep .status-pill {
   font-family: var(--font-mono, "Geist Mono"), monospace;

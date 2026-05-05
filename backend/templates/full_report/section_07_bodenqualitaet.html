@@ -27,44 +27,61 @@
       <tr><th>Parameter</th><th>Wert</th><th>Einheit</th><th>Status</th></tr>
     </thead>
     <tbody>
+      {#- WICHTIG: query_soilgrids in soil_data.py wendet SOILGRIDS_PROPERTIES.scale
+          schon an. Die Werte hier sind also bereits in finaler Einheit:
+            soc   in g/kg  (= SOC% × 10, also /10 für Prozent)
+            phh2o in pH (5.0–8.0 typisch)
+            clay/sand/silt in % (0–100, Σ ≈ 100)
+            bdod  in g/cm³ (0.9–1.8 typisch)
+          NICHT nochmal teilen — Audit 2026-05-05 §2.2.
+      -#}
       {% if sg.get('soc') is not none %}
+      {%- set soc_pct = sg.soc / 10.0 %}{# g/kg → % #}
       <tr>
         <td>Organischer Kohlenstoff (SOC)</td>
-        <td class="num">{{ '%.2f' % (sg.soc / 10.0) }}</td>
+        <td class="num">{{ '%.2f' % soc_pct }}</td>
         <td>%</td>
-        <td><span class="pill {{ 'stabil' if (sg.soc / 10.0) > 1.5 else 'moderat' }}">{{ 'humos' if (sg.soc / 10.0) > 1.5 else 'arm' }}</span></td>
+        <td><span class="pill {{ 'stabil' if soc_pct > 1.5 else 'moderat' }}">{{ 'humos' if soc_pct > 1.5 else 'arm' }}</span></td>
       </tr>
       {% endif %}
       {% if sg.get('phh2o') is not none %}
       <tr>
         <td>pH-Wert (H₂O)</td>
-        <td class="num">{{ '%.1f' % (sg.phh2o / 10.0) }}</td>
+        <td class="num">{{ '%.1f' % sg.phh2o }}</td>
         <td>—</td>
-        <td><span class="pill stabil">{% if (sg.phh2o / 10.0) < 5.5 %}sauer{% elif (sg.phh2o / 10.0) > 7.5 %}alkalisch{% else %}neutral{% endif %}</span></td>
+        <td><span class="pill stabil">{% if sg.phh2o < 5.5 %}sauer{% elif sg.phh2o > 7.5 %}alkalisch{% else %}neutral{% endif %}</span></td>
       </tr>
       {% endif %}
       {% if sg.get('clay') is not none %}
       <tr>
         <td>Tonanteil</td>
         <td class="num">{{ '%.0f' % sg.clay }}</td>
-        <td>g/kg</td>
-        <td><span class="pill {{ 'moderat' if sg.clay > 350 else 'stabil' }}">{{ 'lehmig' if sg.clay > 250 else 'sandig' }}</span></td>
+        <td>%</td>
+        <td><span class="pill {{ 'moderat' if sg.clay > 35 else 'stabil' }}">{{ 'lehmig' if sg.clay > 25 else 'sandig' }}</span></td>
       </tr>
       {% endif %}
       {% if sg.get('sand') is not none %}
       <tr>
         <td>Sandanteil</td>
         <td class="num">{{ '%.0f' % sg.sand }}</td>
-        <td>g/kg</td>
+        <td>%</td>
+        <td><span class="pill muted">—</span></td>
+      </tr>
+      {% endif %}
+      {% if sg.get('silt') is not none %}
+      <tr>
+        <td>Schluffanteil</td>
+        <td class="num">{{ '%.0f' % sg.silt }}</td>
+        <td>%</td>
         <td><span class="pill muted">—</span></td>
       </tr>
       {% endif %}
       {% if sg.get('bdod') is not none %}
       <tr>
         <td>Lagerungsdichte</td>
-        <td class="num">{{ '%.2f' % (sg.bdod / 100.0) }}</td>
+        <td class="num">{{ '%.2f' % sg.bdod }}</td>
         <td>g/cm³</td>
-        <td><span class="pill {{ 'auffaellig' if (sg.bdod / 100.0) > 1.6 else 'stabil' }}">{{ 'verdichtet' if (sg.bdod / 100.0) > 1.6 else 'normal' }}</span></td>
+        <td><span class="pill {{ 'auffaellig' if sg.bdod > 1.6 else 'stabil' }}">{{ 'verdichtet' if sg.bdod > 1.6 else 'normal' }}</span></td>
       </tr>
       {% endif %}
     </tbody>
