@@ -12,6 +12,11 @@ from __future__ import annotations
 
 _BLOCKED_STATIC_SUFFIXES = (".py", ".ps1", ".exe", ".sh", ".bash", ".ps1xml")
 
+# Kategorisch geblockte Pfad-Praefixe: das sind interne Tooling-Bereiche
+# unter landing/, die niemals oeffentlich sein sollen — egal welche
+# Datei-Endung (Templates .jinja2, Daten .json, Doku .md, Build-Skripte).
+_BLOCKED_PATH_PREFIXES = ("scripts/",)
+
 
 def is_blocked_static_path(path: str) -> bool:
     """Block backend/source/tooling files and stray dotfiles served via the landing mount.
@@ -24,6 +29,8 @@ def is_blocked_static_path(path: str) -> bool:
     lower = path.lower().lstrip("/")
     if lower.startswith(".well-known/"):
         return False
+    if lower.startswith(_BLOCKED_PATH_PREFIXES):
+        return True
     if lower.endswith(_BLOCKED_STATIC_SUFFIXES):
         return True
     return any(seg.startswith(".") for seg in lower.split("/") if seg)

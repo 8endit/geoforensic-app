@@ -37,6 +37,12 @@ from app.static_filter import is_blocked_static_path
         # Auch mit führendem Slash
         "/.env",
         "/build.ps1",
+        # Tooling-Bereich landing/scripts/ kategorisch blockieren —
+        # SEO-Generator-Setup ab 2026-05-05
+        "scripts/seo_pages.json",
+        "scripts/seo_template.html.jinja2",
+        "scripts/README_seo.md",
+        "scripts/anything-here",
     ],
 )
 def test_blocked_paths_are_rejected(path: str) -> None:
@@ -52,6 +58,8 @@ def test_blocked_paths_are_rejected(path: str) -> None:
         "fuer-immobilienkaeufer.html",
         "datenquellen.html",
         "wissen/eu-bodenrichtlinie.html",
+        "orte/bodenbewegung-bochum.html",
+        "orte/funderingslabel-amsterdam.html",
         "images/logo-horizontal.png",
         "static/visuals/01_risk_dashboard.svg",
         "tailwind.css",

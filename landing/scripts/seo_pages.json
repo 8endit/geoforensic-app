@@ -1,0 +1,177 @@
+{
+  "_schema_doc": "Daten für die SEO-Long-Tail-Stadt-Pages, gerendert von build_seo_pages.py. Eine Page pro Eintrag in 'pages'. Jeder Eintrag setzt thema_slug + stadt_slug (= URL-Pfad-Komponenten) und alle Inhalts-Variablen, die seo_template.html.jinja2 erwartet.",
+
+  "_themen": {
+    "bodenbewegung": {
+      "label": "Bodenbewegung",
+      "eyebrow": "InSAR-Standortauskunft",
+      "ziel_keywords": ["bodenbewegung {stadt}", "setzung {stadt}", "altbergbau {stadt}", "EGMS {stadt}"],
+      "passt_zu": "Bergbau-Städte, Altbergbau-Risiko-Regionen, Lockergesteins-Geologie"
+    },
+    "altlasten": {
+      "label": "Altlasten",
+      "eyebrow": "Altlasten-Vor-Check",
+      "ziel_keywords": ["altlasten {stadt}", "altlasten prüfen {stadt}", "bodenkontamination {stadt}"],
+      "passt_zu": "Industriestädte, Häfen, ehemalige Kasernen-Standorte"
+    },
+    "hochwasser": {
+      "label": "Hochwasser",
+      "eyebrow": "Hochwasser-Risikozone",
+      "ziel_keywords": ["hochwasserrisiko {stadt}", "hochwasser grundstück {stadt}", "HQ100 {stadt}"],
+      "passt_zu": "Flussstädte (Rhein, Elbe, Donau, Oder), Küstenstädte, Senken-Lagen"
+    },
+    "funderingslabel": {
+      "label": "Funderingslabel",
+      "eyebrow": "Funderingslabel-Zweitmeinung",
+      "ziel_keywords": ["funderingslabel {stadt}", "houten paalfundering {stadt}", "paalrot {stadt}"],
+      "passt_zu": "NL-Holzpfahl-Städte (Amsterdam, Rotterdam, Den Haag, Zaandam, Gouda)"
+    }
+  },
+
+  "pages": [
+    {
+      "_kommentar": "BEISPIEL 1 — Bodenbewegung Bochum (NRW Steinkohlebergbau bis 2018)",
+
+      "thema_slug": "bodenbewegung",
+      "stadt_slug": "bochum",
+      "thema_label": "Bodenbewegung",
+      "stadt_name": "Bochum",
+      "lat": 51.4818,
+      "lon": 7.2162,
+
+      "lang": "de",
+      "inLanguage": "de-DE",
+      "og_locale": "de_DE",
+
+      "seo_title": "Bodenbewegung Bochum prüfen — Setzungen & Altbergbau-Risiko | Bodenbericht",
+      "meta_description": "Bochum hat 200 Jahre Steinkohlebergbau hinter sich. Wir prüfen Bodenbewegung an Ihrer Adresse mit EGMS-Satellitendaten — Setzungs-Trend, Altbergbau-Hinweise, Hochwasser-Schichtung. Vor dem Notartermin.",
+      "og_title": "Bodenbewegung Bochum prüfen — vor dem Hauskauf",
+      "og_description": "Steinkohlebergbau bis 2018, Setzungen weiter sichtbar. EGMS-Bodenbewegungs-Check für Ihre Bochumer Adresse.",
+
+      "eyebrow": "InSAR-Standortauskunft",
+      "h1": "Bodenbewegung in Bochum prüfen",
+      "hero_intro": "Der Steinkohlebergbau in Bochum ist 2018 mit der Schließung des Bergwerks Auguste Victoria offiziell beendet worden. Setzungen aus 200 Jahren Tiefbau zeigen sich aber weiterhin — nicht überall gleich, nicht jede Adresse betroffen. Mit EGMS-Satellitendaten lässt sich die Bodenbewegung an einer konkreten Adresse mit Millimeter-Genauigkeit ablesen.",
+
+      "content_sections": [
+        {
+          "heading": "1. Warum Bodenbewegung in Bochum kein Standardthema ist",
+          "paragraphs": [
+            "Bochum liegt im zentralen Ruhrgebiet, das über 200 Jahre intensiv unter Tage abgebaut wurde. Die <strong>Bezirksregierung Arnsberg</strong> führt das Verzeichnis der Bergbau-Berechtigungen NRW; nahezu jede Bochumer Adresse liegt im Geltungsbereich mindestens einer historischen Berechtigung. Das heißt nicht, dass jede Adresse setzungsgefährdet ist — aber dass das Risiko adress-spezifisch zu klären ist, statt es per Pauschalannahme abzuhaken.",
+            "Mit dem Ende des aktiven Bergbaus 2018 wurde die Wasserhaltung in den Schächten <strong>von der RAG eingestellt</strong>. Das Grubenwasser steigt seit Jahren wieder in Richtung der natürlichen Pegel — ein Prozess, der bis Ende der 2030er-Jahre dauert und der die Bodenbewegungs-Lage erneut umkrempeln kann. Hebungen in Bereichen, die zuvor durch Wasserhaltung trocken waren, sind dokumentiert."
+          ]
+        },
+        {
+          "heading": "2. Was unsere EGMS-Auswertung an Bochumer Adressen typisch zeigt",
+          "paragraphs": [
+            "In urbanen Bochumer Wohngebieten liefert EGMS L3 typisch <strong>50 bis 90 Messpunkte pro 500-m-Radius</strong>. Das reicht für eine belastbare Mittelwert-Klassifikation und das Erkennen von Hot-Spots (einzelne Punkte mit deutlich über-/unterdurchschnittlicher Geschwindigkeit). Die Mess-Zeitreihe geht zurück bis 2019; gemessen wird vertikale Bewegung auf 100-m-Raster.",
+            "Typische Bochumer Adressen liegen im stabilen bis leicht sinkenden Bereich (-1 bis -3 mm/Jahr). Hot-Spots mit >5 mm/Jahr finden sich bevorzugt am Rand der historischen Abbaufelder, um stillgelegte Schächte sowie an Stellen wo Hebung durch Grubenwasseranstieg im Norden Bochums (Wattenscheid, Hofstede) und Senkung durch Restkonsolidierung im Süden gleichzeitig wirken."
+          ]
+        },
+        {
+          "heading": "3. Wie der Bochum-Check für eine Adresse aussieht",
+          "paragraphs": [
+            "Sie geben eine Bochumer Adresse ein. Wir laden alle EGMS-Punkte im 500-m-Radius, gewichten sie nach Distanz zur Hausmitte (Punkte näher am Haus zählen mehr), klassifizieren mittlere Geschwindigkeit nach Burland-Damage-Class 1 bis 6 und liefern Karte + Zeitreihe + Empfehlungen. Im Vollbericht zusätzlich: Bergbau-Berechtigungs-Verschnitt mit der Arnsberg-WMS, BGR-Geologie, Hochwasser-Lage an Ruhr und Emscher.",
+            "Wenn Sie die Adresse <strong>vor einem Hauskauf</strong> prüfen lassen, ist das der typische Workflow: Adresse rein, Teaser-Ampel als E-Mail, Vollbericht (49 €) wenn Auffälligkeiten oder einfach für die Notar-Akte."
+          ]
+        }
+      ],
+
+      "related_links": [
+        {"href": "/wissen/insar-egms.html", "label": "Wie EGMS misst"},
+        {"href": "/wissen/setzung-vs-hebung.html", "label": "Setzung vs. Hebung"},
+        {"href": "/fuer-immobilienkaeufer.html", "label": "Käufer-Anwendung"},
+        {"href": "/datenquellen.html#methodik", "label": "Methodik (alle 13+4+5 Descriptoren)"}
+      ],
+
+      "faq_items": [
+        {
+          "frage": "Wie aktuell sind die Daten für Bochum?",
+          "antwort": "Wir nutzen EGMS L3, Release Oktober 2024 mit Zeitreihe 2019 bis 2023. Folge-Release mit Daten bis 2024 erwartet im Lauf von 2026. Für aktuelle Hebungs-Lage durch Grubenwasseranstieg ergänzen wir die EGMS-Auswertung mit dem Hinweis auf den RAG-Wasseranstiegs-Status für das jeweilige Abbaufeld — dieser wird quartalsweise von der RAG veröffentlicht."
+        },
+        {
+          "frage": "Mein Haus steht über einem alten Schacht — wird das im Bericht erkannt?",
+          "antwort": "Wir blenden den Bergbauberechtigungs-Layer der Bezirksregierung Arnsberg über die Adresse und melden, wenn Berechtigungen, alte Schachtansatzpunkte oder Verfüllungs-Markierungen im 500-m-Radius liegen. Eine adress-genaue Schacht-Verortung mit Auswirkungs-Prognose bleibt aber dem Bergbau-Sachverständigen vorbehalten — wir liefern den Filter, ob ein Sachverständiger sich lohnt."
+        },
+        {
+          "frage": "Gilt das für Eigentumswohnungen genauso?",
+          "antwort": "Ja, der Bericht ist adress-basiert, nicht eigentums-basiert. Eine Wohnung im 4. Stock hat dasselbe Setzungsrisiko wie das Grundstück, weil Setzungen am Fundament des Gebäudes ankommen, nicht in der einzelnen Wohnung. Bei Eigentumswohnungen ist der Bericht zusätzlich relevant für die Beurteilung der Reserven der Wohneigentümer-Gemeinschaft (WEG) — wenn das Gebäude Setzungs-Reparaturen erwartet, sollte das in der Hausgeld-Reserve eingepreist sein."
+        }
+      ],
+
+      "cta_lead": "Haben Sie eine konkrete Bochumer Adresse, an der Sie Bodenbewegung prüfen wollen?"
+    },
+
+    {
+      "_kommentar": "BEISPIEL 2 — Funderingslabel Amsterdam (NL-Holzpfahl-Städte)",
+
+      "thema_slug": "funderingslabel",
+      "stadt_slug": "amsterdam",
+      "thema_label": "Funderingslabel",
+      "stadt_name": "Amsterdam",
+      "lat": 52.3676,
+      "lon": 4.9041,
+
+      "lang": "nl",
+      "inLanguage": "nl-NL",
+      "og_locale": "nl_NL",
+
+      "seo_title": "Funderingslabel Amsterdam — onafhankelijke tweede mening | Bodenbericht",
+      "meta_description": "Sinds april 2026 is een funderingslabel A–E verplicht bij elk Amsterdamse taxatierapport. Wij leveren de InSAR-meetdata achter het label — zelfde Sentinel-1-bron als FunderMaps, maar voor uw adres uitgewerkt.",
+      "og_title": "Funderingslabel Amsterdam — tweede mening op basis van EGMS-satellietdata",
+      "og_description": "Het FunderMaps-label is een black-box-cijfer. Wij laten de InSAR-meetreeks achter uw Amsterdamse adres zien — bodemdaling per jaar, trend, omliggende meetpunten.",
+
+      "eyebrow": "Funderingslabel · onafhankelijke meting",
+      "h1": "Funderingslabel Amsterdam — wat zit er achter het cijfer?",
+      "hero_intro": "Sinds 1 april 2026 moet elk taxatierapport bij verkoop van een Amsterdamse woning een funderingslabel A–E bevatten. KCAF/FunderMaps levert dat label op basis van een eigen database. Wat het label niet laat zien: de meetreeks van de bodembeweging onder uw adres. Met EGMS-satellietdata berekenen wij die meetreeks zelf — zodat u weet of een label C of D op echte daling rust of op een statistische extrapolatie.",
+
+      "content_sections": [
+        {
+          "heading": "1. Waarom de Amsterdamse fundering bijzonder is",
+          "paragraphs": [
+            "De binnenstad van Amsterdam is gebouwd op <strong>houten heipalen</strong> die typisch 8 tot 12 meter diep in de slappe veen- en kleilagen reiken tot in het pleistocene zand. Zolang de paalkop onder de grondwaterspiegel blijft, is het hout houdbaar — soms al 350 jaar, zoals onder de grachtenpanden. Daalt de grondwaterspiegel echter, dan komt de paalkop droog te staan, schimmel zet in en de fundering verzwakt: <em>paalrot</em>.",
+            "Sinds de tweede helft van de 20e eeuw is de Amsterdamse grondwaterspiegel op verschillende plekken gedaald — door kelderbouw, drainage en bouwactiviteit. Het gevolg: differentiele zetting, scheve panden, scheuren in muren. Wijken zoals Oud-West, De Pijp, Spaarndammerbuurt en Indische Buurt hebben elk hun eigen profiel."
+          ]
+        },
+        {
+          "heading": "2. Wat het funderingslabel A–E zegt — en wat niet",
+          "paragraphs": [
+            "Het funderingslabel is een <strong>indicator</strong> die KCAF/FunderMaps uit een database opbouwt: bouwjaar, bodemtype, gemeten daling van bodemdalingskaart.nl, omliggende meldingen. Een label A betekent fundering vermoedelijk goed; E betekent vermoedelijk paalrot of grond-zetting verwacht. Het label is verplicht — maar het is geen meting van úw paal.",
+            "De meetdata achter het label komt deels uit hetzelfde Sentinel-1-radarsatellietsysteem dat wij gebruiken (EGMS, Copernicus). Het verschil: wij maken de meetreeks zichtbaar — bodemdaling in mm/jaar, trend, omliggende meetpunten op kaart. U ziet of een label C op echte daling van 4 mm/jaar rust of op een gemiddeld profiel van de wijk."
+          ]
+        },
+        {
+          "heading": "3. Voor wie ons rapport zinvol is",
+          "paragraphs": [
+            "<strong>Kopers</strong> die een woning in Amsterdam willen kopen waarbij het funderingslabel C, D of E is — en willen begrijpen hoe stevig dat oordeel onderbouwd is. Als de meetreeks stabiel blijft op −1 tot −2 mm/jaar, is een C-label minder zorgwekkend dan wanneer er een versnellingstrend zichtbaar is.",
+            "<strong>VvE's</strong> die budget moeten reserveren voor mogelijk funderingsherstel. Voor een rij van 6 panden is funderingsherstel 200.000 tot 500.000 EUR per pand — beslissingen daarover lopen jaren. Een onafhankelijke meting van de bodembeweging onder de hele rij geeft een tweede mening naast de FunderMaps-database.",
+            "<strong>Verkopers</strong> die een lager label dan verwacht hebben gekregen en willen aantonen dat de werkelijke beweging gunstiger is dan het database-cijfer impliceert."
+          ]
+        }
+      ],
+
+      "related_links": [
+        {"href": "/wissen/insar-egms.html", "label": "Hoe EGMS meet"},
+        {"href": "/wissen/setzung-vs-hebung.html", "label": "Daling vs. opheffing"},
+        {"href": "/fuer-immobilienkaeufer.html", "label": "Voor kopers"},
+        {"href": "/datenquellen.html#methodik", "label": "Methodiek"}
+      ],
+
+      "faq_items": [
+        {
+          "frage": "Vervangt jullie rapport het verplichte funderingslabel?",
+          "antwort": "Nee. Het funderingslabel is sinds april 2026 wettelijk verplicht en wordt geleverd door erkende taxateurs/KCAF. Wij leveren een aanvullende, onafhankelijke meetreeks van de bodembeweging onder het adres — een tweede mening op data-niveau, niet een vervanging van het wettelijke label."
+        },
+        {
+          "frage": "Hoe vaak wordt EGMS bijgewerkt en is dat genoeg voor Amsterdam?",
+          "antwort": "EGMS L3 wordt jaarlijks geupdated. De huidige release dekt 2019 tot 2023, met ongeveer 80 tot 120 meetpunten per 500-m-straal in Amsterdamse wijken. Voor het herkennen van een meerjarige dalings-trend is dat ruim voldoende; voor maand-resolutie kort na een specifieke gebeurtenis (bijvoorbeeld een waterleidingbreuk) is het te grof — daar voegen lokale GNSS-metingen van de gemeente waarde toe."
+        },
+        {
+          "frage": "Wat als ik in Rotterdam, Den Haag of Zaandam zit?",
+          "antwort": "We dekken alle Nederlandse adressen — EGMS is een EU-brede dienst. De Amsterdamse pagina is een voorbeeld; voor Rotterdam, Den Haag, Zaandam, Gouda, Schiedam en Dordrecht hebben we afzonderlijke pagina's omdat het lokale fundament-profiel verschilt (Rotterdam veel hardere ondergrond door rivierdiepte, Zaandam intensiever houten paalrot, Gouda extreem zacht veen)."
+        }
+      ],
+
+      "cta_lead": "Heeft u een Amsterdamse woning waar het funderingslabel onduidelijk is?"
+    }
+  ]
+}
