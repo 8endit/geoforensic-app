@@ -139,16 +139,30 @@ _HTML_TEMPLATE = """<!DOCTYPE html>
 
 
 _TEASER_INFO_ITEMS = (
-    "<li>Ampel-Einstufung Ihres Standorts</li>"
+    "<li>Ampel-Einstufung Ihres Standorts (grün/gelb/rot)</li>"
+    "<li>13 Locked-Cards mit Ergebnis-Vorschau pro Risiko-Modul</li>"
     "<li>GeoScore auf Basis des Copernicus European Ground Motion Service</li>"
-    "<li>Persönliche Einschätzung basierend auf Ihren Angaben</li>"
+    "<li>Hinweis auf den ausführlichen Vollbericht mit konkreten Werten</li>"
 )
 
+# 12 Hauptsektionen + 4 Sealing-Indikatoren = Basis-Tier.
+# Komplett-Tier hat zusätzlich 5 Bonus-Module — die kommunizieren wir nicht
+# in der Mail-Liste differenziert (alle Käufer sehen die gleiche Liste),
+# weil Tier-Auswahl beim Buchen passiert und die Mail nach Bezahlung
+# ohnehin tier-spezifisch im PDF-Cover gelabelt ist.
 _FULL_INFO_ITEMS = (
-    "<li>Ampel-Einstufung Ihres Standorts</li>"
-    "<li>Bodenbewegungs-Messpunkte aus dem Copernicus European Ground Motion Service</li>"
-    "<li>Bodenqualität (pH, Nährstoffe, Textur) aus ISRIC SoilGrids und JRC LUCAS</li>"
-    "<li>Einordnung im regionalen und landesweiten Vergleich</li>"
+    "<li>Bodenbewegung — Sentinel-1 InSAR-Messpunkte mit Burland-Klasse</li>"
+    "<li>Hochwasser — BfG-HWRM-Richtlinie, drei Szenarien (häufig / 100 J. / extrem)</li>"
+    "<li>Starkregen — DWD KOSTRA-2020, sechs Bemessungsregen-Slots</li>"
+    "<li>Geländeprofil — SRTM Hangneigung &amp; Exposition, Multi-Scale</li>"
+    "<li>Bergbau — Berechtsame und Altbergbau-Auskünfte (NRW &amp; RLP/Saarland live)</li>"
+    "<li>Altlasten — DE: CORINE-Land-Use-Indikator · NL: PDOK Bodemloket-Kataster</li>"
+    "<li>Bodenqualität — pH, organischer Kohlenstoff, Textur (ISRIC SoilGrids)</li>"
+    "<li>Schwermetalle — 8 Stoffe gegen BBodSchV-Vorsorgewerte (LUCAS)</li>"
+    "<li>Nährstoffe — Stickstoff, Phosphor, Kalium, Kalkgehalt (LUCAS)</li>"
+    "<li>Pestizid-Rückstände — 118 Wirkstoffe regional (LUCAS NUTS-2)</li>"
+    "<li>EU Soil Monitoring Directive — alle 13 Descriptoren + 4 Versiegelungs-Indikatoren</li>"
+    "<li>Individuelle Gesamteinschätzung mit konkretem Handlungs-Vorschlag</li>"
 )
 
 _TEASER_UPSELL = (
