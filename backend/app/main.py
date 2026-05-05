@@ -18,7 +18,7 @@ from sqlalchemy import text
 from app.config import get_settings
 from app.database import Base, engine
 from app.rate_limit import limiter
-from app.routers import admin, auth, geocode, health, leads, modules, payments, reports
+from app.routers import admin, auth, geocode, health, leads, modules, payments, provenance, reports
 
 settings = get_settings()
 
@@ -139,6 +139,10 @@ app.include_router(leads.router)
 app.include_router(modules.router)
 app.include_router(reports.router)
 app.include_router(payments.router)
+# Provenance-Page Router liegt unter /r/{report_id} (NICHT /api/*) damit
+# der QR-Code-Link aus dem Vollbericht-Cover sauber ohne /api-Prefix
+# funktioniert. Returns HTML, kein JSON.
+app.include_router(provenance.router)
 app.include_router(health.router)
 
 # ── Static landing pages ────────────────────────────────────────────

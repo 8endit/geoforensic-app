@@ -12,12 +12,6 @@
     <span class="logo">Bodenbericht</span>
     <span>Vollbericht · Standortauskunft</span>
   </div>
-  {#- QR-Code wurde aus dem Cover entfernt (2026-05-05): er linkte auf
-      /r/{report_id} (Provenance-Page), die noch nicht existiert →
-      404 für jeden Käufer. Provenance-Page kommt sobald wir die Daten-
-      hash-Trail-Route bauen, dann QR wieder rein (Anker: cover.html
-      meta-Block, qr_svg-Render aus full_report.py wird weiter
-      generiert aber nicht ausgegeben). -#}
 
   <div class="hero">
     <div class="eyebrow">Bodenrisiko-Auskunft</div>
@@ -102,8 +96,11 @@
       <div><span class="label">Datenquellen</span> <span class="value">EGMS · BGR · DWD · Copernicus · LUCAS</span></div>
       <div><span class="label">Tier</span> <span class="value" style="color:var(--premium-accent);">{{ _tier_label }}</span></div>
     </div>
-    {#- QR-Code-Slot disabled bis Provenance-Page (/r/{report_id}) live ist.
-        qr_svg wird in full_report.py weiter erzeugt; sobald die Route
-        existiert hier wieder einrendern. -#}
+    <div>
+      {% if qr_svg %}
+      <div class="qr">{{ qr_svg|safe }}</div>
+      <div class="qr-label">Provenance · {{ payload.report_id[:8] }}…</div>
+      {% endif %}
+    </div>
   </div>
 </section>

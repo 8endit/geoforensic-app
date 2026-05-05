@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Provenance · Bericht {{ report_id[:8] }}… · Bodenbericht</title>
+  <meta name="robots" content="noindex,nofollow">
+  <style>
+    body {
+      font-family: -apple-system, "Segoe UI", "Helvetica Neue", system-ui, sans-serif;
+      background: #FAF9F4;
+      color: #2C2C2A;
+      margin: 0;
+      padding: 0;
+      line-height: 1.55;
+    }
+    .wrap {
+      max-width: 720px;
+      margin: 40px auto;
+      padding: 32px 28px;
+      background: #fff;
+      border: 1px solid #E5E3DA;
+      border-radius: 4px;
+    }
+    h1 {
+      font-weight: 200;
+      font-size: 28px;
+      margin: 0 0 4px;
+      letter-spacing: 0.01em;
+    }
+    .eyebrow {
+      font-family: "Geist Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #16a34a;
+      margin: 0 0 18px;
+    }
+    .meta {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      row-gap: 6px;
+      column-gap: 18px;
+      font-size: 14px;
+      margin: 22px 0 28px;
+      padding: 16px 18px;
+      background: #FAF9F4;
+      border-left: 2.5pt solid #16a34a;
+      border-radius: 2px;
+    }
+    .meta dt {
+      font-family: "Geist Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6F6E68;
+    }
+    .meta dd {
+      margin: 0;
+      font-family: "Geist Mono", monospace;
+      font-size: 13px;
+    }
+    h2 {
+      font-weight: 500;
+      font-size: 17px;
+      margin: 28px 0 8px;
+    }
+    p.intro {
+      font-size: 15px;
+      color: #444;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    th, td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #E5E3DA;
+      text-align: left;
+    }
+    th {
+      font-family: "Geist Mono", monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6F6E68;
+    }
+    .privacy {
+      margin: 26px 0 0;
+      padding: 14px 16px;
+      background: #fef3c7;
+      border-left: 2.5pt solid #d97706;
+      border-radius: 2px;
+      font-size: 13px;
+      color: #78350f;
+    }
+    .footer {
+      margin-top: 28px;
+      padding-top: 16px;
+      border-top: 1px solid #E5E3DA;
+      font-size: 11px;
+      color: #6F6E68;
+      font-family: "Geist Mono", monospace;
+    }
+    a { color: #16a34a; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Provenance · Bodenbericht</p>
+  <h1>Bericht-Echtheits-Pruefung</h1>
+  <p class="intro">
+    Diese Seite bestaetigt, dass der nebenstehende Bericht in unserer Datenbank
+    existiert. Adresse und Messwerte werden hier <strong>bewusst nicht angezeigt</strong> —
+    diese kennt nur der Empfaenger der Bericht-Mail.
+  </p>
+
+  <dl class="meta">
+    <dt>Bericht-ID</dt>     <dd>{{ report_id }}</dd>
+    <dt>Erstellt</dt>       <dd>{{ created_at }}</dd>
+    <dt>Land</dt>           <dd>{{ country }}</dd>
+    <dt>Pruef-Hash</dt>     <dd>{{ fingerprint }}</dd>
+  </dl>
+
+  <h2>Verwendete Datenquellen</h2>
+  <table>
+    <thead>
+      <tr><th>Quelle</th><th>Trager</th><th>Lizenz</th></tr>
+    </thead>
+    <tbody>
+      {% for name, org, license in sources %}
+      <tr>
+        <td>{{ name }}</td>
+        <td>{{ org }}</td>
+        <td>{{ license }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="privacy">
+    <strong>Hinweis Datenschutz:</strong> Die Adresse, fuer die dieser Bericht
+    erstellt wurde, ist nur dem Empfaenger der Mail bekannt. Wer diesen QR-Code
+    scannt sieht KEINE Adressdaten — das ist Absicht.
+  </div>
+
+  <p class="footer">
+    Abgerufen am {{ now }} ·
+    <a href="https://bodenbericht.de">bodenbericht.de</a> ·
+    Tepnosholding GmbH
+  </p>
+</div>
+</body>
+</html>

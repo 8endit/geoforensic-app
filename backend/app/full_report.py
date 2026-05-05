@@ -136,7 +136,7 @@ def _read_css_inline() -> tuple[str, str]:
 # QR code (provenance link on the cover)
 # ---------------------------------------------------------------------------
 
-def _qr_svg(report_id: str, base_url: str = "https://geoforensic.de") -> Optional[str]:
+def _qr_svg(report_id: str, base_url: str = "https://bodenbericht.de") -> Optional[str]:
     """Render a small QR pointing at the provenance page for the report.
 
     Returns ``None`` if ``segno`` is missing — the cover renders
