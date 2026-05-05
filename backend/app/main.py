@@ -23,17 +23,27 @@ from app.routers import admin, auth, geocode, health, leads, modules, payments, 
 settings = get_settings()
 
 
-# ── App logger level ───────────────────────────────────────────────
-# Uvicorn's default log-config setzt nur den `uvicorn`-Logger explizit
-# auf INFO, der `app`-Hierarchie-Logger inheritet vom Root, der bei
+# ── App logger level + handler ─────────────────────────────────────
+# Uvicorn's default log-config setzt nur den `uvicorn`-Logger und seine
+# Children (uvicorn.error, uvicorn.access). Der `app`-Hierarchie-Logger
+# hat KEINEN Handler attached, und propagation läuft zu Root, der bei
 # WARNING bleibt. Effekt: alle `logger.info(...)` Calls in app.* sind
-# unsichtbar in stdout (haben wir 2026-05-04 beim DOI-Mail-Debug
-# selbst erlebt — `### print ###` zeigte sich, `logger.info` nicht).
-# Hier explizit setzen, damit Erfolg-Pfade (Mail-Send, DOI-Confirm,
-# Honeypot-Hits, Lead-Report-Done) im Log auftauchen. Override per
-# LOG_LEVEL env var falls jemand mal nur WARNING+ will.
+# unsichtbar in stdout (2026-05-04 beim DOI-Mail-Debug selbst erlebt —
+# `print(flush=True)` zeigte sich, `logger.info(\"DOI mail sent\")` nicht).
+#
+# Fix: app-Logger bekommt expliziten StreamHandler auf stderr, level INFO,
+# propagate=False damit kein Doppel-Output wenn Root irgendwann Handler
+# kriegt. Override per LOG_LEVEL env var.
+import sys
+
 _log_level = os.getenv("LOG_LEVEL", "INFO").upper()
-logging.getLogger("app").setLevel(getattr(logging, _log_level, logging.INFO))
+_app_logger = logging.getLogger("app")
+_app_logger.setLevel(getattr(logging, _log_level, logging.INFO))
+if not _app_logger.handlers:
+    _h = logging.StreamHandler(sys.stderr)
+    _h.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
+    _app_logger.addHandler(_h)
+    _app_logger.propagate = False
 
 
 # ── Sentry PII scrubbing ───────────────────────────────────────────
