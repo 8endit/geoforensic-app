@@ -101,6 +101,22 @@ async def cache_set(key: str, value: Any) -> None:
         logger.warning("geocode cache SET failed for %r: %s", key, exc)
 
 
+async def cache_delete(key: str) -> None:
+    """Remove a single cache entry (used to self-heal poisoned values).
+
+    Wenn Redis nicht erreichbar ist, log + ignorieren — der nächste Read
+    läuft sonst in der gleichen vergifteten Antwort. Das Self-Heal-
+    Verhalten degradiert sauber zu „kein Cache" statt zu Fehler.
+    """
+    client = await _get_client()
+    if client is None:
+        return
+    try:
+        await client.delete(key)
+    except (RedisError, OSError) as exc:
+        logger.warning("geocode cache DELETE failed for %r: %s", key, exc)
+
+
 def key_full(address: str) -> str:
     return f"geocode:v1:full:{_normalize(address)}"
 

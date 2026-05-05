@@ -82,10 +82,16 @@ class Settings(BaseSettings):
 
     # Redis-backed Nominatim response cache. Empty URL disables the cache
     # entirely (graceful fallback, the pipeline keeps working against the
-    # live Nominatim API). TTL default is 30 days — addresses effectively
-    # never change and Nominatim ToS explicitly encourage long-term caching.
+    # live Nominatim API). TTL ist 7 Tage (vorher 30): OSM ist editierbar
+    # und Vandalismus (z.B. "Berlin" → "Nazi-Stadt", echter Vorfall
+    # 2026-05-05) bleibt sonst einen Monat in unserem Cache stecken,
+    # selbst wenn OSM ihn binnen Stunden revertiert. 7 Tage ist immer
+    # noch lang genug um Nominatim's 1 req/s Rate-Limit zu respektieren
+    # und gibt uns max 1 Woche Schaden statt 1 Monat. Defense gegen
+    # vergiftete Reads + Writes liegt zusätzlich in routers/reports.py
+    # (_contains_vandalism guard).
     redis_url: str = ""
-    geocode_cache_ttl_seconds: int = 30 * 24 * 60 * 60
+    geocode_cache_ttl_seconds: int = 7 * 24 * 60 * 60
 
 
 @lru_cache

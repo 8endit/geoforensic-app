@@ -37,6 +37,64 @@ _nominatim_lock = asyncio.Lock()
 _last_nominatim_call = 0.0
 
 
+# OSM ist editierbar von jedem. Vandalismus (Stadt-Tag wird kurz auf
+# Beleidigung/Hetze geändert) lebt typischerweise nur Stunden bevor es
+# revertiert wird — aber WIR cachen 30 Tage, also würde ein einziger
+# vergifteter Hit für einen Monat in unsere Kunden-Mails durchschlagen.
+# Aufgefallen 2026-05-05: "Berlin" → "Nazi-Stadt" für Alexanderplatz,
+# wir hätten das einem Käufer in einer Versand-Mail gezeigt.
+#
+# Defense in depth:
+#  1. Verdachts-Wörterliste; sobald irgendein Adress-Feld einen Treffer
+#     hat, NICHT in Cache schreiben + log warning + Sentry-Notification
+#     wäre nice (TODO).
+#  2. Beim Lesen aus dem Cache nochmal prüfen; wenn vergiftet → DEL und
+#     behandle als Cache-Miss (selbstheilung der bereits vergifteten
+#     Einträge ohne manuellen Redis-Eingriff).
+#  3. Cache-TTL auf 7 Tage runter (siehe config.geocode_cache_ttl_seconds).
+#
+# Liste ist bewusst breit (auch DE-Hetze, derbe Beleidigungen) damit
+# offensichtlicher OSM-Vandalismus erkannt wird ohne false-positives auf
+# legitimen Ortsnamen. Erweiterbar.
+_VANDALISM_PATTERNS = (
+    "nazi", "hitler", "heil ", "ss-stadt",
+    "fuck", "fick", "ficker", "wichser",
+    "scheiss", "scheiße", "kacke",
+    "hure", "huren", "nutte",
+    "arschloch", "arsch ",
+    "neger", "kanake",
+    "judenstadt", "judensau",
+)
+
+
+def _contains_vandalism(s: str | None) -> bool:
+    """True wenn der String einen Verdachts-OSM-Vandalismus-Treffer hat.
+
+    Case-insensitive substring match. False für leere/None Strings.
+    Bewusst keine Regex — substring reicht und ist schneller +
+    nachvollziehbarer.
+    """
+    if not s:
+        return False
+    s_low = s.lower()
+    return any(p in s_low for p in _VANDALISM_PATTERNS)
+
+
+def _hit_is_vandalised(hit: dict) -> bool:
+    """Scan a Nominatim hit for vandalism in any user-visible field.
+
+    Prüft display_name + alle address.* Felder — wenn auch nur eines
+    matched, gilt der ganze Hit als vergiftet und wird verworfen.
+    """
+    if _contains_vandalism(hit.get("display_name")):
+        return True
+    addr = hit.get("address") or {}
+    for v in addr.values():
+        if isinstance(v, str) and _contains_vandalism(v):
+            return True
+    return False
+
+
 def _normalize_nominatim_address(hit: dict) -> str:
     """Rebuild a short, human-readable address from Nominatim's addressdetails.
 
@@ -139,13 +197,29 @@ async def geocode_address(address: str) -> tuple[float, float, str, str, dict[st
     if cached is not None:
         try:
             c_lat, c_lon, c_display, c_country, c_region = cached
-            return (
-                float(c_lat),
-                float(c_lon),
-                str(c_display),
-                str(c_country),
-                dict(c_region),
+            # Self-healing-Cache: vergiftete Einträge (z.B. OSM-Vandalismus
+            # der bereits gespeichert wurde) erkennen und löschen, dann
+            # behandeln als Cache-Miss → frischer Nominatim-Lookup.
+            _region_dict = dict(c_region) if c_region else {}
+            _suspect = (
+                _contains_vandalism(c_display)
+                or any(_contains_vandalism(v) for v in _region_dict.values() if isinstance(v, str))
             )
+            if _suspect:
+                logger.warning(
+                    "geocode cache poisoned for %r (cached value contains "
+                    "vandalism markers) — purging entry and re-fetching",
+                    query,
+                )
+                await geocode_cache.cache_delete(cache_key)
+            else:
+                return (
+                    float(c_lat),
+                    float(c_lon),
+                    str(c_display),
+                    str(c_country),
+                    _region_dict,
+                )
         except (TypeError, ValueError) as exc:
             logger.warning("geocode cache returned malformed value for %r: %s", query, exc)
 
@@ -193,7 +267,37 @@ async def geocode_address(address: str) -> tuple[float, float, str, str, dict[st
         )
 
     hit = results[0]
+    # OSM-Vandalismus-Defense: wenn irgendein Adress-Feld (display_name
+    # oder address.*) Hetze/Beleidigung enthält, NICHT cachen + den Hit
+    # mit einem sanitisierten display_name verwenden. Lieber ein leicht
+    # weniger schöner Adress-String im Bericht als "10178 Nazi-Stadt" im
+    # PDF-Header eines Käufers (echter Vorfall 2026-05-05).
     country_code = hit.get("address", {}).get("country_code", "").lower()
+    if _hit_is_vandalised(hit):
+        logger.error(
+            "Nominatim returned vandalised address for query %r — "
+            "fields contain hate/profanity markers. NOT caching, falling "
+            "back to lat/lon-only display. Hit address keys: %s",
+            query, sorted((hit.get("address") or {}).keys()),
+        )
+        # Falls Adress-Display vergiftet, fallback auf Eingabe + ggf. PLZ.
+        # Adressen mit nur PLZ + originalem Eingabe-Text bleiben safe weil
+        # die kein OSM-Editor-Feld sind.
+        addr = hit.get("address") or {}
+        postcode = addr.get("postcode")
+        safe_display = (
+            f"{query.strip()} ({postcode})" if postcode and not _contains_vandalism(postcode)
+            else query.strip()
+        )
+        # Region auf country reduzieren (state/city könnten vergiftet sein)
+        safe_region: dict[str, str] = {}
+        country = addr.get("country")
+        if country and not _contains_vandalism(country):
+            safe_region["country"] = country
+        result = (float(hit["lat"]), float(hit["lon"]), safe_display, country_code, safe_region)
+        # bewusst kein cache_set — nächster Request soll erneut Nominatim
+        # fragen, OSM ist meist innerhalb Stunden revertiert.
+        return result
     result = (
         float(hit["lat"]),
         float(hit["lon"]),
