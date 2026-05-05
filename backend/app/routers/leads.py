@@ -472,15 +472,22 @@ async def _generate_and_send_lead_report(
             # Vollbericht-visuals see psi_points=[] and renders "Sparse
             # Data / 0 Punkte" obwohl der Teaser correctly 76 Punkte zählt
             # — Daten-Bug aus AUDIT_VOLLBERICHT_2026-05-05 §2.1.
-            psi_points = [
-                {
+            psi_points = []
+            for p in points:
+                pp = {
                     "lat": p["lat"],
                     "lon": p["lon"],
                     "velocity": p["mean_velocity_mm_yr"],
-                    "coherence": p.get("coherence"),
                 }
-                for p in points
-            ]
+                # coherence nur reinpacken wenn nicht None — sonst crasht
+                # build_payload bei `float(None)`. Unsere EGMS-Importe (DE
+                # 7,9 Mio + NL 3,25 Mio) haben coherence-Spalte aber leere
+                # Werte; visual_payload comprehension filtert nur per
+                # `"coherence" in p`, nicht per truthy-check.
+                coh = p.get("coherence")
+                if coh is not None:
+                    pp["coherence"] = coh
+                psi_points.append(pp)
             # timeseries hier ist list[tuple(period_iso, avg_displacement)]
             # — build_payload erwartet list[dict(date, displacement_mm)].
             psi_timeseries = [
