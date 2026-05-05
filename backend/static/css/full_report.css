@@ -26,7 +26,11 @@
   size: A4;
   margin: 18mm 14mm 22mm 14mm;
   @bottom-center {
-    content: "GeoForensic Vollbericht  ·  Bericht-Nr. " var(--report-id, "—") "  ·  Seite " counter(page) " / " counter(pages);
+    /* counter(pages) ist in Chrome-Headless unzuverlässig — zeigt häufig
+       eine veraltete Seitenzahl (Layout-Pass-Reihenfolge-Bug). Bis das
+       gefixt ist nur counter(page) ohne Total — ehrlicher als "Seite 3 / 15"
+       wenn das PDF eigentlich 8 Seiten hat. */
+    content: "GeoForensic Vollbericht  ·  Bericht-Nr. " var(--report-id, "—") "  ·  Seite " counter(page);
     font-family: var(--font-mono, "Geist Mono"), monospace;
     font-size: 8.5pt;
     color: #6F6E68;
