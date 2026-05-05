@@ -34,9 +34,20 @@ ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "")
 
 
 def _require_admin(x_admin_token: str | None = Header(default=None)) -> None:
-    """Reject requests without correct admin token. Skipped if ADMIN_TOKEN unset (dev mode)."""
+    """Reject requests without correct admin token.
+
+    Fail-closed: empty ADMIN_TOKEN raises 503, NOT silently allow. Vorher
+    hat empty token = no-auth-Fallback ("Dev mode") gegolten — riskant
+    wenn .env-Restore oder Race beim Container-Start ADMIN_TOKEN
+    leerräumt: Admin-Endpoints würden öffentlich Leads + Quiz-Antworten
+    + Reports ausliefern. Dev-Setup setzt explizit ADMIN_TOKEN=dev (oder
+    beliebigen non-empty Wert), nicht leer.
+    """
     if not ADMIN_TOKEN:
-        return  # Dev mode — no auth
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Admin auth not configured",
+        )
     if x_admin_token != ADMIN_TOKEN:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid admin token")
 

@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 from contextlib import asynccontextmanager
@@ -20,6 +21,19 @@ from app.rate_limit import limiter
 from app.routers import admin, auth, geocode, health, leads, modules, payments, reports
 
 settings = get_settings()
+
+
+# ── App logger level ───────────────────────────────────────────────
+# Uvicorn's default log-config setzt nur den `uvicorn`-Logger explizit
+# auf INFO, der `app`-Hierarchie-Logger inheritet vom Root, der bei
+# WARNING bleibt. Effekt: alle `logger.info(...)` Calls in app.* sind
+# unsichtbar in stdout (haben wir 2026-05-04 beim DOI-Mail-Debug
+# selbst erlebt — `### print ###` zeigte sich, `logger.info` nicht).
+# Hier explizit setzen, damit Erfolg-Pfade (Mail-Send, DOI-Confirm,
+# Honeypot-Hits, Lead-Report-Done) im Log auftauchen. Override per
+# LOG_LEVEL env var falls jemand mal nur WARNING+ will.
+_log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+logging.getLogger("app").setLevel(getattr(logging, _log_level, logging.INFO))
 
 
 # ── Sentry PII scrubbing ───────────────────────────────────────────

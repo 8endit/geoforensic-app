@@ -25,6 +25,7 @@ is enough for MVP.
 import asyncio
 import json
 import logging
+import os
 import uuid
 
 import stripe
@@ -118,6 +119,7 @@ async def stripe_webhook(
     event: dict
 
     if settings.stripe_secret_key and settings.stripe_webhook_secret:
+        # Production path: signed webhooks only.
         stripe.api_key = settings.stripe_secret_key
         try:
             event_obj = stripe.Webhook.construct_event(
@@ -128,11 +130,27 @@ async def stripe_webhook(
         except Exception as exc:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid webhook: {exc}") from exc
         event = event_obj.to_dict()
-    else:
+    elif os.getenv("STRIPE_WEBHOOK_DEV_BYPASS") == "true":
+        # Explicit opt-in: dev/test runner mit unsigned JSON. Niemals
+        # ohne dieses Flag akzeptieren — sonst kann jeder POST an
+        # /api/payments/webhook arbitrary `metadata.lead_id` schicken
+        # und den Vollbericht-Trigger missbrauchen (free PDFs +
+        # Brevo-Mail an beliebige Adressen, sieht legitim aus weil
+        # source=stripe).
         try:
             event = json.loads(raw_payload.decode("utf-8"))
         except json.JSONDecodeError as exc:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid JSON body") from exc
+        logger.warning("Stripe webhook accepting unsigned event (DEV_BYPASS=true)")
+    else:
+        # Mock-mode (no Stripe keys, no DEV_BYPASS): webhook is unused —
+        # checkout endpoint triggers Vollbericht direkt via background
+        # task. Webhook-Endpoint hier strict ablehnen damit der Pfad
+        # nicht öffentlich exploitable ist.
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Stripe webhook not configured (missing STRIPE_SECRET_KEY/STRIPE_WEBHOOK_SECRET)",
+        )
 
     if event.get("type") != "checkout.session.completed":
         return {"status": "ignored"}
