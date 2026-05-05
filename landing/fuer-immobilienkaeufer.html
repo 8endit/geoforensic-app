@@ -413,52 +413,24 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- ============================================ -->
     <!-- WAS SIE BEKOMMEN                             -->
     <!-- ============================================ -->
-    <section class="py-16 md:py-20 bg-gradient-to-b from-gray-50 to-white">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-10 md:mb-14">
-                <p class="text-brand-600 font-semibold text-sm tracking-wide uppercase mb-3">Inhalt</p>
-                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-navy-800 tracking-tight">
-                    Was im Bericht steht.
-                </h2>
-            </div>
-            <div class="grid sm:grid-cols-2 gap-4">
-                <div class="bg-white border border-gray-200 rounded-xl p-5">
-                    <h3 class="font-bold text-navy-800 text-sm mb-2">Bodenbewegungs-Ampel</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed">Mittlere und maximale Geschwindigkeit aller EGMS-Messpunkte im 500-m-Radius, klassifiziert nach grün (&lt; 2 mm/a), gelb (2-5 mm/a) und rot (&gt; 5 mm/a).</p>
-                </div>
-                <div class="bg-white border border-gray-200 rounded-xl p-5">
-                    <h3 class="font-bold text-navy-800 text-sm mb-2">EU-Bodenrichtlinie 2025/2360</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed">Alle 13 EU-Descriptoren der neuen EU-Bodenmonitoring-Richtlinie - von Erosion bis Schwermetallen - abgeglichen mit BBodSchV-Schwellen, plus 5 ergänzende Indikatoren über die EU-Pflicht hinaus.</p>
-                </div>
-                <div class="bg-white border border-gray-200 rounded-xl p-5">
-                    <h3 class="font-bold text-navy-800 text-sm mb-2">Schwermetalle und Pestizide</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed">LUCAS-Topsoil-Werte für Cadmium, Blei, Arsen, Quecksilber, Nickel, Kupfer, Zink - plus 118 Pestizid-Wirkstoffe auf NUTS-2-Ebene.</p>
-                </div>
-                <div class="bg-white border border-gray-200 rounded-xl p-5">
-                    <h3 class="font-bold text-navy-800 text-sm mb-2">Hochwasser-Lage</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed">Verschnitt mit BfG-Hochwasserrisikokarten (HQ_häufig / HQ_100 / HQ_extrem) und DWD-KOSTRA-2020 Starkregen-Statistik.</p>
-                </div>
-                <div class="bg-white border border-gray-200 rounded-xl p-5">
-                    <h3 class="font-bold text-navy-800 text-sm mb-2">Bergbau und Geologie</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed">BGR GÜK250 für die geologische Einordnung. In Nordrhein-Westfalen zusätzlich Verschnitt mit den Bergbauberechtigungen der Bezirksregierung Arnsberg.</p>
-                </div>
-                <div class="bg-white border border-gray-200 rounded-xl p-5">
-                    <h3 class="font-bold text-navy-800 text-sm mb-2">Geländeprofil und Erosion</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed">Hangneigung, Höhenlage, Exposition aus SRTM. RUSLE-Erosionsmodell für die Wasserabtragung des Oberbodens.</p>
-                </div>
-                <div class="bg-brand-50 border border-brand-200 rounded-xl p-5 md:col-span-2">
-                    <p class="text-xs uppercase tracking-wide font-bold text-brand-700 mb-2">2 Bonus-Indikatoren besonders für Käufer</p>
-                    <h3 class="font-bold text-navy-800 text-sm mb-3">Über die EU-Pflicht hinaus - Altlast-Vorab und Hochwasser-Vorlauf</h3>
-                    <ul class="text-sm text-gray-700 space-y-2">
-                        <li class="flex gap-2"><span class="text-brand-600 font-bold">·</span><span><strong class="text-navy-800">PAK/PCB-Altlast-Screening</strong> - BBodSchV-Schwellen für Vornutzungs-Verdacht (Schmiede, Tankstelle, Trafostation, Schießstand). Hilft bei der Vor-Notar-Anfrage an die untere Bodenschutzbehörde.</span></li>
-                        <li class="flex gap-2"><span class="text-brand-600 font-bold">·</span><span><strong class="text-navy-800">Hydromorphologie und Drainage</strong> - WRB-Bodenklasse + Hangneigung als Vorlauf-Indikator für Hochwasser-Risiko und Versickerungs-Eigenschaften des Grundstücks.</span></li>
-                    </ul>
-                    <p class="text-xs text-gray-500 mt-3">Volle Liste aller 5 Bonus-Indikatoren: <a href="/wissen/eu-bodenrichtlinie.html" class="text-brand-700 underline hover:text-brand-800">Wissen-Seite EU-Bodenrichtlinie</a></p>
-                </div>
-            </div>
-            <p class="text-sm text-gray-500 mt-8 text-center">
-                Die vollständige <a href="/datenquellen.html" class="text-brand-600 hover:text-brand-700 underline">Datenquellen-Liste</a> mit Lizenzen, Auflösung und Aktualität.
+    <!-- "Was im Bericht steht" 2026-05-05 komprimiert: vorher 6 Inhalts-
+         Karten + Bonus-Block (~50 Zeilen), die identisch auf der Hauptseite
+         und in /datenquellen.html#methodik standen. Persona-Page soll EINE
+         Sache machen — Käufer abholen, nicht das ganze Daten-Tableau zeigen. -->
+    <section class="py-12 md:py-16 bg-gradient-to-b from-gray-50 to-white border-y border-gray-100">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-brand-600 font-semibold text-xs tracking-wide uppercase mb-2">Inhalt</p>
+            <h2 class="text-xl md:text-2xl font-extrabold text-navy-800 tracking-tight mb-3">
+                Was im Bericht steht.
+            </h2>
+            <p class="text-gray-600 leading-relaxed mb-6">
+                Bodenbewegungs-Ampel · alle 13 EU-Bodendescriptoren plus 4 Versiegelungs-Indikatoren · Schwermetalle und 118 Pestizide auf NUTS-2-Ebene · BfG Hochwasser + DWD KOSTRA · Bergbau und Geologie · Hangneigung und Erosion · plus 5 Bonus-Indikatoren über die EU-Pflicht hinaus.
             </p>
+            <a href="/datenquellen.html#methodik"
+               class="inline-flex items-center gap-2 text-brand-700 hover:text-brand-800 font-medium text-sm underline-offset-4 hover:underline">
+                Vollständige Methodik mit Datenquellen ansehen
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            </a>
         </div>
     </section>
 
