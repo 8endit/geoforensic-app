@@ -35,24 +35,24 @@
       <tr>
         <th>Szenario</th>
         <th>Wiederkehrwahrscheinlichkeit</th>
-        <th>Status am Standort</th>
+        <th class="status">Status am Standort</th>
       </tr>
     </thead>
     <tbody>
       <tr {{ 'class="warn"' if haeufig.get('in_zone') else '' }}>
         <td>HQ häufig</td>
         <td class="num">~ alle 10–20 Jahre</td>
-        <td>{% if haeufig.get('in_zone') %}<span class="pill auffaellig">betroffen</span>{% else %}<span class="pill stabil">nicht betroffen</span>{% endif %}</td>
+        <td class="status">{% if haeufig.get('in_zone') %}<span class="pill auffaellig">betroffen</span>{% else %}<span class="pill stabil">nicht betroffen</span>{% endif %}</td>
       </tr>
       <tr {{ 'class="warn"' if hq100.get('in_zone') else '' }}>
         <td>HQ 100</td>
         <td class="num">alle 100 Jahre</td>
-        <td>{% if hq100.get('in_zone') %}<span class="pill auffaellig">betroffen</span>{% else %}<span class="pill stabil">nicht betroffen</span>{% endif %}</td>
+        <td class="status">{% if hq100.get('in_zone') %}<span class="pill auffaellig">betroffen</span>{% else %}<span class="pill stabil">nicht betroffen</span>{% endif %}</td>
       </tr>
       <tr {{ 'class="alert"' if extrem.get('in_zone') else '' }}>
         <td>HQ extrem</td>
         <td class="num">> alle 200 Jahre</td>
-        <td>{% if extrem.get('in_zone') %}<span class="pill kritisch">betroffen</span>{% else %}<span class="pill stabil">nicht betroffen</span>{% endif %}</td>
+        <td class="status">{% if extrem.get('in_zone') %}<span class="pill kritisch">betroffen</span>{% else %}<span class="pill stabil">nicht betroffen</span>{% endif %}</td>
       </tr>
     </tbody>
   </table>

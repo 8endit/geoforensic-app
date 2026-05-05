@@ -11,14 +11,16 @@
                    teaser if Free; here we expect full)
 -#}
 <section class="section">
-  <p class="eyebrow">Block 01 · Bodenrisiken aus Satellit & Wetter</p>
+  {#- Block-Eyebrow entfernt 2026-05-05: Block-Separator zeigt Block-Nr +
+      Titel bereits, doppelte Block-Headlines wirkten wie Copy-Paste-
+      Fehler. Domenico-Feedback. -#}
   <h2>1 · Bodenbewegung (InSAR-Satellitendaten)</h2>
   <p>
     Die European Ground Motion Service-Punkte ({{ payload.components.risk_dashboard.psi_count_in_radius }} Streupunkte
     im {{ payload.components.property_context_map.radius_meters }} m-Radius) zeigen für Ihre Adresse
     {% set rd = payload.components.risk_dashboard %}
     Burland-Klasse {{ rd.burland_class }} <span class="pill {{ rd.burland_label }}">{{ rd.burland_label }}</span>.
-    Mittlere Geschwindigkeit der drei nächsten Streuer:
+    Mittlere Bewegungsgeschwindigkeit der drei nächsten Streuer:
     <span class="mono">{{ '%+.1f' % rd.velocity_mm_per_year }} mm/Jahr</span>.
   </p>
 

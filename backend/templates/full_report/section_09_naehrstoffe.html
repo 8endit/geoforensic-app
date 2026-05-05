@@ -13,7 +13,7 @@
   </p>
   <table class="data-table">
     <thead>
-      <tr><th>Parameter</th><th>Wert</th><th>Einheit</th><th>Einordnung</th></tr>
+      <tr><th>Parameter</th><th>Wert</th><th>Einheit</th><th class="status">Einordnung</th></tr>
     </thead>
     <tbody>
       {% if n.get('n') is not none %}
@@ -21,7 +21,7 @@
         <td>Stickstoff (Gesamt-N)</td>
         <td class="num">{{ '%.2f' % n.n }}</td>
         <td>g/kg</td>
-        <td><span class="pill {{ 'stabil' if n.n > 1.5 else 'moderat' }}">{{ 'gut versorgt' if n.n > 1.5 else 'arm' }}</span></td>
+        <td class="status"><span class="pill {{ 'stabil' if n.n > 1.5 else 'moderat' }}">{{ 'gut versorgt' if n.n > 1.5 else 'arm' }}</span></td>
       </tr>
       {% endif %}
       {% if n.get('p') is not none %}
@@ -29,7 +29,7 @@
         <td>Phosphor (P-Olsen)</td>
         <td class="num">{{ '%.0f' % n.p }}</td>
         <td>mg/kg</td>
-        <td><span class="pill {{ 'stabil' if n.p > 20 else 'moderat' }}">{{ 'ausreichend' if n.p > 20 else 'unterversorgt' }}</span></td>
+        <td class="status"><span class="pill {{ 'stabil' if n.p > 20 else 'moderat' }}">{{ 'ausreichend' if n.p > 20 else 'unterversorgt' }}</span></td>
       </tr>
       {% endif %}
       {% if n.get('k') is not none %}
@@ -37,7 +37,7 @@
         <td>Kalium (K)</td>
         <td class="num">{{ '%.0f' % n.k }}</td>
         <td>mg/kg</td>
-        <td><span class="pill {{ 'stabil' if n.k > 100 else 'moderat' }}">{{ 'ausreichend' if n.k > 100 else 'unterversorgt' }}</span></td>
+        <td class="status"><span class="pill {{ 'stabil' if n.k > 100 else 'moderat' }}">{{ 'ausreichend' if n.k > 100 else 'unterversorgt' }}</span></td>
       </tr>
       {% endif %}
       {% if n.get('caco3') is not none %}
@@ -45,7 +45,7 @@
         <td>Kalkgehalt (CaCO₃)</td>
         <td class="num">{{ '%.1f' % n.caco3 }}</td>
         <td>%</td>
-        <td><span class="pill muted">{{ 'kalkreich' if n.caco3 > 5 else 'kalkarm' }}</span></td>
+        <td class="status"><span class="pill muted">{{ 'kalkreich' if n.caco3 > 5 else 'kalkarm' }}</span></td>
       </tr>
       {% endif %}
     </tbody>

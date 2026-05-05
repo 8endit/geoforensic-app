@@ -10,7 +10,7 @@
   in derselben Form, sodass Leser uns über die Struktur wiedererkennen.
 -#}
 <section class="section">
-  <p class="eyebrow">Block 04 · Gesamt-Bewertung</p>
+  {#- Block-Eyebrow entfernt 2026-05-05 (siehe section_01). -#}
   <h2>11 · EU Soil Monitoring Directive — 13 Descriptoren + 4 Versiegelungs-Indikatoren</h2>
   <h4>Rechtsgrundlage: Directive (EU) 2025/2360 · in Kraft seit 16.12.2025 · nationale Umsetzung bis Dezember 2028</h4>
 
@@ -38,7 +38,7 @@
       <tr>
         <th>Descriptor (Annex I)</th>
         <th>Wert</th>
-        <th>Status</th>
+        <th class="status">Status</th>
         <th>Schwellwert</th>
         <th>Quelle</th>
       </tr>
@@ -63,7 +63,7 @@
             <span class="muted">—</span>
           {%- endif %}
         </td>
-        <td><span class="pill {{ item.get('status', 'muted') }}">{{ item.get('status_label', item.get('status', '—')) }}</span></td>
+        <td class="status"><span class="pill {{ item.get('status', 'muted') }}">{{ item.get('status_label', item.get('status', '—')) }}</span></td>
         <td class="small">{{ item.get('threshold', '—') }}</td>
         <td class="small">{{ item.get('source', '—') }}</td>
       </tr>
@@ -77,7 +77,7 @@
   {%- set bonus = sd.get('bonus_indicators', {}) %}
   {%- set _tier = tier|default('basis') %}
   {% if bonus and _tier == 'komplett' %}
-  <h3>Über die EU-Pflicht hinaus — 5 ergänzende Indikatoren <span class="pill ok" style="font-size:11px;vertical-align:middle;">Komplett-Tier</span></h3>
+  <h3>Über die EU-Pflicht hinaus — 5 ergänzende Indikatoren <span class="pill ok pill--label">Komplett-Tier</span></h3>
   <p>
     Diese fünf Indikatoren stehen <em>nicht</em> in Anhang I der EU-Richtlinie, haben aber
     in der Praxis konkreten Mehrwert für Käufer, Bauträger und Landwirte. Sie sind im
@@ -88,7 +88,7 @@
       <tr>
         <th>Indikator (über EU-Pflicht hinaus)</th>
         <th>Wert</th>
-        <th>Status</th>
+        <th class="status">Status</th>
         <th>Quelle</th>
       </tr>
     </thead>
@@ -109,7 +109,7 @@
             <span class="muted">—</span>
           {%- endif %}
         </td>
-        <td><span class="pill {{ item.get('status', 'muted') }}">{{ item.get('status_label', item.get('status', '—')) }}</span></td>
+        <td class="status"><span class="pill {{ item.get('status', 'muted') }}">{{ item.get('status_label', item.get('status', '—')) }}</span></td>
         <td class="small">{{ item.get('source', '—') }}</td>
       </tr>
       {% endif %}
@@ -118,9 +118,9 @@
   </table>
   {% elif bonus and _tier != 'komplett' %}
   <h3>Über die EU-Pflicht hinaus — 5 ergänzende Indikatoren</h3>
-  <div class="placeholder" style="background:#f5f5f0;border-left:3px solid var(--brand-green, #16a34a);padding:14px 18px;margin:8px 0 4px;">
-    <p style="margin:0 0 6px;"><strong>Im Komplett-Tier enthalten.</strong></p>
-    <p class="small" style="margin:0;color:#555;">
+  <div class="placeholder--info">
+    <p><strong>Im Komplett-Tier enthalten.</strong></p>
+    <p class="small">
       Fünf Bonus-Indikatoren über die EU-Pflicht hinaus: Wind-Erosions-Risiko,
       PAK/PCB-Hintergrundwerte, mikrobielle Boden-Aktivität, Bodenstruktur-Indizes
       und Hydromorphologie. Diese sind nicht Teil des Basis-Tiers, können aber

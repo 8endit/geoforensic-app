@@ -110,18 +110,22 @@ a { color: var(--premium-accent, #22C55E); text-decoration: none; }
   position: relative;
 }
 
+/* Cover-Brand-Block: beide Texte konsistent im Display-Font (Sentient
+   Light, mit kleiner uppercase-Modulation rechts) statt vorher Sentient
+   links + Geist Mono rechts. Domenico-Feedback 2026-05-05: Font-Mix
+   wirkte unpassend nebeneinander. */
 .cover .brand {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-family: var(--font-mono, "Geist Mono"), monospace;
-  font-size: 9pt;
-  letter-spacing: 0.12em;
+  font-family: var(--font-display, "Sentient"), sans-serif;
+  font-size: 10.5pt;
+  font-weight: 200;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   opacity: 0.78;
 }
 .cover .brand .logo {
-  font-family: var(--font-display, "Sentient"), sans-serif;
   font-size: 14pt;
   font-weight: 200;
   letter-spacing: 0.04em;
@@ -367,12 +371,20 @@ a { color: var(--premium-accent, #22C55E); text-decoration: none; }
   border: 0.5pt solid #D3D1C7;
   padding: 8pt 10pt 10pt;
   border-radius: 3pt;
+  /* Vertikal zentrierter Stack: Wert oben, Label/Range mittig drunter.
+     Vorher hingen Range-Texte schräg neben der Klassen-Zahl
+     (Burland-KPI in Section 01). Domenico-Feedback 2026-05-05. */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 .kpi-strip .kpi .v {
   font-family: var(--font-mono, "Geist Mono"), monospace;
   font-size: 14pt;
   font-weight: 500;
   color: #0E0E0D;
+  font-variant-numeric: tabular-nums;
 }
 .kpi-strip .kpi .l {
   font-family: var(--font-mono, "Geist Mono"), monospace;
@@ -406,7 +418,15 @@ a { color: var(--premium-accent, #22C55E); text-decoration: none; }
 .data-table td.num {
   font-family: var(--font-mono, "Geist Mono"), monospace;
   text-align: right;
+  /* tabular-nums damit Ziffern in Spalten gleich breit sind und
+     Werte sauber untereinander stehen (Domenico-Feedback 2026-05-05). */
+  font-variant-numeric: tabular-nums;
 }
+/* Status-Spalten in Daten-Tabellen: Pill horizontal zentrieren in der
+   Zelle (linksbündig sah verschoben aus unter dem zentrierten Header).
+   Sections die Status enthalten setzen die Spalte explizit zu .status. */
+.data-table td.status,
+.data-table th.status { text-align: center; }
 .data-table tr.warn td  { color: #A32D2D; }
 .data-table tr.alert td { color: #A32D2D; font-weight: 500; }
 
@@ -429,6 +449,40 @@ a { color: var(--premium-accent, #22C55E); text-decoration: none; }
 .pill.erheblich   { color: var(--ampel-erheblich); }
 .pill.kritisch    { color: var(--ampel-kritisch); }
 .pill.muted       { color: #6F6E68; }
+/* Backend liefert teils englische Status-Strings (ok/warn/critical) statt
+   der CSS-Vokabular (stabil/auffaellig/kritisch). Aliase damit beide
+   Quellen ohne Template-Mapping richtig coloriert werden. */
+.pill.ok          { color: var(--ampel-stabil); }
+.pill.warn        { color: var(--ampel-auffaellig); }
+.pill.alert       { color: var(--ampel-kritisch); }
+.pill.critical    { color: var(--ampel-kritisch); }
+
+/* Kompakter Inline-Pill für Tier-Badges, Module-Hinweise. Kleiner als
+   Status-Pill, ohne uppercase-Squeeze. Ersetzt Inline-Styles aus
+   section_11. */
+.pill--label {
+  font-size: 6.5pt;
+  letter-spacing: 0.04em;
+  padding: 1pt 5pt;
+  vertical-align: middle;
+  text-transform: none;
+}
+
+/* Info-Variante für "Daten in Vorbereitung"-Hinweise mit positivem Touch
+   (z.B. "Im Komplett-Tier enthalten"). Grüner Akzent statt grau-dashed. */
+.placeholder--info {
+  background: #F5F5F0;
+  border: none;
+  border-left: 2.5pt solid var(--premium-accent, #22C55E);
+  padding: 12pt 14pt;
+  border-radius: 2pt;
+  font-size: 9.5pt;
+  color: #1F2937;
+  margin: 8pt 0 4pt;
+}
+.placeholder--info p { margin: 0 0 5pt; }
+.placeholder--info p:last-child { margin-bottom: 0; }
+.placeholder--info .small { font-size: 8.5pt; color: #555; }
 
 /* "Daten in Vorbereitung" empty-state panel */
 .placeholder {

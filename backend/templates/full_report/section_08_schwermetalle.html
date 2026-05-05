@@ -15,6 +15,12 @@
     und werden gegen die BBodSchV-Vorsorgewerte (Anhang 2 Nr. 4) verglichen.
   </p>
 
+  {#- status ist dict-of-dicts {key: {status: "ok"/"warn"/"critical", ...}}.
+      Wir mappen die Backend-Strings auf das menschen-lesbare Pill-Label
+      (gleichzeitig auch CSS-Klasse, dank Aliase in full_report.css).
+      Vorher wurde fälschlich `status.get(key)` direkt als CSS-Klasse +
+      Pill-Text genutzt → Jinja druckte den ganzen dict als Text. -#}
+  {%- set _STATUS_LABEL = {'ok': 'innerhalb Schwelle', 'warn': 'auffällig', 'critical': 'kritisch'} %}
   <table class="data-table">
     <thead>
       <tr>
@@ -22,7 +28,7 @@
         <th>Wert</th>
         <th>Einheit</th>
         <th>Vorsorge­wert</th>
-        <th>Status</th>
+        <th class="status">Status</th>
       </tr>
     </thead>
     <tbody>
@@ -38,13 +44,15 @@
       ] %}
       {% for key, label, threshold, unit in rows %}
       {% if metals.get(key) is not none %}
-      {%- set st = status.get(key, 'stabil') %}
-      <tr {{ ('class="warn"' if st == 'auffaellig' else 'class="alert"' if st == 'kritisch' else '')|safe }}>
+      {%- set _entry = status.get(key, {}) %}
+      {%- set st = _entry.get('status', 'ok') if _entry is mapping else (_entry|string) %}
+      {%- set st_label = _STATUS_LABEL.get(st, st) %}
+      <tr {{ ('class="warn"' if st == 'warn' else 'class="alert"' if st == 'critical' else '')|safe }}>
         <td>{{ label }}</td>
         <td class="num">{{ '%.1f' % metals[key] }}</td>
         <td>{{ unit }}</td>
         <td class="num">{{ threshold }}</td>
-        <td><span class="pill {{ st }}">{{ st }}</span></td>
+        <td class="status"><span class="pill {{ st }}">{{ st_label }}</span></td>
       </tr>
       {% endif %}
       {% endfor %}
@@ -53,7 +61,7 @@
   <p class="small">
     BBodSchV-Vorsorgewerte sind nicht gleich Sanierungsschwellen. Eine Überschreitung
     löst eine vertiefende Untersuchungspflicht aus, kein Nutzungsverbot.
-    Bei Werten <span class="pill kritisch">kritisch</span> empfehlen wir eine
+    Bei Werten mit Pill <span class="pill kritisch">kritisch</span> empfehlen wir eine
     boden­fachgutachterliche In-situ-Beprobung gemäß §11 BBodSchV.
   </p>
 
