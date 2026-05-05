@@ -175,29 +175,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             background:
               linear-gradient(180deg, rgba(12,29,58,0.55) 0%, rgba(12,29,58,0.10) 35%, rgba(12,29,58,0.10) 65%, rgba(12,29,58,0.75) 100%);
         }
-        /* Premium-Section: Sunset bleibt sichtbar als Atmosphäre, aber
-           überall dunkler Tint + starker text-shadow für solide Lesbarkeit.
-           User-Feedback 2026-05-05 v3: Lesbarkeit war zu schlecht im
-           Form-Bereich unten — Tint flächig auf 0.55-0.75 hochgezogen. */
+        /* Premium-Section: Sunset wieder mit mehr Farbe (User v4), aber
+           Listen-Cards bekommen opaken Background damit Text auf den Cards
+           lesbar bleibt. Tint-Vignette nur dort wo direkter Text steht
+           (Headline oben + Form unten). */
         .premium-photo {
             background-image: url('/images/photos/waitlist-aerial-sunset.jpg');
             background-size: cover;
             background-position: center 50%;
-            opacity: 0.50;
+            opacity: 0.85;
         }
         .premium-photo-tint {
             background:
-              linear-gradient(180deg, rgba(12,29,58,0.78) 0%, rgba(12,29,58,0.55) 30%, rgba(12,29,58,0.55) 65%, rgba(12,29,58,0.85) 100%);
+              linear-gradient(180deg, rgba(12,29,58,0.65) 0%, rgba(12,29,58,0.10) 25%, rgba(12,29,58,0.10) 70%, rgba(12,29,58,0.70) 100%);
         }
-        #premium h2, #premium h3, #premium p, #premium .text-lg, #premium .text-sm, #premium label, #premium .text-base {
-            text-shadow: 0 1px 3px rgba(0,0,0,0.55), 0 0 10px rgba(0,0,0,0.35);
+        #premium h2, #premium p, #premium .text-lg, #premium .text-sm, #premium label, #premium .text-base {
+            text-shadow: 0 1px 3px rgba(0,0,0,0.65), 0 0 10px rgba(0,0,0,0.45);
         }
-        /* Feature-list-Items in Premium-Section bekommen einen stärkeren
-           opaken Background damit der grüne Häkchen + weißer Text gut
-           kontrastieren ohne dass das Sunset durchschimmert. */
+        /* Feature-list-Items: opaker Card-BG damit Sunset NICHT durch die
+           Liste durchscheint und die Häkchen + Text flach lesbar sind. */
         #premium ul li, #premium .grid > div {
-            background: rgba(12,29,58,0.45) !important;
-            backdrop-filter: blur(2px);
+            background: rgba(12,29,58,0.78) !important;
+            backdrop-filter: blur(3px);
+        }
+        /* Form-Inputs auch deutlich opak damit Email-Eingabe sichtbar bleibt */
+        #premium input[type="email"] {
+            background: rgba(12,29,58,0.85) !important;
         }
         /* Mid-CTA-Card im weißen Bereich der Seite — Hero-Bild
            wiederverwendet mit anderem Crop (zoom-in, weiter unten),
@@ -1451,9 +1454,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <!-- Background photo (Pexels 1637080) — Luftaufnahme Wohngebiet Sonnenuntergang -->
       <div class="premium-photo absolute inset-0"></div>
       <div class="premium-photo-tint absolute inset-0"></div>
-      <div class="absolute inset-0 opacity-5">
-        <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="premium-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#premium-grid)"/></svg>
-      </div>
+      <!-- Grid-pattern entfernt 2026-05-05 — User-Direktive: weg damit -->
+
 
       <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-10">
