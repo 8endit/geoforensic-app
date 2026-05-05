@@ -17,6 +17,26 @@
     <div class="eyebrow">Bodenrisiko-Auskunft</div>
     <h1>Ihre Standort-Auskunft<br>auf einen Blick.</h1>
     <div class="address">{{ payload.address.full }}</div>
+    {%- if cadastral_parcel %}
+    {#- Sprint E1 (2026-05-06): Flurstück, wenn für die Adresse aus dem
+        Bundesland-INSPIRE-WFS abrufbar. Bei Phase-2-BL (BY/BW/HE/NI in
+        Lizenzklärung) ist cadastral_parcel None — dann fällt die Box
+        weg, der Bericht bleibt unverändert auf 500m-Radius. -#}
+    <div class="parcel-box">
+      <div class="parcel-label">Flurstück</div>
+      <div class="parcel-id">
+        {%- if cadastral_parcel.flurstueck_nr %}{{ cadastral_parcel.flurstueck_nr }}
+        {%- else %}—{% endif %}
+      </div>
+      {%- if cadastral_parcel.gemarkung or cadastral_parcel.area_m2 %}
+      <div class="parcel-meta">
+        {%- if cadastral_parcel.gemarkung %}{{ cadastral_parcel.gemarkung }}{% endif %}
+        {%- if cadastral_parcel.gemarkung and cadastral_parcel.area_m2 %} · {% endif %}
+        {%- if cadastral_parcel.area_m2 %}{{ '%.0f' % cadastral_parcel.area_m2 }} m²{% endif %}
+      </div>
+      {%- endif %}
+    </div>
+    {%- endif %}
     <div class="coords">
       {{ '%.5f' % payload.address.lat }}, {{ '%.5f' % payload.address.lon }}
     </div>

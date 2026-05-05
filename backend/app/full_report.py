@@ -361,6 +361,7 @@ def generate_full_report(
     geology_data: dict | None = None,
     building_footprint_data: dict | None = None,
     pesticides_data: dict | None = None,
+    cadastral_parcel: dict | None = None,
     annual_precipitation_mm: float | None = None,
     report_id: str | None = None,
     fetch_basemap_tiles: bool = True,
@@ -471,6 +472,9 @@ def generate_full_report(
         mining_data=mining_data,
         soil_directive_data=soil_directive_data,
         soil_profile=soil_profile,
+        # Sprint E1: Flurstücks-Box im Cover, falls für DE-Adresse
+        # aus offenem BL-WFS verfügbar. None wenn Phase-2-BL oder Fehler.
+        cadastral_parcel=cadastral_parcel,
     )
 
     block1 = env.get_template("block_separator.html").render(

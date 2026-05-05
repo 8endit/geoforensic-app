@@ -547,6 +547,35 @@ async def _generate_and_send_lead_report(
                 )
                 soil_directive_data = None
 
+            # Flurstücks-Lookup via INSPIRE Cadastral Parcels WFS — Sprint E1
+            # (2026-05-06). Optional: liefert für DE-Adressen das Flurstück
+            # zur Adresse aus dem zuständigen Bundesland-WFS. Bei Phase-2-BL
+            # (BY/BW/HE/NI in Lizenz-Klärung) oder Netzwerk-Fehler fällt der
+            # Bericht auf den 500m-Radius-Pfad zurück, mit Hinweis im Cover.
+            cadastral_parcel: dict | None = None
+            if _is_de:
+                try:
+                    from app.cadastral import (
+                        map_state_to_bundesland_code,
+                        query_cadastral,
+                    )
+                    bl_code = map_state_to_bundesland_code(state)
+                    if bl_code:
+                        _t0 = time.perf_counter()
+                        _parcel = await query_cadastral(lat, lon, bl_code)
+                        if _parcel is not None:
+                            cadastral_parcel = _parcel.to_dict()
+                        logger.info(
+                            "pipeline.cadastral took=%.2fs lead=%s bl=%s hit=%s",
+                            time.perf_counter() - _t0, lead_id, bl_code,
+                            cadastral_parcel is not None,
+                        )
+                except Exception:
+                    logger.exception(
+                        "Cadastral-Lookup failed for (%s, %s); falling back to 500m radius",
+                        lat, lon,
+                    )
+
             # Pestizide (LUCAS NUTS2-Aggregat) — wird in Section 10 gerendert.
             # War vorher nicht angedockt und blieb im Vollbericht stumm
             # ("Daten nicht verfügbar"), Section ohne Inhalt — Audit
@@ -631,6 +660,7 @@ async def _generate_and_send_lead_report(
                     altlasten_data=altlasten_data,
                     slope_data=slope_data,
                     pesticides_data=pesticides_data,
+                    cadastral_parcel=cadastral_parcel,
                     country_code=country_code,
                     psi_points=psi_points,
                     psi_timeseries=psi_timeseries,
