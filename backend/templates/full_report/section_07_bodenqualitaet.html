@@ -91,5 +91,35 @@
     mit einer Probe-Bohrung am Hauseingang. Für Bauplanungen bleibt die
     DIN 4020/EC 7-konforme In-situ-Erkundung erforderlich.
   </p>
+
+  {%- set ph = sg.get('phh2o') %}
+  {%- set bdod = sg.get('bdod') %}
+  {%- set clay = sg.get('clay') %}
+  {%- set sand = sg.get('sand') %}
+  <div class="so-was">
+    <span class="label">Heißt für Sie</span>
+    {% if ph and bdod and clay and sand %}
+    <p>
+      Ihr Boden ist
+      {%- if sand > 60 %} <strong>sandig-leicht</strong> — gut wasserdurchlässig, aber speichert wenig Nährstoffe;
+      {%- elif clay > 35 %} <strong>tonig-schwer</strong> — speichert viel Wasser und Nährstoffe, neigt aber zu Staunässe und Setzungen;
+      {%- else %} ein <strong>Lehm-Schluff-Mix</strong> — der Standard-Boden in Deutschland, gute Tragfähigkeit und Versorgung;
+      {%- endif %}
+      pH {{ '%.1f' % ph }}
+      ({% if ph < 5.5 %}sauer{% elif ph > 7.5 %}alkalisch{% else %}neutral{% endif %})
+      und Lagerungsdichte {{ '%.2f' % bdod }} g/cm³
+      ({% if bdod > 1.6 %}verdichtet — schwierig für Wurzeln{% else %}normal{% endif %}).
+    </p>
+    {% if bdod > 1.6 or (ph < 5.0 or ph > 8.0) %}
+    <p><strong>Was Sie tun können:</strong>
+    {% if bdod > 1.6 %}Bei Garten-/Landwirtschafts-Nutzung Tiefenlockerung sinnvoll. {% endif %}
+    {% if ph < 5.0 %}Bodenkalkung für Gartennutzung empfehlenswert (sauer = wenig Pflanzenverfügbarkeit). {% endif %}
+    {% if ph > 8.0 %}Schwefel/Sulfat-Düngung kann pH absenken bei Bedarf. {% endif %}
+    </p>
+    {% endif %}
+    {% else %}
+    <p>Bodenprofil-Daten am Standort unvollständig.</p>
+    {% endif %}
+  </div>
   {% endif %}
 </section>

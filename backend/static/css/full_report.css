@@ -163,6 +163,52 @@ a { color: var(--premium-accent, #22C55E); text-decoration: none; }
   margin-top: 10pt;
 }
 
+/* Cover-Summary "Ihr Standort in 5 Punkten" — schiebt sich oberhalb
+   des meta-Blocks ein, gleicher Container-Style aber mit grünem Akzent. */
+.cover-summary {
+  margin: 18pt 0 18pt;
+  padding: 14pt 16pt 16pt;
+  background: rgba(34, 197, 94, 0.06);
+  border-left: 2pt solid var(--premium-accent, #22C55E);
+  border-radius: 2pt;
+}
+.cover-summary-label {
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-size: 8pt;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--premium-accent, #22C55E);
+  margin: 0 0 9pt;
+}
+.cover-summary-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 9.5pt;
+  line-height: 1.55;
+  color: #FFFFFF;
+}
+.cover-summary-list li {
+  padding: 4pt 0;
+  border-bottom: 0.25pt solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: baseline;
+  gap: 8pt;
+}
+.cover-summary-list li:last-child { border-bottom: none; }
+.cover-summary-list strong { color: #FFFFFF; font-weight: 500; }
+.cover-summary-list .amp {
+  display: inline-block;
+  width: 7pt;
+  height: 7pt;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 2pt;
+}
+.cover-summary-list .amp-gruen { background: #22C55E; box-shadow: 0 0 4pt rgba(34,197,94,0.5); }
+.cover-summary-list .amp-gelb { background: #EAB308; box-shadow: 0 0 4pt rgba(234,179,8,0.5); }
+.cover-summary-list .amp-rot { background: #DC2626; box-shadow: 0 0 4pt rgba(220,38,38,0.5); }
+
 .cover .meta {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -272,6 +318,34 @@ a { color: var(--premium-accent, #22C55E); text-decoration: none; }
 .section + .section { margin-top: 14pt; }
 .section .visual { margin: 8pt 0 12pt; }
 .section .visual svg { display: block; width: 100%; height: auto; }
+
+/* "Heißt für Sie"-Box — Klartext-Übersetzung am Ende jeder Sektion.
+   Macht den Bericht buyer-readable ohne die Profi-Daten oben zu verlieren.
+   Eingeführt 2026-05-05 nach User-Feedback "verstehe wenig was die Werte
+   aussagen sollen". Bewusst hellgrün damit man's bei Skim sofort sieht. */
+.so-was {
+  background: #F0FDF4;
+  border-left: 2.5pt solid var(--premium-accent, #22C55E);
+  padding: 10pt 12pt 11pt 14pt;
+  margin: 12pt 0 4pt;
+  border-radius: 2pt;
+  font-size: 10.5pt;
+  line-height: 1.55;
+  color: #1F2937;
+  break-inside: avoid;
+}
+.so-was .label {
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-size: 8pt;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #166534;
+  margin: 0 0 5pt;
+  display: block;
+}
+.so-was strong { color: #064E3B; }
+.so-was p { margin: 0 0 5pt; }
+.so-was p:last-child { margin-bottom: 0; }
 
 .eyebrow {
   font-family: var(--font-mono, "Geist Mono"), monospace;

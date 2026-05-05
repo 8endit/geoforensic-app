@@ -50,6 +50,20 @@
       {% endif %}
     </tbody>
   </table>
+
+  <div class="so-was">
+    <span class="label">Heißt für Sie</span>
+    {%- set n_low = (n.get('n') is not none and n.n < 1.5) %}
+    {%- set p_low = (n.get('p') is not none and n.p < 20) %}
+    {%- set k_low = (n.get('k') is not none and n.k < 100) %}
+    {% if n_low or p_low or k_low %}
+    <p>Der Boden in Ihrer Region ist <strong>{{ 'stickstoffarm' if n_low else '' }}{{ ', phosphorarm' if p_low else '' }}{{ ', kaliumarm' if k_low else '' }}</strong>. Garten/Rasen wird ohne Düngung schwer wachsen.</p>
+    <p><strong>Was Sie tun können:</strong> Bei eigenem Garten Bodenprobe (~30 € beim Landwirtschaftsamt) für gezielte Empfehlung. Generell: Kompost-Aufbau über mehrere Jahre ist besser als jährliche Mineral-Düngung.</p>
+    {% else %}
+    <p>Der Boden in Ihrer Region ist <strong>nährstoffmäßig gut versorgt</strong>. Standard-Düngung reicht für Garten und Zierrasen.</p>
+    {% endif %}
+    <p><em>Hinweis:</em> Werte sind regional (LUCAS-Punkt im Umkreis), nicht standortscharf. Für Bauplanung irrelevant — nur für Garten-/Landwirtschafts-Nutzung.</p>
+  </div>
   {% else %}
   <div class="placeholder">
     LUCAS-Nährstoffdaten am Standort nicht verfügbar.

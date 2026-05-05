@@ -60,6 +60,26 @@
     Eine Betroffenheit im HQ-100-Szenario verteuert in der Regel die Elementarschadenversicherung
     spürbar; HQ-extrem ist seit 2024 in vielen Tarifen vom Standardumfang ausgenommen.
   </p>
+
+  {%- set in_haeufig = haeufig.get('in_zone') %}
+  {%- set in_hq100 = hq100.get('in_zone') %}
+  {%- set in_extrem = extrem.get('in_zone') %}
+  <div class="so-was">
+    <span class="label">Heißt für Sie</span>
+    {% if in_haeufig %}
+    <p><strong>Ihre Adresse liegt im häufigen Hochwassergebiet</strong> (alle 10–20 Jahre überflutet). Das ist die kritische Klasse — Versicherer stufen diese Lagen oft hoch ein oder lehnen Elementarschadenschutz ab.</p>
+    <p><strong>Was Sie tun können:</strong> Vor Kauf bei mehreren Versicherern Vergleichsangebote für Elementarschaden einholen — manche zeichnen die Lage gar nicht. Wenn Sie kaufen wollen: Keller wasserdicht prüfen lassen, Schutzwand-Investitionen einkalkulieren.</p>
+    {% elif in_hq100 %}
+    <p>Ihre Adresse liegt im <strong>100-jährlichen Hochwassergebiet</strong>. Statistisch wird die Adresse einmal pro Jahrhundert überflutet — bei Klimawandel-Trends real häufiger.</p>
+    <p><strong>Was Sie tun können:</strong> Elementarschadenschutz ist meist erhältlich, kostet aber 30–80 % mehr als in Normallagen. Bei Kauf: Versicherungs-Angebot einholen vor Notartermin.</p>
+    {% elif in_extrem %}
+    <p>Ihre Adresse liegt nur im <strong>Extrem-Hochwasser-Szenario</strong> (seltener als 200-jährlich). Das ist das untere Risiko-Niveau — die meisten Versicherer zeichnen das normal.</p>
+    <p><strong>Was Sie tun können:</strong> Standard-Elementarschadenklausel in der Wohngebäudeversicherung reicht.</p>
+    {% else %}
+    <p><strong>Kein Hochwasserrisiko</strong> nach BfG-Karten — auch nicht im Extremszenario. Das ist die beste Risiko-Klasse.</p>
+    <p><strong>Was Sie tun können:</strong> Elementarschaden-Klausel ist in jeder Standard-Wohngebäudeversicherung enthalten und günstig — nicht weglassen, deckt auch Starkregen-Rückstau ab.</p>
+    {% endif %}
+  </div>
   {% else %}
   <div class="placeholder">
     Hochwasserdaten am Standort nicht verfügbar. Wenn Ihre Adresse außerhalb Deutschlands liegt,

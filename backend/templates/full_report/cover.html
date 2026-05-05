@@ -22,6 +22,69 @@
     </div>
   </div>
 
+  {#- Cover-Zusammenfassung "Ihr Standort in 5 Punkten" — pragmatische
+      Aggregation der wichtigsten Befunde aus payload + soil_directive_data +
+      flood_data + mining_data + soil_profile. Ampel pro Zeile damit Käufer
+      vor dem Detail-Tauchen schon sieht ob etwas auffällig ist.
+      Eingeführt 2026-05-05 nach User-Feedback "verstehe wenig was die Werte
+      aussagen sollen". -#}
+  {%- set rd = payload.components.risk_dashboard %}
+  {%- set bclass = rd.burland_class or 0 %}
+  {%- set bvel = rd.velocity_mm_per_year or 0 %}
+  {%- set _bewegung_amp = 'rot' if bclass >= 4 else ('gelb' if bclass >= 3 else 'gruen') %}
+  {%- set _bewegung_text = (
+       'Boden bewegt sich auffällig (' ~ ('%+.1f' % bvel) ~ ' mm/Jahr) — Setzungsrisiko prüfen' if bclass >= 4
+       else ('Boden bewegt sich (' ~ ('%+.1f' % bvel) ~ ' mm/Jahr) — bei Renovierung berücksichtigen' if bclass >= 3
+       else ('Boden bewegt sich kaum (' ~ ('%+.1f' % bvel) ~ ' mm/Jahr) — kein Handlungsbedarf' if rd.psi_count_in_radius > 0
+       else 'Keine Satelliten-Messpunkte — nicht bewertbar'))) %}
+
+  {%- set fd = flood_data if flood_data else {} %}
+  {%- set sc_haeufig = (fd.get('scenarios') or {}).get('haeufig') or {} %}
+  {%- set sc_hq100 = (fd.get('scenarios') or {}).get('hq100') or {} %}
+  {%- set sc_extrem = (fd.get('scenarios') or {}).get('extrem') or {} %}
+  {%- set _hochwasser_amp = 'rot' if sc_haeufig.get('in_zone') else ('gelb' if sc_hq100.get('in_zone') else 'gruen') %}
+  {%- set _hochwasser_text = (
+       'Im häufigen Hochwassergebiet — Versicherer-Check vor Kauf' if sc_haeufig.get('in_zone')
+       else ('Im 100-jährlichen Hochwassergebiet — Aufschlag bei Elementarschaden' if sc_hq100.get('in_zone')
+       else ('Nur im Extrem-Szenario — Standard-Versicherung reicht' if sc_extrem.get('in_zone')
+       else 'Kein Hochwasserrisiko nach BfG-Karten'))) %}
+
+  {%- set md = mining_data if mining_data else {} %}
+  {%- set _bergbau_amp = 'rot' if md.get('altbergbau_risk') == 'rot' else ('gelb' if md.get('hits') else 'gruen') %}
+  {%- set _bergbau_text = (
+       'In Altbergbau-Risikozone (rot) — Landesbergamt-Auskunft zwingend' if md.get('altbergbau_risk') == 'rot'
+       else ('Bergbau-Berechtigung im Umfeld — Auskunft prüfen' if md.get('hits')
+       else 'Kein Bergbau im Suchradius dokumentiert')) %}
+
+  {%- set ms = soil_profile.get('metal_status', {}) if soil_profile else {} %}
+  {%- set _has_metal_alert = false %}
+  {%- set _has_metal_warn = false %}
+  {%- for k, v in ms.items() %}{%- if v == 'kritisch' %}{% set _has_metal_alert = true %}{%- elif v == 'auffaellig' %}{% set _has_metal_warn = true %}{%- endif %}{%- endfor %}
+  {%- set _metalle_amp = 'rot' if _has_metal_alert else ('gelb' if _has_metal_warn else 'gruen') %}
+  {%- set _metalle_text = (
+       'Schwermetall-Werte über Sanierungsschwelle — Bodenprobe vor Garten/Spielnutzung' if _has_metal_alert
+       else ('Vorsorgewerte überschritten — kein Wurzelgemüse, kalken' if _has_metal_warn
+       else 'Schwermetalle unter BBodSchV-Vorsorgewerten')) %}
+
+  {%- set sd_overall = (soil_directive_data or {}).get('overall_status', '') %}
+  {%- set _eu_amp = 'rot' if sd_overall == 'ungesund' else ('gelb' if sd_overall == 'bedingt' else 'gruen') %}
+  {%- set _eu_text = (
+       'EU-Bodenrichtlinie: Mehrere Descriptoren auffällig — auf Roten Liste' if sd_overall == 'ungesund'
+       else ('EU-Bodenrichtlinie: Beobachtungs-relevant — bedingt gesund' if sd_overall == 'bedingt'
+       else ('EU-Bodenrichtlinie: 13 von 13 Descriptoren im grünen Bereich' if sd_overall == 'gesund'
+       else 'EU-Bodenrichtlinie: Daten unvollständig'))) %}
+
+  <div class="cover-summary">
+    <div class="cover-summary-label">Ihr Standort in 5 Punkten</div>
+    <ul class="cover-summary-list">
+      <li><span class="amp amp-{{ _bewegung_amp }}"></span><strong>Bodenbewegung:</strong> {{ _bewegung_text }}</li>
+      <li><span class="amp amp-{{ _hochwasser_amp }}"></span><strong>Hochwasser:</strong> {{ _hochwasser_text }}</li>
+      <li><span class="amp amp-{{ _bergbau_amp }}"></span><strong>Bergbau:</strong> {{ _bergbau_text }}</li>
+      <li><span class="amp amp-{{ _metalle_amp }}"></span><strong>Schwermetalle:</strong> {{ _metalle_text }}</li>
+      <li><span class="amp amp-{{ _eu_amp }}"></span><strong>{{ _eu_text }}</strong></li>
+    </ul>
+  </div>
+
   <div class="meta">
     <div class="meta-block">
       <div><span class="label">Bericht-Nr.</span> <span class="value">{{ payload.report_id }}</span></div>

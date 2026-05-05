@@ -67,12 +67,34 @@
     des kartografierten Bestands können nicht ausgeschlossen werden.
   </p>
   {% endif %}
+
+  <div class="so-was">
+    <span class="label">Heißt für Sie</span>
+    {%- set has_hits = (mining_data or {}).get('hits') %}
+    {%- set ampel_aak = (mining_data or {}).get('altbergbau_risk') %}
+    {% if ampel_aak == 'rot' %}
+    <p>Adresse liegt in einer <strong>Altbergbau-Risikozone (rot)</strong>. Hier sind Senkungs- und Hebungsrisiken historisch dokumentiert — bergrechtliche Auskunft beim Landesbergamt zwingend vor Kauf.</p>
+    <p><strong>Was Sie tun können:</strong> Beim Landesbergamt Bergschaden-Historie einholen. Versicherer fragen, ob Bergschaden in der Wohngebäudeversicherung mit abgesichert ist (Bergschadensgesetz, kostet meist Aufpreis).</p>
+    {% elif has_hits %}
+    <p>Mindestens eine Bergbau-Berechtigung oder Altbergbau-Eintrag liegt im Bereich Ihrer Adresse. Das ist <strong>nicht automatisch ein Risiko</strong>, aber sollte vor Kauf geprüft werden.</p>
+    <p><strong>Was Sie tun können:</strong> Beim Landesbergamt Bergschaden-Historie für die Adresse erfragen. Wenn Stollen vorhanden: Tiefenangabe + ggf. Verfüllungs-Status.</p>
+    {% else %}
+    <p>Kein dokumentierter Bergbau im Suchradius. <strong>Adressgenaues Senkungsrisiko aus Tagesbergbau ist auszuschließen.</strong></p>
+    <p><em>Einschränkung:</em> Sehr alte Stollen (vor 1900) sind oft nicht in den modernen Karten — bei Verdacht (z.B. Ortsnamen mit „-grube", „-zeche") trotzdem Anfrage an Bergamt.</p>
+    {% endif %}
+  </div>
   {% else %}
   <div class="placeholder">
     Für dieses Bundesland gibt es derzeit keinen öffentlich abrufbaren Bergbau-WMS.
     Auskunft beim zuständigen Landesbergamt (Bayern: Bergamt München; BW:
     Regierungspräsidium Freiburg; SN: Sächsisches Oberbergamt; BB: LBGR;
     HE: HLNUG; NI: LBEG) anfordern.
+  </div>
+
+  <div class="so-was">
+    <span class="label">Heißt für Sie</span>
+    <p>Wir können Bergbau-Daten für Ihr Bundesland aktuell nicht adressgenau abrufen — der Landes-WMS ist nicht öffentlich. Das heißt <strong>nicht</strong> dass die Adresse bergbau-frei ist.</p>
+    <p><strong>Was Sie tun können:</strong> Wenn die Region historisch Bergbau hatte (Salz, Kohle, Erz), beim zuständigen Landesbergamt eine kostenlose Bergauskunft anfordern. Die Mailadresse steht oben.</p>
   </div>
   {% endif %}
 </section>

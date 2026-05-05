@@ -441,6 +441,11 @@ def generate_full_report(
 
     cover_html = env.get_template("cover.html").render(
         payload=payload, qr_svg=qr_svg, issued_at=issued_at,
+        # "Ihr Standort in 5 Punkten"-Cover-Summary nutzt diese Aggregate
+        flood_data=flood_data,
+        mining_data=mining_data,
+        soil_directive_data=soil_directive_data,
+        soil_profile=soil_profile,
     )
 
     block1 = env.get_template("block_separator.html").render(

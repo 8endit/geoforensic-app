@@ -34,6 +34,20 @@
     Für eine adressgenaue Wirkstoff-Analyse ist eine In-situ-Bodenprobe und
     Multi-Methoden-Laboranalyse (z.B. nach DIN EN 15662) erforderlich.
   </p>
+
+  <div class="so-was">
+    <span class="label">Heißt für Sie</span>
+    {%- set pcount = p.get('detected_count', 0) or 0 %}
+    {% if pcount >= 20 %}
+    <p>In Ihrer Region wurden <strong>{{ pcount }} verschiedene Pestizide</strong> nachgewiesen — überdurchschnittlich für DE. Hängt typisch mit intensivem Acker-/Obstanbau zusammen.</p>
+    <p><strong>Was Sie tun können:</strong> Bei Garten-Eigennutzung Wurzelgemüse + Salate kritisch sehen — Vorzug von Hochbeeten mit gekauftem Substrat. Eigene Bodenprobe (~250 €) wenn unter 200 m vom Acker.</p>
+    {% elif pcount >= 10 %}
+    <p>In Ihrer Region wurden <strong>{{ pcount }} Pestizide</strong> nachgewiesen — Durchschnitt für DE-Mischlandschaft.</p>
+    <p><strong>Was Sie tun können:</strong> Garten-Standardpraxis (regelmäßige Kompost-Mulche) reicht. Bei direkter Acker-Grenze: Pufferzone von 5–10 m Hecke pflanzen.</p>
+    {% else %}
+    <p>In Ihrer Region <strong>nur {{ pcount }} Pestizide</strong> nachgewiesen — niedrige Hintergrundbelastung. Typisch für ländliche Wohngebiete oder Ökolandbau-Regionen.</p>
+    {% endif %}
+  </div>
   {% else %}
   <div class="placeholder">
     Pestizid-Hintergrundwerte am Standort nicht verfügbar (NUTS2-Region nicht

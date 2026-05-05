@@ -70,6 +70,24 @@
     der zugehörige Raster ist auf dem Server noch nicht eingespielt.
   </p>
   {% endif %}
+
+  {%- set t100_60min = slots.values() | selectattr('duration_min', 'equalto', 60) | selectattr('return_period_a', 'equalto', 100) | first %}
+  {%- set t100_60_val = t100_60min.value if t100_60min else none %}
+  <div class="so-was">
+    <span class="label">Heißt für Sie</span>
+    {% if t100_60_val and t100_60_val >= 50 %}
+    <p>Bei einem 100-jährlichen Starkregen fallen an Ihrer Adresse <strong>{{ '%.0f' % t100_60_val }} mm in einer Stunde</strong> — das ist <strong>extremes Starkregen-Klima</strong>. DWD-Schwelle für „extrem" ist 35 mm; bei Ihren Werten muss die Grundstücksentwässerung deutlich überdimensioniert werden.</p>
+    <p><strong>Was Sie tun können:</strong> Vor Hauskauf Dachrinnen, Regenfallrohre und Versickerungs-Anlage prüfen lassen (Tiefbauer ~150–400 €). Im Bestand: Rückstauklappe in der Hauptabwasserleitung Pflicht.</p>
+    {% elif t100_60_val and t100_60_val >= 35 %}
+    <p>Bei einem 100-jährlichen Starkregen fallen an Ihrer Adresse <strong>{{ '%.0f' % t100_60_val }} mm in einer Stunde</strong> — das ist <strong>oberhalb der DWD-Extremschwelle</strong> (35 mm). Standard-Entwässerung kann das nicht abführen.</p>
+    <p><strong>Was Sie tun können:</strong> Bei Renovierung Versickerungsmulden statt direkter Dachableitung berücksichtigen, Rückstauklappe nachrüsten falls noch nicht vorhanden.</p>
+    {% elif t100_60_val %}
+    <p>Bei einem 100-jährlichen Starkregen fallen an Ihrer Adresse <strong>{{ '%.0f' % t100_60_val }} mm in einer Stunde</strong>. Das liegt im normalen Bereich für Deutschland (Schwelle für „extrem" ist 35 mm).</p>
+    <p><strong>Was Sie tun können:</strong> Standard-Grundstücksentwässerung nach DIN 1986-100 reicht. Bei Eigentum: Rückstauklappe ist immer empfehlenswert (50–150 € im Baumarkt).</p>
+    {% else %}
+    <p>Starkregen-Werte werden für Ihren Standort gerade nachgeliefert. Die Klima-Region (Schwarzwald-Vorland, Oberrheingraben oder ähnlich) hat typischerweise mittlere Niederschlagsintensität.</p>
+    {% endif %}
+  </div>
   {% else %}
   <div class="placeholder">
     KOSTRA-Daten derzeit nicht verfügbar — die DWD-GeoTIFFs liegen am

@@ -30,6 +30,22 @@
     steilste der drei (Skala {{ slope_data.scale_m }} m). Werte über 5° markieren erhöhtes
     Erosionsrisiko bei Starkregen, über 15° werden Hangrutschungs-Indikatoren relevant.
   </p>
+
+  {%- set slope_d = slope_data.slope_deg if slope_data.slope_deg is not none else 0 %}
+  <div class="so-was">
+    <span class="label">Heißt für Sie</span>
+    {% if slope_d < 2 %}
+    <p>Ihr Grundstück ist <strong>weitgehend eben</strong> ({{ '%.1f' % slope_d }}°). Kein Erosions- oder Hangrutsch-Thema, Standard-Bauweise reicht.</p>
+    {% elif slope_d < 5 %}
+    <p>Ihr Grundstück hat <strong>leichte Neigung</strong> ({{ '%.1f' % slope_d }}°). Bei Starkregen kann Wasser zum tiefer liegenden Bereich fließen — Versickerungs-Anlage in der richtigen Ecke planen.</p>
+    {% elif slope_d < 15 %}
+    <p>Ihr Grundstück hat <strong>spürbare Hanglage</strong> ({{ '%.1f' % slope_d }}°). Erhöhtes Erosionsrisiko bei Starkregen, Hangwasser muss kontrolliert abgeleitet werden. Bei Anbau: Hangsicherung im Statik-Konzept.</p>
+    <p><strong>Was Sie tun können:</strong> Vor Kauf: gibt es eine Drainage hangaufwärts? Sind Stützmauern intakt? Statiker-Begehung 200–500 €.</p>
+    {% else %}
+    <p><strong>Steiler Hang</strong> ({{ '%.1f' % slope_d }}°). Hangrutsch-Indikator ist relevant — DIN 1054 verlangt geotechnischen Nachweis für jede neue Bebauung.</p>
+    <p><strong>Was Sie tun können:</strong> Baugrundgutachten zwingend vor Kauf, ohne Standsicherheits-Bewertung keinen Notartermin machen.</p>
+    {% endif %}
+  </div>
   {% else %}
   <div class="placeholder">
     Geländeprofil derzeit nicht abrufbar — OpenTopoData hat eine Tageskontigent-Grenze und

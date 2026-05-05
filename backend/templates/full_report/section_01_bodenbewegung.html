@@ -35,4 +35,28 @@
     {% endif %}
   </p>
   <div class="visual">{{ ts_svg|safe }}</div>
+
+  {%- set rd2 = payload.components.risk_dashboard %}
+  {%- set vel = rd2.velocity_mm_per_year if rd2.velocity_mm_per_year is not none else 0 %}
+  {%- set abs_vel = vel|abs %}
+  {%- set bclass = rd2.burland_class %}
+  <div class="so-was">
+    <span class="label">Heißt für Sie</span>
+    {% if rd2.psi_count_in_radius == 0 %}
+    <p>Keine Satelliten-Messpunkte für Ihre Adresse. Der Standort liegt möglicherweise unter dichter Vegetation, im Wald oder in einer Region mit zu wenig Reflektoren — die InSAR-Methode braucht stabile Reflexionsflächen wie Hausdächer.</p>
+    <p><strong>Was Sie tun können:</strong> Bei Verdachtsmomenten (Risse, schiefe Türen) Standortauskunft beim Geologischen Landesamt einholen.</p>
+    {% elif bclass <= 1 %}
+    <p>Ihr Boden ist <strong>stabil</strong>. Die mittlere Bewegung von <strong>{{ '%+.1f' % vel }} mm/Jahr</strong> liegt unter der Wahrnehmungsschwelle — zum Vergleich: ein Fingernagel wächst etwa 30 mm/Jahr.</p>
+    <p><strong>Was Sie tun können:</strong> Kein Handlungsbedarf. Routine-Beobachtung in 5–10 Jahren reicht.</p>
+    {% elif bclass == 2 %}
+    <p>Ihr Boden zeigt <strong>leichte Bewegung</strong> ({{ '%+.1f' % vel }} mm/Jahr). Das ist normal in vielen Regionen DE und für Wohngebäude in der Regel unkritisch — Schäden treten typischerweise erst über 2 mm/Jahr auf.</p>
+    <p><strong>Was Sie tun können:</strong> Bei Renovierung oder Anbau die Bewegungsrichtung im Statik-Konzept berücksichtigen. Sonst kein direkter Handlungsbedarf.</p>
+    {% elif bclass <= 4 %}
+    <p>Ihr Boden bewegt sich mit <strong>{{ '%+.1f' % vel }} mm/Jahr</strong>{% if vel < 0 %} (Setzung — der Boden sinkt){% else %} (Hebung — der Boden steigt){% endif %}. Bei Werten in dieser Größenordnung steigt das Risiko für Setzungsrisse spürbar an.</p>
+    <p><strong>Was Sie tun können:</strong> Vor Kaufabschluss Mauerwerk und Bodenplatte begutachten lassen (lokaler Statiker oder Sachverständiger nach §18 BBodSchG, ~300–800 €). Bei vorhandenen Rissen: Riss-Monitoring über 6–12 Monate.</p>
+    {% else %}
+    <p><strong>Auffällige Bewegung</strong> von {{ '%+.1f' % vel }} mm/Jahr. In dieser Größenordnung können Setzungsschäden am Gebäude auftreten — die Adresse erfordert eine genauere Prüfung vor jeder Investition.</p>
+    <p><strong>Was Sie tun können:</strong> Vor Notartermin Baugrundgutachten beauftragen (typisch 850–2.500 €). Bestehende Risse durch Sachverständigen einordnen lassen. Bei Finanzierung: Bank über die Daten informieren — beeinflusst Beleihungswert.</p>
+    {% endif %}
+  </div>
 </section>

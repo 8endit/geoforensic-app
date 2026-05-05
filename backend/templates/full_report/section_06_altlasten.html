@@ -72,6 +72,27 @@
       Bodenuntersuchungen ist die Mitteilung auf §11 BBodSchV beschränkt.
     </p>
     {% endif %}
+
+    <div class="so-was">
+      <span class="label">Heißt für Sie</span>
+      {%- set ind_pct = (altlasten_data.get('land_use', {}).get('industry_share_pct', 0) or 0) if altlasten_data else 0 %}
+      {%- set hits = altlasten_data.get('hit_count', 0) if altlasten_data else 0 %}
+      {% if altlasten_data.get('source') == 'pdok-bodemloket' and hits > 0 %}
+      <p>Es liegen <strong>{{ hits }} dokumentierte WBB-Lokationen</strong> im 500-m-Umkreis. Das niederländische Bodemloket-Kataster ist Pflichtdokumentation — was hier steht ist gerichtsfest.</p>
+      <p><strong>Was Sie tun können:</strong> Beim Verkäufer nach der Altlasten-Anzeige fragen (in NL meldepflichtig). Bei Erwerb: spezielle Gewährleistungsklausel im Notar-Vertrag.</p>
+      {% elif altlasten_data.get('source') == 'pdok-bodemloket' %}
+      <p>Keine WBB-Lokationen im Umkreis. <strong>Die Adresse ist altlastentechnisch unauffällig nach Aktenlage.</strong></p>
+      {% elif ind_pct > 15 %}
+      <p>Im Umkreis sind <strong>{{ '%.0f' % ind_pct }}% Industrie-/Gewerbeflächen</strong> (CORINE-Indikator). Das ist erhöht — historische Industrie-Vornutzung kann Bodenkontamination hinterlassen haben (Schmieden, Tankstellen, Galvanik, Trafostationen).</p>
+      <p><strong>Was Sie tun können:</strong> Vor Notartermin Standortauskunft beim zuständigen Landesumweltamt schriftlich anfordern (formlos, kostenlos für Käufer mit „berechtigtem Interesse"). Anfrage-Vorlage finden Sie im Anhang oder auf bodenbericht.de/wissen/altlast.</p>
+      {% elif ind_pct > 5 %}
+      <p>Geringer Industrie-Anteil ({{ '%.0f' % ind_pct }}%) im 500-m-Umkreis — meist einzelne Gewerbebetriebe. Keine systemische Altlasten-Vermutung, aber Punkt-Quellen sind möglich.</p>
+      <p><strong>Was Sie tun können:</strong> Bei Eigentümerwechsel kostenlose Standortauskunft beim Landesumweltamt anfordern, dauert 2–4 Wochen.</p>
+      {% else %}
+      <p><strong>Wohngebiet ohne Industrie-Vornutzung</strong> nach CORINE. Altlasten-Wahrscheinlichkeit ist niedrig nach Land-Use-Indikator.</p>
+      <p><em>Einschränkung:</em> Wir können keine adressgenaue Auskunft aus dem Kataster geben (rechtlich gesperrt durch INSPIRE Art. 13(1)(f)). Bei konkretem Verdacht (z.B. älteres Haus mit Heizöl-Tank im Garten): Standortauskunft beim Landesumweltamt.</p>
+      {% endif %}
+    </div>
   {% else %}
   <div class="placeholder">
     Altlasten-Indikator derzeit nicht verfügbar.
