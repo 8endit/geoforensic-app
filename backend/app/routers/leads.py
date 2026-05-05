@@ -354,8 +354,8 @@ async def _generate_and_send_lead_report(
                 lead_id=str(lead_id) if lead_id else None,
                 recipient_email=email,
                 # EARLY50 coupon: Lead bekommt einen sichtbaren Rabatt-Code
-                # in der CTA, wenn er zu den ersten 50 Test-Empfaengern
-                # gehoert (Operator-Email ausgeschlossen).
+                # in der CTA, wenn er zu den ersten 50 Anfragenden gehoert
+                # (Operator-Email ausgeschlossen).
                 coupon_code=("EARLY50" if _early50_eligible else None),
                 coupon_label=("50 %" if _early50_eligible else None),
             )

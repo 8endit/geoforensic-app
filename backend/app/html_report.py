@@ -407,7 +407,7 @@ def generate_html_report(
             _coupon_banner = (
                 f"<div style='background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;"
                 f"padding:10px 14px;margin:12px 0;font-size:13px;color:#78350f;'>"
-                f"<strong>Early-Bird-Rabatt:</strong> Sie geh&ouml;ren zu den ersten 50 Test-Empf&auml;ngern. "
+                f"<strong>Early-Bird-Rabatt:</strong> Sie geh&ouml;ren zu unseren ersten 50 Anfragenden. "
                 f"Mit dem Code <code style='background:#fff;padding:2px 6px;border-radius:4px;'>{coupon_code.upper()}</code> "
                 f"sparen Sie {coupon_label or '50 %'} auf den Vollbericht."
                 f"</div>"
