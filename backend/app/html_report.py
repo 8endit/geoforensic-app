@@ -390,43 +390,44 @@ def generate_html_report(
             "address": address,
         }
         _price_cents = _settings.stripe_report_price_cents
-        # If a valid coupon is attached, we calculate the post-discount
-        # price right in the CTA so the buyer sees the rabattierte Summe
-        # (not just "Code anwenden, dann sehen Sie").
         if coupon_code and coupon_code.upper() == "EARLY50":
             _qs_params["coupon"] = coupon_code.upper()
             _discounted_cents = _price_cents // 2  # EARLY50 = 50%
             _price_eur = f"{_discounted_cents / 100:.2f}".replace(".", ",")
             _strike_eur = f"{_price_cents / 100:.0f}"
             _cta_text = (
-                f"Vollbericht freischalten &mdash; "
+                f"Direkt bezahlen &mdash; "
                 f"<s style='opacity:0.6;font-weight:400;'>{_strike_eur} &euro;</s> "
-                f"<strong>{_price_eur} &euro;</strong> mit Code "
-                f"<code style='background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:4px;'>{coupon_code.upper()}</code>"
+                f"<strong>{_price_eur} &euro;</strong>"
             )
             _coupon_banner = (
                 f"<div style='background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;"
-                f"padding:10px 14px;margin:12px 0;font-size:13px;color:#78350f;'>"
-                f"<strong>Early-Bird-Rabatt:</strong> Sie geh&ouml;ren zu unseren ersten 50 Anfragenden. "
-                f"Mit dem Code <code style='background:#fff;padding:2px 6px;border-radius:4px;'>{coupon_code.upper()}</code> "
-                f"sparen Sie {coupon_label or '50 %'} auf den Vollbericht."
+                f"padding:14px 18px;margin:0 0 16px;font-size:14px;color:#78350f;text-align:center;'>"
+                f"<strong style='font-size:15px;'>Ihr Early-Bird-Rabatt:</strong> Sie geh&ouml;ren zu unseren ersten 50 Anfragenden. "
+                f"Mit dem Code <code style='background:#fff;padding:3px 9px;border-radius:4px;font-size:14px;font-weight:600;'>{coupon_code.upper()}</code> "
+                f"sparen Sie <strong>{coupon_label or '50 %'}</strong> &mdash; <strong>{_price_eur} &euro; statt {_strike_eur} &euro;</strong>.<br>"
+                f"Der Code wird beim Direktkauf-Button automatisch angewendet, oder Sie geben ihn manuell im Bezahl-Schritt ein."
                 f"</div>"
             )
         else:
             _price_eur = f"{_price_cents / 100:.0f}"
-            _cta_text = f"Vollbericht freischalten &mdash; {_price_eur} &euro; zzgl. MwSt"
+            _cta_text = f"Direkt bezahlen &mdash; {_price_eur} &euro;"
             _coupon_banner = ""
         _kaufen_qs = urlencode(_qs_params)
         _cta_link = f"https://bodenbericht.de/kaufen.html?{_kaufen_qs}"
+        _cta_link_homepage = "https://bodenbericht.de/#premium"
         _cta_subline = (
             "Sichere Zahlung &uuml;ber Stripe (Karte, SEPA, Klarna). "
-            "Bericht wird sofort nach Zahlungseingang erstellt und per E-Mail zugestellt."
+            "Bericht kommt nach Zahlungseingang per E-Mail."
         )
+        _show_two_buttons = True
     else:
         _cta_link = "https://bodenbericht.de/#premium"
+        _cta_link_homepage = ""
         _cta_text = "Auf die Warteliste"
         _cta_subline = "Noch nicht bestellbar. Early-Bird-Platz sichern, Start-Rabatt erhalten."
         _coupon_banner = ""
+        _show_two_buttons = False
     if egms_period_start is None:
         egms_period_start = _settings.egms_period_start
     if egms_period_end is None:
@@ -1149,7 +1150,10 @@ def generate_html_report(
   {_CTA_VISUALS_HTML}
   <p>Sechs interaktive Visualisierungen — Risiko-Dashboard, Karte mit InSAR-Punkten, Velocity-Zeitreihe, Bodenprofil-Querschnitt, Korrelations-Spinne und Nachbarschafts-Histogramm — plus alle exakten Messwerte für Schwermetalle, Bodenqualität, Nährstoffe, Pestizid-Rückstände, Geländeprofil, Bergbau, Altlasten, Hochwasser, Starkregen und alle 13 Descriptoren der EU-Bodenmonitoring-Richtlinie 2025/2360 plus 4 Versiegelungs-Indikatoren und 5 ergänzende Indikatoren über die EU-Pflicht hinaus. Inklusive PDF-Download.</p>
   {_coupon_banner}
-  <a href="{_cta_link}">{_cta_text}</a>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin:8px 0 6px;">
+    <a href="{_cta_link}" style="display:inline-block;padding:14px 22px;background:#16a34a;color:#fff;font-weight:700;text-decoration:none;border-radius:8px;font-size:15px;">{_cta_text}</a>
+    {f'<a href="{_cta_link_homepage}" style="display:inline-block;padding:14px 22px;background:rgba(255,255,255,0.15);color:#fff;font-weight:600;text-decoration:none;border-radius:8px;font-size:14px;border:1px solid rgba(255,255,255,0.3);">Auf der Homepage anschauen</a>' if _show_two_buttons else ''}
+  </div>
   <div class="small">{_cta_subline}</div>
 </div>
 

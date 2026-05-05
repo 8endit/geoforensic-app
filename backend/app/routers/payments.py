@@ -349,15 +349,24 @@ async def create_checkout_from_lead(
     # Apply EARLY50 coupon if requested + still within first-N quota.
     # Operator's own email is excluded from the count (so internal smoke
     # tests don't burn coupon slots).
+    coupon_applied = False
     if payload.coupon_code and payload.coupon_code.upper() == "EARLY50":
         if await _early50_still_available(db, exclude_email=settings.operator_email):
             session_kwargs["discounts"] = [{"coupon": "EARLY50"}]
+            coupon_applied = True
             logger.info("EARLY50 coupon applied for lead %s", lead.id)
             # Tax must be off when discounts is used in Checkout (Stripe
             # rejects automatic_tax + discounts combo in price_data mode).
             session_kwargs["automatic_tax"] = {"enabled": False}
         else:
             logger.info("EARLY50 coupon requested but quota exhausted for %s", lead.id)
+    # Wenn KEIN Coupon programmatisch dran ist: Stripe-Promotion-Code-Feld
+    # für User aktivieren — sie sehen ein Input-Feld auf der Stripe-Seite
+    # und können den Code selbst eingeben (Domenico-Feedback 2026-05-05).
+    # Promotion-Code muss im Stripe-Dashboard aus dem Coupon erstellt
+    # worden sein (Coupon → "Kundenorientierte Codes verwenden").
+    if not coupon_applied:
+        session_kwargs["allow_promotion_codes"] = True
 
     try:
         session = stripe.checkout.Session.create(**session_kwargs)
@@ -471,11 +480,16 @@ async def create_checkout_direct(
         "automatic_tax": {"enabled": True},
     }
 
+    coupon_applied = False
     if payload.coupon_code and payload.coupon_code.upper() == "EARLY50":
         if await _early50_still_available(db, exclude_email=settings.operator_email):
             session_kwargs["discounts"] = [{"coupon": "EARLY50"}]
             session_kwargs["automatic_tax"] = {"enabled": False}
+            coupon_applied = True
             logger.info("EARLY50 coupon applied for direct-purchase lead %s", lead.id)
+    # Wenn KEIN Coupon programmatisch dran: User kann selbst eingeben.
+    if not coupon_applied:
+        session_kwargs["allow_promotion_codes"] = True
 
     try:
         session = stripe.checkout.Session.create(**session_kwargs)
