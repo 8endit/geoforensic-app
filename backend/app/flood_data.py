@@ -173,32 +173,54 @@ async def _query_service(
         "FEATURE_COUNT": "5",
     }
 
-    try:
-        resp = await client.get(
-            url,
-            params=params,
-            headers={
-                "User-Agent": USER_AGENT,
-                "Accept": "application/json,application/xml,*/*",
-            },
-        )
-        resp.raise_for_status()
-        text = resp.text
-        content_type = resp.headers.get("content-type", "").lower()
-    except httpx.HTTPStatusError as exc:
-        logger.warning(
-            "BfG flood WMS HTTP %s for scenario %s at (%s, %s)",
-            exc.response.status_code, scenario, lat, lon,
-        )
-        return {
-            **_empty_scenario(scenario, url),
-            "error": f"http_{exc.response.status_code}",
-        }
-    except httpx.HTTPError as exc:
-        logger.warning(
-            "BfG flood WMS request failed for scenario %s: %s",
-            scenario, exc,
-        )
+    # BfG-WMS ist transient flaky (504 / connection-reset waehrend
+    # Maintenance-Fenstern). Drei Versuche mit exponential backoff
+    # 0 / 0.5 / 1.5s — reicht fuer typische 1-2s Glitches und kostet
+    # bei normalem Erfolg null Zeit (erster try succeeded sofort).
+    last_exc: Exception | None = None
+    text = ""
+    content_type = ""
+    for attempt in range(3):
+        try:
+            resp = await client.get(
+                url,
+                params=params,
+                headers={
+                    "User-Agent": USER_AGENT,
+                    "Accept": "application/json,application/xml,*/*",
+                },
+            )
+            resp.raise_for_status()
+            text = resp.text
+            content_type = resp.headers.get("content-type", "").lower()
+            last_exc = None
+            break
+        except httpx.HTTPStatusError as exc:
+            last_exc = exc
+            # 5xx → retry; 4xx → sofort aufgeben (kein Server-Glitch).
+            if 500 <= exc.response.status_code < 600 and attempt < 2:
+                await asyncio.sleep(0.5 * (1 + attempt))
+                continue
+            logger.warning(
+                "BfG flood WMS HTTP %s for scenario %s at (%s, %s) "
+                "after %d attempt(s)",
+                exc.response.status_code, scenario, lat, lon, attempt + 1,
+            )
+            return {
+                **_empty_scenario(scenario, url),
+                "error": f"http_{exc.response.status_code}",
+            }
+        except httpx.HTTPError as exc:
+            last_exc = exc
+            if attempt < 2:
+                await asyncio.sleep(0.5 * (1 + attempt))
+                continue
+            logger.warning(
+                "BfG flood WMS request failed for scenario %s after %d attempt(s): %s",
+                scenario, attempt + 1, exc,
+            )
+            return {**_empty_scenario(scenario, url), "error": "request_failed"}
+    if last_exc is not None:  # safety: alle 3 retries fehlgeschlagen
         return {**_empty_scenario(scenario, url), "error": "request_failed"}
 
     try:

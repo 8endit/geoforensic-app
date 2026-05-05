@@ -319,17 +319,31 @@ async def _generate_and_send_lead_report(
         # 4. Query soil data (SoilGrids + LUCAS + CORINE) — country-routed so
         #    NL addresses do not get DE-LUCAS values interpolated from 200km away
         #    and DE-thresholds (BBodSchV) do not appear on a Dutch report.
-        # query_full_profile ist synchron + Disk-IO — to_thread damit der
-        # Event-Loop nicht blockiert (concurrent-user fairness).
+        # Mit Redis-Cache (key auf 0.001° ~100m gerundet, 7 Tage TTL):
+        # Boden-Werte aendern sich praktisch nie, das Caching spart bei
+        # Stadt-Adressen den ~3.5s Disk-IO-Block beim 2. Lookup. Cache-
+        # Miss ruft das synchrone query_full_profile via to_thread.
+        from app import geocode_cache as _gc
+        _soil_cache_key = (
+            f"soil_profile:v1:{country_code.lower()}:"
+            f"{round(lat, 3):.3f}:{round(lon, 3):.3f}"
+        )
         try:
             _t0 = time.perf_counter()
-            soil_loader = SoilDataLoader.get()
-            soil_profile = await asyncio.to_thread(
-                soil_loader.query_full_profile, lat, lon, country_code,
-            )
+            soil_profile = await _gc.cache_get(_soil_cache_key)
+            if soil_profile is None or not isinstance(soil_profile, dict):
+                soil_loader = SoilDataLoader.get()
+                soil_profile = await asyncio.to_thread(
+                    soil_loader.query_full_profile, lat, lon, country_code,
+                )
+                if soil_profile:
+                    await _gc.cache_set(_soil_cache_key, soil_profile)
+                _src = "fresh"
+            else:
+                _src = "cached"
             logger.info(
-                "pipeline.soil_loader took=%.2fs lead=%s",
-                time.perf_counter() - _t0, lead_id,
+                "pipeline.soil_loader took=%.2fs lead=%s src=%s",
+                time.perf_counter() - _t0, lead_id, _src,
             )
         except Exception:
             logger.warning("Soil data query failed for (%s, %s), using empty profile", lat, lon)

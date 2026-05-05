@@ -111,16 +111,28 @@ async def _query_elevation(
 
 
 async def fetch_slope(lat: float, lon: float, country_code: str = "de") -> dict:
-    """Multi-scale slope analysis via Open-Elevation.
+    """Multi-scale slope analysis via OpenTopoData / Open-Elevation.
 
     Returns ``{"available": True, "elevation_m", "slope_deg", "aspect_deg",
     "aspect_label", "classification", "source", "scale_m"}``  on success.
     On any upstream failure: ``{"available": False, "note": <reason>}``.
 
-    The ``country_code`` is currently unused but kept in the signature so
-    Phase C can swap in AHN (NL) without changing call sites.
+    Result wird in Redis gecached (30 Tage TTL — Hangneigung aendert
+    sich praktisch nie). Damit:
+    - typische Stadt-Adressen treffen ab dem 2. Lookup den Cache
+    - OpenTopoData 1000 req/day-Cap wird geschont
+    - Pipeline-Latenz sinkt von ~1.5s auf ~5ms wenn cached
     """
     _ = country_code  # reserved for AHN fallback in Phase C
+
+    # Cache-Key: gerundetes lat/lon. 0.0001° ≈ 11m → praktisch adress-genau.
+    from app import geocode_cache
+    cache_key = (
+        f"slope:v1:{round(lat, 4):.4f}:{round(lon, 4):.4f}"
+    )
+    cached = await geocode_cache.cache_get(cache_key)
+    if cached is not None and isinstance(cached, dict):
+        return cached
 
     all_probes: list[tuple[str, float, float]] = [("center", lat, lon)]
     for d in _PROBE_OFFSETS_M:
@@ -133,6 +145,9 @@ async def fetch_slope(lat: float, lon: float, country_code: str = "de") -> dict:
 
     results, source_label = await _query_elevation([(p[1], p[2]) for p in all_probes])
     if results is None or len(results) < len(all_probes):
+        # Failed lookups NICHT cachen — naechster Aufruf soll erneut
+        # versuchen (OpenTopoData ist tagsueber meist verfuegbar, geht
+        # nur bei Cap-Erschoepfung 504).
         return {"available": False, "note": f"Elevation service: {source_label}"}
 
     elevations = {all_probes[i][0]: results[i] for i in range(len(all_probes))}
@@ -156,7 +171,7 @@ async def fetch_slope(lat: float, lon: float, country_code: str = "de") -> dict:
             else:
                 best_aspect = (math.degrees(math.atan2(-dz_ew, -dz_ns)) + 360) % 360
 
-    return {
+    out = {
         "available": True,
         "elevation_m": round(center_elev, 1),
         "slope_deg": round(best_slope, 2),
@@ -178,3 +193,6 @@ async def fetch_slope(lat: float, lon: float, country_code: str = "de") -> dict:
             ),
         },
     }
+    # Erfolgreiche Lookups cachen — Hangneigung aendert sich nie.
+    await geocode_cache.cache_set(cache_key, out)
+    return out
