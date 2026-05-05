@@ -1487,7 +1487,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           </p>
           <div class="mt-6 inline-flex items-center gap-2 bg-brand-500/15 border border-brand-400/40 rounded-full px-5 py-2">
             <svg class="w-4 h-4 text-brand-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" /></svg>
-            <span class="text-sm text-brand-200 font-medium">Erste 50 Anmelder: <strong class="text-white">50 % Rabatt — 19,50 € statt 39 €</strong> mit Code <code class="bg-white/15 px-1.5 py-0.5 rounded text-xs">EARLY50</code></span>
+            <span class="text-sm text-brand-200 font-medium">Erste 50 Anmelder: <strong class="text-white">50 % Rabatt</strong> auf Basis (39 €) <em>oder</em> Komplett (59 €) mit Code <code class="bg-white/15 px-1.5 py-0.5 rounded text-xs">EARLY50</code></span>
           </div>
         </div>
 
@@ -1560,6 +1560,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 placeholder="Ihre E-Mail-Adresse"
                 class="w-full px-4 py-3 rounded-lg bg-navy-900/85 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
               />
+
+              <!-- Tier-Auswahl Bundle-Modell B: Basis (39 €) vs Komplett (59 €) -->
+              <fieldset class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <legend class="sr-only">Tier auswählen</legend>
+                <label class="cursor-pointer">
+                  <input type="radio" name="premium-buy-tier" value="basis" class="peer sr-only" checked>
+                  <div class="rounded-xl border border-white/20 bg-navy-900/60 px-4 py-4 text-left transition peer-checked:border-brand-400 peer-checked:bg-brand-500/15 peer-checked:ring-2 peer-checked:ring-brand-400/40 hover:bg-navy-800/70">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-sm font-bold text-white">Basis</span>
+                      <span class="text-sm font-bold text-brand-200"><span data-tier-price="basis-full">39 €</span> <span data-tier-price="basis-discounted" class="text-white">→ 19,50 €</span></span>
+                    </div>
+                    <p class="text-xs text-gray-300 leading-snug">12 Sektionen + 4 Sealing-Indikatoren · EU-Pflicht 2025/2360</p>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="premium-buy-tier" value="komplett" class="peer sr-only">
+                  <div class="rounded-xl border border-white/20 bg-navy-900/60 px-4 py-4 text-left transition peer-checked:border-brand-400 peer-checked:bg-brand-500/15 peer-checked:ring-2 peer-checked:ring-brand-400/40 hover:bg-navy-800/70">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-sm font-bold text-white">Komplett</span>
+                      <span class="text-sm font-bold text-brand-200"><span data-tier-price="komplett-full">59 €</span> <span data-tier-price="komplett-discounted" class="text-white">→ 29,50 €</span></span>
+                    </div>
+                    <p class="text-xs text-gray-300 leading-snug">Basis + 5 Bonus-Module (Wind-Erosion, PAK/PCB, Bodenstruktur, Mikrobiologie, Hydromorphologie)</p>
+                  </div>
+                </label>
+              </fieldset>
+
               <label class="flex items-center gap-2 text-sm text-gray-200 cursor-pointer">
                 <input id="premium-buy-coupon" type="checkbox" checked class="w-4 h-4 rounded border-white/30 bg-navy-900/85 text-brand-500 focus:ring-brand-400 focus:ring-offset-0">
                 <span>EARLY50-Code anwenden (50 % Rabatt für die ersten 50 Anmelder)</span>
@@ -1963,6 +1989,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             const city = document.getElementById('premium-buy-city').value.trim();
             const email = document.getElementById('premium-buy-email').value.trim();
             const useCoupon = document.getElementById('premium-buy-coupon').checked;
+            // Bundle-Modell B: Tier aus Radio-Group lesen, Default = basis
+            const tierRadio = document.querySelector('input[name="premium-buy-tier"]:checked');
+            const tier = (tierRadio && tierRadio.value) || 'basis';
             const submitBtn = document.getElementById('premium-buy-submit');
             const labelEl = document.getElementById('premium-buy-label');
             const errEl = document.getElementById('premium-buy-error');
@@ -1974,6 +2003,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 const body = {
                     email,
                     address: (street + ', ' + city).trim(),
+                    tier,
                 };
                 if (useCoupon) body.coupon_code = 'EARLY50';
                 const r = await fetch('/api/payments/checkout-direct', {
@@ -1996,6 +2026,23 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 labelEl.textContent = origLabel;
             }
         }
+
+        // Toggle discounted-price labels in tier-radio cards based on EARLY50
+        // checkbox state. Wenn der Code abgewählt wird, soll der Tarifkarte
+        // nur der volle Preis stehen (nicht "39 € → 19,50 €" für jemanden,
+        // der den Coupon nicht nimmt).
+        (function syncTierPriceDisplay() {
+            const cb = document.getElementById('premium-buy-coupon');
+            if (!cb) return;
+            const discountedSpans = document.querySelectorAll('[data-tier-price$="-discounted"]');
+            const apply = function() {
+                discountedSpans.forEach(function(el) {
+                    el.style.display = cb.checked ? '' : 'none';
+                });
+            };
+            cb.addEventListener('change', apply);
+            apply();
+        })();
 
         // Direct lead capture form
         function handleDirectLead(e) {

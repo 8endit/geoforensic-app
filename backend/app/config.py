@@ -33,7 +33,12 @@ class Settings(BaseSettings):
     stripe_webhook_secret: str = ""
     stripe_checkout_success_url: str = "http://localhost:3000/dashboard?paid=1"
     stripe_checkout_cancel_url: str = "http://localhost:3000/dashboard?paid=0"
-    stripe_report_price_cents: int = 19900
+    # Bundle-Tiers (Modell B): Basis = 12 Hauptsektionen + EU-Directive,
+    # Komplett = Basis + 5 Bonus-Module (Wind-Erosion separat, PAK/PCB,
+    # mikrobielle Aktivität, Bodenstruktur, Hydromorphologie). EARLY50
+    # wirkt prozentual auf beide → Basis 19,50 € / Komplett 29,50 €.
+    stripe_report_price_cents: int = 3900       # Basis (kept name for backwards compat)
+    stripe_report_komplett_price_cents: int = 5900  # Komplett-Tier
 
     # Operator's own email — used to exclude internal smoke-test leads
     # from the EARLY50 coupon counter so launch-day promo slots aren't

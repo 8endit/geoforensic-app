@@ -498,6 +498,13 @@ async def _generate_and_send_lead_report(
             # FPDF is synchronous and CPU-bound — wrap in to_thread so a
             # multi-second render does not block the event loop and starve
             # other inbound /api/leads requests.
+            # Tier (Modell B): aus answers.tier durchreichen falls gesetzt
+            # (Webhook bzw mock-mode haben tier dort eingelegt). Default
+            # "basis" — Bonus-Module nur bei "komplett" gerendert.
+            _tier = (answers or {}).get("tier") or "basis"
+            if _tier not in ("basis", "komplett"):
+                _tier = "basis"
+
             pdf_bytes = await asyncio.to_thread(
                 generate_full_report,
                 address=display_name,
@@ -519,6 +526,7 @@ async def _generate_and_send_lead_report(
                 country_code=country_code,
                 psi_points=psi_points,
                 psi_timeseries=psi_timeseries,
+                tier=_tier,
             )
 
         # 6. Persist a Report row for this lead (C1). The row carries all

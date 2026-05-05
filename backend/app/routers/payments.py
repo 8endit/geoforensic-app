@@ -186,6 +186,8 @@ async def stripe_webhook(
         if existing.scalar_one_or_none() is not None:
             return {"status": "already-processed"}
 
+        tier = _resolve_tier(metadata.get("tier"))
+
         # Re-trigger the lead pipeline with source="stripe" → PAID_SOURCES
         # → full report renderer + paid-mail template.
         from app.routers.leads import _generate_and_send_lead_report
@@ -194,7 +196,8 @@ async def stripe_webhook(
             email=email,
             address=address,
             answers={"source_metadata": "stripe-purchase",
-                     "stripe_session_id": stripe_session_id},
+                     "stripe_session_id": stripe_session_id,
+                     "tier": tier},
             db_url="",
             source="stripe",
             lead_id=lead_id,
@@ -238,6 +241,39 @@ async def _send_report_after_payment(report: Report, email: str) -> None:
         logger.exception("Failed to send report email for %s to %s", report.id, email)
 
 
+# ── Bundle-Tier helpers ─────────────────────────────────────────────────
+
+VALID_TIERS = {"basis", "komplett"}
+
+
+def _resolve_tier(raw: str | None) -> str:
+    """Normalize tier-input. Default 'basis'. Unknown → 'basis' (defensive)."""
+    t = (raw or "basis").strip().lower()
+    return t if t in VALID_TIERS else "basis"
+
+
+def _tier_price_cents(tier: str) -> int:
+    if tier == "komplett":
+        return settings.stripe_report_komplett_price_cents
+    return settings.stripe_report_price_cents
+
+
+def _tier_product_label(tier: str) -> tuple[str, str]:
+    """Return (name, description) für die Stripe-line_item product_data."""
+    if tier == "komplett":
+        return (
+            "Bodenbericht — Vollbericht KOMPLETT",
+            "12 Datensektionen + EU-Bodenrichtlinie + 5 Bonus-Module "
+            "(Wind-Erosion separat, PAK/PCB, mikrobielle Aktivität, "
+            "Bodenstruktur, Hydromorphologie). ~30 Seiten PDF.",
+        )
+    return (
+        "Bodenbericht — Vollbericht BASIS",
+        "12 Datensektionen + EU-Bodenrichtlinie 2025/2360 (alle 13 "
+        "Descriptoren + 4 Versiegelungs-Indikatoren). ~30 Seiten PDF.",
+    )
+
+
 # ── Lead-flow checkout ──────────────────────────────────────────────────
 
 class LeadCheckoutRequest(BaseModel):
@@ -248,11 +284,15 @@ class LeadCheckoutRequest(BaseModel):
     coupon_code is optional and only honored if it matches a known coupon
     (currently only "EARLY50") AND the lead is among the first N
     non-operator free leads.
+
+    tier: "basis" (default, 12 Hauptsektionen) oder "komplett" (Basis + 5
+    Bonus-Module). EARLY50 wirkt prozentual auf beide.
     """
     lead_id: uuid.UUID
     email: EmailStr
     address: str
     coupon_code: str | None = None
+    tier: str = "basis"
 
 
 class LeadCheckoutResponse(BaseModel):
@@ -292,17 +332,16 @@ async def create_checkout_from_lead(
     # being onboarded — the buyer experience stays identical except no card
     # is charged.
     if not settings.stripe_secret_key:
-        logger.info("Stripe not configured — mock-mode Vollbericht for lead %s", lead.id)
+        tier = _resolve_tier(payload.tier)
+        logger.info("Stripe not configured — mock-mode Vollbericht (%s) for lead %s", tier, lead.id)
         from app.routers.leads import _generate_and_send_lead_report
-        # FastAPI BackgroundTasks runs after the response is fully sent and
-        # in the same event loop context — robuster als asyncio.create_task,
-        # das mit der DB-Session-Lifecycle kollidiert.
         background_tasks.add_task(
             _generate_and_send_lead_report,
             email=payload.email,
             address=payload.address,
             answers={"source_metadata": "mock-purchase",
-                     "mock_reason": "stripe_not_configured"},
+                     "mock_reason": "stripe_not_configured",
+                     "tier": tier},
             db_url="",
             source="stripe",
             lead_id=lead.id,
@@ -313,6 +352,8 @@ async def create_checkout_from_lead(
 
     # 3. Live Stripe path
     stripe.api_key = settings.stripe_secret_key
+    tier = _resolve_tier(payload.tier)
+    tier_name, tier_desc = _tier_product_label(tier)
     session_kwargs = {
         "mode": "payment",
         "success_url": f"{settings.stripe_checkout_success_url}&session_id={{CHECKOUT_SESSION_ID}}",
@@ -323,26 +364,21 @@ async def create_checkout_from_lead(
                 "price_data": {
                     "currency": "eur",
                     "product_data": {
-                        "name": "Bodenbericht — Vollbericht (Premium)",
-                        "description": (
-                            f"Adresse: {payload.address[:200]} · "
-                            "12 Datensektionen, ~30 Seiten PDF, EU-Bodenrichtlinie konform."
-                        ),
+                        "name": tier_name,
+                        "description": f"Adresse: {payload.address[:200]} · {tier_desc}",
                     },
-                    "unit_amount": settings.stripe_report_price_cents,
+                    "unit_amount": _tier_price_cents(tier),
                 },
                 "quantity": 1,
             }
         ],
         "metadata": {
-            # Stripe metadata: max 50 keys, max 500 chars per value
             "flow": "lead",
+            "tier": tier,
             "lead_id": str(lead.id),
             "email": payload.email,
             "address": payload.address[:480],
         },
-        # Stripe Tax automatically computes DE 19% / NL 21% MwSt etc.
-        # Requires Stripe Tax to be enabled in the dashboard.
         "automatic_tax": {"enabled": True},
     }
 
@@ -388,13 +424,12 @@ class DirectCheckoutRequest(BaseModel):
     Adresse + Email ein, will sofort zur Bezahlung ohne den Mail-Detour
     über den kostenlosen Teaser.
 
-    Wir legen synchron einen Lead an (source="direct-purchase") und
-    erzeugen sofort eine Stripe-Session — der Vollbericht wird nach
-    Webhook-Empfang generiert + per Mail zugestellt.
+    tier: "basis" oder "komplett" — Modell B Bundle-Tiers.
     """
     email: EmailStr
     address: str
     coupon_code: str | None = None
+    tier: str = "basis"
 
 
 @router.post("/checkout-direct", response_model=LeadCheckoutResponse)
@@ -430,15 +465,17 @@ async def create_checkout_direct(
     await db.commit()
     await db.refresh(lead)
 
+    tier = _resolve_tier(payload.tier)
+
     # Mock-Mode (kein Stripe-Key): Vollbericht direkt triggern, redirect /danke.
     if not settings.stripe_secret_key:
-        logger.info("Direct purchase mock-mode for new lead %s", lead.id)
+        logger.info("Direct purchase mock-mode (%s) for new lead %s", tier, lead.id)
         from app.routers.leads import _generate_and_send_lead_report
         background_tasks.add_task(
             _generate_and_send_lead_report,
             email=str(payload.email),
             address=payload.address.strip(),
-            answers={"source_metadata": "direct-purchase-mock"},
+            answers={"source_metadata": "direct-purchase-mock", "tier": tier},
             db_url="",
             source="stripe",
             lead_id=lead.id,
@@ -447,9 +484,9 @@ async def create_checkout_direct(
             checkout_url=f"{settings.stripe_checkout_success_url}&mock=1&lead_id={lead.id}",
         )
 
-    # Live-Stripe-Pfad — gleicher Code wie checkout-from-lead, nur
-    # mit dem frisch erzeugten Lead.
+    # Live-Stripe-Pfad
     stripe.api_key = settings.stripe_secret_key
+    tier_name, tier_desc = _tier_product_label(tier)
     session_kwargs = {
         "mode": "payment",
         "success_url": f"{settings.stripe_checkout_success_url}&session_id={{CHECKOUT_SESSION_ID}}",
@@ -460,19 +497,17 @@ async def create_checkout_direct(
                 "price_data": {
                     "currency": "eur",
                     "product_data": {
-                        "name": "Bodenbericht — Vollbericht (Premium)",
-                        "description": (
-                            f"Adresse: {payload.address.strip()[:200]} · "
-                            "12 Datensektionen, ~30 Seiten PDF, EU-Bodenrichtlinie konform."
-                        ),
+                        "name": tier_name,
+                        "description": f"Adresse: {payload.address.strip()[:200]} · {tier_desc}",
                     },
-                    "unit_amount": settings.stripe_report_price_cents,
+                    "unit_amount": _tier_price_cents(tier),
                 },
                 "quantity": 1,
             }
         ],
         "metadata": {
             "flow": "lead",
+            "tier": tier,
             "lead_id": str(lead.id),
             "email": str(payload.email),
             "address": payload.address.strip()[:480],

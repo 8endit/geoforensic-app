@@ -87,14 +87,14 @@
     </ul>
   </div>
 
+  {%- set _tier = tier|default('basis') %}
+  {%- set _tier_label = 'Komplett (12 Sektionen + 4 Sealing-Indikatoren + 5 Bonus-Module)' if _tier == 'komplett' else 'Basis (12 Sektionen + 4 Sealing-Indikatoren · EU-Pflicht)' %}
   <div class="meta">
     <div class="meta-block">
       <div><span class="label">Bericht-Nr.</span> <span class="value">{{ payload.report_id }}</span></div>
       <div><span class="label">Erstellt</span>   <span class="value">{{ issued_at }}</span></div>
       <div><span class="label">Datenquellen</span> <span class="value">EGMS · BGR · DWD · Copernicus · LUCAS</span></div>
-      {% if payload.tier == 'premium' %}
-      <div><span class="label">Tier</span> <span class="value" style="color:var(--premium-accent);">Premium</span></div>
-      {% endif %}
+      <div><span class="label">Tier</span> <span class="value" style="color:var(--premium-accent);">{{ _tier_label }}</span></div>
     </div>
     <div>
       {% if qr_svg %}

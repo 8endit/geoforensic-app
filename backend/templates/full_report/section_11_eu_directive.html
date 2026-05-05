@@ -75,12 +75,13 @@
   {% endfor %}
 
   {%- set bonus = sd.get('bonus_indicators', {}) %}
-  {% if bonus %}
-  <h3>Über die EU-Pflicht hinaus — 5 ergänzende Indikatoren</h3>
+  {%- set _tier = tier|default('basis') %}
+  {% if bonus and _tier == 'komplett' %}
+  <h3>Über die EU-Pflicht hinaus — 5 ergänzende Indikatoren <span class="pill ok" style="font-size:11px;vertical-align:middle;">Komplett-Tier</span></h3>
   <p>
     Diese fünf Indikatoren stehen <em>nicht</em> in Anhang I der EU-Richtlinie, haben aber
-    in der Praxis konkreten Mehrwert für Käufer, Bauträger und Landwirte. Sie können
-    einzeln als Zusatzmodul ergänzt werden.
+    in der Praxis konkreten Mehrwert für Käufer, Bauträger und Landwirte. Sie sind im
+    Komplett-Tier des Vollberichts enthalten.
   </p>
   <table class="data-table">
     <thead>
@@ -115,6 +116,18 @@
       {% endfor %}
     </tbody>
   </table>
+  {% elif bonus and _tier != 'komplett' %}
+  <h3>Über die EU-Pflicht hinaus — 5 ergänzende Indikatoren</h3>
+  <div class="placeholder" style="background:#f5f5f0;border-left:3px solid var(--brand-green, #16a34a);padding:14px 18px;margin:8px 0 4px;">
+    <p style="margin:0 0 6px;"><strong>Im Komplett-Tier enthalten.</strong></p>
+    <p class="small" style="margin:0;color:#555;">
+      Fünf Bonus-Indikatoren über die EU-Pflicht hinaus: Wind-Erosions-Risiko,
+      PAK/PCB-Hintergrundwerte, mikrobielle Boden-Aktivität, Bodenstruktur-Indizes
+      und Hydromorphologie. Diese sind nicht Teil des Basis-Tiers, können aber
+      mit dem Komplett-Tier nachgekauft werden — schreiben Sie an
+      <strong>bericht@bodenbericht.de</strong> mit Ihrer Bericht-Nr.
+    </p>
+  </div>
   {% endif %}
 
   <h3>Gesamteinordnung nach EU 2025/2360</h3>

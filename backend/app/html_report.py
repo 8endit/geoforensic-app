@@ -383,51 +383,89 @@ def generate_html_report(
     # back to the waitlist anchor — keeps backward compatibility for any
     # caller that doesn't pass those args (e.g. older tests).
     _stripe_ready = bool(lead_id and recipient_email)
-    if _stripe_ready:
-        _qs_params = {
+
+    def _fmt_eur(cents: int) -> str:
+        # 3900 -> "39", 1950 -> "19,50"
+        if cents % 100 == 0:
+            return f"{cents // 100}"
+        return f"{cents / 100:.2f}".replace(".", ",")
+
+    def _build_kaufen_link(tier: str, coupon: str | None) -> str:
+        params = {
             "lead_id": str(lead_id),
             "email": recipient_email,
             "address": address,
+            "tier": tier,
         }
-        _price_cents = _settings.stripe_report_price_cents
-        if coupon_code and coupon_code.upper() == "EARLY50":
-            _qs_params["coupon"] = coupon_code.upper()
-            _discounted_cents = _price_cents // 2  # EARLY50 = 50%
-            _price_eur = f"{_discounted_cents / 100:.2f}".replace(".", ",")
-            _strike_eur = f"{_price_cents / 100:.0f}"
-            _cta_text = (
-                f"Direkt bezahlen &mdash; "
-                f"<s style='opacity:0.6;font-weight:400;'>{_strike_eur} &euro;</s> "
-                f"<strong>{_price_eur} &euro;</strong>"
-            )
+        if coupon:
+            params["coupon"] = coupon.upper()
+        return f"https://bodenbericht.de/kaufen.html?{urlencode(params)}"
+
+    if _stripe_ready:
+        _basis_full = _settings.stripe_report_price_cents
+        _komplett_full = _settings.stripe_report_komplett_price_cents
+        _has_early50 = bool(coupon_code and coupon_code.upper() == "EARLY50")
+        _cpn = "EARLY50" if _has_early50 else None
+
+        _basis_now = _basis_full // 2 if _has_early50 else _basis_full
+        _komplett_now = _komplett_full // 2 if _has_early50 else _komplett_full
+
+        _basis_link = _build_kaufen_link("basis", _cpn)
+        _komplett_link = _build_kaufen_link("komplett", _cpn)
+
+        if _has_early50:
             _coupon_banner = (
                 f"<div style='background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;"
                 f"padding:14px 18px;margin:0 0 16px;font-size:14px;color:#78350f;text-align:center;'>"
                 f"<strong style='font-size:15px;'>Ihr Early-Bird-Rabatt:</strong> Sie geh&ouml;ren zu unseren ersten 50 Anfragenden. "
                 f"Mit dem Code <code style='background:#fff;padding:3px 9px;border-radius:4px;font-size:14px;font-weight:600;'>{coupon_code.upper()}</code> "
-                f"sparen Sie <strong>{coupon_label or '50 %'}</strong> &mdash; <strong>{_price_eur} &euro; statt {_strike_eur} &euro;</strong>.<br>"
+                f"sparen Sie <strong>{coupon_label or '50 %'}</strong> auf Basis <em>oder</em> Komplett "
+                f"&mdash; <strong>{_fmt_eur(_basis_now)} &euro; statt {_fmt_eur(_basis_full)} &euro;</strong> bzw. "
+                f"<strong>{_fmt_eur(_komplett_now)} &euro; statt {_fmt_eur(_komplett_full)} &euro;</strong>.<br>"
                 f"Der Code wird beim Direktkauf-Button automatisch angewendet, oder Sie geben ihn manuell im Bezahl-Schritt ein."
                 f"</div>"
             )
+            _basis_btn_text = (
+                f"<span style='display:block;font-size:11px;font-weight:500;opacity:0.85;letter-spacing:0.04em;text-transform:uppercase;'>Basis &mdash; 12 Sektionen + EU-Pflicht</span>"
+                f"<span style='display:block;margin-top:4px;'>"
+                f"<s style='opacity:0.6;font-weight:400;'>{_fmt_eur(_basis_full)} &euro;</s> "
+                f"<strong>{_fmt_eur(_basis_now)} &euro;</strong></span>"
+            )
+            _komplett_btn_text = (
+                f"<span style='display:block;font-size:11px;font-weight:500;opacity:0.85;letter-spacing:0.04em;text-transform:uppercase;'>Komplett &mdash; Basis + 5 Bonus-Module</span>"
+                f"<span style='display:block;margin-top:4px;'>"
+                f"<s style='opacity:0.6;font-weight:400;'>{_fmt_eur(_komplett_full)} &euro;</s> "
+                f"<strong>{_fmt_eur(_komplett_now)} &euro;</strong></span>"
+            )
         else:
-            _price_eur = f"{_price_cents / 100:.0f}"
-            _cta_text = f"Direkt bezahlen &mdash; {_price_eur} &euro;"
             _coupon_banner = ""
-        _kaufen_qs = urlencode(_qs_params)
-        _cta_link = f"https://bodenbericht.de/kaufen.html?{_kaufen_qs}"
-        _cta_link_homepage = "https://bodenbericht.de/#premium"
+            _basis_btn_text = (
+                f"<span style='display:block;font-size:11px;font-weight:500;opacity:0.85;letter-spacing:0.04em;text-transform:uppercase;'>Basis &mdash; 12 Sektionen + EU-Pflicht</span>"
+                f"<span style='display:block;margin-top:4px;'><strong>{_fmt_eur(_basis_full)} &euro;</strong></span>"
+            )
+            _komplett_btn_text = (
+                f"<span style='display:block;font-size:11px;font-weight:500;opacity:0.85;letter-spacing:0.04em;text-transform:uppercase;'>Komplett &mdash; Basis + 5 Bonus-Module</span>"
+                f"<span style='display:block;margin-top:4px;'><strong>{_fmt_eur(_komplett_full)} &euro;</strong></span>"
+            )
+
         _cta_subline = (
             "Sichere Zahlung &uuml;ber Stripe (Karte, SEPA, Klarna). "
             "Bericht kommt nach Zahlungseingang per E-Mail."
         )
-        _show_two_buttons = True
+        _stripe_buttons_html = (
+            f"<a href=\"{_basis_link}\" style=\"display:inline-block;padding:14px 22px;background:#16a34a;color:#fff;font-weight:700;text-decoration:none;border-radius:8px;font-size:15px;line-height:1.2;text-align:center;min-width:240px;\">{_basis_btn_text}</a>"
+            f"<a href=\"{_komplett_link}\" style=\"display:inline-block;padding:14px 22px;background:#0f3a1f;color:#fff;font-weight:700;text-decoration:none;border-radius:8px;font-size:15px;line-height:1.2;text-align:center;min-width:240px;border:2px solid #16a34a;\">{_komplett_btn_text}</a>"
+        )
+        _cta_homepage_link_html = (
+            "<a href=\"https://bodenbericht.de/#premium\" style=\"display:inline-block;padding:10px 18px;color:#fff;font-weight:500;text-decoration:underline;font-size:13px;opacity:0.85;\">Beide Tiers im Detail auf bodenbericht.de</a>"
+        )
     else:
-        _cta_link = "https://bodenbericht.de/#premium"
-        _cta_link_homepage = ""
-        _cta_text = "Auf die Warteliste"
+        _stripe_buttons_html = (
+            "<a href=\"https://bodenbericht.de/#premium\" style=\"display:inline-block;padding:14px 22px;background:#16a34a;color:#fff;font-weight:700;text-decoration:none;border-radius:8px;font-size:15px;\">Auf die Warteliste</a>"
+        )
+        _cta_homepage_link_html = ""
         _cta_subline = "Noch nicht bestellbar. Early-Bird-Platz sichern, Start-Rabatt erhalten."
         _coupon_banner = ""
-        _show_two_buttons = False
     if egms_period_start is None:
         egms_period_start = _settings.egms_period_start
     if egms_period_end is None:
@@ -1150,10 +1188,10 @@ def generate_html_report(
   {_CTA_VISUALS_HTML}
   <p>Sechs interaktive Visualisierungen — Risiko-Dashboard, Karte mit InSAR-Punkten, Velocity-Zeitreihe, Bodenprofil-Querschnitt, Korrelations-Spinne und Nachbarschafts-Histogramm — plus alle exakten Messwerte für Schwermetalle, Bodenqualität, Nährstoffe, Pestizid-Rückstände, Geländeprofil, Bergbau, Altlasten, Hochwasser, Starkregen und alle 13 Descriptoren der EU-Bodenmonitoring-Richtlinie 2025/2360 plus 4 Versiegelungs-Indikatoren und 5 ergänzende Indikatoren über die EU-Pflicht hinaus. Inklusive PDF-Download.</p>
   {_coupon_banner}
-  <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin:8px 0 6px;">
-    <a href="{_cta_link}" style="display:inline-block;padding:14px 22px;background:#16a34a;color:#fff;font-weight:700;text-decoration:none;border-radius:8px;font-size:15px;">{_cta_text}</a>
-    {f'<a href="{_cta_link_homepage}" style="display:inline-block;padding:14px 22px;background:rgba(255,255,255,0.15);color:#fff;font-weight:600;text-decoration:none;border-radius:8px;font-size:14px;border:1px solid rgba(255,255,255,0.3);">Auf der Homepage anschauen</a>' if _show_two_buttons else ''}
+  <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:stretch;margin:8px 0 6px;">
+    {_stripe_buttons_html}
   </div>
+  <div style="text-align:center;margin:6px 0 0;">{_cta_homepage_link_html}</div>
   <div class="small">{_cta_subline}</div>
 </div>
 

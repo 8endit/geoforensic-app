@@ -357,6 +357,7 @@ def generate_full_report(
     annual_precipitation_mm: float | None = None,
     report_id: str | None = None,
     fetch_basemap_tiles: bool = True,
+    tier: str = "basis",
 ) -> bytes:
     """Render the GeoForensic Vollbericht to PDF bytes via Chrome-Headless.
 
@@ -364,7 +365,14 @@ def generate_full_report(
     optional kwargs let the caller pass the V.0.x outputs (PSI series,
     geology, building footprint) directly. Missing inputs are tolerated
     — sections render a "Daten in Vorbereitung" placeholder.
+
+    ``tier`` controls Bundle-Modell B: "basis" rendert die 12 Hauptsektionen
+    + 4 Sealing-Indikatoren (Anhang A-D) der EU-Richtlinie ohne die 5 Bonus-
+    Indikatoren. "komplett" hängt zusätzlich die Bonus-Indikatoren-Tabelle
+    in Sektion 11 an. Andere Werte werden als "basis" behandelt.
     """
+    if tier not in ("basis", "komplett"):
+        tier = "basis"
     issued_dt = datetime.now(timezone.utc)
     report_id = report_id or f"BB-{issued_dt.strftime('%Y-%m-%d-%H%M%S')}"
 
@@ -441,6 +449,7 @@ def generate_full_report(
 
     cover_html = env.get_template("cover.html").render(
         payload=payload, qr_svg=qr_svg, issued_at=issued_at,
+        tier=tier,
         # "Ihr Standort in 5 Punkten"-Cover-Summary nutzt diese Aggregate
         flood_data=flood_data,
         mining_data=mining_data,
@@ -491,6 +500,7 @@ def generate_full_report(
     )
     s11 = env.get_template("section_11_eu_directive.html").render(
         soil_directive_data=soil_directive_data,
+        tier=tier,
     )
     s12 = env.get_template("section_12_einschaetzung.html").render(
         payload=payload, radar_svg=radar_svg, hist_svg=hist_svg,

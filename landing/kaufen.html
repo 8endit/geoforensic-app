@@ -56,10 +56,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <div id="manual-state" class="hidden">
             <h1 class="text-xl font-extrabold mb-3">Vollbericht freischalten</h1>
             <p class="text-sm text-gray-700 mb-2">Adresse: <strong id="display-address">—</strong></p>
-            <p class="text-sm text-gray-700 mb-6">E-Mail: <strong id="display-email">—</strong></p>
+            <p class="text-sm text-gray-700 mb-2">E-Mail: <strong id="display-email">—</strong></p>
+            <p class="text-sm text-gray-700 mb-6">Tarif: <strong id="display-tier">Basis</strong></p>
             <p class="text-sm text-gray-600 mb-6">JavaScript ist deaktiviert. Klicken Sie zum Bezahlen:</p>
             <button id="manual-button" class="w-full px-5 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold transition">
-                Zur Bezahlung (39 € + MwSt)
+                Zur Bezahlung
             </button>
         </div>
 
@@ -76,6 +77,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     var leadId = params.get('lead_id');
     var email = params.get('email');
     var address = params.get('address');
+    // Bundle-Modell B: tier kommt aus dem Teaser-PDF-Link mit ?tier=basis|komplett
+    var tier = (params.get('tier') || 'basis').toLowerCase();
+    if (tier !== 'basis' && tier !== 'komplett') tier = 'basis';
+    var coupon = params.get('coupon');
 
     function showError(msg) {
         document.getElementById('loading-state').classList.add('hidden');
@@ -89,6 +94,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         document.getElementById('manual-state').classList.remove('hidden');
         document.getElementById('display-address').textContent = address || '—';
         document.getElementById('display-email').textContent = email || '—';
+        var tierEl = document.getElementById('display-tier');
+        if (tierEl) tierEl.textContent = (tier === 'komplett') ? 'Komplett' : 'Basis';
     }
 
     if (!leadId || !email || !address) {
@@ -97,10 +104,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }
 
     function startCheckout() {
+        var body = { lead_id: leadId, email: email, address: address, tier: tier };
+        if (coupon) body.coupon_code = coupon;
         return fetch('/api/payments/checkout-from-lead', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ lead_id: leadId, email: email, address: address }),
+            body: JSON.stringify(body),
         }).then(function(r) {
             if (!r.ok) {
                 return r.text().then(function(t) { throw new Error('HTTP ' + r.status + ': ' + t); });
