@@ -15,7 +15,7 @@
 
   <div class="hero">
     <div class="eyebrow">Bodenrisiko-Auskunft</div>
-    <h1>Bewegung, Boden und<br>Untergrund unter<br>Ihrer Adresse.</h1>
+    <h1>Ihre Standort-Auskunft<br>auf einen Blick.</h1>
     <div class="address">{{ payload.address.full }}</div>
     <div class="coords">
       {{ '%.5f' % payload.address.lat }}, {{ '%.5f' % payload.address.lon }}
@@ -77,7 +77,7 @@
        else 'EU-Bodenrichtlinie: Daten unvollständig'))) %}
 
   <div class="cover-summary">
-    <div class="cover-summary-label">Ihr Standort in 5 Punkten</div>
+    <div class="cover-summary-label">Ergebnis · Ihr Standort in 5 Punkten</div>
     <ul class="cover-summary-list">
       <li><span class="amp amp-{{ _bewegung_amp }}"></span><strong>Bodenbewegung:</strong> {{ _bewegung_text }}</li>
       <li><span class="amp amp-{{ _hochwasser_amp }}"></span><strong>Hochwasser:</strong> {{ _hochwasser_text }}</li>
@@ -85,6 +85,9 @@
       <li><span class="amp amp-{{ _metalle_amp }}"></span><strong>Schwermetalle:</strong> {{ _metalle_text }}</li>
       <li><span class="amp amp-{{ _eu_amp }}"></span><strong>{{ _eu_text }}</strong></li>
     </ul>
+    <div class="cover-summary-foot">
+      Detail-Belege zu jedem Punkt: ab Seite 2 als Anhang in 4 Themen-Blöcken.
+    </div>
   </div>
 
   {%- set _tier = tier|default('basis') %}

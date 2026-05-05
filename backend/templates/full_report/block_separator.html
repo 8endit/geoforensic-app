@@ -8,7 +8,7 @@
     pills        - Liste [{label, ampel}], optional, Status-Übersicht
 -#}
 <section class="block-sep">
-  <div class="num">Block {{ '%02d' % block_num }} · {{ pills|length if pills else 0 }} Sektion{{ 'en' if (pills|length if pills else 0) != 1 else '' }}</div>
+  <div class="num">Anhang {{ '%02d' % block_num }} · Detail-Belege · {{ pills|length if pills else 0 }} Sektion{{ 'en' if (pills|length if pills else 0) != 1 else '' }}</div>
   <h2>{{ block_title }}</h2>
   <div>
     {% if block_desc %}

@@ -12,7 +12,7 @@
 -#}
 <section class="section">
   <h2>3 · Starkregen-Statistik</h2>
-  <h4>Datenquelle: {{ (kostra_data or {}).get('attribution', 'DWD KOSTRA-DWD-2020') }}</h4>
+  <h4>Wie viel Regen Ihre Adresse kurzfristig abkönnen muss · Daten: {{ (kostra_data or {}).get('attribution', 'DWD KOSTRA-2020') }}</h4>
 
   {% if kostra_data and kostra_data.get('available') %}
   {%- set slots = kostra_data.get('slots', {}) %}

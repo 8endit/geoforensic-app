@@ -3,7 +3,7 @@
 -#}
 <section class="section">
   <h2>9 · Nährstoffversorgung</h2>
-  <h4>Datenquelle: JRC ESDAC LUCAS Topsoil 2018</h4>
+  <h4>Pflanzen-Nährstoffe (Phosphor, Stickstoff) für Garten/Landwirtschaft · Daten: LUCAS Topsoil 2018</h4>
 
   {% if soil_profile and soil_profile.get('nutrients') %}
   {%- set n = soil_profile.get('nutrients', {}) %}
@@ -19,7 +19,7 @@
       <col style="width: 33%">
     </colgroup>
     <thead>
-      <tr><th>Parameter</th><th>Wert</th><th>Einheit</th><th class="status">Einordnung</th></tr>
+      <tr><th>Nährstoff</th><th>Wert</th><th>Einheit</th><th class="status">Einordnung</th></tr>
     </thead>
     <tbody>
       {% if n.get('n') is not none %}

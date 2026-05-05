@@ -1,23 +1,18 @@
 {#-
-  Sektion 7 (Block 3) — Bodenqualität & Stapel-Visual.
-  Bringt SoilGrids-Profilwerte + die V.3 soil_context_stack-Visualisierung.
+  Sektion 7 (Block 3) — Bodenqualität (Profil-Eigenschaften aus SoilGrids/LUCAS).
 
   Erwartet:
     payload      - build_payload() Output
     soil_profile - dict mit soilgrids/lucas/etc. (alter Pipeline-Output)
-    soil_stack_svg - rendered soil_context_stack.svg.jinja2
+
+  Hinweis: Der frühere "Querschnitt" (soil_context_stack-SVG) wurde am
+  2026-05-05 entfernt. Die Schicht-Mächtigkeiten waren hardcoded
+  (0.3/2.4/4.0/5.0 m) und nicht aus den Datenquellen abgeleitet — irreführend
+  für jede Adresse außerhalb der Annahme-Geologie.
 -#}
 <section class="section">
-  {#- Block-Eyebrow entfernt 2026-05-05 (siehe section_01). -#}
   <h2>7 · Bodenqualität (Aufbau und Eigenschaften)</h2>
-  <h4>Datenquelle: ISRIC SoilGrids 250 m · BGR GÜK250 · LUCAS Topsoil</h4>
-
-  <p>
-    Der Querschnitt zeigt die Schichtfolge unter dem Grundstück bis 5 m Tiefe.
-    SoilGrids liefert Topsoil/Subsoil-Eigenschaften (SOC, pH, Korngrößen) im
-    250 m-Raster; BGR GÜK250 die stratigrafische Einordnung des Festgesteins.
-  </p>
-  <div class="visual">{{ soil_stack_svg|safe }}</div>
+  <h4>Bodenkennwerte am Standort (Sand, Ton, pH, Humus) · Daten: ISRIC SoilGrids + LUCAS</h4>
 
   {%- set sg = soil_profile.get('soilgrids', {}) if soil_profile else {} %}
   {% if sg %}

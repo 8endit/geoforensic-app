@@ -11,8 +11,8 @@
 -#}
 <section class="section">
   {#- Block-Eyebrow entfernt 2026-05-05 (siehe section_01). -#}
-  <h2>11 · EU Soil Monitoring Directive — 13 Descriptoren + 4 Versiegelungs-Indikatoren</h2>
-  <h4>Rechtsgrundlage: Directive (EU) 2025/2360 · in Kraft seit 16.12.2025 · nationale Umsetzung bis Dezember 2028</h4>
+  <h2>11 · EU-Bodenrichtlinie — Compliance-Check für Ihre Adresse</h2>
+  <h4>Was die EU-Bodenrichtlinie ab Dez 2028 fordert · Rechtsgrundlage: Directive (EU) 2025/2360</h4>
 
   {% if soil_directive_data %}
   {%- set sd = soil_directive_data %}
@@ -24,14 +24,31 @@
     und Bodenabtrag-Indikatoren. Stand am Standort:
   </p>
 
+  {#- Trennung 2026-05-05: Items mit status in EXTENDED_STATUSES (na,
+      not_remote, planned) in eine eigene Sammeltabelle am Ende dieser
+      Sektion auslagern. Vorher waren sie inline in Anhang A/B/C/D
+      gemischt — sah aus wie Bug-Status statt klar-deklarierter
+      Erweiterung. -#}
+  {%- set EXTENDED_STATUSES = ['na', 'not_remote', 'planned'] %}
   {%- set parts = [
       ('A', 'EU-weite Schwellwerte', sd.get('part_a', {})),
       ('B', 'Mitgliedstaat-Schwellwerte', sd.get('part_b', {})),
       ('C', 'Beobachtende Descriptoren', sd.get('part_c', {})),
       ('D', 'Versiegelung und Bodenabtrag', sd.get('part_d', {}))
   ] %}
+  {%- set extended = [] %}
   {% for letter, title, part in parts %}
-  {% if part %}
+  {%- set live_items = [] %}
+  {%- for key, item in part.items() %}
+    {%- if item is mapping %}
+      {%- if item.get('status') in EXTENDED_STATUSES %}
+        {%- set _ = extended.append((letter, key, item)) %}
+      {%- else %}
+        {%- set _ = live_items.append((key, item)) %}
+      {%- endif %}
+    {%- endif %}
+  {%- endfor %}
+  {% if live_items %}
   <h3>Teil {{ letter }} — {{ title }}</h3>
   <table class="data-table">
     <colgroup>
@@ -43,16 +60,15 @@
     </colgroup>
     <thead>
       <tr>
-        <th>Descriptor (Annex I)</th>
+        <th>Bodenmerkmal</th>
         <th>Wert</th>
         <th class="status">Status</th>
-        <th>Schwellwert</th>
+        <th>Schwelle</th>
         <th>Quelle</th>
       </tr>
     </thead>
     <tbody>
-      {% for key, item in part.items() %}
-      {% if item is mapping %}
+      {% for key, item in live_items %}
       <tr>
         <td>
           <strong>{{ item.get('label', key) }}</strong>
@@ -74,12 +90,52 @@
         <td class="small">{{ item.get('threshold', '—') }}</td>
         <td class="small">{{ item.get('source', '—') }}</td>
       </tr>
-      {% endif %}
       {% endfor %}
     </tbody>
   </table>
   {% endif %}
   {% endfor %}
+
+  {% if extended %}
+  <h3>Erweitert — Bodenprobe oder noch nicht abdeckbar</h3>
+  <p class="small">
+    Diese Descriptoren sind nicht aus Fernerkundungs-Datensätzen ableitbar
+    oder werden durch ein in Vorbereitung befindliches Modul abgedeckt.
+    Sie bleiben hier sichtbar, damit der Bericht nachweislich alle 13 + 4
+    EU-Annex-I-Items adressiert — sind aber kein Mess-Defizit am Standort.
+  </p>
+  <table class="data-table">
+    <colgroup>
+      <col style="width: 10%">
+      <col style="width: 38%">
+      <col style="width: 22%">
+      <col style="width: 30%">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Anhang</th>
+        <th>Bodenmerkmal</th>
+        <th class="status">Status</th>
+        <th>Hinweis</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for letter, key, item in extended %}
+      <tr>
+        <td><strong>Teil {{ letter }}</strong></td>
+        <td>
+          <strong>{{ item.get('label', key) }}</strong>
+          {%- if item.get('annex_descriptor') and item.annex_descriptor != item.get('label') %}
+            <br><span class="small muted">{{ item.annex_descriptor }}</span>
+          {%- endif %}
+        </td>
+        <td class="status"><span class="pill {{ item.get('status', 'muted') }}">{{ item.get('status_label', item.get('status', '—')) }}</span></td>
+        <td class="small">{{ item.get('note', '—') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
 
   {%- set bonus = sd.get('bonus_indicators', {}) %}
   {%- set _tier = tier|default('basis') %}

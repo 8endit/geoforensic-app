@@ -3,7 +3,7 @@
 -#}
 <section class="section">
   <h2>8 · Schwermetalle</h2>
-  <h4>Datenquelle: JRC ESDAC LUCAS Topsoil 2018 · Vergleich BBodSchV-Vorsorgewerte</h4>
+  <h4>Schwermetall-Hintergrund am Standort · Vergleich gegen BBodSchV (Daten: LUCAS Topsoil 2018)</h4>
 
   {% if soil_profile and soil_profile.get('metals') %}
   {%- set metals = soil_profile.get('metals', {}) %}
@@ -31,10 +31,10 @@
     </colgroup>
     <thead>
       <tr>
-        <th>Parameter</th>
+        <th>Schwermetall</th>
         <th>Wert</th>
         <th>Einheit</th>
-        <th>Vorsorge­wert</th>
+        <th>Schwelle BBodSchV</th>
         <th class="status">Status</th>
       </tr>
     </thead>
@@ -92,10 +92,25 @@
     {% endif %}
   </div>
   {% else %}
+  {%- set country = (soil_profile or {}).get('country_code', 'de') %}
+  {%- set lucas_dist = (soil_profile or {}).get('lucas_distance_km', -1) %}
   <div class="placeholder">
-    Schwermetall-Daten am Standort nicht verfügbar — LUCAS-Punkte sind in den
-    Niederlanden bewusst nicht aktiviert (Country-Gate, Vermeidung von 200 km-IDW
-    aus DE-Daten). Für NL-Adressen gilt die Circulaire bodemsanering.
+    {% if country == 'de' %}
+    Schwermetall-Werte aus dem LUCAS-Topsoil-Datensatz für diese Adresse
+    nicht abrufbar
+    {%- if lucas_dist and lucas_dist > 0 %}
+    (nächster LUCAS-Punkt {{ '%.1f' % lucas_dist }} km entfernt — außerhalb des 50 km-Caps).
+    {%- else %}.
+    {% endif %}
+    Eine adressgenaue Beprobung nach §11 BBodSchV bleibt bei Bedarf der
+    verbindliche Weg (akkreditiertes Labor, ~150–400 €).
+    {% else %}
+    LUCAS-Topsoil-Punkte sind außerhalb DE bewusst nicht aktiviert
+    (Country-Gate, Vermeidung von Long-Range-IDW aus DE-Daten).
+    Für NL-Adressen gilt die <strong>Circulaire bodemsanering</strong> als
+    nationale Schwellenwert-Referenz; Schwermetall-Profile bleiben dem
+    PDOK-Bodemloket-Kataster bzw. einer Standort-Beprobung vorbehalten.
+    {% endif %}
   </div>
   {% endif %}
 </section>

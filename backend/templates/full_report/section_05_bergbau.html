@@ -9,9 +9,9 @@
   <h2>5 · Bergbau und Altbergbau</h2>
   {%- set provider = (mining_data or {}).get('provider') %}
   {% if provider %}
-  <h4>Datenquelle: {{ mining_data.get('attribution', 'Landesbergamt-WMS') }} ({{ provider }})</h4>
+  <h4>Bergbau-Berechtigungen & Altbergbau im Umfeld · Daten: {{ mining_data.get('attribution', 'Landesbergamt-WMS') }} ({{ provider }})</h4>
   {% else %}
-  <h4>Datenquelle: kein öffentlich abrufbarer WMS für dieses Bundesland</h4>
+  <h4>Bergbau-Berechtigungen & Altbergbau im Umfeld · Kein öffentlich abrufbarer WMS für dieses Bundesland</h4>
   {% endif %}
 
   {% if mining_data and mining_data.get('available') %}

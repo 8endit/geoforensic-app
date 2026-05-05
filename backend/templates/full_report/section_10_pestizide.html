@@ -2,34 +2,67 @@
   Sektion 10 (Block 3) — Pestizid-Rückstände (LUCAS NUTS2-Aggregat).
 -#}
 <section class="section">
-  <h2>10 · Pestizid-Rückstände</h2>
-  <h4>Datenquelle: JRC LUCAS Pesticides 2018 (NUTS2-Aggregat)</h4>
+  <h2>10 · Pestizid-Hintergrundwerte</h2>
+  <h4>Pestizid-Spiegel Ihrer Region (NUTS2-Mittelwert) · Daten: LUCAS Pesticides 2018</h4>
 
   {% if pesticides_data and pesticides_data.get('available') %}
   {%- set p = pesticides_data %}
+  {%- set pcount = p.get('detected_count', 0) or 0 %}
+  {%- set total_res = p.get('total_residue_mg_per_kg', 0) or 0 %}
+  {%- set top_name = p.get('top_substance') or '—' %}
+  {%- set scope = p.get('regional_scope') or p.get('nuts2_code') or '—' %}
   <p>
-    Werte sind NUTS2-Regionalmittel ({{ p.get('regional_scope', '—') }})
+    Werte sind NUTS2-Regionalmittel ({{ scope }})
     aus 118 untersuchten Wirkstoffen. Es handelt sich um <strong>regionalstatistische
     Hintergrundwerte</strong>, nicht um eine Stand­ortbeprobung.
   </p>
   <div class="kpi-strip">
     <div class="kpi">
-      <div class="v">{{ p.get('detected_count', 0) }}</div>
+      <div class="v">{{ pcount }}</div>
       <div class="l">Wirkstoffe nachgewiesen</div>
     </div>
     <div class="kpi">
-      <div class="v">{{ '%.2f' % (p.get('total_residue_mg_per_kg', 0) or 0) }}</div>
-      <div class="l">Σ mg/kg Boden</div>
+      <div class="v">{{ '%.3f' % total_res }}</div>
+      <div class="l">Σ Top-5 (mg/kg)</div>
     </div>
     <div class="kpi">
-      <div class="v">{{ p.get('top_substance', '—') }}</div>
+      <div class="v">{{ top_name }}</div>
       <div class="l">Häufigster Wirkstoff</div>
     </div>
     <div class="kpi">
-      <div class="v"><span class="pill {{ 'stabil' if (p.get('detected_count', 0) or 0) < 10 else 'moderat' }}">{{ 'unauffällig' if (p.get('detected_count', 0) or 0) < 10 else 'beobachten' }}</span></div>
+      <div class="v"><span class="pill {{ 'stabil' if pcount < 10 else 'moderat' }}">{{ 'unauffällig' if pcount < 10 else 'beobachten' }}</span></div>
       <div class="l">Einordnung</div>
     </div>
   </div>
+
+  {%- set tops = p.get('top_substances') or [] %}
+  {% if tops %}
+  <h3>Top-Wirkstoffe (NUTS2-Mittelwert)</h3>
+  <table class="data-table">
+    <colgroup>
+      <col style="width: 50%">
+      <col style="width: 25%">
+      <col style="width: 25%">
+    </colgroup>
+    <thead>
+      <tr><th>Wirkstoff</th><th>Konzentration</th><th class="status">Status</th></tr>
+    </thead>
+    <tbody>
+      {% for h in tops %}
+      <tr>
+        <td>{{ h.name }}</td>
+        <td class="num">{{ '%.4f' % h.concentration_mg_kg }} mg/kg</td>
+        <td class="status">
+          <span class="pill {{ 'auffaellig' if h.flagged_legacy else 'stabil' }}">
+            {{ 'Legacy/EU-Restriction' if h.flagged_legacy else 'Standard' }}
+          </span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
   <p class="small">
     Für eine adressgenaue Wirkstoff-Analyse ist eine In-situ-Bodenprobe und
     Multi-Methoden-Laboranalyse (z.B. nach DIN EN 15662) erforderlich.
@@ -37,7 +70,6 @@
 
   <div class="so-was">
     <span class="label">Heißt für Sie</span>
-    {%- set pcount = p.get('detected_count', 0) or 0 %}
     {% if pcount >= 20 %}
     <p>In Ihrer Region wurden <strong>{{ pcount }} verschiedene Pestizide</strong> nachgewiesen — überdurchschnittlich für DE. Hängt typisch mit intensivem Acker-/Obstanbau zusammen.</p>
     <p><strong>Was Sie tun können:</strong> Bei Garten-Eigennutzung Wurzelgemüse + Salate kritisch sehen — Vorzug von Hochbeeten mit gekauftem Substrat. Eigene Bodenprobe (~250 €) wenn unter 200 m vom Acker.</p>
@@ -49,9 +81,10 @@
     {% endif %}
   </div>
   {% else %}
+  {%- set note = pesticides_data.get('note') if pesticides_data else None %}
   <div class="placeholder">
-    Pestizid-Hintergrundwerte am Standort nicht verfügbar (NUTS2-Region nicht
-    abgedeckt oder LUCAS-Pesticides-Datensatz lokal nicht geladen).
+    Pestizid-Hintergrundwerte für diese Adresse nicht abrufbar.
+    {% if note %}<br><span class="small">{{ note }}</span>{% endif %}
   </div>
   {% endif %}
 </section>

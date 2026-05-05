@@ -145,10 +145,10 @@ a { color: var(--premium-accent, #22C55E); text-decoration: none; }
   margin-bottom: 6pt;
 }
 .cover .hero h1 {
-  font-size: 42pt;
-  line-height: 1.05;
+  font-size: 30pt;
+  line-height: 1.08;
   font-weight: 200;
-  margin: 0 0 16pt;
+  margin: 0 0 14pt;
   color: #FFFFFF;
 }
 .cover .hero .address {
@@ -169,34 +169,34 @@ a { color: var(--premium-accent, #22C55E); text-decoration: none; }
 /* Cover-Summary "Ihr Standort in 5 Punkten" — schiebt sich oberhalb
    des meta-Blocks ein, gleicher Container-Style aber mit grünem Akzent. */
 .cover-summary {
-  margin: 18pt 0 18pt;
-  padding: 14pt 16pt 16pt;
-  background: rgba(34, 197, 94, 0.06);
-  border-left: 2pt solid var(--premium-accent, #22C55E);
+  margin: 22pt 0 22pt;
+  padding: 18pt 20pt 20pt;
+  background: rgba(34, 197, 94, 0.08);
+  border-left: 3pt solid var(--premium-accent, #22C55E);
   border-radius: 2pt;
 }
 .cover-summary-label {
   font-family: var(--font-mono, "Geist Mono"), monospace;
-  font-size: 8pt;
+  font-size: 9pt;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--premium-accent, #22C55E);
-  margin: 0 0 9pt;
+  margin: 0 0 12pt;
 }
 .cover-summary-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  font-size: 9.5pt;
+  font-size: 11pt;
   line-height: 1.55;
   color: #FFFFFF;
 }
 .cover-summary-list li {
-  padding: 4pt 0;
+  padding: 7pt 0;
   border-bottom: 0.25pt solid rgba(255,255,255,0.08);
   display: flex;
   align-items: baseline;
-  gap: 8pt;
+  gap: 10pt;
 }
 .cover-summary-list li:last-child { border-bottom: none; }
 .cover-summary-list strong { color: #FFFFFF; font-weight: 500; }
@@ -211,6 +211,14 @@ a { color: var(--premium-accent, #22C55E); text-decoration: none; }
 .cover-summary-list .amp-gruen { background: #22C55E; box-shadow: 0 0 4pt rgba(34,197,94,0.5); }
 .cover-summary-list .amp-gelb { background: #EAB308; box-shadow: 0 0 4pt rgba(234,179,8,0.5); }
 .cover-summary-list .amp-rot { background: #DC2626; box-shadow: 0 0 4pt rgba(220,38,38,0.5); }
+.cover-summary-foot {
+  font-family: var(--font-mono, "Geist Mono"), monospace;
+  font-size: 8.5pt;
+  color: rgba(255,255,255,0.55);
+  margin-top: 14pt;
+  padding-top: 10pt;
+  border-top: 0.25pt solid rgba(255,255,255,0.1);
+}
 
 .cover .meta {
   display: grid;
