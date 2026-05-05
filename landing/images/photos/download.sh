@@ -15,7 +15,7 @@ SCHEME="https"
 
 fetch() {
   local target="$1" id="$2"
-  local url="${SCHEME}://${HOST}/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=1920"
+  local url="${SCHEME}://${HOST}/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=2560"
   echo "==> ${target} (Pexels ID ${id})"
   curl -sL -o "$target" "$url"
 }
