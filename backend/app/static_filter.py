@@ -1,11 +1,15 @@
 """Defense-in-Depth-Filter für den landing/-Static-Mount.
 
-Build- und Source-Skripte in landing/scripts/*.py + ein historischer
-landing/build.ps1 waren über die Domain abrufbar (HTTP 200), weil das
-gesamte landing/-Tree unter "/" gemountet wird. Files mit Backend/Source-/
-Tooling-Endungen gehören nicht ins Web und werden zentral blockiert.
+PRIMARY DEFENSE läuft in Caddy (siehe scripts/Caddyfile.proposed),
+weil Caddy die statischen Files direkt aus /opt/bodenbericht/landing
+serviert und nur /api/* + /r/* an FastAPI weiterreicht. Dieser
+Backend-Filter ist redundant zum Caddy-Block — bleibt aber als
+Safety-Net falls jemand die Caddy-Config je vereinfacht oder
+FastAPI direkt exponiert wird (z.B. lokal ohne Caddy davor).
 
-Eingeführt 2026-05-05 nach Web-Exposure-Audit.
+Eingeführt 2026-05-05 nach Web-Exposure-Audit, Caddy-Spiegelung
+2026-05-06 nach Live-Test (Backend-Filter wurde nie getriggert,
+Caddy-Vorblock fehlte).
 """
 
 from __future__ import annotations
