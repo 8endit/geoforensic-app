@@ -103,6 +103,12 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://bodenbericht.de/orte/</loc>
+    <lastmod>2026-05-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://bodenbericht.de/orte/bodenbewegung-bochum.html</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>

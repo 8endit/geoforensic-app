@@ -868,6 +868,31 @@ async def capture_lead(
     if payload.address:
         answers_with_address["address"] = payload.address
 
+    # 2026-05-06: Auto-fill quiz_answers.nutzung aus der Lead-Quelle, falls
+    # nicht ohnehin vom Quiz gesetzt. Persona-Pages und Direct-Buy-Forms
+    # liefern ihre Nutzungsabsicht implizit über die source — der
+    # Admin-Dashboard-Spalte "Nutzung" war vorher nur fuer Quiz-Leads
+    # gefuellt, was zur Frage "warum wird hier nicht alles ausgefuellt?"
+    # gefuehrt hat. Bedenken/Dringlichkeit bleiben Quiz-only — die sind
+    # Multi-Choice-Antworten, nicht aus source ableitbar.
+    if not answers_with_address.get("nutzung"):
+        _src_to_nutzung = {
+            "landing_kaeufer": "Hauskauf",
+            "landing_bautraeger": "Bau / Bauträger",
+            "landing_garten": "Garten / Eigenheim",
+            "landing_landwirte": "Landwirtschaft",
+            "hero_direct": "Direktkauf (Hero-Form)",
+            "landing_direct": "Direktkauf (Premium-Form)",
+            "live-check": "Adresse-Check (Hauptseite)",
+            "direct-purchase": "Direktkauf",
+            "paid": "Direktkauf",
+            "checkout": "Direktkauf",
+            "stripe": "Direktkauf",
+        }
+        _auto_nutzung = _src_to_nutzung.get(payload.source)
+        if _auto_nutzung:
+            answers_with_address["nutzung"] = _auto_nutzung
+
     lead = Lead(
         email=payload.email,
         quiz_answers=answers_with_address,
