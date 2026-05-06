@@ -161,19 +161,22 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         .hero-gradient {
             background: linear-gradient(135deg, #0c1d3a 0%, #122b52 40%, #1a3a6b 100%);
         }
-        /* Hero-Background-Photo Layer + dezenter Tint für Text-Lesbarkeit.
-           User-Feedback 2026-05-05: vorige Version "zu viel blau" — Bild war
-           kaum sichtbar. Opacity hoch, Tint nur dort wo Text sitzt
-           (Top + Bottom-Vignette, Mitte transparent). */
+        /* Hero-Background-Photo Layer + Tint für Text-Lesbarkeit.
+           User-Feedback 2026-05-06 (Domenico): h1 + h2 + Beispielbericht-CTA
+           waren mit dem hellen Mittel-Drittel-Tint (0.10) auf dem hero-german-
+           town-Photo nicht gut lesbar. Tint global hochgezogen — von 0.55/
+           0.10/0.10/0.75 auf 0.78/0.55/0.55/0.88 — plus Photo-opacity von
+           0.85 auf 0.65 reduziert damit der Text durchgehend kontrastreich
+           bleibt. */
         .hero-photo {
             background-image: url('/images/photos/hero-german-town.jpg');
             background-size: cover;
             background-position: center 35%;
-            opacity: 0.85;
+            opacity: 0.65;
         }
         .hero-photo-tint {
             background:
-              linear-gradient(180deg, rgba(12,29,58,0.55) 0%, rgba(12,29,58,0.10) 35%, rgba(12,29,58,0.10) 65%, rgba(12,29,58,0.75) 100%);
+              linear-gradient(180deg, rgba(12,29,58,0.78) 0%, rgba(12,29,58,0.55) 35%, rgba(12,29,58,0.55) 65%, rgba(12,29,58,0.88) 100%);
         }
         /* Premium-Section: Sunset wieder mit mehr Farbe (User v4), aber
            Listen-Cards bekommen opaken Background damit Text auf den Cards
@@ -665,7 +668,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         Eine einzelne Geschwindigkeitszahl erzählt nicht, ob das Grundstück <strong>im Sommer aufquillt und im Winter sackt</strong> oder ob es <strong>langsam und gerichtet zur Tiefe driftet</strong>. Die Copernicus-EGMS-Zeitreihe zeigt fünf Jahre Bewegung mit Niederschlagsbalken überlagert.
                     </p>
                     <p class="text-gray-500 text-sm">
-                        Datenquelle: Sentinel-1 InSAR L3, 2019-2023, vier Quartalsmittelwerte pro Jahr. Bei vorhandenen Niederschlagsdaten rechnen wir die Pearson-Korrelation gegen DWD KOSTRA - saisonal-gekoppelte Bewegung wird so vom strukturellen Trend getrennt.
+                        Datenquelle: Sentinel-1 InSAR L3, 2019-2023, vier Quartalsmittelwerte pro Jahr. Bei vorhandenen Niederschlagsdaten rechnen wir die Pearson-Korrelation gegen KOSTRA-2020 (Deutscher Wetterdienst) — saisonal-gekoppelte Bewegung wird so vom strukturellen Trend getrennt.
                     </p>
                 </div>
                 <div class="relative lg:order-1">
@@ -1404,7 +1407,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                   <div class="rounded-xl border border-white/20 bg-navy-900/60 px-4 py-4 text-left transition peer-checked:border-brand-400 peer-checked:bg-brand-500/15 peer-checked:ring-2 peer-checked:ring-brand-400/40 hover:bg-navy-800/70">
                     <div class="flex items-center justify-between mb-1">
                       <span class="text-sm font-bold text-white">Basis</span>
-                      <span class="text-sm font-bold text-brand-200"><span data-tier-price="basis-full">39 €</span> <span data-tier-price="basis-discounted" class="text-white">→ 19,50 €</span></span>
+                      <span class="text-sm font-bold text-brand-200">
+                        <span data-tier-price="basis-full" class="line-through opacity-60">39 €</span>
+                        <span data-tier-price="basis-discounted" class="text-white">19,50 €</span>
+                        <span data-tier-price="basis-discounted" class="ml-1 text-[10px] uppercase tracking-wide font-bold bg-brand-500/30 text-brand-100 px-1.5 py-0.5 rounded">EARLY50 −50 %</span>
+                      </span>
                     </div>
                     <p class="text-xs text-gray-300 leading-snug">12 Sektionen + 4 Sealing-Indikatoren · EU-Pflicht 2025/2360</p>
                   </div>
@@ -1414,7 +1421,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                   <div class="rounded-xl border border-white/20 bg-navy-900/60 px-4 py-4 text-left transition peer-checked:border-brand-400 peer-checked:bg-brand-500/15 peer-checked:ring-2 peer-checked:ring-brand-400/40 hover:bg-navy-800/70">
                     <div class="flex items-center justify-between mb-1">
                       <span class="text-sm font-bold text-white">Komplett</span>
-                      <span class="text-sm font-bold text-brand-200"><span data-tier-price="komplett-full">59 €</span> <span data-tier-price="komplett-discounted" class="text-white">→ 29,50 €</span></span>
+                      <span class="text-sm font-bold text-brand-200">
+                        <span data-tier-price="komplett-full" class="line-through opacity-60">59 €</span>
+                        <span data-tier-price="komplett-discounted" class="text-white">29,50 €</span>
+                        <span data-tier-price="komplett-discounted" class="ml-1 text-[10px] uppercase tracking-wide font-bold bg-brand-500/30 text-brand-100 px-1.5 py-0.5 rounded">EARLY50 −50 %</span>
+                      </span>
                     </div>
                     <p class="text-xs text-gray-300 leading-snug">Basis + 5 Bonus-Module (Wind-Erosion, PAK/PCB, Bodenstruktur, Mikrobiologie, Hydromorphologie)</p>
                   </div>
