@@ -133,6 +133,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             background:
               linear-gradient(180deg, rgba(12,29,58,0.65) 0%, rgba(12,29,58,0.20) 35%, rgba(12,29,58,0.20) 65%, rgba(12,29,58,0.80) 100%);
         }
+        /* Bottom-CTA-Section: Hero-Bild als Atmosphaere mit dunklem Tint
+           damit der weisse Form-Text drueber gut lesbar bleibt. */
+        .cta-photo {
+            background-image: url('/images/photos/waitlist-aerial-sunset.jpg');
+            background-size: cover;
+            background-position: center 50%;
+            opacity: 0.45;
+        }
+        .cta-photo-tint {
+            background:
+              linear-gradient(180deg, rgba(12,29,58,0.85) 0%, rgba(12,29,58,0.65) 50%, rgba(12,29,58,0.85) 100%);
+        }
+
     
     </style>
 <script defer src="/static/landing-tracking.js"></script>
@@ -384,9 +397,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <!-- CTA -->
     <section id="cta" class="py-16 md:py-24 bg-navy-900 text-white relative overflow-hidden">
-        <div class="absolute inset-0 opacity-5">
-            <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="cta-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#cta-grid)"/></svg>
-        </div>
+        <div class="cta-photo absolute inset-0"></div>
+        <div class="cta-photo-tint absolute inset-0"></div>
         <div class="relative max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-3xl md:text-4xl font-extrabold leading-tight tracking-tight">
                 Akquise-Target prüfen, bevor das Geotechnik-Honorar fließt.
