@@ -139,11 +139,23 @@ def build_timeseries_render_context(
         intercept = mean_y - slope_per_sec * mean_t
         y_at_start = intercept
         y_at_end = intercept + slope_per_sec * t_span
+        _y2 = y_for_v(y_at_end)
+        # Trend-Label-Position clamp innerhalb des Plot-Bereichs.
+        # Default: 14 px UNTER dem Trend-Endpunkt. Wenn das aus dem Chart-
+        # Bereich rauslaufen würde (Endpunkt nahe untere Achsen-Grenze, was
+        # bei sinkenden Adressen wie Berlin -1 mm/J häufig der Fall ist),
+        # Label ÜBER den Trend setzen statt darunter.
+        _label_y_below = _y2 + 14
+        if _label_y_below > chart_y + chart_height - 4:
+            _label_y = _y2 - 6  # über dem Trend
+        else:
+            _label_y = _label_y_below
         trend = {
             "x1": chart_x,
             "y1": y_for_v(y_at_start),
             "x2": chart_x + chart_width,
-            "y2": y_for_v(y_at_end),
+            "y2": _y2,
+            "label_y_px": _label_y,
             "slope_mm_per_year": float(slope_per_year),
         }
 

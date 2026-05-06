@@ -27,7 +27,7 @@
         fill="#888780">basieren auf den Mittelwerten der Punkte und sind belastbar.</text>
   {% else %}
   <text x="40" y="35" font-size="14" font-weight="500" fill="#2C2C2A">Bewegungsverlauf · {{ chart.start_date|truncate(4, true, '') }} bis {{ chart.end_date|truncate(4, true, '') }}</text>
-  <text x="40" y="53" font-size="12" fill="#5F5E5A">Negative Werte = Setzung · Säulen = monatlicher Niederschlag</text>
+  <text x="40" y="53" font-size="12" fill="#5F5E5A">Negative Werte = Setzung · Säulen = Niederschlag (Quartalssumme)</text>
 
   {# Achsen #}
   <line x1="{{ chart.chart_x }}" y1="{{ chart.chart_y }}"
@@ -79,7 +79,7 @@
         stroke="{{ tokens.accent.trend_line.color }}" stroke-width="1"
         stroke-dasharray="4 3"/>
   <text x="{{ chart.chart_x + chart.chart_width - 5 }}"
-        y="{{ '%.1f' % (chart.trend.y2 + 14) }}"
+        y="{{ '%.1f' % chart.trend.label_y_px }}"
         text-anchor="end" font-size="12"
         fill="{{ tokens.accent.trend_line.color }}">
     Trend {{ fmt_signed(chart.trend.slope_mm_per_year, 1) }} mm/J

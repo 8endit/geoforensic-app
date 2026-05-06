@@ -589,7 +589,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     <div class="text-2xl font-extrabold text-navy-800">5</div>
                     <p class="text-xs text-gray-500 mt-1">Beobachtende Descriptoren<br>(N, pH, Pestizide u.a.)</p>
                 </div>
-                <div class="bg-white border-2 border-brand-300 rounded-xl p-5 text-center">
+                <div class="bg-white border border-gray-200 rounded-xl p-5 text-center">
                     <div class="text-xs uppercase tracking-wider text-brand-700 font-bold mb-2">Anhang D</div>
                     <div class="text-2xl font-extrabold text-navy-800">4</div>
                     <p class="text-xs text-gray-500 mt-1">Versiegelung<br>(HRL, CORINE)</p>
@@ -1690,35 +1690,41 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         }
 
         function renderLiveCheckResult(data) {
-          const meta = AMPEL_META[data.ampel] || AMPEL_META.gruen;
+          // Reduziertes Live-Check-Result — vorher zeigten wir Ampel-Farbe,
+          // Mittel-Velocity-Range und PSI-Punkt-Anzahl direkt im Browser.
+          // Domenico-Feedback 2026-05-06: keine Daten im Vorhinein preisgeben,
+          // sonst kauft sich der Nachbar (gleiche 500m-Zone) keinen Bericht.
+          // Jetzt: nur Datenverfügbarkeits-Bestätigung + Hinweis welche Layer
+          // ausgewertet werden + CTA auf Bericht. Konkrete Werte erst im PDF.
           const result = document.getElementById('live-check-result');
           result.innerHTML = `
-            <div class="border-2 ${meta.border} ${meta.bg} rounded-2xl p-6 md:p-8">
+            <div class="border-2 border-brand-300 bg-brand-50 rounded-2xl p-6 md:p-8">
               <div class="flex items-start gap-4">
                 <div class="flex-shrink-0">
-                  <div class="w-12 h-12 rounded-full ${meta.dot} shadow-md flex items-center justify-center">
-                    <span class="w-3 h-3 rounded-full bg-white"></span>
+                  <div class="w-12 h-12 rounded-full bg-brand-500 shadow-md flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                   </div>
                 </div>
                 <div class="flex-1 min-w-0">
-                  <p class="text-xs uppercase tracking-wide font-bold ${meta.text}">Ampel</p>
-                  <h3 class="text-2xl md:text-3xl font-extrabold text-navy-800 mt-1">${meta.label}</h3>
-                  <p class="text-sm text-gray-500 mt-1">Mittlere Bodenbewegung ${meta.range} im 500m-Radius.</p>
+                  <p class="text-xs uppercase tracking-wide font-bold text-brand-700">Daten verfügbar</p>
+                  <h3 class="text-xl md:text-2xl font-extrabold text-navy-800 mt-1">Wir haben Bodendaten für Ihre Adresse</h3>
+                  <p class="text-sm text-gray-700 mt-2 break-words"><strong>${escapeHtml(data.address_resolved)}</strong></p>
                 </div>
               </div>
 
-              <div class="grid sm:grid-cols-2 gap-3 mt-6">
-                <div class="bg-white border border-gray-200 rounded-lg p-4">
-                  <p class="text-[11px] uppercase tracking-wide font-semibold text-gray-500">Adresse</p>
-                  <p class="text-sm font-medium text-navy-800 mt-1 break-words">${escapeHtml(data.address_resolved)}</p>
-                </div>
-                <div class="bg-white border border-gray-200 rounded-lg p-4">
-                  <p class="text-[11px] uppercase tracking-wide font-semibold text-gray-500">EGMS-Messpunkte</p>
-                  <p class="text-sm font-medium text-navy-800 mt-1">${data.point_count} Punkte im 500m-Radius</p>
-                </div>
+              <div class="mt-6 bg-white border border-gray-200 rounded-lg p-4">
+                <p class="text-[11px] uppercase tracking-wide font-semibold text-gray-500 mb-2">Was im Bericht ausgewertet wird</p>
+                <ul class="text-sm text-gray-700 space-y-1.5">
+                  <li class="flex items-start gap-2"><span class="text-brand-600 font-bold">·</span><span>Bodenbewegung aus Copernicus-EGMS-Satellitendaten (Sentinel-1 InSAR)</span></li>
+                  <li class="flex items-start gap-2"><span class="text-brand-600 font-bold">·</span><span>Hochwasserzonen, Starkregenstatistik, Bergbau-Berechtigungen</span></li>
+                  <li class="flex items-start gap-2"><span class="text-brand-600 font-bold">·</span><span>Schwermetalle, Pestizide, EU-Bodenrichtlinie 2025/2360</span></li>
+                </ul>
               </div>
 
-              <p class="text-sm text-gray-700 leading-relaxed mt-5">${meta.meaning}</p>
+              <p class="text-sm text-gray-700 leading-relaxed mt-5">
+                Konkrete Werte und Empfehlungen für Ihr Grundstück stehen im Bericht.
+                Tragen Sie unten Ihre E-Mail ein — Sie erhalten den kostenlosen Teaser-Bericht binnen Minuten.
+              </p>
 
               <!-- Ein-Klick-Konversion: Email-only, Adresse ist schon bekannt -->
               <form id="live-check-convert-form" class="mt-6 pt-6 border-t border-gray-200" onsubmit="handleLiveCheckConvert(event)" data-address="${escapeHtml(data.address_resolved)}">
