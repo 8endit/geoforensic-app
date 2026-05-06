@@ -13,23 +13,30 @@ WFS für ``cp:CadastralParcel`` (Cadastral Parcels, Annex I Theme 6)
 bereitstellen. Datenmodell ist EU-standardisiert — eine Code-Pfad für
 alle 16 Bundesländer, nur unterschiedliche Endpunkt-URLs.
 
-Lizenz pro Bundesland
----------------------
-Phase 1 (12 BL, dl-de offen, kommerziell direkt nutzbar):
-  NRW, Berlin, Hamburg, Sachsen, Thüringen, Brandenburg,
-  Mecklenburg-Vorpommern, Schleswig-Holstein, RLP, Saarland,
-  Sachsen-Anhalt, Bremen.
+Lizenz pro Bundesland (Stand 2026-05-06 Live-Test)
+---------------------------------------------------
+Phase 1a (3 BL, GetCapabilities live mit HTTP 200):
+  NRW, Berlin, Brandenburg.
+
+Phase 1b (9 BL, URL-Drift — bei letztem check-cadastral-wfs.sh-Lauf
+HTTP 403/404/500). URLs müssen recherchiert werden via:
+  - GDI-DE Geoportal-Suche (https://gdk.gdi-de.org/)
+  - GetCapabilities-Antwort des jeweiligen Geoportal-Hauptdienstes
+  - Direkte Anfrage an die LVG-Operations-Stelle
+Aktuell als ``license="url-broken"`` markiert, query_cadastral
+liefert für diese BL None und der Bericht fällt auf 500m-Radius
+zurück.
 
 Phase 2 (4 BL mit Lizenz-Klärung — Mails siehe docs/MAIL_INSPIRE_CADASTRAL.md):
   Bayern, Baden-Württemberg, Hessen, Niedersachsen.
 
-Bei einer Adresse aus den Phase-2-Bundesländern fällt das Modul auf den
-500m-Radius-Pfad zurück, mit Hinweis im Bericht.
+Bei einer Adresse aus den Phase-1b/Phase-2-Bundesländern fällt das
+Modul auf den 500m-Radius-Pfad zurück, mit Hinweis im Bericht.
 
 URLs verifizieren!
 ------------------
 Die Endpunkt-URLs in BUNDESLAND_ENDPOINTS sind Best-Effort-Stand 2024/2025.
-Vor dem ersten Live-Lauf einmal mit ``GetCapabilities`` pro URL prüfen
+Vor jedem Roll-out einmal mit ``GetCapabilities`` pro URL prüfen
 (siehe scripts/check-cadastral-wfs.sh). Service-URLs ändern sich
 gelegentlich nach Behörden-Reorganisation.
 """
@@ -101,90 +108,96 @@ class CadastralParcel:
 # Phase-2-URLs sind als Stubs drin und werfen `LicenseNotApprovedError`.
 
 BUNDESLAND_ENDPOINTS: dict[str, dict[str, Any]] = {
-    # ── Phase 1 — dl-de offen, sofort nutzbar ──────────────────────────
+    # ── Phase 1a — Live-verifiziert 2026-05-06, HTTP 200 ──────────────
     "NW": {  # Nordrhein-Westfalen
         "url": "https://www.wfs.nrw.de/geobasis/wfs_nw_inspire-flurstuecke_alkis",
         "typename": "cp:CadastralParcel",
         "license": "dl-de/by-2.0",
         "attribution": "© Geobasis NRW (dl-de/by-2.0)",
-        "notes": "INSPIRE-konform, ALKIS-vereinfacht, Bezirksregierung Köln",
+        "notes": "INSPIRE-konform, ALKIS-vereinfacht, Bezirksregierung Köln. Live OK 2026-05-06 (22 KB GetCapabilities)",
     },
     "BE": {  # Berlin
         "url": "https://gdi.berlin.de/services/wfs/alkis_flurstuecke",
         "typename": "cp:CadastralParcel",
         "license": "dl-de/by-2.0",
         "attribution": "© Geoportal Berlin / ALKIS Flurstücke (dl-de/by-2.0)",
-        "notes": "FIS-Broker, INSPIRE-Variante",
-    },
-    "HH": {  # Hamburg
-        "url": "https://geodienste.hamburg.de/HH_WFS_INSPIRE_Cadastral_Parcels",
-        "typename": "cp:CadastralParcel",
-        "license": "dl-de/by-2.0",
-        "attribution": "© Freie und Hansestadt Hamburg, LGV (dl-de/by-2.0)",
-        "notes": "INSPIRE-View, frei",
-    },
-    "SN": {  # Sachsen
-        "url": "https://geodienste.sachsen.de/wfs_geosn_alkis-cadastralparcels/guest",
-        "typename": "cp:CadastralParcel",
-        "license": "dl-de/zero-2.0",
-        "attribution": "© Staatsbetrieb Geobasisinformation und Vermessung Sachsen (GeoSN)",
-        "notes": "Zero-Lizenz, keine Attribution-Pflicht aber höflich",
-    },
-    "TH": {  # Thüringen
-        "url": "https://www.geoproxy.geoportal-th.de/geoproxy/services/INSPIRE_CP",
-        "typename": "cp:CadastralParcel",
-        "license": "dl-de/zero-2.0",
-        "attribution": "© TLBG Thüringen (dl-de/zero-2.0)",
-        "notes": "Zero-Lizenz",
+        "notes": "FIS-Broker, INSPIRE-Variante. Live OK 2026-05-06 (95 KB GetCapabilities)",
     },
     "BB": {  # Brandenburg
         "url": "https://inspire.brandenburg.de/services/cp_alkis_wfs",
         "typename": "cp:CadastralParcel",
         "license": "dl-de/by-2.0",
         "attribution": "© LGB Brandenburg (dl-de/by-2.0)",
-        "notes": "Frei seit 2022",
+        "notes": "Frei seit 2022. Live OK 2026-05-06 (23 KB GetCapabilities)",
     },
-    "MV": {  # Mecklenburg-Vorpommern
+
+    # ── Phase 1b — URL-Drift, HTTP 403/404/500 am 2026-05-06 ──────────
+    # Die INSPIRE-Pflicht steht, aber die Endpunkt-URLs aus 2024/2025
+    # sind nicht mehr gültig. Für den Live-Lookup wirken sie wie
+    # Phase-2 (license-pending → query liefert None → 500m-Radius-
+    # Fallback). URL-Refresh ist eigene Aufgabe (Geoportal-Recherche).
+    "HH": {  # Hamburg — HTTP 404
+        "url": "https://geodienste.hamburg.de/HH_WFS_INSPIRE_Cadastral_Parcels",
+        "typename": "cp:CadastralParcel",
+        "license": "url-broken",
+        "attribution": "© Freie und Hansestadt Hamburg, LGV (dl-de/by-2.0)",
+        "notes": "URL-Drift 2026-05-06 (HTTP 404). Refresh via geoportal-hamburg.de",
+    },
+    "SN": {  # Sachsen — HTTP 403 (möglicherweise Auth/Quota)
+        "url": "https://geodienste.sachsen.de/wfs_geosn_alkis-cadastralparcels/guest",
+        "typename": "cp:CadastralParcel",
+        "license": "url-broken",
+        "attribution": "© Staatsbetrieb Geobasisinformation und Vermessung Sachsen (GeoSN)",
+        "notes": "URL-Drift 2026-05-06 (HTTP 403). Möglicherweise Auth-/Quota-Restriktion. Refresh via geoportal.sachsen.de",
+    },
+    "TH": {  # Thüringen — HTTP 500
+        "url": "https://www.geoproxy.geoportal-th.de/geoproxy/services/INSPIRE_CP",
+        "typename": "cp:CadastralParcel",
+        "license": "url-broken",
+        "attribution": "© TLBG Thüringen (dl-de/zero-2.0)",
+        "notes": "URL-Drift 2026-05-06 (HTTP 500). Refresh via geoportal-th.de",
+    },
+    "MV": {  # Mecklenburg-Vorpommern — HTTP 404
         "url": "https://www.geodaten-mv.de/dienste/inspire_cp_download_wfs",
         "typename": "cp:CadastralParcel",
-        "license": "dl-de/by-2.0",
+        "license": "url-broken",
         "attribution": "© GeoBasis-DE/MV (dl-de/by-2.0)",
-        "notes": "Frei",
+        "notes": "URL-Drift 2026-05-06 (HTTP 404). Refresh via geoportal-mv.de",
     },
-    "SH": {  # Schleswig-Holstein
+    "SH": {  # Schleswig-Holstein — HTTP 404
         "url": "https://service.gdi-sh.de/SH_INSPIRE_CP/wfs",
         "typename": "cp:CadastralParcel",
-        "license": "dl-de/by-2.0",
+        "license": "url-broken",
         "attribution": "© GDI-SH (dl-de/by-2.0)",
-        "notes": "Frei",
+        "notes": "URL-Drift 2026-05-06 (HTTP 404). Refresh via geoportal.schleswig-holstein.de",
     },
-    "RP": {  # Rheinland-Pfalz
+    "RP": {  # Rheinland-Pfalz — HTTP 403
         "url": "https://geo5.service24.rlp.de/wfs/inspire_lika",
         "typename": "cp:CadastralParcel",
-        "license": "dl-de/by-2.0",
+        "license": "url-broken",
         "attribution": "© LVermGeo Rheinland-Pfalz (dl-de/by-2.0)",
-        "notes": "Frei seit 2022",
+        "notes": "URL-Drift 2026-05-06 (HTTP 403). Möglicherweise Auth nötig",
     },
-    "SL": {  # Saarland
+    "SL": {  # Saarland — HTTP 404
         "url": "https://geoportal.saarland.de/wfs/cp/cp_alkis",
         "typename": "cp:CadastralParcel",
-        "license": "dl-de/by-2.0",
+        "license": "url-broken",
         "attribution": "© KOMSAAR / LVGL Saarland (dl-de/by-2.0)",
-        "notes": "Frei",
+        "notes": "URL-Drift 2026-05-06 (HTTP 404)",
     },
-    "ST": {  # Sachsen-Anhalt
+    "ST": {  # Sachsen-Anhalt — HTTP 403
         "url": "https://www.geodatenportal.sachsen-anhalt.de/wss/service/INSPIRE_LSA_CADASTRAL/guest",
         "typename": "cp:CadastralParcel",
-        "license": "dl-de/by-2.0",
+        "license": "url-broken",
         "attribution": "© LVermGeo Sachsen-Anhalt (dl-de/by-2.0)",
-        "notes": "Frei",
+        "notes": "URL-Drift 2026-05-06 (HTTP 403)",
     },
-    "HB": {  # Bremen
+    "HB": {  # Bremen — HTTP 404
         "url": "https://geodienste.bremen.de/wfs_inspire_cp",
         "typename": "cp:CadastralParcel",
-        "license": "dl-de/by-2.0",
+        "license": "url-broken",
         "attribution": "© Land Bremen / GeoInformation (dl-de/by-2.0)",
-        "notes": "Frei",
+        "notes": "URL-Drift 2026-05-06 (HTTP 404)",
     },
 
     # ── Phase 2 — Lizenz-Klärung (Mails raus, Antwort steht aus) ───────
@@ -299,8 +312,11 @@ async def query_cadastral(lat: float, lon: float, bundesland: str) -> Optional[C
     if ep is None:
         logger.debug("Cadastral: bundesland %s nicht in lookup", bl)
         return None
-    if ep["license"] == "pending-license":
-        logger.debug("Cadastral: bundesland %s wartet auf Lizenz-Freigabe", bl)
+    if ep["license"] in ("pending-license", "url-broken"):
+        logger.debug(
+            "Cadastral: bundesland %s nicht abrufbar (status=%s) — fallback auf 500m-Radius",
+            bl, ep["license"],
+        )
         return None
 
     url = ep["url"]

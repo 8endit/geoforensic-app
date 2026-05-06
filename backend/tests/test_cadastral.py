@@ -28,12 +28,21 @@ def test_all_16_bundeslaender_in_lookup() -> None:
 @pytest.mark.parametrize(
     "code, expected_license",
     [
+        # Phase 1a: Live-verifiziert HTTP 200 am 2026-05-06
         ("NW", "dl-de/by-2.0"),
         ("BE", "dl-de/by-2.0"),
-        ("HH", "dl-de/by-2.0"),
-        ("SN", "dl-de/zero-2.0"),
-        ("TH", "dl-de/zero-2.0"),
         ("BB", "dl-de/by-2.0"),
+        # Phase 1b: URL-Drift, Live-Test failed
+        ("HH", "url-broken"),
+        ("SN", "url-broken"),
+        ("TH", "url-broken"),
+        ("MV", "url-broken"),
+        ("SH", "url-broken"),
+        ("RP", "url-broken"),
+        ("SL", "url-broken"),
+        ("ST", "url-broken"),
+        ("HB", "url-broken"),
+        # Phase 2: Lizenz-Klärung läuft per Mail
         ("BY", "pending-license"),
         ("BW", "pending-license"),
         ("HE", "pending-license"),
@@ -44,13 +53,13 @@ def test_license_status_per_bundesland(code: str, expected_license: str) -> None
     assert BUNDESLAND_ENDPOINTS[code]["license"] == expected_license
 
 
-def test_phase1_bundeslaender_have_urls() -> None:
-    """Phase-1-BL müssen produktive URLs haben, keine TBD-Stubs."""
-    phase1 = {"NW", "BE", "HH", "SN", "TH", "BB", "MV", "SH",
-              "RP", "SL", "ST", "HB"}
-    for code in phase1:
+def test_phase1a_bundeslaender_have_live_urls() -> None:
+    """Phase-1a-BL müssen produktive URLs haben (live-verifiziert HTTP 200)."""
+    phase1a = {"NW", "BE", "BB"}
+    for code in phase1a:
         url = BUNDESLAND_ENDPOINTS[code]["url"]
         assert url.startswith("https://"), f"{code} URL ist nicht produktiv: {url}"
+        assert BUNDESLAND_ENDPOINTS[code]["license"] != "url-broken"
 
 
 def test_phase2_bundeslaender_have_tbd_urls() -> None:
@@ -58,6 +67,16 @@ def test_phase2_bundeslaender_have_tbd_urls() -> None:
     phase2 = {"BY", "BW", "HE", "NI"}
     for code in phase2:
         assert BUNDESLAND_ENDPOINTS[code]["url"].startswith("TBD")
+
+
+def test_url_broken_bundeslaender_skip_query() -> None:
+    """url-broken-BL haben URLs (für späteren Refresh), aber license blockt query."""
+    phase1b = {"HH", "SN", "TH", "MV", "SH", "RP", "SL", "ST", "HB"}
+    for code in phase1b:
+        assert BUNDESLAND_ENDPOINTS[code]["license"] == "url-broken"
+        # URL bleibt drin damit man weiß welche Quelle gemeint war —
+        # query_cadastral filtert per license-Status, nicht per URL
+        assert BUNDESLAND_ENDPOINTS[code]["url"].startswith("https://")
 
 
 @pytest.mark.parametrize(
