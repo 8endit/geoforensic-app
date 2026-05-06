@@ -36,7 +36,45 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <main class="min-h-screen flex items-center justify-center px-4 py-16">
     <div class="max-w-xl w-full bg-white rounded-2xl border border-gray-200 shadow-sm p-8 md:p-12">
 
-        <div id="loading-state" class="text-center">
+        <div id="tier-state" class="hidden">
+            <h1 class="text-xl md:text-2xl font-extrabold mb-2">Vollbericht freischalten</h1>
+            <p class="text-sm text-gray-700 mb-1">Adresse: <strong id="display-address-tier">—</strong></p>
+            <p class="text-sm text-gray-700 mb-6">E-Mail: <strong id="display-email-tier">—</strong></p>
+
+            <p class="text-xs uppercase tracking-wide font-bold text-brand-700 mb-3">Tarif wählen</p>
+            <fieldset class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                <legend class="sr-only">Tarif auswählen</legend>
+                <label class="cursor-pointer">
+                    <input type="radio" name="tier-select" value="basis" class="peer sr-only">
+                    <div class="rounded-xl border border-gray-300 px-4 py-4 transition peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:ring-2 peer-checked:ring-brand-200 hover:border-gray-400">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-sm font-bold text-navy-800">Basis</span>
+                            <span class="text-sm font-bold text-brand-700"><span id="basis-price-display">39 €</span></span>
+                        </div>
+                        <p class="text-xs text-gray-600 leading-snug">12 Sektionen · 13 EU-Descriptoren · 4 Versiegelungs-Indikatoren</p>
+                        <p class="text-[11px] text-gray-500 mt-1.5">EU-Pflicht abgedeckt. Standard-Bericht.</p>
+                    </div>
+                </label>
+                <label class="cursor-pointer">
+                    <input type="radio" name="tier-select" value="komplett" class="peer sr-only">
+                    <div class="rounded-xl border border-gray-300 px-4 py-4 transition peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:ring-2 peer-checked:ring-brand-200 hover:border-gray-400">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-sm font-bold text-navy-800">Komplett</span>
+                            <span class="text-sm font-bold text-brand-700"><span id="komplett-price-display">59 €</span></span>
+                        </div>
+                        <p class="text-xs text-gray-600 leading-snug">Basis + 5 Bonus-Module</p>
+                        <p class="text-[11px] text-gray-500 mt-1.5">Wind-Erosion, PAK/PCB, Bodenstruktur, Mikrobiologie, Hydromorphologie.</p>
+                    </div>
+                </label>
+            </fieldset>
+
+            <button id="proceed-button" class="w-full px-5 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold transition shadow-md shadow-brand-600/20 flex items-center justify-center gap-2">
+                Zur sicheren Bezahlung
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            </button>
+        </div>
+
+        <div id="loading-state" class="hidden text-center">
             <div class="w-12 h-12 mx-auto rounded-full border-4 border-gray-200 border-t-brand-600 animate-spin mb-6"></div>
             <h1 class="text-xl font-extrabold mb-2">Bezahlung wird vorbereitet…</h1>
             <p class="text-sm text-gray-600">Sie werden gleich zur sicheren Zahlung bei Stripe weitergeleitet.</p>
@@ -82,15 +120,36 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     if (tier !== 'basis' && tier !== 'komplett') tier = 'basis';
     var coupon = params.get('coupon');
 
-    function showError(msg) {
+    function hideAll() {
         document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('tier-state').classList.add('hidden');
         document.getElementById('manual-state').classList.add('hidden');
+        document.getElementById('error-state').classList.add('hidden');
+    }
+
+    function showError(msg) {
+        hideAll();
         document.getElementById('error-state').classList.remove('hidden');
         if (msg) document.getElementById('error-message').textContent = msg;
     }
 
+    function showTierSelect() {
+        hideAll();
+        document.getElementById('tier-state').classList.remove('hidden');
+        document.getElementById('display-address-tier').textContent = address || '—';
+        document.getElementById('display-email-tier').textContent = email || '—';
+        // Vorauswahl aus URL-?tier=-Parameter ODER Default Basis
+        var preselect = document.querySelector('input[name="tier-select"][value="' + tier + '"]');
+        if (preselect) preselect.checked = true;
+    }
+
+    function showLoading() {
+        hideAll();
+        document.getElementById('loading-state').classList.remove('hidden');
+    }
+
     function showManual() {
-        document.getElementById('loading-state').classList.add('hidden');
+        hideAll();
         document.getElementById('manual-state').classList.remove('hidden');
         document.getElementById('display-address').textContent = address || '—';
         document.getElementById('display-email').textContent = email || '—';
@@ -103,8 +162,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         return;
     }
 
-    function startCheckout() {
-        var body = { lead_id: leadId, email: email, address: address, tier: tier };
+    function startCheckout(selectedTier) {
+        showLoading();
+        var body = {
+            lead_id: leadId,
+            email: email,
+            address: address,
+            tier: selectedTier || tier,
+        };
         if (coupon) body.coupon_code = coupon;
         return fetch('/api/payments/checkout-from-lead', {
             method: 'POST',
@@ -124,10 +189,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         });
     }
 
-    document.getElementById('manual-button').addEventListener('click', startCheckout);
+    document.getElementById('manual-button').addEventListener('click', function() {
+        startCheckout();
+    });
 
-    // Auto-trigger on load
-    startCheckout();
+    document.getElementById('proceed-button').addEventListener('click', function() {
+        var radio = document.querySelector('input[name="tier-select"]:checked');
+        var chosen = (radio && radio.value) || 'basis';
+        startCheckout(chosen);
+    });
+
+    // Tier-Auswahl-UI zeigen statt sofort zu Stripe redirecten — User
+    // soll Basis vs Komplett selbst wählen können (vorher kam der
+    // Tarif aus dem Mail-Link-?tier=-Parameter ohne Möglichkeit zu
+    // wechseln).
+    showTierSelect();
 })();
 </script>
 
